@@ -78,10 +78,16 @@ def dbConnect():
             database='o2pprod')
 
     if environment == 'production':
+        # db = mysql.connect(
+        #     user='o2puserp',
+        #     password='Qsw123!du',
+        #     host='172.26.144.143',
+        #     database='o2pprod')
         db = mysql.connect(
-            user='o2puserp',
-            password='Qsw123!du',
-            host='172.26.144.143',
+            user='o2p_tableau',
+            password='O2p123!du',
+            host='localhost',
+            port=53307,
             database='o2pprod')
 
     print("Connected")
@@ -1254,6 +1260,13 @@ def sendEmail(subject, attachment, email):
 
 
 def main():
+    print("Hello World")
+
+    dbConnect()
+    dbDisconnect()
+
+    return
+
     global environment, sendTestEmail, generateManually
     #environment = 'dev'
     #sendTestEmail = True

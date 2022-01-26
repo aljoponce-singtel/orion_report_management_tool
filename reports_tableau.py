@@ -208,19 +208,19 @@ def dbConnect(dbLoad):
     if environment == 'production':
         if dbLoad == 0:
 
-            engine = create_engine(
-                'mysql://{}:{}@172.26.144.143:3306/o2pprod'.format('o2puserp', 'Qsw123!du'))
             # engine = create_engine(
-            #    'mysql://{}:{}@localhost:53307/o2puat'.format('o2p_tableau', 'O2p123!du'))
+            #     'mysql://{}:{}@172.26.144.143:3306/o2pprod'.format('o2puserp', 'Qsw123!du'))
+            engine = create_engine(
+               'mysql://{}:{}@localhost:53307/o2pprod'.format('o2p_tableau', 'O2p123!du'))
             conn = engine.raw_connection()
             cur = conn.cursor()
             print("Connected to o2pprod db")
 
         if dbLoad == 1:
-            engine = create_engine('mysql://{}:{}@172.26.144.143:3306/o2ptableau'.format(
-                'o2p_tableau', 'O2p123!du'))  # will double confirm the db credentials with Jiangxu
-            # engine = create_engine(
-            #    'mysql://{}:{}@localhost:53307/o2ptableau'.format('o2p_tableau', 'O2p123!du'))
+            # engine = create_engine('mysql://{}:{}@172.26.144.143:3306/o2ptableau'.format(
+            #     'o2p_tableau', 'O2p123!du'))  # will double confirm the db credentials with Jiangxu
+            engine = create_engine(
+               'mysql://{}:{}@localhost:53307/o2ptableau'.format('o2p_tableau', 'O2p123!du'))
             conn = engine.raw_connection()
             cur = conn.cursor()
             print("Connected to o2ptableauprod db")
@@ -1964,6 +1964,16 @@ def sendEmail(subject, attachment, email):
 
 
 def main():
+    print("Hello World")
+
+    dbConnect(0)
+    dbDisconnect(0)
+
+    dbConnect(1)
+    dbDisconnect(1)
+    
+    return
+    
     global environment, sendTestEmail, generateManually, enableEmail, enableDBLoad
     #environment = 'dev'
     enableEmail = True
