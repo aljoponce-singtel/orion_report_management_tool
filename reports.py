@@ -1,5 +1,6 @@
 import mysql.connector as mysql
 import sys
+import logging
 import re
 import csv
 import os
@@ -13,7 +14,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 
-environment = 'production'
 sendTestEmail = False
 generateManually = False
 db = None
@@ -877,82 +877,80 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, subject, ema
 
     actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
 
-    if environment == 'production':
+    if groupId == 'sgx1':
+        queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'sgx1'],
+                     None)
+    elif groupId == 'gsdt7':
+        queryArgs = queryArgs = (None,
+                                 [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'gsdt7'])
+    else:
+        queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'sgx1'],
+                     [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'gsdt7'])
 
-        if groupId == 'sgx1':
-            queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'sgx1'],
-                         None)
-        elif groupId == 'gsdt7':
-            queryArgs = queryArgs = (None,
-                                     [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'gsdt7'])
-        else:
-            queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'sgx1'],
-                         [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'gsdt7'])
+    for list in queryArgs:
 
-        for list in queryArgs:
+        if list == None:
+            continue
 
-            if list == None:
-                continue
-
-            sqlquery = ("""
-                        SELECT DISTINCT ORD.order_code,
-                            ORD.service_number,
-                            PRD.network_product_code,
-                            PRD.network_product_desc,
-                            CUS.name,
-                            ORD.order_type,
-                            PER.role,
-                            ORD.current_crd,
-                            ORD.taken_date,
-                            CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                            ACT.name,
-                            ACT.due_date,
-                            ACT.ready_date,
-                            DATE(ACT.exe_date),
-                            DATE(ACT.dly_date),
-                            ACT.completed_date
-                        FROM RestInterface_activity ACT
-                            INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                            LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                            LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                            AND NPP.level = 'MainLine'
-                            LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                        WHERE ORD.id IN (
-                                SELECT DISTINCT ORD.id
-                                FROM RestInterface_activity ACT
-                                    LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                                    LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                                WHERE PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
-                            )
-                            AND (
-                                (
-                                    PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
+        sqlquery = ("""
+                    SELECT DISTINCT ORD.order_code,
+                        ORD.service_number,
+                        PRD.network_product_code,
+                        PRD.network_product_desc,
+                        CUS.name,
+                        ORD.order_type,
+                        PER.role,
+                        ORD.current_crd,
+                        ORD.taken_date,
+                        CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
+                        ACT.name,
+                        ACT.due_date,
+                        ACT.ready_date,
+                        DATE(ACT.exe_date),
+                        DATE(ACT.dly_date),
+                        ACT.completed_date
+                    FROM RestInterface_activity ACT
+                        INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
+                        LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                        LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                        LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
+                        AND NPP.level = 'MainLine'
+                        LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
+                    WHERE ORD.id IN (
+                            SELECT DISTINCT ORD.id
+                            FROM RestInterface_activity ACT
+                                LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
+                                LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                            WHERE PER.role LIKE '{}%'
+                                AND ACT.completed_date BETWEEN '{}' AND '{}'
+                                AND (
+                                    ACT.name IN ({}) {}
                                 )
-                                OR (
-                                    PER.role LIKE '{}%'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
+                        )
+                        AND (
+                            (
+                                PER.role LIKE '{}%'
+                                AND ACT.completed_date BETWEEN '{}' AND '{}'
+                                AND (
+                                    ACT.name IN ({}) {}
                                 )
                             )
-                        ORDER BY ORD.order_code,
-                            activity_code;
-                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
+                            OR (
+                                PER.role LIKE '{}%'
+                                AND (
+                                    ACT.name IN ({}) {}
+                                )
+                            )
+                        )
+                    ORDER BY ORD.order_code,
+                        activity_code;
+                """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
 
-            now_timestamp = today_value = datetime.now().strftime("%d%m%y_%H%M")
+        now_timestamp = today_value = datetime.now().strftime("%d%m%y_%H%M")
 
-            csvFile = ("{}_{}.csv").format(list[1], now_timestamp)
-            generateReport(csvFile, processList(dbQueryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
+        csvFile = ("{}_{}.csv").format(list[1], now_timestamp)
+        generateReport(csvFile, processList(dbQueryToList(
+            sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
 
     dbDisconnect()
 
@@ -1223,17 +1221,16 @@ def sendEmail(subject, attachment, email):
     sender = "orion@ncs.com.sg"
     receiver = receiverTo = receiverCc = ''
 
-    if environment == 'production':
-        if sendTestEmail:
-            receiverTo = 'aljo.ponce@singtel.com'
-            receiverCc = ''
+    if sendTestEmail:
+        receiverTo = 'aljo.ponce@singtel.com'
+        receiverCc = ''
+    else:
+        if email != '':
+            receiverTo = 'hassim@singtel.com' + ';' + email
         else:
-            if email != '':
-                receiverTo = 'hassim@singtel.com' + ';' + email
-            else:
-                receiverTo = 'hassim@singtel.com'
+            receiverTo = 'hassim@singtel.com'
 
-            receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
+        receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
 
     message['Subject'] = subject
     message['From'] = "orion@singtel.com;orion@ncs.com.sg"
@@ -1242,10 +1239,9 @@ def sendEmail(subject, attachment, email):
     receiver = receiverTo + ";" + receiverCc
 
     try:
-        if environment == 'production':
-            smtpObj = smtplib.SMTP('gddsspsmtp.gebgd.org')
-            smtpObj.sendmail(sender, receiver.split(";"), message.as_string())
-            smtpObj.quit()
+        smtpObj = smtplib.SMTP('gddsspsmtp.gebgd.org')
+        smtpObj.sendmail(sender, receiver.split(";"), message.as_string())
+        smtpObj.quit()
         print("Successfully sent email")
     except Exception as e:
         print("Error: unable to send email: ")
@@ -1268,7 +1264,7 @@ def getPlatform():
 def main():
     print(getPlatform())
 
-    global environment, sendTestEmail, generateManually
+    global sendTestEmail, generateManually
     sendTestEmail = True
     generateManually = True
 
