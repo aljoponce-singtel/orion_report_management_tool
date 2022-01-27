@@ -1,4 +1,5 @@
 import mysql.connector as mysql
+import sys
 import re
 import csv
 import os
@@ -454,8 +455,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("CPlusIP Report"),
                   report_attach(zipFile), '')
 
@@ -596,8 +596,7 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("CPlusIP Report"),
                   report_attach(zipFile), '')
 
@@ -711,8 +710,7 @@ def generateMegaPopReport(zipFileName, startDate, endDate):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("MegaPop Report"),
                   report_attach(zipFile), '')
 
@@ -832,8 +830,7 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("MegaPop Report"),
                   report_attach(zipFile), '')
 
@@ -961,8 +958,7 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, subject, ema
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(subject,
                   report_attach(zipFile), email)
 
@@ -1017,8 +1013,7 @@ def generateStixReport(zipFileName, startDate, endDate):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("STIX Report"), report_attach(zipFile), '')
 
 
@@ -1072,8 +1067,7 @@ def generateInternetReport(zipFileName, startDate, endDate):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("Internet Report"),
                   report_attach(zipFile), '')
 
@@ -1130,8 +1124,7 @@ def generateSDWANReport(zipFileName, startDate, endDate):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
-        os_zip_csvFile(csvFiles, zipFile)
-        # zip_csvFile(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("SDWAN Report"), report_attach(zipFile), '')
 
 
@@ -1148,13 +1141,24 @@ def zip_csvFile(csvFiles, zipfile):
     os.chdir('../')
 
 
-def os_zip_csvFile(csvfile, zipfile):
+def os_zip_csvFile(csvFiles, zipfile):
     os.chdir('reports/')
-    csvfiles = ' '.join(csvfile)
+    csvfiles = ' '.join(csvFiles)
     os.system("zip -e %s %s -P hassim" % (zipfile, csvfiles))
-    for csv in csvfile:
+    for csv in csvFiles:
         os.remove(csv)
     os.chdir('../')
+
+
+def zip_file(csvFiles, zipfile):
+    os = getPlatform()
+
+    if os == "Linux":
+        os_zip_csvFile(csvFiles, zipfile)
+    elif os == "Windows":
+        zip_csvFile(csvFiles, zipfile)
+    else:
+        raise Exception("OS " + os + " not supported.")
 
 
 def report_attach(zipfile):
@@ -1248,8 +1252,21 @@ def sendEmail(subject, attachment, email):
         print(e)
 
 
+def getPlatform():
+    platforms = {
+        'linux1': 'Linux',
+        'linux2': 'Linux',
+        'darwin': 'OS X',
+        'win32': 'Windows'
+    }
+    if sys.platform not in platforms:
+        return sys.platform
+
+    return platforms[sys.platform]
+
+
 def main():
-    print("Hello World")
+    print(getPlatform())
 
     global environment, sendTestEmail, generateManually
     sendTestEmail = True
