@@ -73,19 +73,26 @@ def dbConnect():
 
     global db
 
-    # db = mysql.connect(
-    #     user='o2puserp',
-    #     password='Qsw123!du',
-    #     host='172.26.144.143',
-    #     database='o2pprod')
-    db = mysql.connect(
-        user='o2p_tableau',
-        password='O2p123!du',
-        host='localhost',
-        port=53307,
-        database='o2pprod')
+    try:
+        # db = mysql.connect(
+        #     user='o2puserp',
+        #     password='Qsw123!du',
+        #     host='172.26.144.143',
+        #     database='o2pprod')
+        db = mysql.connect(
+            user='o2p_tableau',
+            password='O2p123!du',
+            host='localhost',
+            port=53307,
+            database='o2pprod')
 
-    print("Connected")
+        print("Connected")
+
+    except mysql.Error as err:
+        print("Something went wrong: {}".format(err))
+        logging.error(err)
+        raise Exception(err)
+
     printNewLine()
 
 
