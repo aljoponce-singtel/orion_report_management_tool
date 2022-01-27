@@ -14,6 +14,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email import encoders
 
+logging.basicConfig(filename='logs/reports.log',
+                    encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 sendTestEmail = False
 generateManually = False
 db = None
