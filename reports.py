@@ -86,11 +86,11 @@ def dbConnect():
             port=53307,
             database='o2pprod')
 
-        print("Connected")
+        printAndLogMessage("Connected")
 
-    except mysql.Error as err:
-        print("Something went wrong: {}".format(err))
-        logging.error(err)
+    except Exception as err:
+        printAndLogError(err)
+
         raise Exception(err)
 
     printNewLine()
@@ -98,9 +98,9 @@ def dbConnect():
 
 def dbDisconnect():
 
-    print("Disconnecting to DB...")
+    printAndLogMessage("Disconnecting to DB...")
     db.close()
-    print("Disconnected")
+    printAndLogMessage("Disconnected")
 
 
 def dbQueryToList(sqlQuery):
@@ -1268,6 +1268,16 @@ def getPlatform():
         return sys.platform
 
     return platforms[sys.platform]
+
+
+def printAndLogMessage(message):
+    print(message)
+    logging.info(message)
+
+
+def printAndLogError(error):
+    print("ERROR: {}".format(error))
+    logging.error(error)
 
 
 def main():
