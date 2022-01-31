@@ -466,7 +466,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate):
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("CPlusIP Report"),
-                  report_attach(zipFile), '')
+                  zipFile, '')
 
 
 def generateCPluseIpReportGrp(zipFileName, startDate, endDate):
@@ -607,7 +607,7 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate):
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("CPlusIP Report"),
-                  report_attach(zipFile), '')
+                  zipFile, '')
 
 
 def generateMegaPopReport(zipFileName, startDate, endDate):
@@ -721,7 +721,7 @@ def generateMegaPopReport(zipFileName, startDate, endDate):
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("MegaPop Report"),
-                  report_attach(zipFile), '')
+                  zipFile, '')
 
 
 def generateMegaPopReportGrp(zipFileName, startDate, endDate):
@@ -841,7 +841,7 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate):
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("MegaPop Report"),
-                  report_attach(zipFile), '')
+                  zipFile, '')
 
 
 def generateSingnetReport(zipFileName, startDate, endDate, groupId, subject, email):
@@ -967,7 +967,7 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, subject, ema
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
         sendEmail(subject,
-                  report_attach(zipFile), email)
+                  zipFile, email)
 
 
 def generateStixReport(zipFileName, startDate, endDate):
@@ -1021,7 +1021,7 @@ def generateStixReport(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("STIX Report"), report_attach(zipFile), '')
+        sendEmail(setEmailSubject("STIX Report"), zipFile, '')
 
 
 def generateInternetReport(zipFileName, startDate, endDate):
@@ -1076,7 +1076,7 @@ def generateInternetReport(zipFileName, startDate, endDate):
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject("Internet Report"),
-                  report_attach(zipFile), '')
+                  zipFile, '')
 
 
 def generateSDWANReport(zipFileName, startDate, endDate):
@@ -1132,7 +1132,7 @@ def generateSDWANReport(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("SDWAN Report"), report_attach(zipFile), '')
+        sendEmail(setEmailSubject("SDWAN Report"), zipFile, '')
 
 
 def zip_csvFile(csvFiles, zipfile):
@@ -1220,7 +1220,7 @@ def sendEmail(subject, attachment, email):
 
     message = MIMEMultipart()
     # message.attach(MIMEText(body,"html"))
-    message.attach(attachment)
+    message.attach(report_attach(attachment))
 
     # Add HTML/plain-text parts to MIMEMultipart message
     # The email client will try to render the last part first
@@ -1230,31 +1230,49 @@ def sendEmail(subject, attachment, email):
     sender = "orion@ncs.com.sg"
     receiver = receiverTo = receiverCc = ''
 
-    if sendTestEmail:
-        receiverTo = 'aljo.ponce@singtel.com'
-        receiverCc = ''
+    if getPlatform() == 'Windows':
+        import win32com.client
+
+        outlook = win32com.client.Dispatch('outlook.application')
+
+        mail = outlook.CreateItem(0)
+
+        mail.To = 'aljo.ponce@singtel.com'
+        mail.Subject = subject
+        mail.HTMLBody = emailBodyhtml
+        mail.Body = emailBodyText
+        print(reportsFolderPath + attachment)
+        mail.Attachments.Add(os.path.join(os.getcwd(), reportsFolderPath + attachment))
+        # mail.CC = 'somebody@company.com'
+
+        mail.Send()
+
     else:
-        if email != '':
-            receiverTo = 'hassim@singtel.com' + ';' + email
+        if sendTestEmail:
+            receiverTo = 'aljo.ponce@singtel.com'
+            receiverCc = ''
         else:
-            receiverTo = 'hassim@singtel.com'
+            if email != '':
+                receiverTo = 'hassim@singtel.com' + ';' + email
+            else:
+                receiverTo = 'hassim@singtel.com'
 
-        receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
+            receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
 
-    message['Subject'] = subject
-    message['From'] = "orion@singtel.com;orion@ncs.com.sg"
-    message['To'] = receiverTo
-    message['CC'] = receiverCc
-    receiver = receiverTo + ";" + receiverCc
+        message['Subject'] = subject
+        message['From'] = "orion@singtel.com;orion@ncs.com.sg"
+        message['To'] = receiverTo
+        message['CC'] = receiverCc
+        receiver = receiverTo + ";" + receiverCc
 
-    try:
-        smtpObj = smtplib.SMTP('gddsspsmtp.gebgd.org')
-        smtpObj.sendmail(sender, receiver.split(";"), message.as_string())
-        smtpObj.quit()
-        print("Successfully sent email")
-    except Exception as e:
-        print("Error: unable to send email: ")
-        print(e)
+        try:
+            smtpObj = smtplib.SMTP('gddsspsmtp.gebgd.org')
+            smtpObj.sendmail(sender, receiver.split(";"), message.as_string())
+            smtpObj.quit()
+            print("Successfully sent email")
+        except Exception as e:
+            print("Error: unable to send email: ")
+            print(e)
 
 
 def getPlatform():
@@ -1280,6 +1298,19 @@ def printAndLogError(error):
     logging.error(error)
 
 
+def getPlatform():
+    platforms = {
+        'linux1': 'Linux',
+        'linux2': 'Linux',
+        'darwin': 'OS X',
+        'win32': 'Windows'
+    }
+    if sys.platform not in platforms:
+        return sys.platform
+
+    return platforms[sys.platform]
+
+
 def main():
     print(getPlatform())
 
@@ -1302,7 +1333,7 @@ def main():
         # generateInternetReport('internet_report', startDate, endDate)
         # generateSDWANReport('sdwan_report', startDate, endDate)
         generateCPluseIpReportGrp('cplusip_report', startDate, endDate)
-        generateMegaPopReportGrp('megapop_report', startDate, endDate)
+        # generateMegaPopReportGrp('megapop_report', startDate, endDate)
         # generateSingnetReport(
         #        'singnet_report', startDate, endDate, 'gsdt7', setEmailSubject("Singnet Report - GSP APNIC"), 'teckchye@singtel.com;tao.taskrequest@singtel.com')
         # generateSingnetReport(
