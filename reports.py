@@ -73,22 +73,19 @@ headers2 = [
 
 def dbConnect():
 
+    dbConfig = config['DatabaseEnvDev'] if config['DEFAULT']['Environment'] == 'DEV' else config['DatabaseEnv']
+
     print("Connecting to DB...")
 
     global db
 
     try:
-        # db = mysql.connect(
-        #     user='o2puserp',
-        #     password='Qsw123!du',
-        #     host='172.26.144.143',
-        #     database='o2pprod')
         db = mysql.connect(
-            user='o2p_tableau',
-            password='O2p123!du',
-            host='localhost',
-            port=53307,
-            database='o2pprod')
+            user=dbConfig['user'],
+            password=dbConfig['password'],
+            host=dbConfig['host'],
+            port=dbConfig['port'],
+            database=dbConfig['database'],)
 
         printAndLogMessage("Connected")
 
