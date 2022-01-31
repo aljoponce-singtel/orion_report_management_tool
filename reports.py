@@ -7,12 +7,16 @@ import os
 import smtplib
 import calendar
 import time
+import configparser
 from datetime import datetime, timedelta
 from zipfile import ZipFile
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email import encoders
+
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 logging.basicConfig(filename='logs/reports.log',
                     encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -1241,8 +1245,8 @@ def sendEmail(subject, attachment, email):
         mail.Subject = subject
         mail.HTMLBody = emailBodyhtml
         mail.Body = emailBodyText
-        print(reportsFolderPath + attachment)
-        mail.Attachments.Add(os.path.join(os.getcwd(), reportsFolderPath + attachment))
+        mail.Attachments.Add(os.path.join(
+            os.getcwd(), reportsFolderPath + attachment))
         # mail.CC = 'somebody@company.com'
 
         mail.Send()
