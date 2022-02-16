@@ -17,6 +17,7 @@ from email import encoders
 
 config = configparser.ConfigParser()
 config.read('config.ini')
+configEmail = config[config['DEFAULT']['EmailInfo']]
 
 logging.basicConfig(filename='logs/reports.log',
                     encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -1254,11 +1255,7 @@ def sendEmail(subject, attachment, email):
                 receiverTo = 'aljo.ponce@singtel.com'
                 receiverCc = ''
             else:
-                if email != '':
-                    receiverTo = 'hassim@singtel.com' + ';' + email
-                else:
-                    receiverTo = 'hassim@singtel.com'
-
+                receiverTo = 'hassim@singtel.com' + ';' + email
                 receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
 
             message['Subject'] = subject
