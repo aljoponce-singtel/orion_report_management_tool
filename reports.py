@@ -73,7 +73,7 @@ headers2 = [
 
 def dbConnect():
 
-    dbConfig = config[config['DEFAULT']['DBEnv']]
+    dbConfig = config[config['DEFAULT']['DatabaseEnv']]
 
     print("Connecting to DB...")
 
