@@ -1233,6 +1233,10 @@ def sendEmail(subject, attachment, email):
     receiver = receiverTo = receiverCc = ''
 
     if config['DEFAULT'].getboolean('SendEmail'):
+        receiverTo = configEmail["receiverTo"] if config['DEFAULT'][
+            'EmailInfo'] == 'EmailTest' else configEmail["receiverTo"] + ';' + email
+        receiverCc = configEmail["receiverCc"]
+
         if getPlatform() == 'Windows':
             import win32com.client
 
@@ -1240,23 +1244,17 @@ def sendEmail(subject, attachment, email):
 
             mail = outlook.CreateItem(0)
 
-            mail.To = 'aljo.ponce@singtel.com'
+            mail.To = receiverTo
+            mail.CC = receiverCc
             mail.Subject = subject
             mail.HTMLBody = emailBodyhtml
             mail.Body = emailBodyText
             mail.Attachments.Add(os.path.join(
-                os.getcwd(), reportsFolderPath + attachment))
-            # mail.CC = 'somebody@company.com'
+                os.path.dirname(__file__), reportsFolderPath + attachment))
 
             mail.Send()
 
         else:
-            if sendTestEmail:
-                receiverTo = 'aljo.ponce@singtel.com'
-                receiverCc = ''
-            else:
-                receiverTo = 'hassim@singtel.com' + ';' + email
-                receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
 
             message['Subject'] = subject
             message['From'] = "orion@singtel.com;orion@ncs.com.sg"
