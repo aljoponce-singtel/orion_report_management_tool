@@ -17,7 +17,9 @@ from email import encoders
 
 config = configparser.ConfigParser()
 config.read('config.ini')
-configEmail = config[config['DEFAULT']['EmailInfo']]
+defaultConfig = config['DEFAULT']
+emailConfig = config[defaultConfig['EmailInfo']]
+dbConfig = config[defaultConfig['DatabaseEnv']]
 
 logging.basicConfig(filename='logs/reports.log',
                     encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -70,9 +72,6 @@ headers2 = [
 
 
 def dbConnect():
-
-    dbConfig = config[config['DEFAULT']['DatabaseEnv']]
-
     print("Connecting to DB...")
 
     global db
@@ -1143,7 +1142,8 @@ def zip_csvFile(csvFiles, zipfile):
 def os_zip_csvFile(csvFiles, zipfile):
     os.chdir('reports/')
     csvfiles = ' '.join(csvFiles)
-    os.system("zip -e %s %s -P hassim" % (zipfile, csvfiles))
+    os.system("zip -e %s %s -P %s" %
+              (zipfile, csvfiles, defaultConfig['ZipPassword']))
     for csv in csvFiles:
         os.remove(csv)
     os.chdir('../')
@@ -1206,11 +1206,11 @@ def sendEmail(subject, attachment, email):
         <p>Orion Team</p>
         </html>
         """
-    if config['DEFAULT'].getboolean('SendEmail'):
-        receiverTo = configEmail["receiverTo"] if config['DEFAULT'][
-            'EmailInfo'] == 'EmailTest' else configEmail["receiverTo"] + ';' + email
-        receiverCc = configEmail["receiverCc"]
-        sender = configEmail["sender"]
+    if defaultConfig.getboolean('SendEmail'):
+        receiverTo = emailConfig["receiverTo"] if defaultConfig[
+            'EmailInfo'] == 'EmailTest' else emailConfig["receiverTo"] + ';' + email
+        receiverCc = emailConfig["receiverCc"]
+        sender = emailConfig["sender"]
 
         if getPlatform() == 'Windows':
             import win32com.client
@@ -1248,13 +1248,13 @@ def sendEmail(subject, attachment, email):
             # message.attach(part1)
             message.attach(part2)
             message['Subject'] = subject
-            message['From'] = configEmail["from"]
+            message['From'] = emailConfig["from"]
             message['To'] = receiverTo
             message['CC'] = receiverCc
             receiver = receiverTo + ";" + receiverCc
 
             try:
-                smtpObj = smtplib.SMTP(configEmail["smtpServer"])
+                smtpObj = smtplib.SMTP(emailConfig["smtpServer"])
                 smtpObj.sendmail(sender, receiver.split(";"),
                                  message.as_string())
                 smtpObj.quit()
@@ -1308,7 +1308,7 @@ def main():
     print("Running script in " + getPlatform())
     today_date = datetime.now().date()
 
-    if config['DEFAULT'].getboolean('GenReportManually'):
+    if defaultConfig.getboolean('GenReportManually'):
 
         startDate = '2021-10-26'
         endDate = '2021-11-25'
