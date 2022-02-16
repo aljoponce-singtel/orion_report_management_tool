@@ -24,7 +24,6 @@ logging.basicConfig(filename='logs/reports.log',
 sendTestEmail = False
 generateManually = False
 db = None
-now_timestamp = today_value = datetime.now().strftime("%d%m%y_%H%M")
 csvFiles = []
 reportsFolderPath = "reports/"
 
@@ -458,14 +457,14 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, emailSubject, emailT
                         activity_code;
                 """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-        csvFile = ("{}_{}.csv").format(list[1], now_timestamp)
+        csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
         generateReport(csvFile, processList(dbQueryToList(
             sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -598,14 +597,14 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, emailSubject, ema
                         activity_code;
                 """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-        csvFile = ("{}_{}.csv").format(list[1], now_timestamp)
+        csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
         generateReport(csvFile, processList(dbQueryToList(
             sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -711,14 +710,14 @@ def generateMegaPopReport(zipFileName, startDate, endDate, emailSubject, emailTo
                         activity_code;
                 """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-        csvFile = ("{}_{}.csv").format(list[1], now_timestamp)
+        csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
         generateReport(csvFile, processList(dbQueryToList(
             sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -830,14 +829,14 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, emailSubject, emai
                         activity_code;
                 """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-        csvFile = ("{}_{}.csv").format(list[1], now_timestamp)
+        csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
         generateReport(csvFile, processList(dbQueryToList(
             sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -953,16 +952,14 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
                         activity_code;
                 """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
 
-        now_timestamp = today_value = datetime.now().strftime("%d%m%y_%H%M")
-
-        csvFile = ("{}_{}.csv").format(list[1], now_timestamp)
+        csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
         generateReport(csvFile, processList(dbQueryToList(
             sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1009,14 +1006,14 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format('gsdt9_report', now_timestamp)
+    csvFile = ("{}_{}.csv").format('gsdt9_report', getCurrentDateTime())
     generateReport(csvFile, processList(dbQueryToList(
         sqlquery), groupId, '', [], []), headers2)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1063,14 +1060,15 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format('gsdt_ps21_gsdt_ps23_report', now_timestamp)
+    csvFile = ("{}_{}.csv").format(
+        'gsdt_ps21_gsdt_ps23_report', getCurrentDateTime())
     generateReport(csvFile, processList(dbQueryToList(
         sqlquery), groupId, '', [], []), headers2)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1119,14 +1117,14 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                 """).format(groupIdStr, startDate, endDate, actStr)
 
     csvFile = ("{}_{}.csv").format(
-        'gsp_sdn_tm_gsdt_tm_report', now_timestamp)
+        'gsp_sdn_tm_gsdt_tm_report', getCurrentDateTime())
     generateReport(csvFile, processList(dbQueryToList(
         sqlquery), groupId, '', [], []), headers2)
 
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
+        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1301,6 +1299,10 @@ def getPlatform():
     return platforms[sys.platform]
 
 
+def getCurrentDateTime():
+    return datetime.now().strftime("%d%m%y_%H%M")
+
+
 def main():
     print(getPlatform())
 
@@ -1327,13 +1329,13 @@ def main():
         # generateSDWANReport('sdwan_report', startDate,
         #                     endDate, "SDWAN Report", '')
         # generateCPluseIpReportGrp(
-        #     'cplusip_report', startDate, endDate, "CPlusIP Report", '')
+        #     'cplusip_report_grp', startDate, endDate, "CPlusIP Report", '')
         # generateMegaPopReportGrp(
-        #     'megapop_report', startDate, endDate, "MegaPop Report", '')
+        #     'megapop_report_grp', startDate, endDate, "MegaPop Report", '')
         # generateSingnetReport(
-        #     'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
+        #     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
         # generateSingnetReport(
-        #     'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
+        #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
     else:
 
@@ -1389,9 +1391,9 @@ def main():
             print("end date: " + str(endDate))
 
             generateCPluseIpReportGrp(
-                'cplusip_report', startDate, endDate, "CPlusIP Report", '')
+                'cplusip_report_grp', startDate, endDate, "CPlusIP Report", '')
             generateMegaPopReportGrp(
-                'megapop_report', startDate, endDate, "MegaPop Report", '')
+                'megapop_report_grp', startDate, endDate, "MegaPop Report", '')
 
         #-- END --#
 
@@ -1411,13 +1413,9 @@ def main():
             print("end date: " + str(endDate))
 
             generateSingnetReport(
-                'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
-
-            print("delaying for 65 seconds")
-            time.sleep(65)
-
+                'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
             generateSingnetReport(
-                'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
+                'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
         #-- END --#
 
