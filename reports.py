@@ -882,8 +882,8 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
 
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'sgx1'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'gsdt7'])
+    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'SGX1'],
+                 [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'GSDT7'])
 
     for list in queryArgs:
         if groupId == '' or list[1] == groupId:
