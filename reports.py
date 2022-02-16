@@ -21,11 +21,12 @@ defaultConfig = config['DEFAULT']
 emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
 
-logging.basicConfig(filename='logs/reports.log',
-                    encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 csvFiles = []
 reportsFolderPath = os.path.join(os.path.dirname(__file__), "reports")
+logsFolderPath = os.path.join(os.path.dirname(__file__), "logs")
+
+logging.basicConfig(filename=os.path.join(logsFolderPath, "reports.log"),
+                    encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 headers = [
     "Workorder no",
@@ -1307,8 +1308,8 @@ def main():
         startDate = '2021-10-26'
         endDate = '2021-11-25'
 
-        # generateCPluseIpReport('cplusip_report', startDate,
-        #                        endDate, "CPlusIP Report", '')
+        generateCPluseIpReport('cplusip_report', startDate,
+                               endDate, "CPlusIP Report", '')
         # generateMegaPopReport('megapop_report', startDate,
         #                       endDate, "MegaPop Report", '')
         # generateSingnetReport('singnet_report', startDate,
