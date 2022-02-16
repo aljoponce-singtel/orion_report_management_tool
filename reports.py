@@ -1350,12 +1350,9 @@ def main():
             previousMonth = (today_date.replace(day=1) -
                              timedelta(days=1)).replace(day=today_date.day)
             startDate = str(previousMonth)
-            # startDate = str(today_date)
             lastDay = calendar.monthrange(
                 previousMonth.year, previousMonth.month)[1]
-            # lastDay = calendar.monthrange(today_date.year, today_date.month)[1]
             endDate = str(previousMonth.replace(day=lastDay))
-            # endDate = str(today_date.replace(day=lastDay))
             print("start date: " + str(startDate))
             print("end date: " + str(endDate))
 
