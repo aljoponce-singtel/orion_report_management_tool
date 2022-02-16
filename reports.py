@@ -1229,13 +1229,11 @@ def sendEmail(subject, attachment, email):
     # message.attach(part1)
     message.attach(part2)
 
-    sender = "orion@ncs.com.sg"
-    receiver = receiverTo = receiverCc = ''
-
     if config['DEFAULT'].getboolean('SendEmail'):
         receiverTo = configEmail["receiverTo"] if config['DEFAULT'][
             'EmailInfo'] == 'EmailTest' else configEmail["receiverTo"] + ';' + email
         receiverCc = configEmail["receiverCc"]
+        sender = configEmail["sender"]
 
         if getPlatform() == 'Windows':
             import win32com.client
@@ -1257,13 +1255,13 @@ def sendEmail(subject, attachment, email):
         else:
 
             message['Subject'] = subject
-            message['From'] = "orion@singtel.com;orion@ncs.com.sg"
+            message['From'] = configEmail["from"]
             message['To'] = receiverTo
             message['CC'] = receiverCc
             receiver = receiverTo + ";" + receiverCc
 
             try:
-                smtpObj = smtplib.SMTP('gddsspsmtp.gebgd.org')
+                smtpObj = smtplib.SMTP(configEmail["smtpServer"])
                 smtpObj.sendmail(sender, receiver.split(";"),
                                  message.as_string())
                 smtpObj.quit()
