@@ -336,7 +336,7 @@ def generateReport(csvfile, querylist, headers):
     write_to_csv(csvfile, querylist, headers)
 
 
-def generateCPluseIpReport(zipFileName, startDate, endDate):
+def generateCPluseIpReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -467,11 +467,10 @@ def generateCPluseIpReport(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("CPlusIP Report"),
-                  zipFile, '')
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
-def generateCPluseIpReportGrp(zipFileName, startDate, endDate):
+def generateCPluseIpReportGrp(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -608,11 +607,10 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("CPlusIP Report"),
-                  zipFile, '')
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
-def generateMegaPopReport(zipFileName, startDate, endDate):
+def generateMegaPopReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -722,11 +720,10 @@ def generateMegaPopReport(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("MegaPop Report"),
-                  zipFile, '')
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
-def generateMegaPopReportGrp(zipFileName, startDate, endDate):
+def generateMegaPopReportGrp(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -842,11 +839,10 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("MegaPop Report"),
-                  zipFile, '')
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
-def generateSingnetReport(zipFileName, startDate, endDate, groupId, subject, email):
+def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -968,11 +964,10 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, subject, ema
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(subject,
-                  zipFile, email)
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
-def generateStixReport(zipFileName, startDate, endDate):
+def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -1023,10 +1018,10 @@ def generateStixReport(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("STIX Report"), zipFile, '')
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
-def generateInternetReport(zipFileName, startDate, endDate):
+def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -1077,11 +1072,10 @@ def generateInternetReport(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("Internet Report"),
-                  zipFile, '')
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
-def generateSDWANReport(zipFileName, startDate, endDate):
+def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
@@ -1134,7 +1128,7 @@ def generateSDWANReport(zipFileName, startDate, endDate):
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, now_timestamp)
         zip_file(csvFiles, zipFile)
-        sendEmail(setEmailSubject("SDWAN Report"), zipFile, '')
+        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
 def zip_csvFile(csvFiles, zipfile):
@@ -1320,19 +1314,26 @@ def main():
         startDate = '2021-10-26'
         endDate = '2021-11-25'
 
-        # generateCPluseIpReport('cplusip_report', startDate, endDate)
-        # generateMegaPopReport('megapop_report', startDate, endDate)
+        # generateCPluseIpReport('cplusip_report', startDate,
+        #                        endDate, "CPlusIP Report", '')
+        # generateMegaPopReport('megapop_report', startDate,
+        #                       endDate, "MegaPop Report", '')
         # generateSingnetReport('singnet_report', startDate,
-        #                      endDate, '', setEmailSubject("Singnet Report"), '')
-        # generateStixReport('stix_report', startDate, endDate, '')
-        # generateInternetReport('internet_report', startDate, endDate)
-        # generateSDWANReport('sdwan_report', startDate, endDate)
-        generateCPluseIpReportGrp('cplusip_report', startDate, endDate)
-        # generateMegaPopReportGrp('megapop_report', startDate, endDate)
+        #                       endDate, '', "Singnet Report", '')
+        # generateStixReport('stix_report', startDate,
+        #                    endDate, "STIX Report", '')
+        # generateInternetReport('internet_report', startDate,
+        #                        endDate, "Internet Report", '')
+        # generateSDWANReport('sdwan_report', startDate,
+        #                     endDate, "SDWAN Report", '')
+        # generateCPluseIpReportGrp(
+        #     'cplusip_report', startDate, endDate, "CPlusIP Report", '')
+        # generateMegaPopReportGrp(
+        #     'megapop_report', startDate, endDate, "MegaPop Report", '')
         # generateSingnetReport(
-        #        'singnet_report', startDate, endDate, 'gsdt7', setEmailSubject("Singnet Report - GSP APNIC"), 'teckchye@singtel.com;tao.taskrequest@singtel.com')
+        #     'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
         # generateSingnetReport(
-        #      'singnet_report', startDate, endDate, 'gsdt7', setEmailSubject("Singnet Report – Connect Portal updating"), 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
+        #     'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
     else:
 
@@ -1358,13 +1359,18 @@ def main():
             print("start date: " + str(startDate))
             print("end date: " + str(endDate))
 
-            generateCPluseIpReport('cplusip_report', startDate, endDate)
-            generateMegaPopReport('megapop_report', startDate, endDate)
-            generateSingnetReport(
-                'singnet_report', startDate, endDate, '', setEmailSubject("Singnet Report"), '')
-            generateStixReport('stix_report', startDate, endDate)
-            generateInternetReport('internet_report', startDate, endDate)
-            generateSDWANReport('sdwan_report', startDate, endDate)
+            generateCPluseIpReport(
+                'cplusip_report', startDate, endDate, "CPlusIP Report", '')
+            generateMegaPopReport(
+                'megapop_report', startDate, endDate, "MegaPop Report", '')
+            generateSingnetReport('singnet_report', startDate,
+                                  endDate, '', "Singnet Report", '')
+            generateStixReport('stix_report', startDate,
+                               endDate, "STIX Report", '')
+            generateInternetReport('internet_report', startDate,
+                                   endDate, "Internet Report", '')
+            generateSDWANReport('sdwan_report', startDate,
+                                endDate, "SDWAN Report", '')
 
         #-- END --#
 
@@ -1385,8 +1391,10 @@ def main():
             print("start date: " + str(startDate))
             print("end date: " + str(endDate))
 
-            generateCPluseIpReportGrp('cplusip_report', startDate, endDate)
-            generateMegaPopReportGrp('megapop_report', startDate, endDate)
+            generateCPluseIpReportGrp(
+                'cplusip_report', startDate, endDate, "CPlusIP Report", '')
+            generateMegaPopReportGrp(
+                'megapop_report', startDate, endDate, "MegaPop Report", '')
 
         #-- END --#
 
@@ -1406,13 +1414,13 @@ def main():
             print("end date: " + str(endDate))
 
             generateSingnetReport(
-                'singnet_report', startDate, endDate, 'gsdt7', setEmailSubject("Singnet Report - GSP APNIC"), 'teckchye@singtel.com;tao.taskrequest@singtel.com')
+                'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
 
             print("delaying for 65 seconds")
             time.sleep(65)
 
             generateSingnetReport(
-                'singnet_report', startDate, endDate, 'gsdt7', setEmailSubject("Singnet Report – Connect Portal updating"), 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
+                'singnet_report', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
         #-- END --#
 
