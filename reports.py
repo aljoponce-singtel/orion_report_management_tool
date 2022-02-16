@@ -1314,13 +1314,12 @@ def getPlatform():
 def main():
     print(getPlatform())
 
-    global sendTestEmail, generateManually
+    global sendTestEmail
     sendTestEmail = True
-    generateManually = True
 
     today_date = datetime.now().date()
 
-    if generateManually:
+    if config['DEFAULT'].getboolean('GenReportManually'):
 
         startDate = '2021-10-26'
         endDate = '2021-11-25'
