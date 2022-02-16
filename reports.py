@@ -21,8 +21,6 @@ configEmail = config[config['DEFAULT']['EmailInfo']]
 
 logging.basicConfig(filename='logs/reports.log',
                     encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-sendTestEmail = False
-generateManually = False
 db = None
 csvFiles = []
 reportsFolderPath = "reports/"
@@ -1208,19 +1206,6 @@ def sendEmail(subject, attachment, email):
         <p>Orion Team</p>
         </html>
         """
-    # Turn these into plain/html MIMEText objects
-    # part1 = MIMEText(emailBodyText, "plain")
-    part2 = MIMEText(emailBodyhtml, "html")
-
-    message = MIMEMultipart()
-    # message.attach(MIMEText(body,"html"))
-    message.attach(report_attach(attachment))
-
-    # Add HTML/plain-text parts to MIMEMultipart message
-    # The email client will try to render the last part first
-    # message.attach(part1)
-    message.attach(part2)
-
     if config['DEFAULT'].getboolean('SendEmail'):
         receiverTo = configEmail["receiverTo"] if config['DEFAULT'][
             'EmailInfo'] == 'EmailTest' else configEmail["receiverTo"] + ';' + email
@@ -1242,10 +1227,26 @@ def sendEmail(subject, attachment, email):
             mail.Attachments.Add(os.path.join(
                 os.path.dirname(__file__), reportsFolderPath + attachment))
 
-            mail.Send()
+            try:
+                mail.Send()
+                print("Successfully sent email")
+            except Exception as e:
+                print("Error: unable to send email: ")
+                print(e)
 
         else:
+            # Turn these into plain/html MIMEText objects
+            # part1 = MIMEText(emailBodyText, "plain")
+            part2 = MIMEText(emailBodyhtml, "html")
 
+            message = MIMEMultipart()
+            # message.attach(MIMEText(body,"html"))
+            message.attach(report_attach(attachment))
+
+            # Add HTML/plain-text parts to MIMEMultipart message
+            # The email client will try to render the last part first
+            # message.attach(part1)
+            message.attach(part2)
             message['Subject'] = subject
             message['From'] = configEmail["from"]
             message['To'] = receiverTo
@@ -1304,11 +1305,7 @@ def getCurrentDateTime():
 
 
 def main():
-    print(getPlatform())
-
-    global sendTestEmail
-    sendTestEmail = True
-
+    print("Running script in " + getPlatform())
     today_date = datetime.now().date()
 
     if config['DEFAULT'].getboolean('GenReportManually'):
