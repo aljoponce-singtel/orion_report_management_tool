@@ -462,7 +462,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
@@ -602,7 +602,7 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, emailSubject, ema
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
@@ -715,7 +715,7 @@ def generateMegaPopReport(zipFileName, startDate, endDate, emailSubject, emailTo
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
@@ -834,7 +834,7 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, emailSubject, emai
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
@@ -957,7 +957,7 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
@@ -1011,7 +1011,7 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
@@ -1066,7 +1066,7 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
@@ -1122,42 +1122,37 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile)
+        zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
 
 def zip_csvFile(csvFiles, zipfile):
-
-    os.chdir('reports/')
-
     with ZipFile(zipfile, 'w') as zipObj:
         for csv in csvFiles:
             csvfilePath = csv
             zipObj.write(csvfilePath)
             os.remove(csvfilePath)
 
-    os.chdir('../')
-
 
 def os_zip_csvFile(csvFiles, zipfile):
-    os.chdir('reports/')
     csvfiles = ' '.join(csvFiles)
     os.system("zip -e %s %s -P %s" %
               (zipfile, csvfiles, defaultConfig['ZipPassword']))
     for csv in csvFiles:
         os.remove(csv)
-    os.chdir('../')
 
 
-def zip_file(csvFiles, zipfile):
-    os = getPlatform()
+def zip_file(csvFiles, zipfile, folderPath):
+    os.chdir(folderPath)
 
-    if os == "Linux":
+    if getPlatform() == "Linux":
         os_zip_csvFile(csvFiles, zipfile)
-    elif os == "Windows":
+    elif getPlatform() == "Windows":
         zip_csvFile(csvFiles, zipfile)
     else:
         raise Exception("OS " + os + " not supported.")
+
+    os.chdir('../')
 
 
 def report_attach(zipfile):
