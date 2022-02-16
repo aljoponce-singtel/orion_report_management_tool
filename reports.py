@@ -25,7 +25,7 @@ logging.basicConfig(filename='logs/reports.log',
                     encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 csvFiles = []
-reportsFolderPath = "reports/"
+reportsFolderPath = os.path.join(os.path.dirname(__file__), "reports")
 
 headers = [
     "Workorder no",
@@ -112,7 +112,7 @@ def dbQueryToList(sqlQuery):
 
 def write_to_csv(csv_file, dataset, headers):
 
-    csvfilePath = reportsFolderPath + csv_file
+    csvfilePath = os.path.join(reportsFolderPath, csv_file)
 
     with open(csvfilePath, 'w', newline='') as csvfile:
         spamwriter = csv.writer(
@@ -1162,7 +1162,7 @@ def zip_file(csvFiles, zipfile):
 
 def report_attach(zipfile):
 
-    zipfilePath = reportsFolderPath + zipfile
+    zipfilePath = os.path.join(reportsFolderPath, zipfile)
     part = MIMEBase('application', "octet-stream")
     part.set_payload(open(zipfilePath, "rb").read())
     encoders.encode_base64(part)
@@ -1224,8 +1224,7 @@ def sendEmail(subject, attachment, email):
             mail.Subject = subject
             mail.HTMLBody = emailBodyhtml
             mail.Body = emailBodyText
-            mail.Attachments.Add(os.path.join(
-                os.path.dirname(__file__), reportsFolderPath + attachment))
+            mail.Attachments.Add(os.path.join(reportsFolderPath, attachment))
 
             try:
                 mail.Send()
