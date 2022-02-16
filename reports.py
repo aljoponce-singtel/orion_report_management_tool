@@ -994,7 +994,7 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format('gsdt9_report', getCurrentDateTime())
+    csvFile = ("{}_{}.csv").format('GSDT9', getCurrentDateTime())
     generateReport(csvFile, processList(dbQueryToList(
         sqlquery), groupId, '', [], []), headers2)
 
@@ -1049,7 +1049,7 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
                 """).format(groupIdStr, startDate, endDate, actStr)
 
     csvFile = ("{}_{}.csv").format(
-        'gsdt_ps21_gsdt_ps23_report', getCurrentDateTime())
+        'GSDT_PS21_GSDT_PS23', getCurrentDateTime())
     generateReport(csvFile, processList(dbQueryToList(
         sqlquery), groupId, '', [], []), headers2)
 
@@ -1105,7 +1105,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                 """).format(groupIdStr, startDate, endDate, actStr)
 
     csvFile = ("{}_{}.csv").format(
-        'gsp_sdn_tm_gsdt_tm_report', getCurrentDateTime())
+        'GSP_SDN_TM_GSDT_TM', getCurrentDateTime())
     generateReport(csvFile, processList(dbQueryToList(
         sqlquery), groupId, '', [], []), headers2)
 
