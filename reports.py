@@ -1231,49 +1231,51 @@ def sendEmail(subject, attachment, email):
     sender = "orion@ncs.com.sg"
     receiver = receiverTo = receiverCc = ''
 
-    if getPlatform() == 'Windows':
-        import win32com.client
+    if config['DEFAULT'].getboolean('SendEmail'):
+        if getPlatform() == 'Windows':
+            import win32com.client
 
-        outlook = win32com.client.Dispatch('outlook.application')
+            outlook = win32com.client.Dispatch('outlook.application')
 
-        mail = outlook.CreateItem(0)
+            mail = outlook.CreateItem(0)
 
-        mail.To = 'aljo.ponce@singtel.com'
-        mail.Subject = subject
-        mail.HTMLBody = emailBodyhtml
-        mail.Body = emailBodyText
-        mail.Attachments.Add(os.path.join(
-            os.getcwd(), reportsFolderPath + attachment))
-        # mail.CC = 'somebody@company.com'
+            mail.To = 'aljo.ponce@singtel.com'
+            mail.Subject = subject
+            mail.HTMLBody = emailBodyhtml
+            mail.Body = emailBodyText
+            mail.Attachments.Add(os.path.join(
+                os.getcwd(), reportsFolderPath + attachment))
+            # mail.CC = 'somebody@company.com'
 
-        mail.Send()
+            mail.Send()
 
-    else:
-        if sendTestEmail:
-            receiverTo = 'aljo.ponce@singtel.com'
-            receiverCc = ''
         else:
-            if email != '':
-                receiverTo = 'hassim@singtel.com' + ';' + email
+            if sendTestEmail:
+                receiverTo = 'aljo.ponce@singtel.com'
+                receiverCc = ''
             else:
-                receiverTo = 'hassim@singtel.com'
+                if email != '':
+                    receiverTo = 'hassim@singtel.com' + ';' + email
+                else:
+                    receiverTo = 'hassim@singtel.com'
 
-            receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
+                receiverCc = 'christian.lim@singtel.com;aljo.ponce@singtel.com'
 
-        message['Subject'] = subject
-        message['From'] = "orion@singtel.com;orion@ncs.com.sg"
-        message['To'] = receiverTo
-        message['CC'] = receiverCc
-        receiver = receiverTo + ";" + receiverCc
+            message['Subject'] = subject
+            message['From'] = "orion@singtel.com;orion@ncs.com.sg"
+            message['To'] = receiverTo
+            message['CC'] = receiverCc
+            receiver = receiverTo + ";" + receiverCc
 
-        try:
-            smtpObj = smtplib.SMTP('gddsspsmtp.gebgd.org')
-            smtpObj.sendmail(sender, receiver.split(";"), message.as_string())
-            smtpObj.quit()
-            print("Successfully sent email")
-        except Exception as e:
-            print("Error: unable to send email: ")
-            print(e)
+            try:
+                smtpObj = smtplib.SMTP('gddsspsmtp.gebgd.org')
+                smtpObj.sendmail(sender, receiver.split(";"),
+                                 message.as_string())
+                smtpObj.quit()
+                print("Successfully sent email")
+            except Exception as e:
+                print("Error: unable to send email: ")
+                print(e)
 
 
 def getPlatform():
