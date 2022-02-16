@@ -23,7 +23,7 @@ dbConfig = config[defaultConfig['DatabaseEnv']]
 
 logging.basicConfig(filename='logs/reports.log',
                     encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-db = None
+
 csvFiles = []
 reportsFolderPath = "reports/"
 
