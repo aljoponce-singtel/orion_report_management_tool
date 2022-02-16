@@ -333,16 +333,16 @@ def generateReport(csvfile, querylist, headers):
     write_to_csv(csvfile, querylist, headers)
 
 
-def generateCPluseIpReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
 
     dbConnect()
     csvFiles.clear()
 
     groupIdList_1 = ['CNP']
-    groupIdStr_1 = ', '.join([(groupId) for groupId in groupIdList_1])
+    groupIdStr_1 = ', '.join([(group_Id) for group_Id in groupIdList_1])
 
     groupIdList_2 = ['GSDT6']
-    groupIdStr_2 = ', '.join([(groupId) for groupId in groupIdList_2])
+    groupIdStr_2 = ', '.join([(group_Id) for group_Id in groupIdList_2])
 
     priority1 = ['LLC Accepted by Singtel']
     priority2 = ['GSDT Co-ordination OS LLC', 'GSDT Co-ordination Work']
@@ -403,61 +403,62 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
 
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, groupIdStr_2, actStr_2], 'cnp'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'gsdt6'])
+    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, groupIdStr_2, actStr_2], 'CNP'],
+                 [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT6'])
 
     for list in queryArgs:
-        sqlquery = ("""
-                    SELECT DISTINCT ORD.order_code,
-                        ORD.service_number,
-                        PRD.network_product_code,
-                        PRD.network_product_desc,
-                        CUS.name,
-                        ORD.order_type,
-                        PER.role,
-                        ORD.current_crd,
-                        ORD.taken_date,
-                        CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                        ACT.name,
-                        ACT.due_date,
-                        ACT.ready_date,
-                        DATE(ACT.exe_date),
-                        DATE(ACT.dly_date),
-                        ACT.completed_date
-                    FROM RestInterface_activity ACT
-                        INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                        LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                        LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                        LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                        AND NPP.level = 'MainLine'
-                        LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                    WHERE ORD.id IN (
-                            SELECT DISTINCT ORD.id
-                            FROM RestInterface_activity ACT
-                                LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                                LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            WHERE PER.role LIKE '{}%'
-                                AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                AND ACT.name IN ({})
-                        )
-                        AND (
-                            (
-                                PER.role LIKE '{}%'
-                                AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                AND ACT.name IN ({})
+        if groupId == '' or list[1] == groupId:
+            sqlquery = ("""
+                        SELECT DISTINCT ORD.order_code,
+                            ORD.service_number,
+                            PRD.network_product_code,
+                            PRD.network_product_desc,
+                            CUS.name,
+                            ORD.order_type,
+                            PER.role,
+                            ORD.current_crd,
+                            ORD.taken_date,
+                            CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
+                            ACT.name,
+                            ACT.due_date,
+                            ACT.ready_date,
+                            DATE(ACT.exe_date),
+                            DATE(ACT.dly_date),
+                            ACT.completed_date
+                        FROM RestInterface_activity ACT
+                            INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
+                            LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                            LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                            LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
+                            AND NPP.level = 'MainLine'
+                            LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
+                        WHERE ORD.id IN (
+                                SELECT DISTINCT ORD.id
+                                FROM RestInterface_activity ACT
+                                    LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
+                                    LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                                WHERE PER.role LIKE '{}%'
+                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
+                                    AND ACT.name IN ({})
                             )
-                            OR (
-                                PER.role LIKE '{}%'
-                                AND ACT.name IN ({})
+                            AND (
+                                (
+                                    PER.role LIKE '{}%'
+                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
+                                    AND ACT.name IN ({})
+                                )
+                                OR (
+                                    PER.role LIKE '{}%'
+                                    AND ACT.name IN ({})
+                                )
                             )
-                        )
-                    ORDER BY ORD.order_code,
-                        activity_code;
-                """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
+                        ORDER BY ORD.order_code,
+                            activity_code;
+                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-        csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
-        generateReport(csvFile, processList(dbQueryToList(
-            sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
+            csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
+            generateReport(csvFile, processList(dbQueryToList(
+                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
 
     dbDisconnect()
 
@@ -1299,7 +1300,7 @@ def main():
         endDate = '2021-11-25'
 
         # generateCPluseIpReport('cplusip_report', startDate,
-        #                        endDate, "CPlusIP Report", '')
+        #                        endDate, '', "CPlusIP Report", '')
         # generateMegaPopReport('megapop_report', startDate,
         #                       endDate, "MegaPop Report", '')
         # generateSingnetReport('singnet_report', startDate,
@@ -1340,8 +1341,8 @@ def main():
             print("start date: " + str(startDate))
             print("end date: " + str(endDate))
 
-            generateCPluseIpReport(
-                'cplusip_report', startDate, endDate, "CPlusIP Report", '')
+            generateCPluseIpReport('cplusip_report', startDate,
+                                   endDate, '', "CPlusIP Report", '')
             generateMegaPopReport(
                 'megapop_report', startDate, endDate, "MegaPop Report", '')
             generateSingnetReport('singnet_report', startDate,
