@@ -73,7 +73,7 @@ headers2 = [
 
 def dbConnect():
 
-    dbConfig = config['DatabaseEnvDev'] if config['DEFAULT']['Environment'] == 'DEV' else config['DatabaseEnv']
+    dbConfig = config[config['DEFAULT']['DBEnv']]
 
     print("Connecting to DB...")
 
