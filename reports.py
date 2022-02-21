@@ -93,7 +93,7 @@ def dbConnect():
 
         raise Exception(err)
 
-    printNewLine()
+    # printNewLine()
 
 
 def dbDisconnect():
@@ -189,7 +189,7 @@ def processList(queryList, groupId_1, groupId_2, grp_1_prio, grp_2_prio):
                 index = 0
 
                 for items in groupId_1_list:
-                    print(WorkOrderNo + ", " + items[0] + ", " + items[1])
+                    # print(WorkOrderNo + ", " + items[0] + ", " + items[1])
 
                     if items[1] in grp_1_prio:
                         priorityFound = True
@@ -236,7 +236,7 @@ def processList(queryList, groupId_1, groupId_2, grp_1_prio, grp_2_prio):
                 index = 0
 
                 for items in groupId_2_list:
-                    print(WorkOrderNo + ", " + items[0] + ", " + items[1])
+                    # print(WorkOrderNo + ", " + items[0] + ", " + items[1])
 
                     if items[1] in grp_2_prio:
                         priorityFound = True
@@ -310,7 +310,7 @@ def processList(queryList, groupId_1, groupId_2, grp_1_prio, grp_2_prio):
 
         WorkOrderNo = row[column["workOrderNo"]]
 
-    printNewLine()
+    # printNewLine()
 
     return finalList
 
