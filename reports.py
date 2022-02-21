@@ -73,8 +73,6 @@ headers2 = [
 
 
 def dbConnect():
-    print("Connecting to DB...")
-
     global db
 
     try:
@@ -85,9 +83,12 @@ def dbConnect():
             port=dbConfig['port'],
             database=dbConfig['database'],)
 
-        printAndLogMessage("Connected")
+        printAndLogMessage("Connected to DB " + dbConfig['database'] + ' at ' +
+                           dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
 
     except Exception as err:
+        printAndLogMessage("Failed to connect to DB " + dbConfig['database'] + ' at ' +
+                           dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
         printAndLogError(err)
 
         raise Exception(err)
@@ -96,10 +97,7 @@ def dbConnect():
 
 
 def dbDisconnect():
-
-    printAndLogMessage("Disconnecting to DB...")
     db.close()
-    printAndLogMessage("Disconnected")
 
 
 def dbQueryToList(sqlQuery):
@@ -1171,8 +1169,6 @@ def setEmailSubject(subject):
 
 
 def sendEmail(subject, attachment, email):
-    print("Starting to send email : "+datetime.now().strftime("%Y%m%d%H%M%S"))
-
     emailBodyText = """
         Hello,
 
@@ -1192,61 +1188,57 @@ def sendEmail(subject, attachment, email):
         <p>Orion Team</p>
         </html>
         """
+
+    # Enable/Disable email
     if defaultConfig.getboolean('SendEmail'):
-        receiverTo = emailConfig["receiverTo"] if defaultConfig[
-            'EmailInfo'] == 'EmailTest' else emailConfig["receiverTo"] + ';' + email
-        receiverCc = emailConfig["receiverCc"]
-        sender = emailConfig["sender"]
+        try:
 
-        if getPlatform() == 'Windows':
-            import win32com.client
+            receiverTo = emailConfig["receiverTo"] if defaultConfig[
+                'EmailInfo'] == 'EmailTest' else emailConfig["receiverTo"] + ';' + email
+            receiverCc = emailConfig["receiverCc"]
+            sender = emailConfig["sender"]
 
-            outlook = win32com.client.Dispatch('outlook.application')
+            if getPlatform() == 'Windows':
+                import win32com.client
+                outlook = win32com.client.Dispatch('outlook.application')
 
-            mail = outlook.CreateItem(0)
-
-            mail.To = receiverTo
-            mail.CC = receiverCc
-            mail.Subject = subject
-            mail.HTMLBody = emailBodyhtml
-            mail.Body = emailBodyText
-            mail.Attachments.Add(os.path.join(reportsFolderPath, attachment))
-
-            try:
+                mail = outlook.CreateItem(0)
+                mail.To = receiverTo
+                mail.CC = receiverCc
+                mail.Subject = subject
+                mail.HTMLBody = emailBodyhtml
+                mail.Body = emailBodyText
+                mail.Attachments.Add(os.path.join(
+                    reportsFolderPath, attachment))
                 mail.Send()
-                print("Successfully sent email")
-            except Exception as e:
-                print("Error: unable to send email: ")
-                print(e)
+            else:
+                # Turn these into plain/html MIMEText objects
+                # part1 = MIMEText(emailBodyText, "plain")
+                part2 = MIMEText(emailBodyhtml, "html")
 
-        else:
-            # Turn these into plain/html MIMEText objects
-            # part1 = MIMEText(emailBodyText, "plain")
-            part2 = MIMEText(emailBodyhtml, "html")
+                message = MIMEMultipart()
+                # message.attach(MIMEText(body,"html"))
+                message.attach(report_attach(attachment))
 
-            message = MIMEMultipart()
-            # message.attach(MIMEText(body,"html"))
-            message.attach(report_attach(attachment))
-
-            # Add HTML/plain-text parts to MIMEMultipart message
-            # The email client will try to render the last part first
-            # message.attach(part1)
-            message.attach(part2)
-            message['Subject'] = subject
-            message['From'] = emailConfig["from"]
-            message['To'] = receiverTo
-            message['CC'] = receiverCc
-            receiver = receiverTo + ";" + receiverCc
-
-            try:
+                # Add HTML/plain-text parts to MIMEMultipart message
+                # The email client will try to render the last part first
+                # message.attach(part1)
+                message.attach(part2)
+                message['Subject'] = subject
+                message['From'] = emailConfig["from"]
+                message['To'] = receiverTo
+                message['CC'] = receiverCc
+                receiver = receiverTo + ";" + receiverCc
                 smtpObj = smtplib.SMTP(emailConfig["smtpServer"])
                 smtpObj.sendmail(sender, receiver.split(";"),
                                  message.as_string())
                 smtpObj.quit()
-                print("Successfully sent email")
-            except Exception as e:
-                print("Error: unable to send email: ")
-                print(e)
+
+            printAndLogMessage("Email sent.")
+
+        except Exception as e:
+            printAndLogError("Failed to send email.")
+            printAndLogError(e)
 
 
 def getPlatform():
@@ -1290,7 +1282,9 @@ def getCurrentDateTime():
 
 
 def main():
-    print("Running script in " + getPlatform())
+    printAndLogMessage("START of script - " +
+                       datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+    printAndLogMessage("Running script in " + getPlatform())
     today_date = datetime.now().date()
 
     if defaultConfig.getboolean('GenReportManually'):
@@ -1400,6 +1394,9 @@ def main():
                 'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
         #-- END --#
+
+    printAndLogMessage("END of script - " +
+                       datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':
