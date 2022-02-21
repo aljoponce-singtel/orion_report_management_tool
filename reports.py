@@ -6,7 +6,6 @@ import csv
 import os
 import smtplib
 import calendar
-import time
 import configparser
 from datetime import datetime, timedelta
 from zipfile import ZipFile
@@ -107,6 +106,12 @@ def dbQueryToList(sqlQuery):
     dataset = cursor.fetchall()
 
     return dataset
+
+
+def updateTableauDB(outputList, report_id):
+    # Allow Tableaue DB update
+    if defaultConfig.getboolean('UpdateTableaueDB'):
+        printAndLogMessage("TableauDB Updated")
 
 
 def write_to_csv(csv_file, dataset, headers):
@@ -458,8 +463,9 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
-            generateReport(csvFile, processList(dbQueryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
+            outputList = processList(dbQueryToList(
+                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
+            generateReport(csvFile, outputList, headers)
 
     dbDisconnect()
 
@@ -467,6 +473,8 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+
+    updateTableauDB(outputList, list[1])
 
     printAndLogMessage("Processing [" + emailSubject + "] complete.")
 
@@ -1327,8 +1335,8 @@ def main():
         startDate = '2021-10-26'
         endDate = '2021-11-25'
 
-        # generateCPluseIpReport('cplusip_report', startDate,
-        #                        endDate, '', "CPlusIP Report", '')
+        generateCPluseIpReport('cplusip_report', startDate,
+                               endDate, '', "CPlusIP Report", '')
         # generateMegaPopReport('megapop_report', startDate,
         #                       endDate, '', "MegaPop Report", '')
         # generateSingnetReport('singnet_report', startDate,
