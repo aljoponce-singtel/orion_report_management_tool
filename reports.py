@@ -328,10 +328,13 @@ def printNewLine():
 
 
 def generateReport(csvfile, querylist, headers):
+    printAndLogMessage("Generating report " + csvfile)
     write_to_csv(csvfile, querylist, headers)
 
 
 def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -465,8 +468,12 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -604,8 +611,12 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -718,8 +729,12 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -836,8 +851,12 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -949,8 +968,12 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -1003,8 +1026,12 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -1058,8 +1085,12 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+
+    printAndLogMessage("Processing [" + emailSubject + "].")
 
     dbConnect()
     csvFiles.clear()
@@ -1114,6 +1145,8 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
+    printAndLogMessage("Processing [" + emailSubject + "] complete.")
+
 
 def zip_csvFile(csvFiles, zipfile):
     with ZipFile(zipfile, 'w') as zipObj:
@@ -1132,6 +1165,8 @@ def os_zip_csvFile(csvFiles, zipfile):
 
 
 def zip_file(csvFiles, zipfile, folderPath):
+
+    printAndLogMessage("Creating " + zipfile + " for " + ', '.join(csvFiles))
     os.chdir(folderPath)
 
     if getPlatform() == "Linux":
