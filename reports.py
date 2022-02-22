@@ -1,4 +1,3 @@
-import mysql.connector as mysql
 import sys
 import logging
 import re
@@ -15,7 +14,7 @@ from email.mime.multipart import MIMEMultipart
 from email import encoders
 import pandas as pd
 from sqlalchemy import create_engine
-import numpy as np
+from sqlalchemy.sql import text
 import pymysql
 pymysql.install_as_MySQLdb()
 
@@ -77,15 +76,12 @@ headers2 = [
 
 
 def dbConnect():
-    global db
+    global engine, conn
 
     try:
-        db = mysql.connect(
-            user=dbConfig['user'],
-            password=dbConfig['password'],
-            host=dbConfig['host'],
-            port=dbConfig['port'],
-            database=dbConfig['database'],)
+        engine = create_engine(
+            'mysql://{}:{}@{}:{}/{}'.format(dbConfig['user'], dbConfig['password'], dbConfig['host'], dbConfig['port'], dbConfig['database']))
+        conn = engine.connect()
 
         printAndLogMessage("Connected to DB " + dbConfig['database'] + ' at ' +
                            dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
@@ -94,20 +90,17 @@ def dbConnect():
         printAndLogMessage("Failed to connect to DB " + dbConfig['database'] + ' at ' +
                            dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
         printAndLogError(err)
+        conn.close()
 
         raise Exception(err)
 
 
 def dbDisconnect():
-    db.close()
+    conn.close()
 
 
 def dbQueryToList(sqlQuery):
-
-    cursor = db.cursor()
-    cursor.execute(sqlQuery)
-    dataset = cursor.fetchall()
-
+    dataset = conn.execute(text(sqlQuery)).fetchall()
     return dataset
 
 
@@ -117,22 +110,15 @@ def updateTableauDB(outputList, report_id):
         conn = None
 
         try:
-            # tableauDB = mysql.connect(
-            #     user=dbConfig['user'],
-            #     password=dbConfig['password'],
-            #     host=dbConfig['host'],
-            #     port=dbConfig['port'],
-            #     database='o2ptableau',)
-
             engine = create_engine(
                 'mysql://{}:{}@{}:{}/{}'.format(dbConfig['user'], dbConfig['password'], dbConfig['host'], dbConfig['port'], 'o2ptableau'))
-            # engine = create_engine(
-            #     'mysql://{}:{}@localhost:53307/o2ptableau'.format('o2p_tableau', 'O2p123!du'))
-            conn = engine.raw_connection()
-            cur = conn.cursor()
+            conn = engine.connect()
 
-            printAndLogMessage("Connected to DB " + 'o2ptableau' + ' at ' +
-                               dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            # printAndLogMessage("Connected to DB " + 'o2ptableau' + ' at ' +
+            #                    dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+
+            printAndLogMessage(
+                'Inserting records to o2ptableau.t_GSP_ip_svcs for ' + report_id.lower() + ' ...')
 
             columns = [
                 "Workorder_no",
@@ -202,7 +188,7 @@ def updateTableauDB(outputList, report_id):
                       if_exists='append',
                       method='multi')
 
-            printAndLogMessage("TableauDB Updated")
+            # printAndLogMessage("TableauDB Updated for " + report_id.lower())
 
         except Exception as err:
             printAndLogMessage("Failed processing DB " + 'o2ptableau' + ' at ' +
