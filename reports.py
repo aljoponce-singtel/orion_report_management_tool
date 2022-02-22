@@ -469,7 +469,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
                  [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT6'])
 
     for list in queryArgs:
-        if groupId == '' or list[1] == groupId:
+        if groupId == '' or list[1].casefold() == groupId.casefold():
             sqlquery = ("""
                         SELECT DISTINCT ORD.order_code,
                             ORD.service_number,
@@ -614,7 +614,7 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
                  [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT6'])
 
     for list in queryArgs:
-        if groupId == '' or list[1] == groupId:
+        if groupId == '' or list[1].casefold() == groupId.casefold():
             sqlquery = ("""
                         SELECT DISTINCT ORD.order_code,
                             ORD.service_number,
@@ -664,8 +664,10 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
-            generateReport(csvFile, processList(dbQueryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
+            outputList = processList(dbQueryToList(
+                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
+            generateReport(csvFile, outputList, headers)
+            updateTableauDB(outputList, list[1])
 
     dbDisconnect()
 
@@ -732,7 +734,7 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
                  [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT8'])
 
     for list in queryArgs:
-        if groupId == '' or list[1] == groupId:
+        if groupId == '' or list[1].casefold() == groupId.casefold():
             sqlquery = ("""
                         SELECT DISTINCT ORD.order_code,
                             ORD.service_number,
@@ -782,8 +784,10 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
-            generateReport(csvFile, processList(dbQueryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
+            outputList = processList(dbQueryToList(
+                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
+            generateReport(csvFile, outputList, headers)
+            updateTableauDB(outputList, list[1])
 
     dbDisconnect()
 
@@ -854,7 +858,7 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
                  [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT8'])
 
     for list in queryArgs:
-        if groupId == '' or list[1] == groupId:
+        if groupId == '' or list[1].casefold() == groupId.casefold():
             sqlquery = ("""
                         SELECT DISTINCT ORD.order_code,
                             ORD.service_number,
@@ -904,8 +908,10 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
-            generateReport(csvFile, processList(dbQueryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
+            outputList = processList(dbQueryToList(
+                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
+            generateReport(csvFile, outputList, headers)
+            updateTableauDB(outputList, list[1])
 
     dbDisconnect()
 
@@ -965,7 +971,7 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
                  [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'GSDT7'])
 
     for list in queryArgs:
-        if groupId == '' or list[1] == groupId:
+        if groupId == '' or list[1].casefold() == groupId.casefold():
             sqlquery = ("""
                         SELECT DISTINCT ORD.order_code,
                             ORD.service_number,
@@ -1021,8 +1027,10 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
 
             csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
-            generateReport(csvFile, processList(dbQueryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2), headers)
+            outputList = processList(dbQueryToList(
+                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
+            generateReport(csvFile, outputList, headers)
+            updateTableauDB(outputList, list[1])
 
     dbDisconnect()
 
@@ -1079,8 +1087,9 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                 """).format(groupIdStr, startDate, endDate, actStr)
 
     csvFile = ("{}_{}.csv").format('GSDT9', getCurrentDateTime())
-    generateReport(csvFile, processList(dbQueryToList(
-        sqlquery), groupId, '', [], []), headers2)
+    outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
+    generateReport(csvFile, outputList, headers2)
+    updateTableauDB(outputList, 'GSDT9')
 
     dbDisconnect()
 
@@ -1136,10 +1145,10 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format(
-        'GSDT_PS21_GSDT_PS23', getCurrentDateTime())
-    generateReport(csvFile, processList(dbQueryToList(
-        sqlquery), groupId, '', [], []), headers2)
+    csvFile = ("{}_{}.csv").format('GSDT_PS21_GSDT_PS23', getCurrentDateTime())
+    outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
+    generateReport(csvFile, outputList, headers2)
+    updateTableauDB(outputList, 'GSDT_PS21_GSDT_PS23')
 
     dbDisconnect()
 
@@ -1196,10 +1205,10 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format(
-        'GSP_SDN_TM_GSDT_TM', getCurrentDateTime())
-    generateReport(csvFile, processList(dbQueryToList(
-        sqlquery), groupId, '', [], []), headers2)
+    csvFile = ("{}_{}.csv").format('GSP_SDN_TM_GSDT_TM', getCurrentDateTime())
+    outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
+    generateReport(csvFile, outputList, headers2)
+    updateTableauDB(outputList, 'GSP_SDN_TM_GSDT_TM')
 
     dbDisconnect()
 
@@ -1391,26 +1400,26 @@ def main():
         startDate = '2021-10-26'
         endDate = '2021-11-25'
 
-        # generateCPluseIpReport('cplusip_report', startDate,
-        #                        endDate, '', "CPlusIP Report", '')
-        # generateMegaPopReport('megapop_report', startDate,
-        #                       endDate, '', "MegaPop Report", '')
-        # generateSingnetReport('singnet_report', startDate,
-        #                       endDate, '', "Singnet Report", '')
-        # generateStixReport('stix_report', startDate,
-        #                    endDate, "STIX Report", '')
-        # generateInternetReport('internet_report', startDate,
-        #                        endDate, "Internet Report", '')
-        # generateSDWANReport('sdwan_report', startDate,
-        #                     endDate, "SDWAN Report", '')
-        # generateCPluseIpReportGrp(
-        #     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
-        # generateMegaPopReportGrp(
-        #     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
-        # generateSingnetReport(
-        #     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
-        # generateSingnetReport(
-        #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
+        generateCPluseIpReport('cplusip_report', startDate,
+                               endDate, '', "CPlusIP Report", '')
+        generateMegaPopReport('megapop_report', startDate,
+                              endDate, '', "MegaPop Report", '')
+        generateSingnetReport('singnet_report', startDate,
+                              endDate, '', "Singnet Report", '')
+        generateStixReport('stix_report', startDate,
+                           endDate, "STIX Report", '')
+        generateInternetReport('internet_report', startDate,
+                               endDate, "Internet Report", '')
+        generateSDWANReport('sdwan_report', startDate,
+                            endDate, "SDWAN Report", '')
+        generateCPluseIpReportGrp(
+            'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
+        generateMegaPopReportGrp(
+            'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
+        generateSingnetReport(
+            'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
+        generateSingnetReport(
+            'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
     else:
 
@@ -1491,7 +1500,6 @@ def main():
                 'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
             generateSingnetReport(
                 'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
-
         #-- END --#
 
     printAndLogMessage("END of script - " +
