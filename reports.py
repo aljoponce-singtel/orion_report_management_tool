@@ -25,11 +25,14 @@ emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
 
 csvFiles = []
-reportsFolderPath = os.path.join(os.path.dirname(__file__), "reports")
-logsFolderPath = os.path.join(os.path.dirname(__file__), "logs")
+reportsFolderPath = os.path.join(os.getcwd(), "reports")
+logsFolderPath = os.path.join(os.getcwd(), "logs")
 
-logging.basicConfig(filename=os.path.join(logsFolderPath, "reports.log"),
-                    encoding='utf-8', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(handlers=[logging.FileHandler(filename=os.path.join(logsFolderPath, "reports.log"),
+                                                  encoding='utf-8', mode='a+')],
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt="%F %a %T",
+                    level=logging.INFO)
 
 headers = [
     "Workorder no",
@@ -111,11 +114,11 @@ def updateTableauDB(outputList, report_id):
 
         try:
             engine = create_engine(
-                'mysql://{}:{}@{}:{}/{}'.format(dbConfig['user'], dbConfig['password'], dbConfig['host'], dbConfig['port'], 'o2ptableau'))
+                'mysql://{}:{}@{}:{}/{}'.format('o2p_tableau', 'O2p123!du', dbConfig['host'], dbConfig['port'], 'o2ptableau'))
             conn = engine.connect()
 
             # printAndLogMessage("Connected to DB " + 'o2ptableau' + ' at ' +
-            #                    dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            #                    'o2p_tableau' + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
 
             printAndLogMessage(
                 'Inserting records to o2ptableau.t_GSP_ip_svcs for ' + report_id.lower() + ' ...')
@@ -169,7 +172,7 @@ def updateTableauDB(outputList, report_id):
 
         except Exception as err:
             printAndLogMessage("Failed processing DB " + 'o2ptableau' + ' at ' +
-                               dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+                               'o2p_tableau' + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
             printAndLogError(err)
 
             raise Exception(err)
@@ -1300,6 +1303,8 @@ def sendEmail(subject, attachment, email):
     # Enable/Disable email
     if defaultConfig.getboolean('SendEmail'):
         try:
+            printAndLogMessage(
+                'Sending email with subject "{}" ...'.format(subject))
 
             receiverTo = emailConfig["receiverTo"] if defaultConfig[
                 'EmailInfo'] == 'EmailTest' else emailConfig["receiverTo"] + ';' + email
@@ -1342,7 +1347,7 @@ def sendEmail(subject, attachment, email):
                                  message.as_string())
                 smtpObj.quit()
 
-            printAndLogMessage("Email sent.")
+            # printAndLogMessage("Email sent.")
 
         except Exception as e:
             printAndLogError("Failed to send email.")
@@ -1351,11 +1356,13 @@ def sendEmail(subject, attachment, email):
 
 def getPlatform():
     platforms = {
+        'linux': 'Linux',
         'linux1': 'Linux',
         'linux2': 'Linux',
         'darwin': 'OS X',
         'win32': 'Windows'
     }
+
     if sys.platform not in platforms:
         return sys.platform
 
@@ -1370,19 +1377,6 @@ def printAndLogMessage(message):
 def printAndLogError(error):
     print("ERROR: {}".format(error))
     logging.error(error)
-
-
-def getPlatform():
-    platforms = {
-        'linux1': 'Linux',
-        'linux2': 'Linux',
-        'darwin': 'OS X',
-        'win32': 'Windows'
-    }
-    if sys.platform not in platforms:
-        return sys.platform
-
-    return platforms[sys.platform]
 
 
 def getCurrentDateTime():
@@ -1400,26 +1394,26 @@ def main():
         startDate = '2021-10-26'
         endDate = '2021-11-25'
 
-        generateCPluseIpReport('cplusip_report', startDate,
-                               endDate, '', "CPlusIP Report", '')
-        generateMegaPopReport('megapop_report', startDate,
-                              endDate, '', "MegaPop Report", '')
-        generateSingnetReport('singnet_report', startDate,
-                              endDate, '', "Singnet Report", '')
-        generateStixReport('stix_report', startDate,
-                           endDate, "STIX Report", '')
-        generateInternetReport('internet_report', startDate,
-                               endDate, "Internet Report", '')
-        generateSDWANReport('sdwan_report', startDate,
-                            endDate, "SDWAN Report", '')
-        generateCPluseIpReportGrp(
-            'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
-        generateMegaPopReportGrp(
-            'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
-        generateSingnetReport(
-            'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
-        generateSingnetReport(
-            'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
+        # generateCPluseIpReport('cplusip_report', startDate,
+        #                        endDate, '', "CPlusIP Report", '')
+        # generateMegaPopReport('megapop_report', startDate,
+        #                       endDate, '', "MegaPop Report", '')
+        # generateSingnetReport('singnet_report', startDate,
+        #                       endDate, '', "Singnet Report", '')
+        # generateStixReport('stix_report', startDate,
+        #                    endDate, "STIX Report", '')
+        # generateInternetReport('internet_report', startDate,
+        #                        endDate, "Internet Report", '')
+        # generateSDWANReport('sdwan_report', startDate,
+        #                     endDate, "SDWAN Report", '')
+        # generateCPluseIpReportGrp(
+        #     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
+        # generateMegaPopReportGrp(
+        #     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
+        # generateSingnetReport(
+        #     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
+        # generateSingnetReport(
+        #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
     else:
 
@@ -1458,7 +1452,7 @@ def main():
         #-- END --#
 
         #-- START --#
-        # If the day falls on the 26th day of the month
+        # If the day falls on the 26th of the month
         # start date = 26th day of the previous month
         # end date = 25th day of the current month
 
