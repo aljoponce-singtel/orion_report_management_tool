@@ -13,6 +13,11 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email import encoders
+import pandas as pd
+from sqlalchemy import create_engine
+import numpy as np
+import pymysql
+pymysql.install_as_MySQLdb()
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -92,8 +97,6 @@ def dbConnect():
 
         raise Exception(err)
 
-    # printNewLine()
-
 
 def dbDisconnect():
     db.close()
@@ -111,7 +114,105 @@ def dbQueryToList(sqlQuery):
 def updateTableauDB(outputList, report_id):
     # Allow Tableaue DB update
     if defaultConfig.getboolean('UpdateTableaueDB'):
-        printAndLogMessage("TableauDB Updated")
+        conn = None
+
+        try:
+            # tableauDB = mysql.connect(
+            #     user=dbConfig['user'],
+            #     password=dbConfig['password'],
+            #     host=dbConfig['host'],
+            #     port=dbConfig['port'],
+            #     database='o2ptableau',)
+
+            engine = create_engine(
+                'mysql://{}:{}@{}:{}/{}'.format(dbConfig['user'], dbConfig['password'], dbConfig['host'], dbConfig['port'], 'o2ptableau'))
+            # engine = create_engine(
+            #     'mysql://{}:{}@localhost:53307/o2ptableau'.format('o2p_tableau', 'O2p123!du'))
+            conn = engine.raw_connection()
+            cur = conn.cursor()
+
+            printAndLogMessage("Connected to DB " + 'o2ptableau' + ' at ' +
+                               dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+
+            columns = [
+                "Workorder_no",
+                "Service_No",
+                "Product_Code",
+                "Product_Description",
+                "Customer_Name",
+                "Order_Type",
+                "CRD",
+                "Order_Taken_Date",
+                "Group_ID_1",
+                "Activity_Name_1",
+                "DUE_1",
+                "RDY_1",
+                "EXC_1",
+                "DLY_1",
+                "COM_1",
+                "Group_ID_2",
+                "Activity_Name_2",
+                "DUE_2",
+                "RDY_2",
+                "EXC_2",
+                "DLY_2",
+                "COM_2"
+            ]
+
+            df_processed = pd.DataFrame(outputList, columns=columns)
+            df_processed["report_id"] = report_id.lower()
+            df_processed["updated_at"] = pd.Timestamp.now()
+            dateColumns = ['DUE_1', 'RDY_1', 'EXC_1', 'DLY_1', 'COM_1', 'DUE_2',
+                           'RDY_2', 'EXC_2', 'DLY_2', 'COM_2', 'CRD', 'Order_Taken_Date']
+            df_processed[dateColumns] = df_processed[dateColumns].apply(
+                pd.to_datetime)
+
+            columns2 = [
+                "Workorder_no",
+                "Service_No",
+                "Product_Code",
+                "Product_Description",
+                "Customer_Name",
+                "Order_Type",
+                "CRD",
+                "Order_Taken_Date",
+                "Group_ID_1",
+                "Activity_Name_1",
+                "DUE_1",
+                "RDY_1",
+                "EXC_1",
+                "DLY_1",
+                "COM_1",
+                "Group_ID_2",
+                "Activity_Name_2",
+                "DUE_2",
+                "RDY_2",
+                "EXC_2",
+                "DLY_2",
+                "COM_2",
+                "report_id",
+                "update_time"
+            ]
+
+            df = pd.DataFrame(df_processed.replace(
+                '', None).values.tolist(), columns=columns2)
+            df.to_sql('t_GSP_ip_svcs_test',
+                      con=engine,
+                      index=False,
+                      if_exists='append',
+                      method='multi')
+
+            printAndLogMessage("TableauDB Updated")
+
+        except Exception as err:
+            printAndLogMessage("Failed processing DB " + 'o2ptableau' + ' at ' +
+                               dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            printAndLogError(err)
+
+            raise Exception(err)
+
+        finally:
+            conn.close()
 
 
 def write_to_csv(csv_file, dataset, headers):
@@ -315,8 +416,6 @@ def processList(queryList, groupId_1, groupId_2, grp_1_prio, grp_2_prio):
 
         WorkOrderNo = row[column["workOrderNo"]]
 
-    # printNewLine()
-
     return finalList
 
 
@@ -324,12 +423,6 @@ def printRecords(records):
 
     for record in records:
         print(record)
-
-    printNewLine()
-
-
-def printNewLine():
-    print("\n")
 
 
 def generateReport(csvfile, querylist, headers):
@@ -466,6 +559,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
             outputList = processList(dbQueryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
+            updateTableauDB(outputList, list[1])
 
     dbDisconnect()
 
@@ -473,8 +567,6 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
         zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
         zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
-
-    updateTableauDB(outputList, list[1])
 
     printAndLogMessage("Processing [" + emailSubject + "] complete.")
 
@@ -1335,8 +1427,8 @@ def main():
         startDate = '2021-10-26'
         endDate = '2021-11-25'
 
-        generateCPluseIpReport('cplusip_report', startDate,
-                               endDate, '', "CPlusIP Report", '')
+        # generateCPluseIpReport('cplusip_report', startDate,
+        #                        endDate, '', "CPlusIP Report", '')
         # generateMegaPopReport('megapop_report', startDate,
         #                       endDate, '', "MegaPop Report", '')
         # generateSingnetReport('singnet_report', startDate,
