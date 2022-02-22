@@ -145,48 +145,25 @@ def updateTableauDB(outputList, report_id):
                 "COM_2"
             ]
 
-            df_processed = pd.DataFrame(outputList, columns=columns)
-            df_processed["report_id"] = report_id.lower()
-            df_processed["updated_at"] = pd.Timestamp.now()
+            df = pd.DataFrame(outputList, columns=columns)
+
+            # add new columns
+            df["report_id"] = report_id.lower()
+            df["update_time"] = pd.Timestamp.now()
+
+            # set columns to datetime type
             dateColumns = ['DUE_1', 'RDY_1', 'EXC_1', 'DLY_1', 'COM_1', 'DUE_2',
                            'RDY_2', 'EXC_2', 'DLY_2', 'COM_2', 'CRD', 'Order_Taken_Date']
-            df_processed[dateColumns] = df_processed[dateColumns].apply(
+            df[dateColumns] = df[dateColumns].apply(
                 pd.to_datetime)
 
-            columns2 = [
-                "Workorder_no",
-                "Service_No",
-                "Product_Code",
-                "Product_Description",
-                "Customer_Name",
-                "Order_Type",
-                "CRD",
-                "Order_Taken_Date",
-                "Group_ID_1",
-                "Activity_Name_1",
-                "DUE_1",
-                "RDY_1",
-                "EXC_1",
-                "DLY_1",
-                "COM_1",
-                "Group_ID_2",
-                "Activity_Name_2",
-                "DUE_2",
-                "RDY_2",
-                "EXC_2",
-                "DLY_2",
-                "COM_2",
-                "report_id",
-                "update_time"
-            ]
-
-            df = pd.DataFrame(df_processed.replace(
-                '', None).values.tolist(), columns=columns2)
-            df.to_sql('t_GSP_ip_svcs_test',
-                      con=engine,
-                      index=False,
-                      if_exists='append',
-                      method='multi')
+            # set empty values to null
+            # insert records to DB
+            df.replace('', None).to_sql('t_GSP_ip_svcs_test',
+                                        con=engine,
+                                        index=False,
+                                        if_exists='append',
+                                        method='multi')
 
             # printAndLogMessage("TableauDB Updated for " + report_id.lower())
 
@@ -1252,7 +1229,8 @@ def os_zip_csvFile(csvFiles, zipfile):
 
 def zip_file(csvFiles, zipfile, folderPath):
 
-    printAndLogMessage("Creating " + zipfile + " for " + ', '.join(csvFiles) + ' ...')
+    printAndLogMessage("Creating " + zipfile + " for " +
+                       ', '.join(csvFiles) + ' ...')
     os.chdir(folderPath)
 
     if getPlatform() == "Linux":
