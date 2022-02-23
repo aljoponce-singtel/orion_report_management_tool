@@ -23,7 +23,9 @@ config.read('config.ini')
 defaultConfig = config['DEFAULT']
 emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
-
+engine = None
+conn = None
+updateTableau = False
 csvFiles = []
 reportsFolderPath = os.path.join(os.getcwd(), "reports")
 logsFolderPath = os.path.join(os.getcwd(), "logs")
@@ -109,7 +111,7 @@ def dbQueryToList(sqlQuery):
 
 def updateTableauDB(outputList, report_id):
     # Allow Tableaue DB update
-    if defaultConfig.getboolean('UpdateTableaueDB'):
+    if updateTableau:
         conn = None
 
         try:
@@ -1388,9 +1390,10 @@ def main():
                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
     printAndLogMessage("Running script in " + getPlatform())
     today_date = datetime.now().date()
+    global updateTableau
 
     if defaultConfig.getboolean('GenReportManually'):
-
+        # updateTableau = True
         startDate = '2021-10-26'
         endDate = '2021-11-25'
 
@@ -1427,6 +1430,7 @@ def main():
         # print("date today: " + str(today_date))
 
         if today_date.day == 1:
+            updateTableau = True
             previousMonth = (today_date.replace(day=1) -
                              timedelta(days=1)).replace(day=today_date.day)
             startDate = str(previousMonth)
