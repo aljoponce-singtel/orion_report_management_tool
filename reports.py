@@ -1386,6 +1386,7 @@ def getCurrentDateTime():
 
 
 def main():
+    printAndLogMessage("==========================================")
     printAndLogMessage("START of script - " +
                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
     printAndLogMessage("Running script in " + getPlatform())
