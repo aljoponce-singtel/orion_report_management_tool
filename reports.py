@@ -83,15 +83,15 @@ def dbConnect():
 
     try:
         engine = create_engine(
-            'mysql://{}:{}@{}:{}/{}'.format(dbConfig['user'], dbConfig['password'], dbConfig['host'], dbConfig['port'], dbConfig['database']))
+            'mysql://{}:{}@{}:{}/{}'.format(dbConfig['orion_user'], dbConfig['orion_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['orion_db']))
         conn = engine.connect()
 
-        # printAndLogMessage("Connected to DB " + dbConfig['database'] + ' at ' +
-        #                    dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'])
+        # printAndLogMessage("Connected to DB " + dbConfig['orion_db'] + ' at ' +
+        #                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'])
 
     except Exception as err:
-        printAndLogMessage("Failed to connect to DB " + dbConfig['database'] + ' at ' +
-                           dbConfig['user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+        printAndLogMessage("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
+                           dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
         printAndLogError(err)
         conn.close()
 
@@ -114,11 +114,11 @@ def updateTableauDB(outputList, report_id):
 
         try:
             engine = create_engine(
-                'mysql://{}:{}@{}:{}/{}'.format('o2p_tableau', 'O2p123!du', dbConfig['host'], dbConfig['port'], 'o2ptableau'))
+                'mysql://{}:{}@{}:{}/{}'.format(dbConfig['tableau_user'], dbConfig['tableau_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['tableau_db']))
             conn = engine.connect()
 
-            # printAndLogMessage("Connected to DB " + 'o2ptableau' + ' at ' +
-            #                    'o2p_tableau' + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            # printAndLogMessage("Connected to DB " + dbConfig['tableau_db'] + ' at ' +
+            #                    dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
 
             printAndLogMessage(
                 'Inserting records to o2ptableau.t_GSP_ip_svcs for ' + report_id.lower() + ' ...')
@@ -171,8 +171,8 @@ def updateTableauDB(outputList, report_id):
             # printAndLogMessage("TableauDB Updated for " + report_id.lower())
 
         except Exception as err:
-            printAndLogMessage("Failed processing DB " + 'o2ptableau' + ' at ' +
-                               'o2p_tableau' + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            printAndLogMessage("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
+                               dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
             printAndLogError(err)
 
             raise Exception(err)
