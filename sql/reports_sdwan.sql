@@ -14,7 +14,7 @@ SELECT
     CON.contact_type AS ContactType,
     CON.email_address AS EmailAddress,
     PAR.parameter_name AS ParameterName,
-    PAR.parameter_name AS ParameterValue
+    PAR.parameter_value AS ParameterValue
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id
