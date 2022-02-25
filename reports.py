@@ -95,8 +95,6 @@ def dbConnect():
         printAndLogMessage("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
                            dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
         printAndLogError(err)
-        conn.close()
-
         raise Exception(err)
 
 
