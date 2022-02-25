@@ -36,6 +36,45 @@ logging.basicConfig(handlers=[logging.FileHandler(filename=os.path.join(logsFold
                     datefmt="%F %a %T",
                     level=logging.INFO)
 
+reportColumns = ['OrderCode',
+                 'NetworkProductCode',
+                 'GroupID',
+                 'CRD',
+                 'TakenDate',
+                 'ServiceNumber',
+                 'ProjectCode',
+                 'CustomerName',
+                 'AEndAddress',
+                 'AM_ContactName',
+                 'AM_ContactEmail',
+                 'SDE_ContactName',
+                 'SDE_ContactEmail',
+                 'PM_ContactName',
+                 'PM_ContactEmail',
+                 'AEndCus_ContactName',
+                 'AEndCus_ContactEmail',
+                 'CircuitRef1',
+                 'CircuitRef2',
+                 'CircuitRef3',
+                 'CircuitRef4',
+                 'CustCircuitTy1',
+                 'CustCircuitTy2',
+                 'CustCircuitTy3',
+                 'CustCircuitTy4',
+                 'MainEquipModel',
+                 'OriginCtry',
+                 'OriginCity',
+                 'EquipmentVendorPONo',
+                 'EquipmentVendor',
+                 'InstallationPartnerPONo',
+                 'InstallationPartner',
+                 'SIInstallPartner',
+                 'SIMaintPartner',
+                 'CSDWSIInstall',
+                 'CSDWSIMaint',
+                 'MainSLA'
+                 ]
+
 
 def dbConnect():
     global engine, conn
@@ -331,7 +370,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         CON.contact_type AS ContactType,
                         CON.email_address AS EmailAddress,
                         PAR.parameter_name AS ParameterName,
-                        PAR.parameter_name AS ParameterValue
+                        PAR.parameter_value AS ParameterValue
                     FROM
                         RestInterface_order ORD
                         JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id
@@ -358,9 +397,9 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         ParameterName;
                 """).format(contactTypes, parameters, orderTypes, productCodes, startDate, endDate)
 
-    csvFile = ("{}_{}.csv").format('GSP_SDN_TM_GSDT_TM', getCurrentDateTime())
-    outputList = dbQueryToList(sqlquery)
-    generateReport(csvFile, outputList, columns)
+    csvFile = ("{}_{}.csv").format('SDWAN', getCurrentDateTime())
+    outputList = processList(dbQueryToList(sqlquery), columns)
+    generateReport(csvFile, outputList, reportColumns)
 
     dbDisconnect()
 
@@ -370,6 +409,131 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     printAndLogMessage("Processing [" + emailSubject + "] complete")
+
+
+def processList(queryList, columns):
+    df_report = pd.DataFrame(columns=reportColumns)
+    df = pd.DataFrame(queryList, columns=columns)
+
+    for order in df['OrderCode'].unique():
+        df_order = df[df['OrderCode'] == order]
+
+        # Add values to columns
+        orderCode = order
+        productCode = dfValuesToList(df_order['NetworkProductCode'])
+        groupID = dfValuesToList(df_order['GroupID'])
+        crd = dfValuesToList(df_order['CRD'].astype(str))
+        takenDate = dfValuesToList(df_order['TakenDate'].astype(str))
+        serviceNumber = dfValuesToList(df_order['ServiceNumber'])
+        projectCode = dfValuesToList(df_order['ProjectCode'])
+        customerName = dfValuesToList(df_order['CustomerName'])
+        aEndAddress = dfValuesToList(df_order['AEndAddress'])
+        amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
+        sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
+        pmContactName, pmContactEmail = dfContactInformation(
+            df_order, 'Project Manager')
+        aEndCusContactName, aEndCusContactEmail = dfContactInformation(
+            df_order, 'A-end-Cust')
+        circuitRef1 = dfParameterValue(df_order, 'CircuitRef1')
+        circuitRef2 = dfParameterValue(df_order, 'CircuitRef2')
+        circuitRef3 = dfParameterValue(df_order, 'CircuitRef3')
+        circuitRef4 = dfParameterValue(df_order, 'CircuitRef4')
+        custCircuitTy1 = dfParameterValue(df_order, 'CustCircuitTy1')
+        custCircuitTy2 = dfParameterValue(df_order, 'CustCircuitTy2')
+        custCircuitTy3 = dfParameterValue(df_order, 'CustCircuitTy3')
+        custCircuitTy4 = dfParameterValue(df_order, 'CustCircuitTy4')
+        mainEquipModel = dfParameterValue(df_order, 'MainEquipModel')
+        originCtry = dfParameterValue(df_order, 'OriginCtry')
+        originCity = dfParameterValue(df_order, 'OriginCity')
+        equipmentVendorPONo = dfParameterValue(df_order, 'EquipmentVendorPONo')
+        equipmentVendor = dfParameterValue(df_order, 'EquipmentVendor')
+        installationPartnerPONo = dfParameterValue(
+            df_order, 'InstallationPartnerPONo')
+        installationPartner = dfParameterValue(df_order, 'InstallationPartner')
+        sIInstallPartner = dfParameterValue(df_order, 'SIInstallPartner')
+        sIMaintPartner = dfParameterValue(df_order, 'SIMaintPartner')
+        cSDWSIInstall = dfParameterValue(df_order, 'CSDWSIInstall')
+        cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
+        mainSLA = dfParameterValue(df_order, 'MainSLA')
+
+        reportData = [
+            orderCode,
+            productCode,
+            groupID,
+            crd,
+            takenDate,
+            serviceNumber,
+            projectCode,
+            customerName,
+            aEndAddress,
+            amContactName,
+            amContactEmail,
+            sdeContactName,
+            sdeContactEmail,
+            pmContactName,
+            pmContactEmail,
+            aEndCusContactName,
+            aEndCusContactEmail,
+            circuitRef1,
+            circuitRef2,
+            circuitRef3,
+            circuitRef4,
+            custCircuitTy1,
+            custCircuitTy2,
+            custCircuitTy3,
+            custCircuitTy4,
+            mainEquipModel,
+            originCtry,
+            originCity,
+            equipmentVendorPONo,
+            equipmentVendor,
+            installationPartnerPONo,
+            installationPartner,
+            sIInstallPartner,
+            sIMaintPartner,
+            cSDWSIInstall,
+            cSDWSIMaint,
+            mainSLA
+        ]
+
+        # add new data (df_toAdd) to df_report
+        df_toAdd = pd.DataFrame(data=[reportData], columns=reportColumns)
+        df_report = pd.concat([df_report, df_toAdd])
+
+    # write_to_csv('sdwan_report.csv', df_report.values.tolist(), reportColumns)
+
+    return df_report.values.tolist()
+
+
+def dfValuesToList(df):
+    list = df.unique().tolist()
+    list.sort()
+    return('; '.join(filter(None, list)))
+
+
+def dfContactInformation(df, contactType):
+    df_contact = df[df['ContactType'] == contactType][[
+        'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+
+    contactNameList = []
+    contactEmailList = []
+
+    for ind in df_contact.index:
+        contactNameList.append(
+            df_contact['FamilyName'][ind] + ', ' + df_contact['GivenName'][ind])
+        contactEmailList.append(
+            df_contact['EmailAddress'][ind])
+
+    contactNames = '; '.join(filter(None, contactNameList))
+    contactEmails = '; '.join(filter(None, contactEmailList))
+
+    return contactNames, contactEmails
+
+
+def dfParameterValue(df, parameterName):
+    df_parameterValue = df[df['ParameterName']
+                           == parameterName][['ParameterValue']]
+    return dfValuesToList(df_parameterValue['ParameterValue'])
 
 
 def main():
