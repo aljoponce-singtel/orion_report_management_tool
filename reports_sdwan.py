@@ -417,97 +417,112 @@ def processList(queryList, columns):
     df = pd.DataFrame(queryList, columns=columns)
 
     for order in df['OrderCode'].unique():
-        df_order = df[df['OrderCode'] == order]
-
-        # Add values to columns
-        orderCode = order
-        productCode = df_order['NetworkProductCode'].unique()[0]
-        groupID = dfValuesToList(df_order['GroupID'])
-        crd = df_order['CRD'].unique()[0]
-        takenDate = df_order['TakenDate'].unique()[0]
-        serviceNumber = df_order['ServiceNumber'].unique()[0]
-        projectCode = df_order['ProjectCode'].unique()[0]
-        customerName = df_order['CustomerName'].unique()[0]
-        aEndAddress = df_order['AEndAddress'].unique()[0]
-        amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
-        sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
-        pmContactName, pmContactEmail = dfContactInformation(
-            df_order, 'Project Manager')
-        aEndCusContactName, aEndCusContactEmail = dfContactInformation(
-            df_order, 'A-end-Cust')
-        circuitRef1 = dfParameterValue(df_order, 'CircuitRef1')
-        circuitRef2 = dfParameterValue(df_order, 'CircuitRef2')
-        circuitRef3 = dfParameterValue(df_order, 'CircuitRef3')
-        circuitRef4 = dfParameterValue(df_order, 'CircuitRef4')
-        custCircuitTy1 = dfParameterValue(df_order, 'CustCircuitTy1')
-        custCircuitTy2 = dfParameterValue(df_order, 'CustCircuitTy2')
-        custCircuitTy3 = dfParameterValue(df_order, 'CustCircuitTy3')
-        custCircuitTy4 = dfParameterValue(df_order, 'CustCircuitTy4')
-        mainEquipModel = dfParameterValue(df_order, 'MainEquipModel')
-        originCtry = dfParameterValue(df_order, 'OriginCtry')
-        originCity = dfParameterValue(df_order, 'OriginCity')
-        equipmentVendorPONo = dfParameterValue(df_order, 'EquipmentVendorPONo')
-        equipmentVendor = dfParameterValue(df_order, 'EquipmentVendor')
-        installationPartnerPONo = dfParameterValue(
-            df_order, 'InstallationPartnerPONo')
-        installationPartner = dfParameterValue(df_order, 'InstallationPartner')
-        sIInstallPartner = dfParameterValue(df_order, 'SIInstallPartner')
-        sIMaintPartner = dfParameterValue(df_order, 'SIMaintPartner')
-        cSDWSIInstall = dfParameterValue(df_order, 'CSDWSIInstall')
-        cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
-        mainSLA = dfParameterValue(df_order, 'MainSLA')
-
-        reportData = [
-            orderCode,
-            productCode,
-            groupID,
-            crd,
-            takenDate,
-            serviceNumber,
-            projectCode,
-            customerName,
-            aEndAddress,
-            amContactName,
-            amContactEmail,
-            sdeContactName,
-            sdeContactEmail,
-            pmContactName,
-            pmContactEmail,
-            aEndCusContactName,
-            aEndCusContactEmail,
-            circuitRef1,
-            circuitRef2,
-            circuitRef3,
-            circuitRef4,
-            custCircuitTy1,
-            custCircuitTy2,
-            custCircuitTy3,
-            custCircuitTy4,
-            mainEquipModel,
-            originCtry,
-            originCity,
-            equipmentVendorPONo,
-            equipmentVendor,
-            installationPartnerPONo,
-            installationPartner,
-            sIInstallPartner,
-            sIMaintPartner,
-            cSDWSIInstall,
-            cSDWSIMaint,
-            mainSLA
-        ]
-
         # add new data (df_toAdd) to df_report
-        df_toAdd = pd.DataFrame(data=[reportData], columns=reportColumns)
+        df_order = df[df['OrderCode'] == order]
+        df_toAdd = processUniqueOrders(df_order, reportColumns) if defaultConfig.getboolean(
+            'ProcessUniqueOrders') else None
         df_report = pd.concat([df_report, df_toAdd])
 
     return df_report.values.tolist(), reportColumns
+
+
+def processUniqueOrders(df_order, reportColumns):
+
+    # Add values to columns
+    orderCode = dfUniqueValue(df_order['OrderCode'])
+    productCode = dfUniqueValue(df_order['NetworkProductCode'])
+    groupID = dfValuesToList(df_order['GroupID'])
+    crd = dfUniqueValue(df_order['CRD'])
+    takenDate = dfUniqueValue(df_order['TakenDate'])
+    serviceNumber = dfUniqueValue(df_order['ServiceNumber'])
+    projectCode = dfUniqueValue(df_order['ProjectCode'])
+    customerName = dfUniqueValue(df_order['CustomerName'])
+    aEndAddress = dfUniqueValue(df_order['AEndAddress'])
+    amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
+    sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
+    pmContactName, pmContactEmail = dfContactInformation(
+        df_order, 'Project Manager')
+    aEndCusContactName, aEndCusContactEmail = dfContactInformation(
+        df_order, 'A-end-Cust')
+    circuitRef1 = dfParameterValue(df_order, 'CircuitRef1')
+    circuitRef2 = dfParameterValue(df_order, 'CircuitRef2')
+    circuitRef3 = dfParameterValue(df_order, 'CircuitRef3')
+    circuitRef4 = dfParameterValue(df_order, 'CircuitRef4')
+    custCircuitTy1 = dfParameterValue(df_order, 'CustCircuitTy1')
+    custCircuitTy2 = dfParameterValue(df_order, 'CustCircuitTy2')
+    custCircuitTy3 = dfParameterValue(df_order, 'CustCircuitTy3')
+    custCircuitTy4 = dfParameterValue(df_order, 'CustCircuitTy4')
+    mainEquipModel = dfParameterValue(df_order, 'MainEquipModel')
+    originCtry = dfParameterValue(df_order, 'OriginCtry')
+    originCity = dfParameterValue(df_order, 'OriginCity')
+    equipmentVendorPONo = dfParameterValue(df_order, 'EquipmentVendorPONo')
+    equipmentVendor = dfParameterValue(df_order, 'EquipmentVendor')
+    installationPartnerPONo = dfParameterValue(
+        df_order, 'InstallationPartnerPONo')
+    installationPartner = dfParameterValue(df_order, 'InstallationPartner')
+    sIInstallPartner = dfParameterValue(df_order, 'SIInstallPartner')
+    sIMaintPartner = dfParameterValue(df_order, 'SIMaintPartner')
+    cSDWSIInstall = dfParameterValue(df_order, 'CSDWSIInstall')
+    cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
+    mainSLA = dfParameterValue(df_order, 'MainSLA')
+
+    reportData = [
+        orderCode,
+        productCode,
+        groupID,
+        crd,
+        takenDate,
+        serviceNumber,
+        projectCode,
+        customerName,
+        aEndAddress,
+        amContactName,
+        amContactEmail,
+        sdeContactName,
+        sdeContactEmail,
+        pmContactName,
+        pmContactEmail,
+        aEndCusContactName,
+        aEndCusContactEmail,
+        circuitRef1,
+        circuitRef2,
+        circuitRef3,
+        circuitRef4,
+        custCircuitTy1,
+        custCircuitTy2,
+        custCircuitTy3,
+        custCircuitTy4,
+        mainEquipModel,
+        originCtry,
+        originCity,
+        equipmentVendorPONo,
+        equipmentVendor,
+        installationPartnerPONo,
+        installationPartner,
+        sIInstallPartner,
+        sIMaintPartner,
+        cSDWSIInstall,
+        cSDWSIMaint,
+        mainSLA
+    ]
+
+    # add new data (df_toAdd) to df_report
+    df_toAdd = pd.DataFrame(data=[reportData], columns=reportColumns)
+
+    return df_toAdd
 
 
 def dfValuesToList(df):
     list = df.unique().tolist()
     list.sort()
     return('; '.join(filter(None, list)))
+
+
+def dfUniqueValue(df):
+    if df.empty:
+        return None
+    else:
+        return df.unique()[0]
 
 
 def dfContactInformation(df, contactType):
@@ -532,7 +547,8 @@ def dfContactInformation(df, contactType):
 def dfParameterValue(df, parameterName):
     df_parameterValue = df[df['ParameterName']
                            == parameterName][['ParameterValue']]
-    return dfValuesToList(df_parameterValue['ParameterValue'])
+
+    return dfUniqueValue(df_parameterValue['ParameterValue'])
 
 
 def main():
