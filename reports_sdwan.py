@@ -687,31 +687,23 @@ def main():
     global updateTableau
 
     if defaultConfig.getboolean('GenReportManually'):
-        # updateTableau = True
-        startDate = '2022-02-25'
-        endDate = '2022-02-25'
+        startDate = defaultConfig['ReportStartDate']
+        endDate = defaultConfig['ReportEndDate']
+
+        printAndLogMessage("start date: " + str(startDate))
+        printAndLogMessage("end date: " + str(endDate))
 
         generateSDWANReport('sdwan_report', startDate,
-                            endDate, "SDWAN Report", '')
+                            endDate, "SDWAN Weekly Report", '')
 
     else:
+        startDate = str(today_date - timedelta(days=7))
+        endDate = str(today_date - timedelta(days=1))
+        printAndLogMessage("start date: " + str(startDate))
+        printAndLogMessage("end date: " + str(endDate))
 
-        #-- START --#
-        # If the day falls on a Monday
-        # start date = date of the previous Monday (T-7)
-        # end date = date of the previous Sunday (T-1)
-
-        # TEST DATA
-        # today_date = datetime.now().date().replace(day=7)
-        # print("date today: " + str(today_date))
-
-        if today_date.isoweekday() == 1:  # Monday
-            startDate = str(today_date - timedelta(days=7))
-            endDate = str(today_date - timedelta(days=1))
-            print("start date: " + str(startDate))
-            print("end date: " + str(endDate))
-
-        #-- END --#
+        generateSDWANReport('sdwan_report', startDate,
+                            endDate, "SDWAN Weekly Report", '')
 
     printAndLogMessage("END of script - " +
                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
