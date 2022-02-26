@@ -442,11 +442,11 @@ def processDuplicateOrders(df_order, reportColumns):
     customerName = dfUniqueValue(df_order['CustomerName'])
     aEndAddress = dfUniqueValue(df_order['AEndAddress'])
     # amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
-    sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
-    pmContactName, pmContactEmail = dfContactInformation(
-        df_order, 'Project Manager')
-    aEndCusContactName, aEndCusContactEmail = dfContactInformation(
-        df_order, 'A-end-Cust')
+    # sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
+    # pmContactName, pmContactEmail = dfContactInformation(
+    #     df_order, 'Project Manager')
+    # aEndCusContactName, aEndCusContactEmail = dfContactInformation(
+    #     df_order, 'A-end-Cust')
     circuitRef1 = dfParameterValue(df_order, 'CircuitRef1')
     circuitRef2 = dfParameterValue(df_order, 'CircuitRef2')
     circuitRef3 = dfParameterValue(df_order, 'CircuitRef3')
@@ -479,50 +479,68 @@ def processDuplicateOrders(df_order, reportColumns):
             amContactName, amContactEmail = dfContactNameEmail(
                 df_contact, ind)
 
-            reportData = [
-                orderCode,
-                productCode,
-                groupID,
-                crd,
-                takenDate,
-                serviceNumber,
-                projectCode,
-                customerName,
-                aEndAddress,
-                amContactName,
-                amContactEmail,
-                sdeContactName,
-                sdeContactEmail,
-                pmContactName,
-                pmContactEmail,
-                aEndCusContactName,
-                aEndCusContactEmail,
-                circuitRef1,
-                circuitRef2,
-                circuitRef3,
-                circuitRef4,
-                custCircuitTy1,
-                custCircuitTy2,
-                custCircuitTy3,
-                custCircuitTy4,
-                mainEquipModel,
-                originCtry,
-                originCity,
-                equipmentVendorPONo,
-                equipmentVendor,
-                installationPartnerPONo,
-                installationPartner,
-                sIInstallPartner,
-                sIMaintPartner,
-                cSDWSIInstall,
-                cSDWSIMaint,
-                mainSLA
-            ]
+            df_contact = df_order[df_order['ContactType'] == 'SDE'][[
+                'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+            for ind in df_contact.index:
+                sdeContactName, sdeContactEmail = dfContactNameEmail(
+                    df_contact, ind)
 
-            # add new data (df_toAdd) to df_report
-            df_toAdd = pd.DataFrame(
-                data=[reportData], columns=reportColumns)
-            df_report = pd.concat([df_report, df_toAdd])
+                df_contact = df_order[df_order['ContactType'] == 'Project Manager'][[
+                    'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+                for ind in df_contact.index:
+                    pmContactName, pmContactEmail = dfContactNameEmail(
+                        df_contact, ind)
+
+                    df_contact = df_order[df_order['ContactType'] == 'A-end-Cust'][[
+                        'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+                    for ind in df_contact.index:
+                        aEndCusContactName, aEndCusContactEmail = dfContactNameEmail(
+                            df_contact, ind)
+
+                        reportData = [
+                            orderCode,
+                            productCode,
+                            groupID,
+                            crd,
+                            takenDate,
+                            serviceNumber,
+                            projectCode,
+                            customerName,
+                            aEndAddress,
+                            amContactName,
+                            amContactEmail,
+                            sdeContactName,
+                            sdeContactEmail,
+                            pmContactName,
+                            pmContactEmail,
+                            aEndCusContactName,
+                            aEndCusContactEmail,
+                            circuitRef1,
+                            circuitRef2,
+                            circuitRef3,
+                            circuitRef4,
+                            custCircuitTy1,
+                            custCircuitTy2,
+                            custCircuitTy3,
+                            custCircuitTy4,
+                            mainEquipModel,
+                            originCtry,
+                            originCity,
+                            equipmentVendorPONo,
+                            equipmentVendor,
+                            installationPartnerPONo,
+                            installationPartner,
+                            sIInstallPartner,
+                            sIMaintPartner,
+                            cSDWSIInstall,
+                            cSDWSIMaint,
+                            mainSLA
+                        ]
+
+                        # add new data (df_toAdd) to df_report
+                        df_toAdd = pd.DataFrame(
+                            data=[reportData], columns=reportColumns)
+                        df_report = pd.concat([df_report, df_toAdd])
 
     return df_report
 
