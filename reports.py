@@ -1397,8 +1397,8 @@ def main():
         printAndLogMessage("start date: " + str(startDate))
         printAndLogMessage("end date: " + str(endDate))
 
-        # generateCPluseIpReport('cplusip_report', startDate,
-        #                        endDate, '', "CPlusIP Report", '')
+        generateCPluseIpReport('cplusip_report', startDate,
+                               endDate, '', "CPlusIP Report", '')
         # generateMegaPopReport('megapop_report', startDate,
         #                       endDate, '', "MegaPop Report", '')
         # generateSingnetReport('singnet_report', startDate,
