@@ -421,15 +421,14 @@ def processList(queryList, columns):
 
         # Add values to columns
         orderCode = order
-        productCode = dfValuesToList(df_order['NetworkProductCode'])
-        # productCode = df_order['NetworkProductCode'].unique()
+        productCode = df_order['NetworkProductCode'].unique()[0]
         groupID = dfValuesToList(df_order['GroupID'])
-        crd = dfValuesToList(df_order['CRD'].astype(str))
-        takenDate = dfValuesToList(df_order['TakenDate'].astype(str))
-        serviceNumber = dfValuesToList(df_order['ServiceNumber'])
-        projectCode = dfValuesToList(df_order['ProjectCode'])
-        customerName = dfValuesToList(df_order['CustomerName'])
-        aEndAddress = dfValuesToList(df_order['AEndAddress'])
+        crd = df_order['CRD'].unique()[0]
+        takenDate = df_order['TakenDate'].unique()[0]
+        serviceNumber = df_order['ServiceNumber'].unique()[0]
+        projectCode = df_order['ProjectCode'].unique()[0]
+        customerName = df_order['CustomerName'].unique()[0]
+        aEndAddress = df_order['AEndAddress'].unique()[0]
         amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
         sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
         pmContactName, pmContactEmail = dfContactInformation(
