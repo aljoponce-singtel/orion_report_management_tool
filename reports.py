@@ -1393,9 +1393,13 @@ def main():
                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
         printAndLogMessage("Running script in " + getPlatform())
 
+        startDate = defaultConfig['ReportStartDate']
+        endDate = defaultConfig['ReportEndDate']
+
+        printAndLogMessage("start date: " + str(startDate))
+        printAndLogMessage("end date: " + str(endDate))
+
         # updateTableau = True
-        startDate = '2021-10-26'
-        endDate = '2021-11-25'
 
         # generateCPluseIpReport('cplusip_report', startDate,
         #                        endDate, '', "CPlusIP Report", '')
@@ -1445,8 +1449,9 @@ def main():
             lastDay = calendar.monthrange(
                 previousMonth.year, previousMonth.month)[1]
             endDate = str(previousMonth.replace(day=lastDay))
-            print("start date: " + str(startDate))
-            print("end date: " + str(endDate))
+            
+            printAndLogMessage("start date: " + str(startDate))
+            printAndLogMessage("end date: " + str(endDate))
 
             generateCPluseIpReport('cplusip_report', startDate,
                                    endDate, '', "CPlusIP Report", '')
