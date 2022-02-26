@@ -1,10 +1,8 @@
 import sys
 import logging
-import re
 import csv
 import os
 import smtplib
-import calendar
 import configparser
 from datetime import datetime, timedelta
 from zipfile import ZipFile
