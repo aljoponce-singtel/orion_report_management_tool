@@ -700,7 +700,7 @@ def main():
             printAndLogMessage("start date: " + str(startDate))
             printAndLogMessage("end date: " + str(endDate))
 
-            generateSDWANReport('sdwan_report', startDate,
+            generateSDWANReport('sdwan_weekly_report', startDate,
                                 endDate, "SDWAN Weekly Report", '')
 
     except Exception as err:
