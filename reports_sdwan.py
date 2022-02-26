@@ -372,7 +372,47 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
     printAndLogMessage("Processing [" + emailSubject + "] complete")
 
 
-def processList(queryList, columns, reportColumns):
+def processList(queryList, columns):
+
+    reportColumns = ['OrderCode',
+                     'NetworkProductCode',
+                     'GroupID',
+                     'CRD',
+                     'TakenDate',
+                     'ServiceNumber',
+                     'ProjectCode',
+                     'CustomerName',
+                     'AEndAddress',
+                     'AM_ContactName',
+                     'AM_ContactEmail',
+                     'SDE_ContactName',
+                     'SDE_ContactEmail',
+                     'PM_ContactName',
+                     'PM_ContactEmail',
+                     'AEndCus_ContactName',
+                     'AEndCus_ContactEmail',
+                     'CircuitRef1',
+                     'CircuitRef2',
+                     'CircuitRef3',
+                     'CircuitRef4',
+                     'CustCircuitTy1',
+                     'CustCircuitTy2',
+                     'CustCircuitTy3',
+                     'CustCircuitTy4',
+                     'MainEquipModel',
+                     'OriginCtry',
+                     'OriginCity',
+                     'EquipmentVendorPONo',
+                     'EquipmentVendor',
+                     'InstallationPartnerPONo',
+                     'InstallationPartner',
+                     'SIInstallPartner',
+                     'SIMaintPartner',
+                     'CSDWSIInstall',
+                     'CSDWSIMaint',
+                     'MainSLA'
+                     ]
+
     df_report = pd.DataFrame(columns=reportColumns)
     df = pd.DataFrame(queryList, columns=columns)
 
@@ -382,6 +422,7 @@ def processList(queryList, columns, reportColumns):
         # Add values to columns
         orderCode = order
         productCode = dfValuesToList(df_order['NetworkProductCode'])
+        # productCode = df_order['NetworkProductCode'].unique()
         groupID = dfValuesToList(df_order['GroupID'])
         crd = dfValuesToList(df_order['CRD'].astype(str))
         takenDate = dfValuesToList(df_order['TakenDate'].astype(str))
@@ -456,45 +497,6 @@ def processList(queryList, columns, reportColumns):
             cSDWSIMaint,
             mainSLA
         ]
-
-        reportColumns = ['OrderCode',
-                         'NetworkProductCode',
-                         'GroupID',
-                         'CRD',
-                         'TakenDate',
-                         'ServiceNumber',
-                         'ProjectCode',
-                         'CustomerName',
-                         'AEndAddress',
-                         'AM_ContactName',
-                         'AM_ContactEmail',
-                         'SDE_ContactName',
-                         'SDE_ContactEmail',
-                         'PM_ContactName',
-                         'PM_ContactEmail',
-                         'AEndCus_ContactName',
-                         'AEndCus_ContactEmail',
-                         'CircuitRef1',
-                         'CircuitRef2',
-                         'CircuitRef3',
-                         'CircuitRef4',
-                         'CustCircuitTy1',
-                         'CustCircuitTy2',
-                         'CustCircuitTy3',
-                         'CustCircuitTy4',
-                         'MainEquipModel',
-                         'OriginCtry',
-                         'OriginCity',
-                         'EquipmentVendorPONo',
-                         'EquipmentVendor',
-                         'InstallationPartnerPONo',
-                         'InstallationPartner',
-                         'SIInstallPartner',
-                         'SIMaintPartner',
-                         'CSDWSIInstall',
-                         'CSDWSIMaint',
-                         'MainSLA'
-                         ]
 
         # add new data (df_toAdd) to df_report
         df_toAdd = pd.DataFrame(data=[reportData], columns=reportColumns)
