@@ -290,7 +290,8 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                               for item in ['SDW0002',
                                            'SDW0024',
                                            'SDW0025',
-                                           'SDW0026']])
+                                           'SDW0026',
+                                           'CNP0213']])
 
     parameters = ', '.join([("'" + item + "'")
                             for item in ['CircuitRef1',
@@ -687,8 +688,8 @@ def main():
 
     if defaultConfig.getboolean('GenReportManually'):
         # updateTableau = True
-        startDate = '2022-02-14'
-        endDate = '2022-02-20'
+        startDate = '2022-02-25'
+        endDate = '2022-02-25'
 
         generateSDWANReport('sdwan_report', startDate,
                             endDate, "SDWAN Report", '')
