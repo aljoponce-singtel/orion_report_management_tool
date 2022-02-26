@@ -107,6 +107,10 @@ def dbQueryToList(sqlQuery):
 
 
 def updateTableauDB(outputList, report_id):
+
+    printAndLogMessage('UpdateTableauDB = ' +
+                       str(defaultConfig.getboolean('UpdateTableauDB')))
+
     # Allow Tableaue DB update
     if defaultConfig.getboolean('UpdateTableauDB'):
         conn = None
@@ -1397,6 +1401,8 @@ def main():
         printAndLogMessage("start date: " + str(startDate))
         printAndLogMessage("end date: " + str(endDate))
 
+        # defaultConfig['UpdateTableauDB'] = 'false'
+
         generateCPluseIpReport('cplusip_report', startDate,
                                endDate, '', "CPlusIP Report", '')
         # generateMegaPopReport('megapop_report', startDate,
@@ -1488,6 +1494,8 @@ def main():
             print("start date: " + str(startDate))
             print("end date: " + str(endDate))
 
+            defaultConfig['UpdateTableauDB'] = 'false'
+
             generateCPluseIpReportGrp(
                 'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
             generateMegaPopReportGrp(
@@ -1517,6 +1525,8 @@ def main():
             endDate = str(today_date - timedelta(days=1))
             print("start date: " + str(startDate))
             print("end date: " + str(endDate))
+
+            defaultConfig['UpdateTableauDB'] = 'false'
 
             generateSingnetReport(
                 'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
