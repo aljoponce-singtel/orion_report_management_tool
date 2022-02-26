@@ -437,7 +437,7 @@ def processDuplicateOrders(df_order, reportColumns):
     projectCode = dfUniqueValue(df_order['ProjectCode'])
     customerName = dfUniqueValue(df_order['CustomerName'])
     aEndAddress = dfUniqueValue(df_order['AEndAddress'])
-    amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
+    # amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
     sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
     pmContactName, pmContactEmail = dfContactInformation(
         df_order, 'Project Manager')
@@ -468,50 +468,57 @@ def processDuplicateOrders(df_order, reportColumns):
     df_report = pd.DataFrame(columns=reportColumns)
 
     for groupID in df_order['GroupID'].unique().tolist():
+        
+        df_contact = df_order[df_order['ContactType'] == 'AM'][[
+            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+        for ind in df_contact.index:
+            amContactName, amContactEmail = dfContactNameEmail(
+                df_contact, ind)
 
-        reportData = [
-            orderCode,
-            productCode,
-            groupID,
-            crd,
-            takenDate,
-            serviceNumber,
-            projectCode,
-            customerName,
-            aEndAddress,
-            amContactName,
-            amContactEmail,
-            sdeContactName,
-            sdeContactEmail,
-            pmContactName,
-            pmContactEmail,
-            aEndCusContactName,
-            aEndCusContactEmail,
-            circuitRef1,
-            circuitRef2,
-            circuitRef3,
-            circuitRef4,
-            custCircuitTy1,
-            custCircuitTy2,
-            custCircuitTy3,
-            custCircuitTy4,
-            mainEquipModel,
-            originCtry,
-            originCity,
-            equipmentVendorPONo,
-            equipmentVendor,
-            installationPartnerPONo,
-            installationPartner,
-            sIInstallPartner,
-            sIMaintPartner,
-            cSDWSIInstall,
-            cSDWSIMaint,
-            mainSLA
-        ]
+            reportData = [
+                orderCode,
+                productCode,
+                groupID,
+                crd,
+                takenDate,
+                serviceNumber,
+                projectCode,
+                customerName,
+                aEndAddress,
+                amContactName,
+                amContactEmail,
+                sdeContactName,
+                sdeContactEmail,
+                pmContactName,
+                pmContactEmail,
+                aEndCusContactName,
+                aEndCusContactEmail,
+                circuitRef1,
+                circuitRef2,
+                circuitRef3,
+                circuitRef4,
+                custCircuitTy1,
+                custCircuitTy2,
+                custCircuitTy3,
+                custCircuitTy4,
+                mainEquipModel,
+                originCtry,
+                originCity,
+                equipmentVendorPONo,
+                equipmentVendor,
+                installationPartnerPONo,
+                installationPartner,
+                sIInstallPartner,
+                sIMaintPartner,
+                cSDWSIInstall,
+                cSDWSIMaint,
+                mainSLA
+            ]
 
-        # add new data (df_toAdd) to df_report
-        df_toAdd = pd.DataFrame(data=[reportData], columns=reportColumns)
-        df_report = pd.concat([df_report, df_toAdd])
+            # add new data (df_toAdd) to df_report
+            df_toAdd = pd.DataFrame(
+                data=[reportData], columns=reportColumns)
+            df_report = pd.concat([df_report, df_toAdd])
 
     return df_report
 
@@ -613,6 +620,13 @@ def dfUniqueValue(df):
         return None
     else:
         return df.unique()[0]
+
+
+def dfContactNameEmail(df, ind):
+    contactName = df['FamilyName'][ind] + ', ' + df['GivenName'][ind]
+    contactEmail = df['EmailAddress'][ind]
+
+    return contactName, contactEmail
 
 
 def dfContactInformation(df, contactType):
