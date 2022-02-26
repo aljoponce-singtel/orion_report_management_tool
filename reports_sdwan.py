@@ -25,7 +25,6 @@ emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
 engine = None
 conn = None
-updateTableau = False
 csvFiles = []
 reportsFolderPath = os.path.join(os.getcwd(), "reports")
 logsFolderPath = os.path.join(os.getcwd(), "logs")
@@ -684,7 +683,6 @@ def main():
                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
     printAndLogMessage("Running script in " + getPlatform())
     today_date = datetime.now().date()
-    global updateTableau
 
     if defaultConfig.getboolean('GenReportManually'):
         startDate = defaultConfig['ReportStartDate']
