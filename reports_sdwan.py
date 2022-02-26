@@ -361,13 +361,17 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
     csvFile = ("{}_{}.csv").format('SDWAN', getCurrentDateTime())
     outputList, reportColumns = processList(dbQueryToList(sqlquery), columns)
     generateReport(csvFile, outputList, reportColumns)
-
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        attachement = None
+        if defaultConfig.getboolean('CompressFiles'):
+            zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
+            zip_file(csvFiles, zipFile, reportsFolderPath)
+            attachement = zipFile
+        else:
+            attachement = csvFile
+        sendEmail(setEmailSubject(emailSubject), attachement, emailTo)
 
     printAndLogMessage("Processing [" + emailSubject + "] complete")
 
@@ -468,7 +472,7 @@ def processDuplicateOrders(df_order, reportColumns):
     df_report = pd.DataFrame(columns=reportColumns)
 
     for groupID in df_order['GroupID'].unique().tolist():
-        
+
         df_contact = df_order[df_order['ContactType'] == 'AM'][[
             'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
         for ind in df_contact.index:
