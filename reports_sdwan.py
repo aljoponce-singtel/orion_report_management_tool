@@ -276,45 +276,6 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         'ParameterValue'
     ]
 
-    reportColumns = ['OrderCode',
-                     'NetworkProductCode',
-                     'GroupID',
-                     'CRD',
-                     'TakenDate',
-                     'ServiceNumber',
-                     'ProjectCode',
-                     'CustomerName',
-                     'AEndAddress',
-                     'AM_ContactName',
-                     'AM_ContactEmail',
-                     'SDE_ContactName',
-                     'SDE_ContactEmail',
-                     'PM_ContactName',
-                     'PM_ContactEmail',
-                     'AEndCus_ContactName',
-                     'AEndCus_ContactEmail',
-                     'CircuitRef1',
-                     'CircuitRef2',
-                     'CircuitRef3',
-                     'CircuitRef4',
-                     'CustCircuitTy1',
-                     'CustCircuitTy2',
-                     'CustCircuitTy3',
-                     'CustCircuitTy4',
-                     'MainEquipModel',
-                     'OriginCtry',
-                     'OriginCity',
-                     'EquipmentVendorPONo',
-                     'EquipmentVendor',
-                     'InstallationPartnerPONo',
-                     'InstallationPartner',
-                     'SIInstallPartner',
-                     'SIMaintPartner',
-                     'CSDWSIInstall',
-                     'CSDWSIMaint',
-                     'MainSLA'
-                     ]
-
     orderTypes = ', '.join([("'" + item + "'")
                             for item in ['Provide',
                                          'Change']])
@@ -398,7 +359,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                 """).format(contactTypes, parameters, orderTypes, productCodes, startDate, endDate)
 
     csvFile = ("{}_{}.csv").format('SDWAN', getCurrentDateTime())
-    outputList = processList(dbQueryToList(sqlquery), columns, reportColumns)
+    outputList, reportColumns = processList(dbQueryToList(sqlquery), columns)
     generateReport(csvFile, outputList, reportColumns)
 
     dbDisconnect()
@@ -496,11 +457,50 @@ def processList(queryList, columns, reportColumns):
             mainSLA
         ]
 
+        reportColumns = ['OrderCode',
+                         'NetworkProductCode',
+                         'GroupID',
+                         'CRD',
+                         'TakenDate',
+                         'ServiceNumber',
+                         'ProjectCode',
+                         'CustomerName',
+                         'AEndAddress',
+                         'AM_ContactName',
+                         'AM_ContactEmail',
+                         'SDE_ContactName',
+                         'SDE_ContactEmail',
+                         'PM_ContactName',
+                         'PM_ContactEmail',
+                         'AEndCus_ContactName',
+                         'AEndCus_ContactEmail',
+                         'CircuitRef1',
+                         'CircuitRef2',
+                         'CircuitRef3',
+                         'CircuitRef4',
+                         'CustCircuitTy1',
+                         'CustCircuitTy2',
+                         'CustCircuitTy3',
+                         'CustCircuitTy4',
+                         'MainEquipModel',
+                         'OriginCtry',
+                         'OriginCity',
+                         'EquipmentVendorPONo',
+                         'EquipmentVendor',
+                         'InstallationPartnerPONo',
+                         'InstallationPartner',
+                         'SIInstallPartner',
+                         'SIMaintPartner',
+                         'CSDWSIInstall',
+                         'CSDWSIMaint',
+                         'MainSLA'
+                         ]
+
         # add new data (df_toAdd) to df_report
         df_toAdd = pd.DataFrame(data=[reportData], columns=reportColumns)
         df_report = pd.concat([df_report, df_toAdd])
 
-    return df_report.values.tolist()
+    return df_report.values.tolist(), reportColumns
 
 
 def dfValuesToList(df):
