@@ -676,30 +676,35 @@ def dfParameterValue(df, parameterName):
 
 
 def main():
+    today_date = datetime.now().date()
+
     printAndLogMessage("==========================================")
     printAndLogMessage("START of script - " +
                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
     printAndLogMessage("Running script in " + getPlatform())
-    today_date = datetime.now().date()
 
-    if defaultConfig.getboolean('GenReportManually'):
-        startDate = defaultConfig['ReportStartDate']
-        endDate = defaultConfig['ReportEndDate']
+    try:
+        if defaultConfig.getboolean('GenReportManually'):
+            startDate = defaultConfig['ReportStartDate']
+            endDate = defaultConfig['ReportEndDate']
 
-        printAndLogMessage("start date: " + str(startDate))
-        printAndLogMessage("end date: " + str(endDate))
+            printAndLogMessage("start date: " + str(startDate))
+            printAndLogMessage("end date: " + str(endDate))
 
-        generateSDWANReport('sdwan_report', startDate,
-                            endDate, "SDWAN Weekly Report", '')
+            generateSDWANReport('sdwan_report', startDate,
+                                endDate, "SDWAN Weekly Report", '')
 
-    else:
-        startDate = str(today_date - timedelta(days=7))
-        endDate = str(today_date - timedelta(days=1))
-        printAndLogMessage("start date: " + str(startDate))
-        printAndLogMessage("end date: " + str(endDate))
+        else:
+            startDate = str(today_date - timedelta(days=7))
+            endDate = str(today_date - timedelta(days=1))
+            printAndLogMessage("start date: " + str(startDate))
+            printAndLogMessage("end date: " + str(endDate))
 
-        generateSDWANReport('sdwan_report', startDate,
-                            endDate, "SDWAN Weekly Report", '')
+            generateSDWANReport('sdwan_report', startDate,
+                                endDate, "SDWAN Weekly Report", '')
+
+    except Exception as err:
+        printAndLogError(err)
 
     printAndLogMessage("END of script - " +
                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
