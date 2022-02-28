@@ -1422,7 +1422,8 @@ def main():
             # generateSingnetReport(
             #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
-            printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+            printAndLogMessage("END of script - " +
+                               datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
         else:
 
@@ -1467,7 +1468,8 @@ def main():
                 generateSDWANReport('sdwan_report', startDate,
                                     endDate, "SDWAN Report", '')
 
-                printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                printAndLogMessage(
+                    "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
             #-- END --#
 
@@ -1503,7 +1505,8 @@ def main():
                 generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
 
-                printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                printAndLogMessage(
+                    "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
             #-- END --#
 
@@ -1537,13 +1540,15 @@ def main():
                 generateSingnetReport(
                     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
 
-                printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                printAndLogMessage(
+                    "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
             #-- END --#
 
     except Exception as err:
         printAndLogError(err)
-        printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+        printAndLogMessage("END of script - " +
+                           datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':
