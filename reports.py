@@ -1385,13 +1385,12 @@ def getCurrentDateTime():
 def main():
     today_date = datetime.now().date()
 
-    printAndLogMessage("==========================================")
-    printAndLogMessage("START of script - " +
-                       datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-    printAndLogMessage("Running script in " + getPlatform())
-
     try:
         if defaultConfig.getboolean('GenReportManually'):
+            printAndLogMessage("==========================================")
+            printAndLogMessage("START of script - " +
+                               datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+            printAndLogMessage("Running script in " + getPlatform())
 
             startDate = defaultConfig['ReportStartDate']
             endDate = defaultConfig['ReportEndDate']
@@ -1423,6 +1422,8 @@ def main():
             # generateSingnetReport(
             #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
+            printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+
         else:
 
             #-- START --#
@@ -1435,6 +1436,11 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.day == 1:
+                printAndLogMessage(
+                    "==========================================")
+                printAndLogMessage("START of script - " +
+                                   datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                printAndLogMessage("Running script in " + getPlatform())
 
                 previousMonth = (today_date.replace(day=1) -
                                  timedelta(days=1)).replace(day=today_date.day)
@@ -1461,6 +1467,8 @@ def main():
                 generateSDWANReport('sdwan_report', startDate,
                                     endDate, "SDWAN Report", '')
 
+                printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+
             #-- END --#
 
             #-- START --#
@@ -1473,6 +1481,11 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.day == 26:
+                printAndLogMessage(
+                    "==========================================")
+                printAndLogMessage("START of script - " +
+                                   datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                printAndLogMessage("Running script in " + getPlatform())
 
                 previousMonth = (today_date.replace(day=1) -
                                  timedelta(days=1)).replace(day=today_date.day)
@@ -1490,6 +1503,8 @@ def main():
                 generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
 
+                printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+
             #-- END --#
 
             #-- START --#
@@ -1502,6 +1517,12 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.isoweekday() == 1:  # Monday
+                printAndLogMessage(
+                    "==========================================")
+                printAndLogMessage("START of script - " +
+                                   datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                printAndLogMessage("Running script in " + getPlatform())
+
                 startDate = str(today_date - timedelta(days=7))
                 endDate = str(today_date - timedelta(days=1))
                 printAndLogMessage("start date: " + str(startDate))
@@ -1514,15 +1535,15 @@ def main():
                 generateSingnetReport(
                     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
                 generateSingnetReport(
-                    'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
+                    'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
+
+                printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
             #-- END --#
 
     except Exception as err:
         printAndLogError(err)
-
-    printAndLogMessage("END of script - " +
-                       datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+        printAndLogMessage("END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':
