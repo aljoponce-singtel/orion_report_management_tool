@@ -1392,6 +1392,8 @@ def main():
                                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
             printAndLogMessage("Running script in " + getPlatform())
 
+            printAndLogMessage('\\* TEST RUN *\\')
+
             startDate = defaultConfig['ReportStartDate']
             endDate = defaultConfig['ReportEndDate']
             printAndLogMessage("start date: " + str(startDate))
