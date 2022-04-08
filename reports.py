@@ -1458,9 +1458,9 @@ def main():
                                    str(defaultConfig.getboolean('UpdateTableauDB')))
 
                 generateCPluseIpReport('cplusip_report', startDate,
-                                       endDate, '', "CPlusIP Report", '')
+                                       endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
                 generateMegaPopReport('megapop_report', startDate,
-                                      endDate, '', "MegaPop Report", '')
+                                      endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
                 generateSingnetReport('singnet_report', startDate,
                                       endDate, '', "Singnet Report", '')
                 generateStixReport('stix_report', startDate,
@@ -1503,9 +1503,9 @@ def main():
                                    str(defaultConfig.getboolean('UpdateTableauDB')))
 
                 generateCPluseIpReportGrp(
-                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
+                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
                 generateMegaPopReportGrp(
-                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
+                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
 
                 printAndLogMessage(
                     "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
