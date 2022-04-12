@@ -1150,7 +1150,7 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
     csvFile = ("{}_{}.csv").format('GSDT_PS21_GSDT_PS23', getCurrentDateTime())
     outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
     generateReport(csvFile, outputList, headers2)
-    updateTableauDB(outputList, 'GSDT_PS21_GSDT_PS23')
+    updateTableauDB(outputList, 'GSDT_PS23')
 
     dbDisconnect()
 
