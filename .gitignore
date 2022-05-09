@@ -2,5 +2,6 @@
 *.[oa]
 # Untracked files and folders:
 [...]
+__pycache__
 reports
 logs
