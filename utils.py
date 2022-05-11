@@ -1,25 +1,20 @@
 import sys
 import logging
 import os
-import configparser
 from datetime import datetime
 from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
-config = configparser.ConfigParser()
-config.read('config.ini')
-defaultConfig = config['DEFAULT']
-logsFolderPath = os.path.join(os.getcwd(), "logs")
 
 
-def zip_file(csvFiles, zipfile, folderPath):
+def zip_file(csvFiles, zipfile, folderPath, password):
 
     logger.info("Creating " + zipfile + " for " +
                 ', '.join(csvFiles) + ' ...')
     os.chdir(folderPath)
 
     if getPlatform() == "Linux":
-        os_zip_csvFile(csvFiles, zipfile)
+        os_zip_csvFile(csvFiles, zipfile, password)
     elif getPlatform() == "Windows":
         zip_csvFile(csvFiles, zipfile)
     else:
@@ -36,10 +31,10 @@ def zip_csvFile(csvFiles, zipfile):
             os.remove(csvfilePath)
 
 
-def os_zip_csvFile(csvFiles, zipfile):
+def os_zip_csvFile(csvFiles, zipfile, password):
     csvfiles = ' '.join(csvFiles)
     os.system("zip -e %s %s -P %s" %
-              (zipfile, csvfiles, defaultConfig['ZipPassword']))
+              (zipfile, csvfiles, password))
     for csv in csvFiles:
         os.remove(csv)
 
@@ -61,7 +56,3 @@ def getPlatform():
 
 def getCurrentDateTime():
     return datetime.now().strftime("%d%m%y_%H%M")
-
-
-def log():
-    logger.info("TEST SUCCESS")
