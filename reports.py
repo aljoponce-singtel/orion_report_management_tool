@@ -523,7 +523,8 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -668,7 +669,8 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -788,7 +790,8 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -912,7 +915,8 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -1031,7 +1035,8 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -1090,7 +1095,8 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -1150,7 +1156,8 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -1211,7 +1218,8 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                       defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
