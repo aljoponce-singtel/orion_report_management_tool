@@ -1,4 +1,4 @@
-from utils import *
+import utils
 import logging
 import re
 import csv
@@ -14,8 +14,8 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 import pymysql
-pymysql.install_as_MySQLdb()
 
+logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
 config.read('config.ini')
 defaultConfig = config['DEFAULT']
@@ -25,7 +25,7 @@ engine = None
 conn = None
 csvFiles = []
 reportsFolderPath = os.path.join(os.getcwd(), "reports")
-logsFolderPath = os.path.join(os.getcwd(), "logs")
+pymysql.install_as_MySQLdb()
 
 headers = [
     "Workorder no",
@@ -79,13 +79,13 @@ def dbConnect():
             'mysql://{}:{}@{}:{}/{}'.format(dbConfig['orion_user'], dbConfig['orion_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['orion_db']))
         conn = engine.connect()
 
-        # printAndLogMessage("Connected to DB " + dbConfig['orion_db'] + ' at ' +
+        # logger.info("Connected to DB " + dbConfig['orion_db'] + ' at ' +
         #                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'])
 
     except Exception as err:
-        printAndLogMessage("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
-                           dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-        printAndLogError(err)
+        logger.info("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
+                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+        logger.error(err)
         raise Exception(err)
 
 
@@ -108,10 +108,10 @@ def updateTableauDB(outputList, report_id):
                 'mysql://{}:{}@{}:{}/{}'.format(dbConfig['tableau_user'], dbConfig['tableau_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['tableau_db']))
             conn = engine.connect()
 
-            # printAndLogMessage("Connected to DB " + dbConfig['tableau_db'] + ' at ' +
+            # logger.info("Connected to DB " + dbConfig['tableau_db'] + ' at ' +
             #                    dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
 
-            printAndLogMessage(
+            logger.info(
                 'Inserting records to o2ptableau.t_GSP_ip_svcs for ' + report_id.lower() + ' ...')
 
             columns = [
@@ -159,12 +159,12 @@ def updateTableauDB(outputList, report_id):
                                         if_exists='append',
                                         method='multi')
 
-            # printAndLogMessage("TableauDB Updated for " + report_id.lower())
+            # logger.info("TableauDB Updated for " + report_id.lower())
 
         except Exception as err:
-            printAndLogMessage("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
-                               dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-            printAndLogError(err)
+            logger.info("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
+                        dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            logger.error(err)
 
             raise Exception(err)
 
@@ -383,13 +383,13 @@ def printRecords(records):
 
 
 def generateReport(csvfile, querylist, headers):
-    printAndLogMessage("Generating report " + csvfile + " ...")
+    logger.info("Generating report " + csvfile + " ...")
     write_to_csv(csvfile, querylist, headers)
 
 
 def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -512,7 +512,8 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
                             activity_code;
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-            csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
+            csvFile = ("{}_{}.csv").format(
+                list[1], utils.getCurrentDateTime())
             outputList = processList(dbQueryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
@@ -521,16 +522,16 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -657,7 +658,7 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
                             activity_code;
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-            csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
+            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
             outputList = processList(dbQueryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
@@ -666,16 +667,16 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -777,7 +778,7 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
                             activity_code;
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-            csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
+            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
             outputList = processList(dbQueryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
@@ -786,16 +787,16 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -901,7 +902,7 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
                             activity_code;
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
-            csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
+            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
             outputList = processList(dbQueryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
@@ -910,16 +911,16 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -1020,7 +1021,7 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
                             activity_code;
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
 
-            csvFile = ("{}_{}.csv").format(list[1], getCurrentDateTime())
+            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
             outputList = processList(dbQueryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
@@ -1029,16 +1030,16 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -1080,7 +1081,7 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format('GSDT9', getCurrentDateTime())
+    csvFile = ("{}_{}.csv").format('GSDT9', utils.getCurrentDateTime())
     outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
     generateReport(csvFile, outputList, headers2)
     updateTableauDB(outputList, 'GSDT9')
@@ -1088,16 +1089,16 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -1139,7 +1140,8 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format('GSDT_PS21_GSDT_PS23', getCurrentDateTime())
+    csvFile = ("{}_{}.csv").format(
+        'GSDT_PS21_GSDT_PS23', utils.getCurrentDateTime())
     outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
     generateReport(csvFile, outputList, headers2)
     updateTableauDB(outputList, 'GSDT_PS23')
@@ -1147,16 +1149,16 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -1199,7 +1201,8 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         activity_code;
                 """).format(groupIdStr, startDate, endDate, actStr)
 
-    csvFile = ("{}_{}.csv").format('GSP_SDN_TM_GSDT_TM', getCurrentDateTime())
+    csvFile = ("{}_{}.csv").format(
+        'GSP_SDN_TM_GSDT_TM', utils.getCurrentDateTime())
     outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
     generateReport(csvFile, outputList, headers2)
     updateTableauDB(outputList, 'GSP_SDN_TM_GSDT_TM')
@@ -1207,11 +1210,11 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
     dbDisconnect()
 
     if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
-        zip_file(csvFiles, zipFile, reportsFolderPath)
+        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
+        utils.zip_file(csvFiles, zipFile, reportsFolderPath)
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def report_attach(zipfile):
@@ -1262,7 +1265,7 @@ def sendEmail(subject, attachment, email):
     # Enable/Disable email
     if defaultConfig.getboolean('SendEmail'):
         try:
-            printAndLogMessage(
+            logger.info(
                 'Sending email with subject "{}" ...'.format(subject))
 
             receiverTo = emailConfig["receiverTo"] if defaultConfig[
@@ -1270,7 +1273,7 @@ def sendEmail(subject, attachment, email):
             receiverCc = emailConfig["receiverCc"]
             sender = emailConfig["sender"]
 
-            if getPlatform() == 'Windows':
+            if utils.getPlatform() == 'Windows':
                 import win32com.client
                 outlook = win32com.client.Dispatch('outlook.application')
 
@@ -1306,8 +1309,8 @@ def sendEmail(subject, attachment, email):
                                  message.as_string())
                 smtpObj.quit()
 
-            # printAndLogMessage("Email sent.")
+            # logger.info("Email sent.")
 
         except Exception as e:
-            printAndLogError("Failed to send email.")
-            printAndLogError(e)
+            logger.error("Failed to send email.")
+            logger.error(e)

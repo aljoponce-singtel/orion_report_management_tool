@@ -1,43 +1,53 @@
-from utils import *
 from reports import *
+import sys
+from utils import *
 import logging
-import os
+import logging.config
+from logging.handlers import TimedRotatingFileHandler
 import calendar
 import configparser
 from datetime import datetime, timedelta
 
+logger = logging.getLogger()
 config = configparser.ConfigParser()
 config.read('config.ini')
 defaultConfig = config['DEFAULT']
-logsFolderPath = os.path.join(os.getcwd(), "logs")
-
-logging.basicConfig(handlers=[logging.FileHandler(filename=os.path.join(logsFolderPath, "reports.log"),
-                                                  encoding='utf-8', mode='a+')],
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    datefmt="%F %a %T",
-                    level=logging.INFO)
 
 
 def main():
+    global logger
+    logger = logging.getLogger()
+    consoleHandler = logging.StreamHandler(sys.stdout)
+    consoleFormat = logging.Formatter(
+        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%T")
+    consoleHandler.setFormatter(consoleFormat)
+    fileHandler = TimedRotatingFileHandler("logs/gsp.log")
+    fileFormat = logging.Formatter(
+        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
+    fileHandler.setFormatter(fileFormat)
+    logger.addHandler(consoleHandler)
+    logger.addHandler(fileHandler)
+    logger.setLevel(logging.DEBUG)
+
     today_date = datetime.now().date()
 
     try:
         if defaultConfig.getboolean('GenReportManually'):
-            printAndLogMessage("==========================================")
-            printAndLogMessage("START of script - " +
-                               datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-            printAndLogMessage("Running script in " + getPlatform())
+            logger.info("==========================================")
+            logger.info("START of script - " +
+                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+            logger.info("Running script in " + utils.getPlatform())
 
-            printAndLogMessage('\\* TEST RUN *\\')
+            logger.info('\\* TEST RUN *\\')
 
             startDate = defaultConfig['ReportStartDate']
             endDate = defaultConfig['ReportEndDate']
-            printAndLogMessage("start date: " + str(startDate))
-            printAndLogMessage("end date: " + str(endDate))
+            logger.info("start date: " + str(startDate))
+            logger.info("end date: " + str(endDate))
 
             # defaultConfig['UpdateTableauDB'] = 'false'
-            printAndLogMessage('UpdateTableauDB = ' +
-                               str(defaultConfig.getboolean('UpdateTableauDB')))
+            logger.info('UpdateTableauDB = ' +
+                        str(defaultConfig.getboolean('UpdateTableauDB')))
 
             generateCPluseIpReport('cplusip_report', startDate,
                                    endDate, '', "CPlusIP Report", '')
@@ -60,8 +70,8 @@ def main():
             # generateSingnetReport(
             #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
-            printAndLogMessage("END of script - " +
-                               datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+            logger.info("END of script - " +
+                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
         else:
 
@@ -75,11 +85,11 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.day == 1:
-                printAndLogMessage(
+                logger.info(
                     "==========================================")
-                printAndLogMessage("START of script - " +
-                                   datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                printAndLogMessage("Running script in " + getPlatform())
+                logger.info("START of script - " +
+                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                logger.info("Running script in " + utils.getPlatform())
 
                 previousMonth = (today_date.replace(day=1) -
                                  timedelta(days=1)).replace(day=today_date.day)
@@ -87,11 +97,11 @@ def main():
                 lastDay = calendar.monthrange(
                     previousMonth.year, previousMonth.month)[1]
                 endDate = str(previousMonth.replace(day=lastDay))
-                printAndLogMessage("start date: " + str(startDate))
-                printAndLogMessage("end date: " + str(endDate))
+                logger.info("start date: " + str(startDate))
+                logger.info("end date: " + str(endDate))
 
-                printAndLogMessage('UpdateTableauDB = ' +
-                                   str(defaultConfig.getboolean('UpdateTableauDB')))
+                logger.info('UpdateTableauDB = ' +
+                            str(defaultConfig.getboolean('UpdateTableauDB')))
 
                 generateCPluseIpReport('cplusip_report', startDate,
                                        endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
@@ -106,7 +116,7 @@ def main():
                 generateSDWANReport('sdwan_report', startDate,
                                     endDate, "SDWAN Report", '')
 
-                printAndLogMessage(
+                logger.info(
                     "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
             #-- END --#
@@ -121,29 +131,29 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.day == 26:
-                printAndLogMessage(
+                logger.info(
                     "==========================================")
-                printAndLogMessage("START of script - " +
-                                   datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                printAndLogMessage("Running script in " + getPlatform())
+                logger.info("START of script - " +
+                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                logger.info("Running script in " + getPlatform())
 
                 previousMonth = (today_date.replace(day=1) -
                                  timedelta(days=1)).replace(day=today_date.day)
                 startDate = str(previousMonth)
                 endDate = str(today_date - timedelta(days=1))
-                printAndLogMessage("start date: " + str(startDate))
-                printAndLogMessage("end date: " + str(endDate))
+                logger.info("start date: " + str(startDate))
+                logger.info("end date: " + str(endDate))
 
                 defaultConfig['UpdateTableauDB'] = 'false'
-                printAndLogMessage('UpdateTableauDB = ' +
-                                   str(defaultConfig.getboolean('UpdateTableauDB')))
+                logger.info('UpdateTableauDB = ' +
+                            str(defaultConfig.getboolean('UpdateTableauDB')))
 
                 generateCPluseIpReportGrp(
                     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
                 generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
 
-                printAndLogMessage(
+                logger.info(
                     "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
             #-- END --#
@@ -158,35 +168,35 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.isoweekday() == 1:  # Monday
-                printAndLogMessage(
+                logger.info(
                     "==========================================")
-                printAndLogMessage("START of script - " +
-                                   datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                printAndLogMessage("Running script in " + getPlatform())
+                logger.info("START of script - " +
+                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                logger.info("Running script in " + getPlatform())
 
                 startDate = str(today_date - timedelta(days=7))
                 endDate = str(today_date - timedelta(days=1))
-                printAndLogMessage("start date: " + str(startDate))
-                printAndLogMessage("end date: " + str(endDate))
+                logger.info("start date: " + str(startDate))
+                logger.info("end date: " + str(endDate))
 
                 defaultConfig['UpdateTableauDB'] = 'false'
-                printAndLogMessage('UpdateTableauDB = ' +
-                                   str(defaultConfig.getboolean('UpdateTableauDB')))
+                logger.info('UpdateTableauDB = ' +
+                            str(defaultConfig.getboolean('UpdateTableauDB')))
 
                 generateSingnetReport(
                     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
                 generateSingnetReport(
                     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
 
-                printAndLogMessage(
+                logger.info(
                     "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
             #-- END --#
 
     except Exception as err:
-        printAndLogError(err)
-        printAndLogMessage("END of script - " +
-                           datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+        logger.error(err)
+        logger.info("END of script - " +
+                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':
