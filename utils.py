@@ -56,3 +56,6 @@ def getPlatform():
 
 def getCurrentDateTime():
     return datetime.now().strftime("%d%m%y_%H%M")
+
+def printTest():
+    print("Test utils.py")

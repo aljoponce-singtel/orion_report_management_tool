@@ -1,27 +1,42 @@
-from reports import *
-import sys
-from utils import *
-import logging
-import logging.config
-from logging.handlers import TimedRotatingFileHandler
-import calendar
-import configparser
 from datetime import datetime, timedelta
+import configparser
+import calendar
+from logging.handlers import TimedRotatingFileHandler
+import logging.config
+import logging
+import sys
+import os
+
+# getting the name of the directory
+# where the this file is present.
+current = os.path.dirname(os.path.realpath(__file__))
+
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+
+# adding the parent directory to
+# the sys.path.
+sys.path.append(parent)
+
+import utils
+import reports
 
 logger = logging.getLogger()
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('gsp/config.ini')
 defaultConfig = config['DEFAULT']
 
 
 def main():
+    # applies to all modules using this variable
     global logger
     logger = logging.getLogger()
     consoleHandler = logging.StreamHandler(sys.stdout)
     consoleFormat = logging.Formatter(
         fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%T")
     consoleHandler.setFormatter(consoleFormat)
-    fileHandler = TimedRotatingFileHandler("logs/gsp.log")
+    fileHandler = TimedRotatingFileHandler('logs/gsp.log', 'D', 1)
     fileFormat = logging.Formatter(
         fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
     fileHandler.setFormatter(fileFormat)
@@ -30,6 +45,8 @@ def main():
     logger.setLevel(logging.DEBUG)
 
     today_date = datetime.now().date()
+
+    logger.info("SUCCESS")
 
     try:
         if defaultConfig.getboolean('GenReportManually'):
@@ -49,25 +66,25 @@ def main():
             logger.info('UpdateTableauDB = ' +
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
-            generateCPluseIpReport('cplusip_report', startDate,
-                                   endDate, '', "CPlusIP Report", '')
-            # generateMegaPopReport('megapop_report', startDate,
+            reports.generateCPluseIpReport('cplusip_report', startDate,
+                                                   endDate, '', "CPlusIP Report", '')
+            # reports.generateMegaPopReport('megapop_report', startDate,
             #                       endDate, '', "MegaPop Report", '')]
-            # generateSingnetReport('singnet_report', startDate,
+            # reports.generateSingnetReport('singnet_report', startDate,
             #                       endDate, '', "Singnet Report", '')
-            # generateStixReport('stix_report', startDate,
+            # reports.generateStixReport('stix_report', startDate,
             #                    endDate, "STIX Report", '')
-            # generateInternetReport('internet_report', startDate,
+            # reports.generateInternetReport('internet_report', startDate,
             #                        endDate, "Internet Report", '')
-            # generateSDWANReport('sdwan_report', startDate,
+            # reports.generateSDWANReport('sdwan_report', startDate,
             #                     endDate, "SDWAN Report", '')
-            # generateCPluseIpReportGrp(
+            # reports.generateCPluseIpReportGrp(
             #     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
-            # generateMegaPopReportGrp(
+            # reports.generateMegaPopReportGrp(
             #     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
-            # generateSingnetReport(
+            # reports.generateSingnetReport(
             #     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
-            # generateSingnetReport(
+            # reports.generateSingnetReport(
             #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
 
             logger.info("END of script - " +
@@ -103,18 +120,18 @@ def main():
                 logger.info('UpdateTableauDB = ' +
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
-                generateCPluseIpReport('cplusip_report', startDate,
-                                       endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
-                generateMegaPopReport('megapop_report', startDate,
-                                      endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
-                generateSingnetReport('singnet_report', startDate,
-                                      endDate, '', "Singnet Report", '')
-                generateStixReport('stix_report', startDate,
-                                   endDate, "STIX Report", '')
-                generateInternetReport('internet_report', startDate,
-                                       endDate, "Internet Report", '')
-                generateSDWANReport('sdwan_report', startDate,
-                                    endDate, "SDWAN Report", '')
+                reports.generateCPluseIpReport('cplusip_report', startDate,
+                                               endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
+                reports.generateMegaPopReport('megapop_report', startDate,
+                                              endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
+                reports.generateSingnetReport('singnet_report', startDate,
+                                              endDate, '', "Singnet Report", '')
+                reports.generateStixReport('stix_report', startDate,
+                                           endDate, "STIX Report", '')
+                reports.generateInternetReport('internet_report', startDate,
+                                               endDate, "Internet Report", '')
+                reports.generateSDWANReport('sdwan_report', startDate,
+                                            endDate, "SDWAN Report", '')
 
                 logger.info(
                     "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
@@ -135,7 +152,7 @@ def main():
                     "==========================================")
                 logger.info("START of script - " +
                             datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                logger.info("Running script in " + getPlatform())
+                logger.info("Running script in " + utils.getPlatform())
 
                 previousMonth = (today_date.replace(day=1) -
                                  timedelta(days=1)).replace(day=today_date.day)
@@ -148,9 +165,9 @@ def main():
                 logger.info('UpdateTableauDB = ' +
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
-                generateCPluseIpReportGrp(
+                reports.generateCPluseIpReportGrp(
                     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
-                generateMegaPopReportGrp(
+                reports.generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
 
                 logger.info(
@@ -172,7 +189,7 @@ def main():
                     "==========================================")
                 logger.info("START of script - " +
                             datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                logger.info("Running script in " + getPlatform())
+                logger.info("Running script in " + utils.getPlatform())
 
                 startDate = str(today_date - timedelta(days=7))
                 endDate = str(today_date - timedelta(days=1))
@@ -183,9 +200,9 @@ def main():
                 logger.info('UpdateTableauDB = ' +
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
-                generateSingnetReport(
+                reports.generateSingnetReport(
                     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
-                generateSingnetReport(
+                reports.generateSingnetReport(
                     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
 
                 logger.info(

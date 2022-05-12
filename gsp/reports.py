@@ -17,7 +17,7 @@ import pymysql
 
 logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('gsp/config.ini')
 defaultConfig = config['DEFAULT']
 emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
@@ -69,6 +69,9 @@ headers2 = [
     "DLY",
     "COM",
 ]
+
+def printTest():
+    print("Hello World")
 
 
 def dbConnect():
