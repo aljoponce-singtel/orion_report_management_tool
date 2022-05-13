@@ -1,3 +1,5 @@
-from subprocess import call
+import sys
+sys.path.insert(0, './gsp')
+import main
 
-call(["c:/Users/p1319639/Development/pythonenv/Scripts/python", "gsp/main.py"])
+main.main()
