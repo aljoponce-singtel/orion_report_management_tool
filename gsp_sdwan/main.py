@@ -1,9 +1,22 @@
-import sys
+"""GSP Reports
+
+Author: P1319639
+
+This script will generate SDWAN reports:
+
+Add this crontab command for report scheduling:
+15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp_sdwan main
+"""
+
+import utils
+import configparser
+from logging.handlers import TimedRotatingFileHandler
+import logging.config
 import logging
-import csv
+import sys
 import os
 import smtplib
-import configparser
+import csv
 from datetime import datetime, timedelta
 from zipfile import ZipFile
 from email.mime.base import MIMEBase
@@ -14,10 +27,23 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 import pymysql
-pymysql.install_as_MySQLdb()
 
+# getting the name of the directory
+# where the this file is present.
+current = os.path.dirname(os.path.realpath(__file__))
+
+# Getting the parent directory name
+# where the current directory is present.
+parent = os.path.dirname(current)
+
+# adding the parent directory to
+# the sys.path.
+sys.path.append(parent)
+
+
+logger = logging.getLogger()
 config = configparser.ConfigParser()
-config.read('config_sdwan.ini')
+config.read('gsp_sdwan/config_sdwan.ini')
 defaultConfig = config['DEFAULT']
 emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
@@ -25,13 +51,7 @@ engine = None
 conn = None
 csvFiles = []
 reportsFolderPath = os.path.join(os.getcwd(), "reports")
-logsFolderPath = os.path.join(os.getcwd(), "logs")
-
-logging.basicConfig(handlers=[logging.FileHandler(filename=os.path.join(logsFolderPath, "reports_sdwan.log"),
-                                                  encoding='utf-8', mode='a+')],
-                    format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt="%F %a %T",
-                    level=logging.INFO)
+pymysql.install_as_MySQLdb()
 
 
 def dbConnect():
@@ -42,13 +62,13 @@ def dbConnect():
             'mysql://{}:{}@{}:{}/{}'.format(dbConfig['orion_user'], dbConfig['orion_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['orion_db']))
         conn = engine.connect()
 
-        # printAndLogMessage("Connected to DB " + dbConfig['orion_db'] + ' at ' +
+        # logger.info("Connected to DB " + dbConfig['orion_db'] + ' at ' +
         #                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'])
 
     except Exception as err:
-        printAndLogMessage("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
-                           dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-        printAndLogError(err)
+        logger.info("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
+                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+        logger.error(err)
         raise Exception(err)
 
 
@@ -83,7 +103,7 @@ def printRecords(records):
 
 
 def generateReport(csvfile, querylist, headers):
-    printAndLogMessage("Generating report " + csvfile + " ...")
+    logger.info("Generating report " + csvfile + " ...")
     write_to_csv(csvfile, querylist, headers)
 
 
@@ -105,8 +125,8 @@ def os_zip_csvFile(csvFiles, zipfile):
 
 def zip_file(csvFiles, zipfile, folderPath):
 
-    printAndLogMessage("Creating " + zipfile + " for " +
-                       ', '.join(csvFiles) + ' ...')
+    logger.info("Creating " + zipfile + " for " +
+                ', '.join(csvFiles) + ' ...')
     os.chdir(folderPath)
 
     if getPlatform() == "Linux":
@@ -167,7 +187,7 @@ def sendEmail(subject, attachment, email):
     # Enable/Disable email
     if defaultConfig.getboolean('SendEmail'):
         try:
-            printAndLogMessage(
+            logger.info(
                 'Sending email with subject "{}" ...'.format(subject))
 
             receiverTo = emailConfig["receiverTo"] if defaultConfig[
@@ -211,11 +231,11 @@ def sendEmail(subject, attachment, email):
                                  message.as_string())
                 smtpObj.quit()
 
-            # printAndLogMessage("Email sent.")
+            # logger.info("Email sent.")
 
         except Exception as e:
-            printAndLogError("Failed to send email.")
-            printAndLogError(e)
+            logger.error("Failed to send email.")
+            logger.error(e)
 
 
 def getPlatform():
@@ -233,23 +253,9 @@ def getPlatform():
     return platforms[sys.platform]
 
 
-def printAndLogMessage(message):
-    print(message)
-    logging.info(message)
-
-
-def printAndLogError(error):
-    print("ERROR: {}".format(error))
-    logging.error(error)
-
-
-def getCurrentDateTime():
-    return datetime.now().strftime("%d%m%y_%H%M")
-
-
 def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
-    printAndLogMessage("Processing [" + emailSubject + "] ...")
+    logger.info("Processing [" + emailSubject + "] ...")
 
     dbConnect()
     csvFiles.clear()
@@ -356,7 +362,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                         ParameterName;
                 """).format(contactTypes, parameters, orderTypes, productCodes, startDate, endDate)
 
-    csvFile = ("{}_{}.csv").format('SDWAN', getCurrentDateTime())
+    csvFile = ("{}_{}.csv").format('SDWAN', utils.getCurrentDateTime())
     outputList, reportColumns = processList(dbQueryToList(sqlquery), columns)
     generateReport(csvFile, outputList, reportColumns)
     dbDisconnect()
@@ -364,14 +370,15 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
     if csvFiles:
         attachement = None
         if defaultConfig.getboolean('CompressFiles'):
-            zipFile = ("{}_{}.zip").format(zipFileName, getCurrentDateTime())
+            zipFile = ("{}_{}.zip").format(
+                zipFileName, utils.getCurrentDateTime())
             zip_file(csvFiles, zipFile, reportsFolderPath)
             attachement = zipFile
         else:
             attachement = csvFile
         sendEmail(setEmailSubject(emailSubject), attachement, emailTo)
 
-    printAndLogMessage("Processing [" + emailSubject + "] complete")
+    logger.info("Processing [" + emailSubject + "] complete")
 
 
 def processList(queryList, columns):
@@ -676,38 +683,51 @@ def dfParameterValue(df, parameterName):
 
 
 def main():
+    # applies to all modules using this variable
+    global logger
+    logger = logging.getLogger()
+    consoleHandler = logging.StreamHandler(sys.stdout)
+    consoleFormat = logging.Formatter(
+        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%T")
+    consoleHandler.setFormatter(consoleFormat)
+    fileHandler = TimedRotatingFileHandler('logs/gsp_sdwan.log', 'D', 1)
+    fileFormat = logging.Formatter(
+        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
+    fileHandler.setFormatter(fileFormat)
+    logger.addHandler(consoleHandler)
+    logger.addHandler(fileHandler)
+    logger.setLevel(logging.DEBUG)
+
     today_date = datetime.now().date()
 
-    printAndLogMessage("==========================================")
-    printAndLogMessage("START of script - " +
-                       datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-    printAndLogMessage("Running script in " + getPlatform())
+    logger.info("==========================================")
+    logger.info("START of script - " +
+                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+    logger.info("Running script in " + getPlatform())
 
     try:
+        startDate = None
+        endDate = None
+
         if defaultConfig.getboolean('GenReportManually'):
+            logger.info('\\* MANUAL RUN *\\')
             startDate = defaultConfig['ReportStartDate']
             endDate = defaultConfig['ReportEndDate']
-
-            printAndLogMessage("start date: " + str(startDate))
-            printAndLogMessage("end date: " + str(endDate))
-
-            generateSDWANReport('sdwan_report', startDate,
-                                endDate, "SDWAN Weekly Report", '')
-
         else:
             startDate = str(today_date - timedelta(days=7))
             endDate = str(today_date - timedelta(days=1))
-            printAndLogMessage("start date: " + str(startDate))
-            printAndLogMessage("end date: " + str(endDate))
 
-            generateSDWANReport('sdwan_weekly_report', startDate,
-                                endDate, "SDWAN Weekly Report", '')
+        logger.info("start date: " + str(startDate))
+        logger.info("end date: " + str(endDate))
+
+        generateSDWANReport('sdwan_weekly_report', startDate,
+                            endDate, "SDWAN Weekly Report", '')
 
     except Exception as err:
-        printAndLogError(err)
+        logger.error(err)
 
-    printAndLogMessage("END of script - " +
-                       datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+    logger.info("END of script - " +
+                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':
