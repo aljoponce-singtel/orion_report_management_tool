@@ -1,3 +1,13 @@
+"""GSP Reports
+
+Author: P1319639
+
+This script will generate Singnet reports:
+
+Add this crontab command for report scheduling:
+15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp main2
+"""
+
 from datetime import datetime, timedelta
 import configparser
 from logging.handlers import TimedRotatingFileHandler

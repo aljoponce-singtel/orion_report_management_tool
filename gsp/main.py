@@ -1,3 +1,19 @@
+"""GSP Reports
+
+Author: P1319639
+
+This script will generate the following reports:
+- CPluseIp
+- MegaPop
+- Singnet
+- Stix
+- Internet
+- SDWAN
+
+Add this crontab command for report scheduling:
+15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp main
+"""
+
 import reports
 import utils
 from datetime import datetime, timedelta
