@@ -1,8 +1,5 @@
-import reports
-import utils
 from datetime import datetime, timedelta
 import configparser
-import calendar
 from logging.handlers import TimedRotatingFileHandler
 import logging.config
 import logging
@@ -21,6 +18,8 @@ parent = os.path.dirname(current)
 # the sys.path.
 sys.path.append(parent)
 
+import utils
+import reports
 
 logger = logging.getLogger()
 config = configparser.ConfigParser()
@@ -67,7 +66,7 @@ def main():
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
             reports.generateCPluseIpReport('cplusip_report', startDate,
-                                           endDate, '', "CPlusIP Report", '')
+                                                   endDate, '', "CPlusIP Report", '')
             # reports.generateMegaPopReport('megapop_report', startDate,
             #                       endDate, '', "MegaPop Report", '')]
             # reports.generateSingnetReport('singnet_report', startDate,
@@ -92,70 +91,22 @@ def main():
 
         else:
             #-- START --#
-            # If the day falls on the 1st day of the month
-            # start date = 1st day of the month
-            # end date = last day of the month
+            # If the day falls on a Monday
+            # start date = date of the previous Monday (T-7)
+            # end date = date of the previous Sunday (T-1)
 
             # TEST DATA
-            # today_date = datetime.now().date().replace(day=1)
+            # today_date = datetime.now().date().replace(day=7)
             # print("date today: " + str(today_date))
 
-            if today_date.day == 1:
+            if today_date.isoweekday() == 1:  # Monday
                 logger.info(
                     "==========================================")
                 logger.info("START of script - " +
                             datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
                 logger.info("Running script in " + utils.getPlatform())
 
-                previousMonth = (today_date.replace(day=1) -
-                                 timedelta(days=1)).replace(day=today_date.day)
-                startDate = str(previousMonth)
-                lastDay = calendar.monthrange(
-                    previousMonth.year, previousMonth.month)[1]
-                endDate = str(previousMonth.replace(day=lastDay))
-                logger.info("start date: " + str(startDate))
-                logger.info("end date: " + str(endDate))
-
-                logger.info('UpdateTableauDB = ' +
-                            str(defaultConfig.getboolean('UpdateTableauDB')))
-
-                reports.generateCPluseIpReport('cplusip_report', startDate,
-                                               endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
-                reports.generateMegaPopReport('megapop_report', startDate,
-                                              endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
-                reports.generateSingnetReport('singnet_report', startDate,
-                                              endDate, '', "Singnet Report", '')
-                reports.generateStixReport('stix_report', startDate,
-                                           endDate, "STIX Report", '')
-                reports.generateInternetReport('internet_report', startDate,
-                                               endDate, "Internet Report", '')
-                reports.generateSDWANReport('sdwan_report', startDate,
-                                            endDate, "SDWAN Report", '')
-
-                logger.info(
-                    "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-
-            #-- END --#
-
-            #-- START --#
-            # If the day falls on the 26th of the month
-            # start date = 26th day of the previous month
-            # end date = 25th day of the current month
-
-            # TEST DATA
-            # today_date = datetime.now().date().replace(day=26)
-            # print("date today: " + str(today_date))
-
-            if today_date.day == 26:
-                logger.info(
-                    "==========================================")
-                logger.info("START of script - " +
-                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                logger.info("Running script in " + utils.getPlatform())
-
-                previousMonth = (today_date.replace(day=1) -
-                                 timedelta(days=1)).replace(day=today_date.day)
-                startDate = str(previousMonth)
+                startDate = str(today_date - timedelta(days=7))
                 endDate = str(today_date - timedelta(days=1))
                 logger.info("start date: " + str(startDate))
                 logger.info("end date: " + str(endDate))
@@ -164,10 +115,10 @@ def main():
                 logger.info('UpdateTableauDB = ' +
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
-                reports.generateCPluseIpReportGrp(
-                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
-                reports.generateMegaPopReportGrp(
-                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
+                reports.generateSingnetReport(
+                    'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
+                reports.generateSingnetReport(
+                    'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
 
                 logger.info(
                     "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
