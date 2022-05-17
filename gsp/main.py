@@ -71,7 +71,7 @@ def main():
                         datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
             logger.info("Running script in " + utils.getPlatform())
 
-            logger.info('\\* TEST RUN *\\')
+            logger.info('\\* MANUAL RUN *\\')
 
             startDate = defaultConfig['ReportStartDate']
             endDate = defaultConfig['ReportEndDate']
