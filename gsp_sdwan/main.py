@@ -8,13 +8,15 @@ Add this crontab command for report scheduling:
 15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp_sdwan main
 """
 
-import configparser
-from logging.handlers import TimedRotatingFileHandler
-import logging.config
-import logging
-import sys
 import os
+import sys
+import importlib
+import logging
+import calendar
+import configparser
 from datetime import datetime, timedelta
+import log
+import utils
 
 # getting the name of the directory
 # where this file is present.
@@ -29,36 +31,15 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 sys.path.append(current)
 
-import utils
-import reports
-
-logger = logging.getLogger()
+reports = importlib.import_module('reports')
 config = configparser.ConfigParser()
 config.read('gsp_sdwan/config_sdwan.ini')
 defaultConfig = config['DEFAULT']
-emailConfig = config[defaultConfig['EmailInfo']]
-dbConfig = config[defaultConfig['DatabaseEnv']]
-engine = None
-conn = None
-csvFiles = []
-reportsFolderPath = os.path.join(os.getcwd(), "reports")
 
 
 def main():
-    # applies to all modules using this variable
-    global logger
-    logger = logging.getLogger()
-    consoleHandler = logging.StreamHandler(sys.stdout)
-    consoleFormat = logging.Formatter(
-        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%T")
-    consoleHandler.setFormatter(consoleFormat)
-    fileHandler = TimedRotatingFileHandler('logs/gsp_sdwan.log', 'D', 1)
-    fileFormat = logging.Formatter(
-        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
-    fileHandler.setFormatter(fileFormat)
-    logger.addHandler(consoleHandler)
-    logger.addHandler(fileHandler)
-    logger.setLevel(logging.DEBUG)
+    log.initialize('logs/gsp_sdwan.log')
+    logger = logging.getLogger(__name__)
 
     today_date = datetime.now().date()
 

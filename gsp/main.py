@@ -14,14 +14,15 @@ Add this crontab command for report scheduling:
 15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp main
 """
 
-from datetime import datetime, timedelta
-import configparser
-import calendar
-from logging.handlers import TimedRotatingFileHandler
-import logging.config
-import logging
-import sys
 import os
+import sys
+import importlib
+import logging
+import calendar
+import configparser
+from datetime import datetime, timedelta
+import log
+import utils
 
 # getting the name of the directory
 # where this file is present.
@@ -36,34 +37,17 @@ parent = os.path.dirname(current)
 sys.path.append(parent)
 sys.path.append(current)
 
-import utils
-import reports
-
-logger = logging.getLogger()
+reports = importlib.import_module('reports')
 config = configparser.ConfigParser()
 config.read('gsp/config.ini')
 defaultConfig = config['DEFAULT']
 
 
 def main():
-    # applies to all modules using this variable
-    global logger
-    logger = logging.getLogger()
-    consoleHandler = logging.StreamHandler(sys.stdout)
-    consoleFormat = logging.Formatter(
-        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%T")
-    consoleHandler.setFormatter(consoleFormat)
-    fileHandler = TimedRotatingFileHandler('logs/gsp.log', 'D', 1)
-    fileFormat = logging.Formatter(
-        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
-    fileHandler.setFormatter(fileFormat)
-    logger.addHandler(consoleHandler)
-    logger.addHandler(fileHandler)
-    logger.setLevel(logging.DEBUG)
+    log.initialize('logs/gsp.log')
+    logger = logging.getLogger(__name__)
 
     today_date = datetime.now().date()
-
-    logger.info("SUCCESS")
 
     try:
         if defaultConfig.getboolean('GenReportManually'):
