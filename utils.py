@@ -47,18 +47,18 @@ def zipFile(filesToZip, zipfile, folderPath, password):
 
 def zip_file(filesToZip, zipfile):
     with ZipFile(zipfile, 'w') as zipObj:
-        for csv in filesToZip:
-            csvfilePath = csv
-            zipObj.write(csvfilePath)
-            os.remove(csvfilePath)
+        for file in filesToZip:
+            filePath = file
+            zipObj.write(filePath)
+            os.remove(filePath)
 
 
 def os_zip_file(filesToZip, zipfile, password):
     filesToZip = ' '.join(filesToZip)
     os.system("zip -e %s %s -P %s" %
               (zipfile, filesToZip, password))
-    for csv in filesToZip:
-        os.remove(csv)
+    for file in filesToZip:
+        os.remove(file)
 
 
 def getPlatform():
