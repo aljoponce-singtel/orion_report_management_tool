@@ -1,3 +1,4 @@
+from distutils.log import error
 import sys
 import logging
 import os
@@ -26,23 +27,25 @@ def write_to_csv(csvfile, dataset, headers, folderPath):
         raise Exception(e)
 
 
-def zip_file(filesToZip, zipfile, folderPath, password):
+def zipFile(filesToZip, zipfile, folderPath, password):
 
     logger.info("Creating " + zipfile + " for " +
                 ', '.join(filesToZip) + ' ...')
     os.chdir(folderPath)
 
     if getPlatform() == "Linux":
-        os_zip_csvFile(filesToZip, zipfile, password)
+        os_zip_file(filesToZip, zipfile, password)
     elif getPlatform() == "Windows":
-        zip_csvFile(filesToZip, zipfile)
+        zip_file(filesToZip, zipfile)
     else:
-        raise Exception("OS " + os + " not supported.")
+        errorMsg = "OS " + os + " not supported."
+        logger.error(errorMsg)
+        raise Exception(errorMsg)
 
     os.chdir('../')
 
 
-def zip_csvFile(filesToZip, zipfile):
+def zip_file(filesToZip, zipfile):
     with ZipFile(zipfile, 'w') as zipObj:
         for csv in filesToZip:
             csvfilePath = csv
@@ -50,7 +53,7 @@ def zip_csvFile(filesToZip, zipfile):
             os.remove(csvfilePath)
 
 
-def os_zip_csvFile(filesToZip, zipfile, password):
+def os_zip_file(filesToZip, zipfile, password):
     filesToZip = ' '.join(filesToZip)
     os.system("zip -e %s %s -P %s" %
               (zipfile, filesToZip, password))

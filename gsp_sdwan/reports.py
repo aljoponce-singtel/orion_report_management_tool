@@ -286,7 +286,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         if defaultConfig.getboolean('CompressFiles'):
             zipFile = ("{}_{}.zip").format(
                 zipFileName, utils.getCurrentDateTime())
-            utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+            utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                            defaultConfig['ZipPassword'])
             attachement = zipFile
         else:

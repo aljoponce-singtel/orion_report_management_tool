@@ -512,7 +512,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -658,7 +658,7 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -779,7 +779,7 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -904,7 +904,7 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1024,7 +1024,7 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1084,7 +1084,7 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1145,7 +1145,7 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
@@ -1207,7 +1207,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                        defaultConfig['ZipPassword'])
         sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
 
