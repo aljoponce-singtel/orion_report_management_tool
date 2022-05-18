@@ -14,34 +14,23 @@ import logging.config
 import logging
 import sys
 import os
-import smtplib
-import csv
 from datetime import datetime, timedelta
-from zipfile import ZipFile
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email import encoders
-import pandas as pd
-from sqlalchemy import create_engine
-from sqlalchemy.sql import text
-import pymysql
 
 # getting the name of the directory
-# where the this file is present.
+# where this file is present.
 current = os.path.dirname(os.path.realpath(__file__))
 
 # Getting the parent directory name
 # where the current directory is present.
 parent = os.path.dirname(current)
 
-# adding the parent directory to
+# adding the current and parent directory to
 # the sys.path.
 sys.path.append(parent)
+sys.path.append(current)
 
 import utils
 import reports
-
 
 logger = logging.getLogger()
 config = configparser.ConfigParser()
@@ -53,7 +42,7 @@ engine = None
 conn = None
 csvFiles = []
 reportsFolderPath = os.path.join(os.getcwd(), "reports")
-pymysql.install_as_MySQLdb()
+
 
 def main():
     # applies to all modules using this variable
@@ -94,7 +83,7 @@ def main():
         logger.info("end date: " + str(endDate))
 
         reports.generateSDWANReport('sdwan_weekly_report', startDate,
-                            endDate, "SDWAN Weekly Report", '')
+                                    endDate, "SDWAN Weekly Report", '')
 
     except Exception as err:
         logger.error(err)

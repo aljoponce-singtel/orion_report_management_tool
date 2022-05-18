@@ -14,8 +14,6 @@ Add this crontab command for report scheduling:
 15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp main
 """
 
-import reports
-import utils
 from datetime import datetime, timedelta
 import configparser
 import calendar
@@ -26,17 +24,20 @@ import sys
 import os
 
 # getting the name of the directory
-# where the this file is present.
+# where this file is present.
 current = os.path.dirname(os.path.realpath(__file__))
 
 # Getting the parent directory name
 # where the current directory is present.
 parent = os.path.dirname(current)
 
-# adding the parent directory to
+# adding the current and parent directory to
 # the sys.path.
 sys.path.append(parent)
+sys.path.append(current)
 
+import utils
+import reports
 
 logger = logging.getLogger()
 config = configparser.ConfigParser()
