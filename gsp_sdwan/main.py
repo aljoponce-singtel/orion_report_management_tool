@@ -107,38 +107,6 @@ def generateReport(csvfile, querylist, headers):
     write_to_csv(csvfile, querylist, headers)
 
 
-def zip_csvFile(csvFiles, zipfile):
-    with ZipFile(zipfile, 'w') as zipObj:
-        for csv in csvFiles:
-            csvfilePath = csv
-            zipObj.write(csvfilePath)
-            os.remove(csvfilePath)
-
-
-def os_zip_csvFile(csvFiles, zipfile):
-    csvfiles = ' '.join(csvFiles)
-    os.system("zip -e %s %s -P %s" %
-              (zipfile, csvfiles, defaultConfig['ZipPassword']))
-    for csv in csvFiles:
-        os.remove(csv)
-
-
-def zip_file(csvFiles, zipfile, folderPath):
-
-    logger.info("Creating " + zipfile + " for " +
-                ', '.join(csvFiles) + ' ...')
-    os.chdir(folderPath)
-
-    if getPlatform() == "Linux":
-        os_zip_csvFile(csvFiles, zipfile)
-    elif getPlatform() == "Windows":
-        zip_csvFile(csvFiles, zipfile)
-    else:
-        raise Exception("OS " + os + " not supported.")
-
-    os.chdir('../')
-
-
 def report_attach(zipfile):
 
     zipfilePath = os.path.join(reportsFolderPath, zipfile)
@@ -195,7 +163,7 @@ def sendEmail(subject, attachment, email):
             receiverCc = emailConfig["receiverCc"]
             sender = emailConfig["sender"]
 
-            if getPlatform() == 'Windows':
+            if utils.getPlatform() == 'Windows':
                 import win32com.client
                 outlook = win32com.client.Dispatch('outlook.application')
 
@@ -236,21 +204,6 @@ def sendEmail(subject, attachment, email):
         except Exception as e:
             logger.error("Failed to send email.")
             logger.error(e)
-
-
-def getPlatform():
-    platforms = {
-        'linux': 'Linux',
-        'linux1': 'Linux',
-        'linux2': 'Linux',
-        'darwin': 'OS X',
-        'win32': 'Windows'
-    }
-
-    if sys.platform not in platforms:
-        return sys.platform
-
-    return platforms[sys.platform]
 
 
 def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
@@ -372,7 +325,8 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         if defaultConfig.getboolean('CompressFiles'):
             zipFile = ("{}_{}.zip").format(
                 zipFileName, utils.getCurrentDateTime())
-            zip_file(csvFiles, zipFile, reportsFolderPath)
+            utils.zip_file(csvFiles, zipFile, reportsFolderPath,
+                           defaultConfig['ZipPassword'])
             attachement = zipFile
         else:
             attachement = csvFile
@@ -703,7 +657,7 @@ def main():
     logger.info("==========================================")
     logger.info("START of script - " +
                 datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-    logger.info("Running script in " + getPlatform())
+    logger.info("Running script in " + utils.getPlatform())
 
     try:
         startDate = None
