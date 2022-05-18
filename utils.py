@@ -1,10 +1,29 @@
 import sys
 import logging
 import os
+import csv
 from datetime import datetime
 from zipfile import ZipFile
 
 logger = logging.getLogger(__name__)
+
+
+def write_to_csv(csvfile, dataset, headers, folderPath):
+
+    try:
+        csvfilePath = os.path.join(folderPath, csvfile)
+
+        with open(csvfilePath, 'w', newline='') as csv_file:
+            spamwriter = csv.writer(
+                csv_file,
+                delimiter=',',
+                quoting=csv.QUOTE_NONNUMERIC)
+            spamwriter.writerow(headers)
+            spamwriter.writerows(dataset)
+
+    except Exception as e:
+        logger.error(e)
+        raise Exception(e)
 
 
 def zip_file(csvFiles, zipfile, folderPath, password):
