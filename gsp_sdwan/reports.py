@@ -56,21 +56,6 @@ def dbQueryToList(sqlQuery):
     return dataset
 
 
-def write_to_csv(csv_file, dataset, headers):
-
-    csvfilePath = os.path.join(reportsFolderPath, csv_file)
-
-    with open(csvfilePath, 'w', newline='') as csvfile:
-        spamwriter = csv.writer(
-            csvfile,
-            delimiter=',',
-            quoting=csv.QUOTE_NONNUMERIC)
-        spamwriter.writerow(headers)
-        spamwriter.writerows(dataset)
-
-        csvFiles.append(csv_file)
-
-
 def printRecords(records):
 
     for record in records:
@@ -79,7 +64,8 @@ def printRecords(records):
 
 def generateReport(csvfile, querylist, headers):
     logger.info("Generating report " + csvfile + " ...")
-    write_to_csv(csvfile, querylist, headers)
+    utils.write_to_csv(csvfile, querylist, headers, reportsFolderPath)
+    csvFiles.append(csvfile)
 
 
 def report_attach(zipfile):
