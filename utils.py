@@ -26,35 +26,35 @@ def write_to_csv(csvfile, dataset, headers, folderPath):
         raise Exception(e)
 
 
-def zip_file(csvFiles, zipfile, folderPath, password):
+def zip_file(filesToZip, zipfile, folderPath, password):
 
     logger.info("Creating " + zipfile + " for " +
-                ', '.join(csvFiles) + ' ...')
+                ', '.join(filesToZip) + ' ...')
     os.chdir(folderPath)
 
     if getPlatform() == "Linux":
-        os_zip_csvFile(csvFiles, zipfile, password)
+        os_zip_csvFile(filesToZip, zipfile, password)
     elif getPlatform() == "Windows":
-        zip_csvFile(csvFiles, zipfile)
+        zip_csvFile(filesToZip, zipfile)
     else:
         raise Exception("OS " + os + " not supported.")
 
     os.chdir('../')
 
 
-def zip_csvFile(csvFiles, zipfile):
+def zip_csvFile(filesToZip, zipfile):
     with ZipFile(zipfile, 'w') as zipObj:
-        for csv in csvFiles:
+        for csv in filesToZip:
             csvfilePath = csv
             zipObj.write(csvfilePath)
             os.remove(csvfilePath)
 
 
-def os_zip_csvFile(csvFiles, zipfile, password):
-    csvfiles = ' '.join(csvFiles)
+def os_zip_csvFile(filesToZip, zipfile, password):
+    filesToZip = ' '.join(filesToZip)
     os.system("zip -e %s %s -P %s" %
-              (zipfile, csvfiles, password))
-    for csv in csvFiles:
+              (zipfile, filesToZip, password))
+    for csv in filesToZip:
         os.remove(csv)
 
 
