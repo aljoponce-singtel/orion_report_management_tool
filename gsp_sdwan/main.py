@@ -12,7 +12,6 @@ import os
 import sys
 import importlib
 import logging
-import calendar
 import configparser
 from datetime import datetime, timedelta
 import log
@@ -33,12 +32,12 @@ sys.path.append(current)
 
 reports = importlib.import_module('reports')
 config = configparser.ConfigParser()
-config.read('gsp_sdwan/config_sdwan.ini')
+config.read('gsp_sdwan/config.ini')
 defaultConfig = config['DEFAULT']
 
 
 def main():
-    log.initialize('logs/gsp_sdwan.log')
+    log.initialize('gsp_sdwan/config.ini')
     logger = logging.getLogger(__name__)
 
     today_date = datetime.now().date()

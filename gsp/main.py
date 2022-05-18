@@ -44,7 +44,7 @@ defaultConfig = config['DEFAULT']
 
 
 def main():
-    log.initialize('logs/gsp.log')
+    log.initialize('gsp/config.ini')
     logger = logging.getLogger(__name__)
 
     today_date = datetime.now().date()

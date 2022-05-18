@@ -16,7 +16,7 @@ import pymysql
 
 logger = logging.getLogger()
 config = configparser.ConfigParser()
-config.read('gsp_sdwan/config_sdwan.ini')
+config.read('gsp_sdwan/config.ini')
 defaultConfig = config['DEFAULT']
 emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
