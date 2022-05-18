@@ -2,10 +2,8 @@ import utils
 import configparser
 import logging.config
 import logging
-import sys
 import os
 import smtplib
-import csv
 from datetime import datetime
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
