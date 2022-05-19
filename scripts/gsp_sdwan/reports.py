@@ -1,4 +1,4 @@
-import utils
+from scripts import utils
 import configparser
 import logging.config
 import logging
@@ -14,7 +14,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql import text
 import pymysql
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
 config.read('scripts/gsp_sdwan/config.ini')
 defaultConfig = config['DEFAULT']
@@ -23,7 +23,7 @@ dbConfig = config[defaultConfig['DatabaseEnv']]
 engine = None
 conn = None
 csvFiles = []
-reportsFolderPath = os.path.join(os.getcwd(), "reports")
+reportsFolderPath = os.path.join(os.getcwd(), defaultConfig['ReportsFolder'])
 pymysql.install_as_MySQLdb()
 
 

@@ -23,7 +23,7 @@ dbConfig = config[defaultConfig['DatabaseEnv']]
 engine = None
 conn = None
 csvFiles = []
-reportsFolderPath = os.path.join(os.getcwd(), "reports")
+reportsFolderPath = os.path.join(os.getcwd(), defaultConfig['ReportsFolder'])
 pymysql.install_as_MySQLdb()
 
 headers = [

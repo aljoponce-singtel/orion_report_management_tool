@@ -13,7 +13,7 @@ import configparser
 from datetime import datetime, timedelta
 from scripts import log
 from scripts import utils
-from scripts.gsp import reports
+from scripts.gsp_sdwan import reports
 
 config = configparser.ConfigParser()
 config.read('scripts/gsp_sdwan/config.ini')
