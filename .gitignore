@@ -3,3 +3,5 @@
 # Untracked files and folders:
 [...]
 __pycache__
+logs
+reports
