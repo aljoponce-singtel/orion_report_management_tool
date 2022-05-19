@@ -1,4 +1,4 @@
-import utils
+from scripts import utils
 import logging
 import re
 import os
@@ -16,7 +16,7 @@ import pymysql
 
 logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
-config.read('gsp/config.ini')
+config.read('scripts/gsp/config.ini')
 defaultConfig = config['DEFAULT']
 emailConfig = config[defaultConfig['EmailInfo']]
 dbConfig = config[defaultConfig['DatabaseEnv']]
