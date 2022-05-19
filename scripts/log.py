@@ -16,11 +16,11 @@ def initialize(configPath):
     logger = logging.getLogger()
     consoleHandler = logging.StreamHandler(sys.stdout)
     consoleFormat = logging.Formatter(
-        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%T")
+        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%T")
     consoleHandler.setFormatter(consoleFormat)
     fileHandler = TimedRotatingFileHandler(logConfig['logFile'], 'D', 1)
     fileFormat = logging.Formatter(
-        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
+        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
     fileHandler.setFormatter(fileFormat)
     logger.addHandler(consoleHandler)
     logger.addHandler(fileHandler)
