@@ -1,5 +1,4 @@
 from scripts import utils
-import configparser
 import logging.config
 import logging
 import os
@@ -15,16 +14,23 @@ from sqlalchemy.sql import text
 import pymysql
 
 logger = logging.getLogger(__name__)
-config = configparser.ConfigParser()
-config.read('scripts/gsp_sdwan/config.ini')
-defaultConfig = config['DEFAULT']
-emailConfig = config[defaultConfig['EmailInfo']]
-dbConfig = config[defaultConfig['DatabaseEnv']]
+defaultConfig = None
+emailConfig = None
+dbConfig = None
 engine = None
 conn = None
 csvFiles = []
-reportsFolderPath = os.path.join(os.getcwd(), defaultConfig['ReportsFolder'])
+reportsFolderPath = None
 pymysql.install_as_MySQLdb()
+
+
+def loadConfig(config):
+    global defaultConfig, emailConfig, dbConfig, reportsFolderPath
+    defaultConfig = config['DEFAULT']
+    emailConfig = config[defaultConfig['EmailInfo']]
+    dbConfig = config[defaultConfig['DatabaseEnv']]
+    reportsFolderPath = os.path.join(
+        os.getcwd(), defaultConfig['ReportsFolder'])
 
 
 def dbConnect():
@@ -285,7 +291,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
             zipFile = ("{}_{}.zip").format(
                 zipFileName, utils.getCurrentDateTime())
             utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                           defaultConfig['ZipPassword'])
+                          defaultConfig['ZipPassword'])
             attachement = zipFile
         else:
             attachement = csvFile

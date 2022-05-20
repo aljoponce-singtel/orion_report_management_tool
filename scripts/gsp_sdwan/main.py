@@ -23,7 +23,7 @@ defaultConfig = config['DEFAULT']
 def main():
     log.initialize('scripts/gsp_sdwan/config.ini')
     logger = logging.getLogger(__name__)
-
+    reports.loadConfig(config)
     today_date = datetime.now().date()
 
     logger.info("==========================================")
