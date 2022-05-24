@@ -8,62 +8,29 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email import encoders
+from scripts.DBConnection import DBConnection
 import pandas as pd
-from sqlalchemy import create_engine
-from sqlalchemy.sql import text
-import pymysql
 
 logger = logging.getLogger(__name__)
 defaultConfig = None
 emailConfig = None
 dbConfig = None
-engine = None
-conn = None
 csvFiles = []
 reportsFolderPath = None
-pymysql.install_as_MySQLdb()
+orionDb = None
 
 
 def loadConfig(config):
-    global defaultConfig, emailConfig, dbConfig, reportsFolderPath
+    global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb
     defaultConfig = config['DEFAULT']
     emailConfig = config[defaultConfig['EmailInfo']]
     dbConfig = config[defaultConfig['DatabaseEnv']]
     reportsFolderPath = os.path.join(
         os.getcwd(), defaultConfig['ReportsFolder'])
 
-
-def dbConnect():
-    global engine, conn
-
-    try:
-        engine = create_engine(
-            'mysql://{}:{}@{}:{}/{}'.format(dbConfig['orion_user'], dbConfig['orion_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['orion_db']))
-        conn = engine.connect()
-
-        # logger.info("Connected to DB " + dbConfig['orion_db'] + ' at ' +
-        #                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'])
-
-    except Exception as err:
-        logger.info("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
-                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-        logger.error(err)
-        raise Exception(err)
-
-
-def dbDisconnect():
-    conn.close()
-
-
-def dbQueryToList(sqlQuery):
-    dataset = conn.execute(text(sqlQuery)).fetchall()
-    return dataset
-
-
-def printRecords(records):
-
-    for record in records:
-        print(record)
+    orionDb = DBConnection(dbConfig['host'], dbConfig['port'],
+                           dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
+    orionDb.connect()
 
 
 def generateReport(csvfile, querylist, headers):
@@ -175,7 +142,6 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     columns = [
@@ -281,9 +247,9 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                 """).format(contactTypes, parameters, orderTypes, productCodes, startDate, endDate)
 
     csvFile = ("{}_{}.csv").format('SDWAN', utils.getCurrentDateTime())
-    outputList, reportColumns = processList(dbQueryToList(sqlquery), columns)
+    outputList, reportColumns = processList(
+        orionDb.queryToList(sqlquery), columns)
     generateReport(csvFile, outputList, reportColumns)
-    dbDisconnect()
 
     if csvFiles:
         attachement = None

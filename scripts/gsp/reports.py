@@ -8,20 +8,17 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email import encoders
+from scripts.DBConnection import DBConnection
 import pandas as pd
-from sqlalchemy import create_engine
-from sqlalchemy.sql import text
-import pymysql
 
 logger = logging.getLogger(__name__)
 defaultConfig = None
 emailConfig = None
 dbConfig = None
-engine = None
-conn = None
 csvFiles = []
 reportsFolderPath = None
-pymysql.install_as_MySQLdb()
+orionDb = None
+tableauDb = None
 
 headers = [
     "Workorder no",
@@ -68,60 +65,28 @@ headers2 = [
 
 
 def loadConfig(config):
-    global defaultConfig, emailConfig, dbConfig, reportsFolderPath
+    global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb, tableauDb
     defaultConfig = config['DEFAULT']
     emailConfig = config[defaultConfig['EmailInfo']]
     dbConfig = config[defaultConfig['DatabaseEnv']]
     reportsFolderPath = os.path.join(
         os.getcwd(), defaultConfig['ReportsFolder'])
 
+    orionDb = DBConnection(dbConfig['host'], dbConfig['port'],
+                           dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
+    orionDb.connect()
 
-def printTest():
-    print("Hello World")
-
-
-def dbConnect():
-    global engine, conn
-
-    try:
-        engine = create_engine(
-            'mysql://{}:{}@{}:{}/{}'.format(dbConfig['orion_user'], dbConfig['orion_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['orion_db']))
-        conn = engine.connect()
-
-        # logger.info("Connected to DB " + dbConfig['orion_db'] + ' at ' +
-        #                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'])
-
-    except Exception as err:
-        logger.info("Failed to connect to DB " + dbConfig['orion_db'] + ' at ' +
-                    dbConfig['orion_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-        logger.error(err)
-        raise Exception(err)
-
-
-def dbDisconnect():
-    conn.close()
-
-
-def dbQueryToList(sqlQuery):
-    dataset = conn.execute(text(sqlQuery)).fetchall()
-    return dataset
+    tableauDb = DBConnection(dbConfig['host'], dbConfig['port'],
+                             dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
+    tableauDb.connect()
 
 
 def updateTableauDB(outputList, report_id):
     # Allow Tableaue DB update
     if defaultConfig.getboolean('UpdateTableauDB'):
-        conn = None
-
         try:
-            engine = create_engine(
-                'mysql://{}:{}@{}:{}/{}'.format(dbConfig['tableau_user'], dbConfig['tableau_pwd'], dbConfig['host'], dbConfig['port'], dbConfig['tableau_db']))
-            conn = engine.connect()
-
-            # logger.info("Connected to DB " + dbConfig['tableau_db'] + ' at ' +
-            #                    dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-
             logger.info(
-                'Inserting records to o2ptableau.t_GSP_ip_svcs for ' + report_id.lower() + ' ...')
+                'Inserting records to ' + dbConfig['tableau_db'] + '.' + defaultConfig['TableauTable'] + ' for ' + report_id.lower() + ' ...')
 
             columns = [
                 "Workorder_no",
@@ -162,23 +127,17 @@ def updateTableauDB(outputList, report_id):
 
             # set empty values to null
             # insert records to DB
-            df.replace('', None).to_sql(defaultConfig['TableauTable'],
-                                        con=engine,
-                                        index=False,
-                                        if_exists='append',
-                                        method='multi')
+            df.replace('', None)
+            tableauDb.insertDataframeToTable(df, defaultConfig['TableauTable'])
 
             # logger.info("TableauDB Updated for " + report_id.lower())
 
         except Exception as err:
             logger.info("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
                         dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-            logger.error(err)
+            logger.exception(err)
 
             raise Exception(err)
-
-        finally:
-            conn.close()
 
 
 def processList(queryList, groupId_1, groupId_2, grp_1_prio, grp_2_prio):
@@ -386,7 +345,6 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupIdList_1 = ['CNP']
@@ -509,12 +467,10 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
 
             csvFile = ("{}_{}.csv").format(
                 list[1], utils.getCurrentDateTime())
-            outputList = processList(dbQueryToList(
+            outputList = processList(orionDb.queryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
             updateTableauDB(outputList, list[1])
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
@@ -529,7 +485,6 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupIdList_1 = ['CNP30', 'CNP31', 'CNP32', 'CNP33', 'CNP34', 'CNP35', 'CNP36',
@@ -655,12 +610,10 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(dbQueryToList(
+            outputList = processList(orionDb.queryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
             updateTableauDB(outputList, list[1])
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
@@ -675,7 +628,6 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupIdList_1 = ['MPP']
@@ -776,12 +728,10 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(dbQueryToList(
+            outputList = processList(orionDb.queryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
             updateTableauDB(outputList, list[1])
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
@@ -796,7 +746,6 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupIdList_1 = ['MPP70', 'MPP71', 'MPP72', 'MPP73', 'MPP74', 'MPP75', 'MPP76', 'MPP77', 'MPP78',
@@ -901,12 +850,10 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(dbQueryToList(
+            outputList = processList(orionDb.queryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
             updateTableauDB(outputList, list[1])
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
@@ -921,7 +868,6 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupIdList_1 = ['SGX1']
@@ -1021,12 +967,10 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
                     """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
 
             csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(dbQueryToList(
+            outputList = processList(orionDb.queryToList(
                 sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
             generateReport(csvFile, outputList, headers)
             updateTableauDB(outputList, list[1])
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
@@ -1041,7 +985,6 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupId = ['GSDT9']
@@ -1082,11 +1025,10 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
                 """).format(groupIdStr, startDate, endDate, actStr)
 
     csvFile = ("{}_{}.csv").format('GSDT9', utils.getCurrentDateTime())
-    outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
+    outputList = processList(
+        orionDb.queryToList(sqlquery), groupId, '', [], [])
     generateReport(csvFile, outputList, headers2)
     updateTableauDB(outputList, 'GSDT9')
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
@@ -1101,7 +1043,6 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupId = ['GSDT_PS21', 'GSDT_PS23']
@@ -1143,11 +1084,10 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     csvFile = ("{}_{}.csv").format(
         'GSDT_PS21_GSDT_PS23', utils.getCurrentDateTime())
-    outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
+    outputList = processList(
+        orionDb.queryToList(sqlquery), groupId, '', [], [])
     generateReport(csvFile, outputList, headers2)
     updateTableauDB(outputList, 'GSDT_PS23')
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
@@ -1162,7 +1102,6 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
-    dbConnect()
     csvFiles.clear()
 
     groupId = ['GSP_SDN_TM', 'GSDT_TM']
@@ -1205,11 +1144,10 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
 
     csvFile = ("{}_{}.csv").format(
         'GSP_SDN_TM_GSDT_TM', utils.getCurrentDateTime())
-    outputList = processList(dbQueryToList(sqlquery), groupId, '', [], [])
+    outputList = processList(
+        orionDb.queryToList(sqlquery), groupId, '', [], [])
     generateReport(csvFile, outputList, headers2)
     updateTableauDB(outputList, 'GSP_SDN_TM_GSDT_TM')
-
-    dbDisconnect()
 
     if csvFiles:
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
