@@ -90,8 +90,7 @@ def sendEmail(subject, attachment, email):
             logger.info(
                 'Sending email with subject "{}" ...'.format(subject))
 
-            receiverTo = emailConfig["receiverTo"] if defaultConfig[
-                'EmailInfo'] == 'EmailTest' else emailConfig["receiverTo"] + ';' + email
+            receiverTo = emailConfig["receiverTo"]
             receiverCc = emailConfig["receiverCc"]
             sender = emailConfig["sender"]
 
