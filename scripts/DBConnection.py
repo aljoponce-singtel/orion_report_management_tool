@@ -20,9 +20,9 @@ class DBConnection:
 
     def connect(self):
         try:
-            __engine = create_engine(
+            self.__engine = create_engine(
                 'mysql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database))
-            self.__conn = __engine.connect()
+            self.__conn = self.__engine.connect()
 
             logger.info("Connected to DB " + self.database + ' at ' +
                         self.user + '@' + self.host + ':' + self.port)
@@ -30,9 +30,10 @@ class DBConnection:
         except Exception as err:
             logger.error("Failed to connect to DB " + self.database + ' at ' +
                          self.user + '@' + self.host + ':' + self.port + '.')
-            logger.error(err)
+            logger.exception(err)
             raise Exception(err)
 
+    # not used as the desctructor __del__ will take care of it
     def disconnect(self):
         self.__conn.close()
         logger.info("Disconnected to " + self.database + '.')
@@ -41,11 +42,13 @@ class DBConnection:
         dataset = self.__conn.execute(text(query)).fetchall()
         return dataset
 
-    def dataframeToDb(self, dataframe, table):
-        # verify if pd.DataFrame will receive dataframe as reference
+    def insertDataframeToTable(self, dataframe, table):
         df = pd.DataFrame(dataframe)
         df.to_sql(table,
                   con=self.__engine,
                   index=False,
                   if_exists='append',
                   method='multi')
+
+    def __del__(self):
+        self.__conn.close()
