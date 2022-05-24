@@ -63,7 +63,7 @@ def setEmailSubject(subject):
     return subject
 
 
-def sendEmail(subject, attachment, email):
+def sendEmail(subject, attachment):
     emailBodyText = """
         Hello,
 
@@ -137,7 +137,7 @@ def sendEmail(subject, attachment, email):
             logger.error(e)
 
 
-def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -260,7 +260,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
             attachement = zipFile
         else:
             attachement = csvFile
-        sendEmail(setEmailSubject(emailSubject), attachement, emailTo)
+        sendEmail(setEmailSubject(emailSubject), attachement)
 
     logger.info("Processing [" + emailSubject + "] complete")
 

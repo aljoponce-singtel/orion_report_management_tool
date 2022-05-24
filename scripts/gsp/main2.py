@@ -51,13 +51,13 @@ def main():
             emailReceiverToAdd = ';teckchye@singtel.com;tao.taskrequest@singtel.com'
             config['Email']['receiverTo'] = emailReceiver + emailReceiverToAdd
             reports.generateSingnetReport(
-                'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", '')
+                'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC")
 
             # add additional email recepients to config file
             emailReceiverToAdd = ';kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com'
             config['Email']['receiverTo'] = emailReceiver + emailReceiverToAdd
             reports.generateSingnetReport(
-                'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", '')
+                'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating")
 
         else:
             #-- START --#
@@ -86,14 +86,14 @@ def main():
                 config['Email']['receiverTo'] = emailReceiver + \
                     emailReceiverToAdd
                 reports.generateSingnetReport(
-                    'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", '')
+                    'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC")
 
                 # add additional email recepients to config file
                 emailReceiverToAdd = ';kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com'
                 config['Email']['receiverTo'] = emailReceiver + \
                     emailReceiverToAdd
                 reports.generateSingnetReport(
-                    'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", '')
+                    'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating")
 
             #-- END --#
 

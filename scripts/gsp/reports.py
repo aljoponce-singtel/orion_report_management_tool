@@ -341,7 +341,7 @@ def generateReport(csvfile, querylist, headers):
     csvFiles.append(csvfile)
 
 
-def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -476,12 +476,12 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -619,12 +619,12 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -737,12 +737,12 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -859,12 +859,12 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo):
+def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -976,12 +976,12 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+def generateStixReport(zipFileName, startDate, endDate, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -1034,12 +1034,12 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+def generateInternetReport(zipFileName, startDate, endDate, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -1093,12 +1093,12 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
+def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
 
     logger.info("Processing [" + emailSubject + "] ...")
 
@@ -1153,7 +1153,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo):
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile, emailTo)
+        sendEmail(setEmailSubject(emailSubject), zipFile)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
@@ -1182,7 +1182,7 @@ def setEmailSubject(subject):
     return subject
 
 
-def sendEmail(subject, attachment, email):
+def sendEmail(subject, attachment):
     emailBodyText = """
         Hello,
 

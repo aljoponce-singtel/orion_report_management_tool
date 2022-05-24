@@ -47,8 +47,8 @@ def main():
         logger.info("start date: " + str(startDate))
         logger.info("end date: " + str(endDate))
 
-        reports.generateSDWANReport('sdwan_weekly_report', startDate,
-                                    endDate, "SDWAN Weekly Report", '')
+        reports.generateSDWANReport(
+            'sdwan_weekly_report', startDate, endDate, "SDWAN Weekly Report")
 
     except Exception as err:
         logger.error(err)
