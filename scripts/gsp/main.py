@@ -51,6 +51,12 @@ def main():
             logger.info('UpdateTableauDB = ' +
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
+            # add additional email recepients to config file
+            # emailReceiver = config['Email']['receiverTo']
+            # emailReceiverToAdd = ';karthik.manjunath@singtel.com'
+            # config['Email']['receiverTo'] = emailReceiver + \
+            #     emailReceiverToAdd
+
             reports.generateCPluseIpReport('cplusip_report', startDate,
                                            endDate, '', "CPlusIP Report", '')
             # reports.generateMegaPopReport('megapop_report', startDate,
@@ -91,10 +97,6 @@ def main():
                 logger.info('UpdateTableauDB = ' +
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
-                reports.generateCPluseIpReport('cplusip_report', startDate,
-                                               endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
-                reports.generateMegaPopReport('megapop_report', startDate,
-                                              endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
                 reports.generateSingnetReport('singnet_report', startDate,
                                               endDate, '', "Singnet Report", '')
                 reports.generateStixReport('stix_report', startDate,
@@ -103,6 +105,17 @@ def main():
                                                endDate, "Internet Report", '')
                 reports.generateSDWANReport('sdwan_report', startDate,
                                             endDate, "SDWAN Report", '')
+
+                # add email recepients to config file
+                emailReceiver = config['Email']['receiverTo']
+                emailReceiverToAdd = ';karthik.manjunath@singtel.com'
+                config['Email']['receiverTo'] = emailReceiver + \
+                    emailReceiverToAdd
+
+                reports.generateCPluseIpReport('cplusip_report', startDate,
+                                               endDate, '', "CPlusIP Report", '')
+                reports.generateMegaPopReport('megapop_report', startDate,
+                                              endDate, '', "MegaPop Report", '')
 
             #-- END --#
 
@@ -127,10 +140,16 @@ def main():
                 logger.info('UpdateTableauDB = ' +
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
+                # add additional email recepients to config file
+                emailReceiver = config['Email']['receiverTo']
+                emailReceiverToAdd = ';karthik.manjunath@singtel.com'
+                config['Email']['receiverTo'] = emailReceiver + \
+                    emailReceiverToAdd
+
                 reports.generateCPluseIpReportGrp(
-                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
+                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
                 reports.generateMegaPopReportGrp(
-                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
+                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
 
             #-- END --#
 
