@@ -30,24 +30,24 @@ defaultConfig = config['DEFAULT']
 def main():
     log.initialize('scripts/gsp/config.ini')
     logger = logging.getLogger(__name__)
+
+    logger.info("==========================================")
+    logger.info("START of script - " +
+                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+    logger.info("Running script in " + utils.getPlatform())
+
     reports.loadConfig(config)
     today_date = datetime.now().date()
 
     try:
         if defaultConfig.getboolean('GenReportManually'):
-            logger.info("==========================================")
-            logger.info("START of script - " +
-                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-            logger.info("Running script in " + utils.getPlatform())
-
             logger.info('\\* MANUAL RUN *\\')
-
             startDate = defaultConfig['ReportStartDate']
             endDate = defaultConfig['ReportEndDate']
             logger.info("start date: " + str(startDate))
             logger.info("end date: " + str(endDate))
 
-            # defaultConfig['UpdateTableauDB'] = 'false'
+            defaultConfig['UpdateTableauDB'] = 'false'
             logger.info('UpdateTableauDB = ' +
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
@@ -67,13 +67,6 @@ def main():
             #     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
             # reports.generateMegaPopReportGrp(
             #     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
-            # reports.generateSingnetReport(
-            #     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
-            # reports.generateSingnetReport(
-            #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
-
-            logger.info("END of script - " +
-                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
         else:
             #-- START --#
@@ -86,12 +79,6 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.day == 1:
-                logger.info(
-                    "==========================================")
-                logger.info("START of script - " +
-                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                logger.info("Running script in " + utils.getPlatform())
-
                 previousMonth = (today_date.replace(day=1) -
                                  timedelta(days=1)).replace(day=today_date.day)
                 startDate = str(previousMonth)
@@ -117,9 +104,6 @@ def main():
                 reports.generateSDWANReport('sdwan_report', startDate,
                                             endDate, "SDWAN Report", '')
 
-                logger.info(
-                    "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-
             #-- END --#
 
             #-- START --#
@@ -132,12 +116,6 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.day == 26:
-                logger.info(
-                    "==========================================")
-                logger.info("START of script - " +
-                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                logger.info("Running script in " + utils.getPlatform())
-
                 previousMonth = (today_date.replace(day=1) -
                                  timedelta(days=1)).replace(day=today_date.day)
                 startDate = str(previousMonth)
@@ -154,10 +132,10 @@ def main():
                 reports.generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
 
-                logger.info(
-                    "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-
             #-- END --#
+
+        logger.info("END of script - " +
+                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
     except Exception as err:
         logger.error(err)

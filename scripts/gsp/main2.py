@@ -21,52 +21,34 @@ defaultConfig = config['DEFAULT']
 
 
 def main():
+
     log.initialize('scripts/gsp/config.ini')
     logger = logging.getLogger(__name__)
+
+    logger.info("==========================================")
+    logger.info("START of script - " +
+                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+    logger.info("Running script in " + utils.getPlatform())
+
     reports.loadConfig(config)
     today_date = datetime.now().date()
 
     try:
         if defaultConfig.getboolean('GenReportManually'):
-            logger.info("==========================================")
-            logger.info("START of script - " +
-                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-            logger.info("Running script in " + utils.getPlatform())
-
             logger.info('\\* MANUAL RUN *\\')
-
             startDate = defaultConfig['ReportStartDate']
             endDate = defaultConfig['ReportEndDate']
             logger.info("start date: " + str(startDate))
             logger.info("end date: " + str(endDate))
 
-            # defaultConfig['UpdateTableauDB'] = 'false'
+            defaultConfig['UpdateTableauDB'] = 'false'
             logger.info('UpdateTableauDB = ' +
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
-            reports.generateCPluseIpReport('cplusip_report', startDate,
-                                           endDate, '', "CPlusIP Report", '')
-            # reports.generateMegaPopReport('megapop_report', startDate,
-            #                       endDate, '', "MegaPop Report", '')]
-            # reports.generateSingnetReport('singnet_report', startDate,
-            #                       endDate, '', "Singnet Report", '')
-            # reports.generateStixReport('stix_report', startDate,
-            #                    endDate, "STIX Report", '')
-            # reports.generateInternetReport('internet_report', startDate,
-            #                        endDate, "Internet Report", '')
-            # reports.generateSDWANReport('sdwan_report', startDate,
-            #                     endDate, "SDWAN Report", '')
-            # reports.generateCPluseIpReportGrp(
-            #     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", '')
-            # reports.generateMegaPopReportGrp(
-            #     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", '')
-            # reports.generateSingnetReport(
-            #     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
+            reports.generateSingnetReport(
+                'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
             # reports.generateSingnetReport(
             #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;sandeep.kumarrajendran@singtel.com')
-
-            logger.info("END of script - " +
-                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
         else:
             #-- START --#
@@ -79,12 +61,6 @@ def main():
             # print("date today: " + str(today_date))
 
             if today_date.isoweekday() == 1:  # Monday
-                logger.info(
-                    "==========================================")
-                logger.info("START of script - " +
-                            datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-                logger.info("Running script in " + utils.getPlatform())
-
                 startDate = str(today_date - timedelta(days=7))
                 endDate = str(today_date - timedelta(days=1))
                 logger.info("start date: " + str(startDate))
@@ -99,10 +75,10 @@ def main():
                 reports.generateSingnetReport(
                     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report – Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
 
-                logger.info(
-                    "END of script - " + datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-
             #-- END --#
+
+        logger.info("END of script - " +
+                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
     except Exception as err:
         logger.error(err)
