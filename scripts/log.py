@@ -24,4 +24,20 @@ def initialize(configPath):
     fileHandler.setFormatter(fileFormat)
     logger.addHandler(consoleHandler)
     logger.addHandler(fileHandler)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(getLevelNumValue(logConfig['level']))
+
+
+def getLevelNumValue(level):
+
+    if level.casefold() == 'info':
+        return 20
+    elif level.casefold() == 'debug':
+        return 10
+    elif level.casefold() == 'warning':
+        return 10
+    elif level.casefold() == 'error':
+        return 10
+    elif level.casefold() == 'critical':
+        return 10
+    else:
+        return 20
