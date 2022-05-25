@@ -51,12 +51,6 @@ def main():
             logger.info('UpdateTableauDB = ' +
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
-            # add additional email recepients to config file
-            # emailReceiver = config['Email']['receiverTo']
-            # emailReceiverToAdd = ';karthik.manjunath@singtel.com'
-            # config['Email']['receiverTo'] = emailReceiver + \
-            #     emailReceiverToAdd
-
             reports.generateCPluseIpReport(
                 'cplusip_report', startDate,  endDate, '', "CPlusIP Report")
             reports.generateMegaPopReport(

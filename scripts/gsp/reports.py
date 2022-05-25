@@ -2,13 +2,8 @@ from scripts import utils
 import logging
 import re
 import os
-import smtplib
-from datetime import datetime
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email import encoders
 from scripts.DBConnection import DBConnection
+from scripts.EmailClient import EmailClient
 import pandas as pd
 
 logger = logging.getLogger(__name__)
@@ -341,8 +336,9 @@ def generateReport(csvfile, querylist, headers):
     csvFiles.append(csvfile)
 
 
-def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject):
+def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -476,13 +472,14 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject):
+def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -619,13 +616,14 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject):
+def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -737,13 +735,14 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject):
+def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -859,13 +858,14 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject):
+def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -976,13 +976,14 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateStixReport(zipFileName, startDate, endDate, emailSubject):
+def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -1034,13 +1035,14 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject):
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateInternetReport(zipFileName, startDate, endDate, emailSubject):
+def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -1093,13 +1095,14 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject):
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
+def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
 
+    logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
     csvFiles.clear()
@@ -1153,36 +1156,13 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
         zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
         utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                       defaultConfig['ZipPassword'])
-        sendEmail(setEmailSubject(emailSubject), zipFile)
+        sendEmail(emailSubject, zipFile, emailTo)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def report_attach(zipfile):
+def sendEmail(subject, attachment, emailTo):
 
-    zipfilePath = os.path.join(reportsFolderPath, zipfile)
-    part = MIMEBase('application', "octet-stream")
-    part.set_payload(open(zipfilePath, "rb").read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition',
-                    'attachment; filename="%s"' % os.path.basename(zipfilePath))
-    return part
-
-
-def setEmailSubject(subject):
-    today_datetime = datetime.now()
-    day = today_datetime.strftime('%d').lstrip('0')
-    hour = today_datetime.strftime('%I').lstrip('0')
-    ampm = today_datetime.strftime('%p').lower()
-    year = today_datetime.strftime('%Y')
-    month = today_datetime.strftime('%b').lower()
-    subject = "[{}] {}{}{} {}{}".format(
-        subject, year, month, day, hour, ampm)
-
-    return subject
-
-
-def sendEmail(subject, attachment):
     emailBodyText = """
         Hello,
 
@@ -1206,50 +1186,28 @@ def sendEmail(subject, attachment):
     # Enable/Disable email
     if defaultConfig.getboolean('SendEmail'):
         try:
-            logger.info(
-                'Sending email with subject "{}" ...'.format(subject))
+            emailClient = EmailClient()
+            emailClient.subject = emailClient.addTimestamp(subject)
 
-            receiverTo = emailConfig["receiverTo"]
-            receiverCc = emailConfig["receiverCc"]
-            sender = emailConfig["sender"]
+            if defaultConfig['EmailInfo'] == 'Email':
+                emailClient.receiverTo = emailConfig["receiverTo"] + \
+                    ';' + emailTo
+            else:
+                emailClient.receiverTo = emailConfig["receiverTo"]
+
+            emailClient.receiverCc = emailConfig["receiverCc"]
+            emailClient.emailBodyText = emailBodyText
+            emailClient.emailBodyHtml = emailBodyhtml
+            emailClient.attachFile(os.path.join(reportsFolderPath, attachment))
 
             if utils.getPlatform() == 'Windows':
-                import win32com.client
-                outlook = win32com.client.Dispatch('outlook.application')
-
-                mail = outlook.CreateItem(0)
-                mail.To = receiverTo
-                mail.CC = receiverCc
-                mail.Subject = subject
-                mail.HTMLBody = emailBodyhtml
-                mail.Body = emailBodyText
-                mail.Attachments.Add(os.path.join(
-                    reportsFolderPath, attachment))
-                mail.Send()
+                emailClient.win32comSend()
             else:
-                # Turn these into plain/html MIMEText objects
-                # part1 = MIMEText(emailBodyText, "plain")
-                part2 = MIMEText(emailBodyhtml, "html")
-
-                message = MIMEMultipart()
-                # message.attach(MIMEText(body,"html"))
-                message.attach(report_attach(attachment))
-
-                # Add HTML/plain-text parts to MIMEMultipart message
-                # The email client will try to render the last part first
-                # message.attach(part1)
-                message.attach(part2)
-                message['Subject'] = subject
-                message['From'] = emailConfig["from"]
-                message['To'] = receiverTo
-                message['CC'] = receiverCc
-                receiver = receiverTo + ";" + receiverCc
-                smtpObj = smtplib.SMTP(emailConfig["smtpServer"])
-                smtpObj.sendmail(sender, receiver.split(";"),
-                                 message.as_string())
-                smtpObj.quit()
-
-            # logger.info("Email sent.")
+                emailClient.server = emailConfig['server']
+                emailClient.port = emailConfig['port']
+                emailClient.sender = emailConfig['sender']
+                emailClient.emailFrom = emailConfig["from"]
+                emailClient.smtpSend()
 
         except Exception as e:
             logger.error("Failed to send email.")
