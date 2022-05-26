@@ -151,7 +151,7 @@ def main():
                     datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
     except Exception as err:
-        logger.error(err)
+        logger.exception(err)
         logger.info("END of script - " +
                     datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 

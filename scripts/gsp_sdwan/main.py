@@ -51,7 +51,7 @@ def main():
             'sdwan_weekly_report', startDate, endDate, "SDWAN Weekly Report")
 
     except Exception as err:
-        logger.error(err)
+        logger.exception(err)
 
     logger.info("END of script - " +
                 datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
