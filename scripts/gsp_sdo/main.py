@@ -45,7 +45,7 @@ def main():
 
         logger.info("report date: " + str(reportDate))
 
-        reports.generateSDOReport(
+        reports.generateSdoSingnetReport(
             'sdo_singnet_report', reportDate, "SDO Singnet Report")
 
     except Exception as err:
