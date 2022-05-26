@@ -2,10 +2,12 @@
 
 Author: P1319639
 
-This script will generate SDWAN reports:
+This script will generate the following SDO reports:
+- Singnet (GSDT7x)
+- MegaPop (GSDT8x)
 
 Add this crontab command for report scheduling:
-15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp_sdwan main
+15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp_sdo main
 """
 
 import logging
@@ -33,22 +35,18 @@ def main():
     today_date = datetime.now().date()
 
     try:
-        startDate = None
-        endDate = None
+        reportDate = None
 
         if defaultConfig.getboolean('GenReportManually'):
             logger.info('\\* MANUAL RUN *\\')
-            startDate = defaultConfig['ReportStartDate']
-            endDate = defaultConfig['ReportEndDate']
+            reportDate = defaultConfig['ReportDate']
         else:
-            startDate = str(today_date - timedelta(days=7))
-            endDate = str(today_date - timedelta(days=1))
+            reportDate = str(today_date.replace(day=1))
 
-        logger.info("start date: " + str(startDate))
-        logger.info("end date: " + str(endDate))
+        logger.info("report date: " + str(reportDate))
 
         reports.generateSDOReport(
-            'sdo_singnet_report', startDate, endDate, "SDO Singnet Report")
+            'sdo_singnet_report', reportDate, "SDO Singnet Report")
 
     except Exception as err:
         logger.error(err)
