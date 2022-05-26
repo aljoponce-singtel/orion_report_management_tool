@@ -1,6 +1,6 @@
 from scripts import utils
+import logging.config
 import logging
-import re
 import os
 from scripts.DBConnection import DBConnection
 from scripts.EmailClient import EmailClient
@@ -13,54 +13,10 @@ dbConfig = None
 csvFiles = []
 reportsFolderPath = None
 orionDb = None
-tableauDb = None
-
-headers = [
-    "Workorder no",
-    "Service No",
-    "Product Code",
-    "Product Description",
-    "Customer Name",
-    "Order Type",
-    "CRD",
-    "Order Taken Date",
-    "Group ID",
-    "Activity Name",
-    "DUE",
-    "RDY",
-    "EXC",
-    "DLY",
-    "COM",
-    "Group ID",
-    "Activity Name",
-    "DUE",
-    "RDY",
-    "EXC",
-    "DLY",
-    "COM"
-]
-
-headers2 = [
-    "Workorder no",
-    "Service No",
-    "Product Code",
-    "Product Description",
-    "Customer Name",
-    "Order Type",
-    "CRD",
-    "Order Taken Date",
-    "Group ID",
-    "Activity Name",
-    "DUE",
-    "RDY",
-    "EXC",
-    "DLY",
-    "COM",
-]
 
 
 def loadConfig(config):
-    global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb, tableauDb
+    global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb
     defaultConfig = config['DEFAULT']
     emailConfig = config[defaultConfig['EmailInfo']]
     dbConfig = config[defaultConfig['DatabaseEnv']]
@@ -71,264 +27,6 @@ def loadConfig(config):
                            dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
     orionDb.connect()
 
-    tableauDb = DBConnection(dbConfig['host'], dbConfig['port'],
-                             dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
-    tableauDb.connect()
-
-
-def updateTableauDB(outputList, report_id):
-    # Allow Tableaue DB update
-    if defaultConfig.getboolean('UpdateTableauDB'):
-        try:
-            logger.info(
-                'Inserting records to ' + dbConfig['tableau_db'] + '.' + defaultConfig['TableauTable'] + ' for ' + report_id.lower() + ' ...')
-
-            columns = [
-                "Workorder_no",
-                "Service_No",
-                "Product_Code",
-                "Product_Description",
-                "Customer_Name",
-                "Order_Type",
-                "CRD",
-                "Order_Taken_Date",
-                "Group_ID_1",
-                "Activity_Name_1",
-                "DUE_1",
-                "RDY_1",
-                "EXC_1",
-                "DLY_1",
-                "COM_1",
-                "Group_ID_2",
-                "Activity_Name_2",
-                "DUE_2",
-                "RDY_2",
-                "EXC_2",
-                "DLY_2",
-                "COM_2"
-            ]
-
-            df = pd.DataFrame(outputList, columns=columns)
-
-            # add new columns
-            df["report_id"] = report_id.lower()
-            df["update_time"] = pd.Timestamp.now()
-
-            # set columns to datetime type
-            dateColumns = ['DUE_1', 'RDY_1', 'EXC_1', 'DLY_1', 'COM_1', 'DUE_2',
-                           'RDY_2', 'EXC_2', 'DLY_2', 'COM_2', 'CRD', 'Order_Taken_Date']
-            df[dateColumns] = df[dateColumns].apply(
-                pd.to_datetime)
-
-            # set empty values to null
-            # insert records to DB
-            df.replace('', None)
-            tableauDb.insertDataframeToTable(df, defaultConfig['TableauTable'])
-
-            # logger.info("TableauDB Updated for " + report_id.lower())
-
-        except Exception as err:
-            logger.info("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
-                        dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
-            logger.exception(err)
-
-            raise Exception(err)
-
-
-def processList(queryList, groupId_1, groupId_2, grp_1_prio, grp_2_prio):
-
-    finalList = []
-    groupId_1_list = []
-    groupId_2_list = []
-
-    column = {
-        "workOrderNo": 0,
-        "serviceNo": 1,
-        "productCode": 2,
-        "productDescription": 3,
-        "customerName": 4,
-        "orderType": 5,
-        "groupId": 6,
-        "crd": 7,
-        "orderTakenDate": 8,
-        "actStepNo": 9,
-        "actName": 10,
-        "actDueDate": 11,
-        "actRdyDate": 12,
-        "actExcData": 13,
-        "actDlyDate": 14,
-        "actComDate": 15
-    }
-
-    records = {
-        "workOrderNo": "",
-        "serviceNo": "",
-        "productCode": "",
-        "productDescription": "",
-        "customerName": "",
-        "orderType": "",
-        "crd": "",
-        "takenDate": "",
-        "groupId_1": "",
-        "actName_1": "",
-        "due_1": "",
-        "rdy_1": "",
-        "exc_1": "",
-        "dly_1": "",
-        "com_1": "",
-        "groupId_2": "",
-        "actName_2": "",
-        "due_2": "",
-        "rdy_2": "",
-        "exc_2": "",
-        "dly_2": "",
-        "com_2": ""
-    }
-
-    WorkOrderNo = None
-    endList = ('END', 'END')
-    queryList.append(endList)
-
-    for row in queryList:
-
-        if row[column["workOrderNo"]
-               ] != WorkOrderNo and WorkOrderNo is not None:
-
-            if len(groupId_1_list) > 1:
-
-                priorityFound = False
-                index = 0
-
-                for items in groupId_1_list:
-                    # print(WorkOrderNo + ", " + items[0] + ", " + items[1])
-
-                    if items[1] in grp_1_prio:
-                        priorityFound = True
-                        records["groupId_1"] = groupId_1_list[index][0]
-                        records["actName_1"] = groupId_1_list[index][1]
-                        records["due_1"] = groupId_1_list[index][2]
-                        records["rdy_1"] = groupId_1_list[index][3]
-                        records["exc_1"] = groupId_1_list[index][4]
-                        records["dly_1"] = groupId_1_list[index][5]
-                        records["com_1"] = groupId_1_list[index][6]
-
-                    index = index + 1
-
-                if priorityFound == False:
-                    maxCount = len(groupId_1_list) - 1
-                    records["groupId_1"] = groupId_1_list[maxCount][0]
-                    records["actName_1"] = groupId_1_list[maxCount][1]
-                    records["due_1"] = groupId_1_list[maxCount][2]
-                    records["rdy_1"] = groupId_1_list[maxCount][3]
-                    records["exc_1"] = groupId_1_list[maxCount][4]
-                    records["dly_1"] = groupId_1_list[maxCount][5]
-                    records["com_1"] = groupId_1_list[maxCount][6]
-
-            else:
-                if groupId_1_list:
-                    records["groupId_1"] = groupId_1_list[0][0]
-                    records["actName_1"] = groupId_1_list[0][1]
-                    records["due_1"] = groupId_1_list[0][2]
-                    records["rdy_1"] = groupId_1_list[0][3]
-                    records["exc_1"] = groupId_1_list[0][4]
-                    records["dly_1"] = groupId_1_list[0][5]
-                    records["com_1"] = groupId_1_list[0][6]
-
-            # Set RDY/EXC = COM date if RDY/EXC is empty
-            if records["com_1"]:
-                if not records["rdy_1"]:
-                    records["rdy_1"] = groupId_1_list[0][6]
-                if not records["exc_1"]:
-                    records["exc_1"] = groupId_1_list[0][6]
-
-            if len(groupId_2_list) > 1:
-
-                priorityFound = False
-                index = 0
-
-                for items in groupId_2_list:
-                    # print(WorkOrderNo + ", " + items[0] + ", " + items[1])
-
-                    if items[1] in grp_2_prio:
-                        priorityFound = True
-                        records["groupId_2"] = groupId_2_list[index][0]
-                        records["actName_2"] = groupId_2_list[index][1]
-                        records["due_2"] = groupId_2_list[index][2]
-                        records["rdy_2"] = groupId_2_list[index][3]
-                        records["exc_2"] = groupId_2_list[index][4]
-                        records["dly_2"] = groupId_2_list[index][5]
-                        records["com_2"] = groupId_2_list[index][6]
-
-                    index = index + 1
-
-                if priorityFound == False:
-                    maxCount = len(groupId_2_list) - 1
-                    records["groupId_2"] = groupId_2_list[maxCount][0]
-                    records["actName_2"] = groupId_2_list[maxCount][1]
-                    records["due_2"] = groupId_2_list[maxCount][2]
-                    records["rdy_2"] = groupId_2_list[maxCount][3]
-                    records["exc_2"] = groupId_2_list[maxCount][4]
-                    records["dly_2"] = groupId_2_list[maxCount][5]
-                    records["com_2"] = groupId_2_list[maxCount][6]
-
-            else:
-                if groupId_2_list:
-                    records["groupId_2"] = groupId_2_list[0][0]
-                    records["actName_2"] = groupId_2_list[0][1]
-                    records["due_2"] = groupId_2_list[0][2]
-                    records["rdy_2"] = groupId_2_list[0][3]
-                    records["exc_2"] = groupId_2_list[0][4]
-                    records["dly_2"] = groupId_2_list[0][5]
-                    records["com_2"] = groupId_2_list[0][6]
-
-            # Set RDY/EXC = COM date if RDY/EXC is empty
-            if records["com_2"]:
-                if not records["rdy_2"]:
-                    records["rdy_2"] = groupId_2_list[0][6]
-                if not records["exc_2"]:
-                    records["exc_2"] = groupId_2_list[0][6]
-
-            finalList.append(tuple(records.values()))
-            records = dict.fromkeys(records, "")
-
-            groupId_1_list.clear()
-            groupId_2_list.clear()
-
-        if row[column["workOrderNo"]] != 'END':
-
-            records["workOrderNo"] = row[column["workOrderNo"]]
-            records["serviceNo"] = row[column["serviceNo"]]
-            records["productCode"] = row[column["productCode"]]
-            records["productDescription"] = row[column["productDescription"]]
-            records["customerName"] = row[column["customerName"]]
-            records["orderType"] = row[column["orderType"]]
-            records["crd"] = row[column["crd"]]
-            records["takenDate"] = row[column["orderTakenDate"]]
-
-            # Checks the groupId from the current record if it matches the query's groupID
-            for groupId in groupId_1:
-                # checks if it matches the groupId keyword and any characters after it
-                if re.search(('{}.*').format(groupId), row[column["groupId"]]):
-                    groupId_1_list.append((row[column["groupId"]], row[column["actName"]], row[column["actDueDate"]],
-                                           row[column["actRdyDate"]], row[column["actExcData"]], row[column["actDlyDate"]], row[column["actComDate"]]))
-
-            # Checks the groupId from the current record if it matches the query's groupID
-            for groupId in groupId_2:
-                # checks if it matches the groupId keyword and any characters after it
-                if re.search(('{}.*').format(groupId), row[column["groupId"]]):
-                    groupId_2_list.append((row[column["groupId"]], row[column["actName"]], row[column["actDueDate"]],
-                                           row[column["actRdyDate"]], row[column["actExcData"]], row[column["actDlyDate"]], row[column["actComDate"]]))
-
-        WorkOrderNo = row[column["workOrderNo"]]
-
-    return finalList
-
-
-def printRecords(records):
-
-    for record in records:
-        print(record)
-
 
 def generateReport(csvfile, querylist, headers):
     logger.info("Generating report " + csvfile + " ...")
@@ -336,832 +34,7 @@ def generateReport(csvfile, querylist, headers):
     csvFiles.append(csvfile)
 
 
-def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupIdList_1 = ['CNP']
-    groupIdStr_1 = ', '.join([(group_Id) for group_Id in groupIdList_1])
-
-    groupIdList_2 = ['GSDT6']
-    groupIdStr_2 = ', '.join([(group_Id) for group_Id in groupIdList_2])
-
-    priority1 = ['LLC Accepted by Singtel']
-    priority2 = ['GSDT Co-ordination OS LLC', 'GSDT Co-ordination Work']
-
-    actList_1 = ['Change C+ IP',
-                 'De-Activate C+ IP',
-                 'DeActivate Video Exch Svc',
-                 'LLC Received from Partner',
-                 'LLC Accepted by Singtel',
-                 'Activate C+ IP',
-                 'Cease Resale SGO',
-                 'OLLC Site Survey',
-                 'De-Activate TOPSAA on PE',
-                 'De-Activate RAS',
-                 'De-Activate RLAN on PE',
-                 'Pre-Configuration on PE',
-                 'De-Activate RMS on PE',
-                 'GSDT Co-ordination Work',
-                 'Change Resale SGO',
-                 'Pre-Configuration',
-                 'Cease MSS VPN',
-                 'Recovery - PNOC Work',
-                 'De-Activate RMS for IP/EV',
-                 'GSDT Co-ordination OS LLC',
-                 'Change RAS',
-                 'Extranet Config',
-                 'Cease Resale SGO JP',
-                 'm2m EVC Provisioning',
-                 'Activate RMS/TOPS IP/EV',
-                 'Config MSS VPN',
-                 'De-Activate RMS on CE-BQ',
-                 'OLLC Order Ack',
-                 'Cease Resale SGO CHN']
-
-    actStr_1 = ', '.join([("'" + activity + "'") for activity in actList_1])
-
-    actList_2 = ['GSDT Co-ordination Work',
-                 'De-Activate C+ IP',
-                 'Cease Monitoring of IPPBX',
-                 'GSDT Co-ordination OS LLC',
-                 'GSDT Partner Cloud Access',
-                 'Cease In-Ctry Data Pro',
-                 'Change Resale SGO',
-                 'Ch/Modify In-Country Data',
-                 'De-Activate RMS on PE',
-                 'Disconnect RMS for FR',
-                 'Change C+ IP',
-                 'Activate C+ IP',
-                 'LLC Accepted by Singtel',
-                 'GSDT Co-ordination - BQ',
-                 'LLC Received from Partner',
-                 'In-Country Data Product',
-                 'OLLC Site Survey',
-                 'GSDT Co-ordination-RMS',
-                 'Pre-Configuration on PE',
-                 'Cease Resale SGO',
-                 'Disconnect RMS for ATM']
-
-    actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
-
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, groupIdStr_2, actStr_2], 'CNP'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT6'])
-
-    for list in queryArgs:
-        if groupId == '' or list[1].casefold() == groupId.casefold():
-            sqlquery = ("""
-                        SELECT DISTINCT ORD.order_code,
-                            ORD.service_number,
-                            PRD.network_product_code,
-                            PRD.network_product_desc,
-                            CUS.name,
-                            ORD.order_type,
-                            PER.role,
-                            ORD.current_crd,
-                            ORD.taken_date,
-                            CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                            ACT.name,
-                            ACT.due_date,
-                            ACT.ready_date,
-                            DATE(ACT.exe_date),
-                            DATE(ACT.dly_date),
-                            ACT.completed_date
-                        FROM RestInterface_activity ACT
-                            INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                            LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                            LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                            AND NPP.level = 'MainLine'
-                            LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                        WHERE ORD.id IN (
-                                SELECT DISTINCT ORD.id
-                                FROM RestInterface_activity ACT
-                                    LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                                    LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                                WHERE PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                            )
-                            AND (
-                                (
-                                    PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                                )
-                                OR (
-                                    PER.role LIKE '{}%'
-                                    AND ACT.name IN ({})
-                                )
-                            )
-                        ORDER BY ORD.order_code,
-                            activity_code;
-                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
-
-            csvFile = ("{}_{}.csv").format(
-                list[1], utils.getCurrentDateTime())
-            outputList = processList(orionDb.queryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
-            generateReport(csvFile, outputList, headers)
-            updateTableauDB(outputList, list[1])
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupIdList_1 = ['CNP30', 'CNP31', 'CNP32', 'CNP33', 'CNP34', 'CNP35', 'CNP36',
-                     'CNP37', 'CNP38', 'CNP39', 'CNP40', 'CNP41', 'CNP42', 'CNP43', 'CNP44', 'CNP45']
-    groupIdStr_1 = ', '.join([("'" + groupIdList_1 + "'")
-                             for groupIdList_1 in groupIdList_1])
-
-    groupIdList_2 = ['GSDT630', 'GSDT631', 'GSDT632', 'GSDT633', 'GSDT634', 'GSDT635', 'GSDT636',
-                     'GSDT637', 'GSDT638', 'GSDT639', 'GSDT640', 'GSDT641', 'GSDT642', 'GSDT643', 'GSDT644', 'GSDT645']
-    groupIdStr_2 = ', '.join([("'" + groupIdList_2 + "'")
-                             for groupIdList_2 in groupIdList_2])
-
-    priority1 = ['LLC Accepted by Singtel']
-    priority2 = ['GSDT Co-ordination OS LLC', 'GSDT Co-ordination Work']
-
-    actList_1 = ['Change C+ IP',
-                 'De-Activate C+ IP',
-                 'DeActivate Video Exch Svc',
-                 'LLC Received from Partner',
-                 'LLC Accepted by Singtel',
-                 'Activate C+ IP',
-                 'Cease Resale SGO',
-                 'OLLC Site Survey',
-                 'De-Activate TOPSAA on PE',
-                 'De-Activate RAS',
-                 'De-Activate RLAN on PE',
-                 'Pre-Configuration on PE',
-                 'De-Activate RMS on PE',
-                 'GSDT Co-ordination Work',
-                 'Change Resale SGO',
-                 'Pre-Configuration',
-                 'Cease MSS VPN',
-                 'Recovery - PNOC Work',
-                 'De-Activate RMS for IP/EV',
-                 'GSDT Co-ordination OS LLC',
-                 'Change RAS',
-                 'Extranet Config',
-                 'Cease Resale SGO JP',
-                 'm2m EVC Provisioning',
-                 'Activate RMS/TOPS IP/EV',
-                 'Config MSS VPN',
-                 'De-Activate RMS on CE-BQ',
-                 'OLLC Order Ack',
-                 'Cease Resale SGO CHN']
-
-    actStr_1 = ', '.join([("'" + activity + "'") for activity in actList_1])
-
-    actList_2 = ['GSDT Co-ordination Work',
-                 'De-Activate C+ IP',
-                 'Cease Monitoring of IPPBX',
-                 'GSDT Co-ordination OS LLC',
-                 'GSDT Partner Cloud Access',
-                 'Cease In-Ctry Data Pro',
-                 'Change Resale SGO',
-                 'Ch/Modify In-Country Data',
-                 'De-Activate RMS on PE',
-                 'Disconnect RMS for FR',
-                 'Change C+ IP',
-                 'Activate C+ IP',
-                 'LLC Accepted by Singtel',
-                 'GSDT Co-ordination - BQ',
-                 'LLC Received from Partner',
-                 'In-Country Data Product',
-                 'OLLC Site Survey',
-                 'GSDT Co-ordination-RMS',
-                 'Pre-Configuration on PE',
-                 'Cease Resale SGO',
-                 'Disconnect RMS for ATM']
-
-    actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
-
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, groupIdStr_2, actStr_2], 'CNP'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT6'])
-
-    for list in queryArgs:
-        if groupId == '' or list[1].casefold() == groupId.casefold():
-            sqlquery = ("""
-                        SELECT DISTINCT ORD.order_code,
-                            ORD.service_number,
-                            PRD.network_product_code,
-                            PRD.network_product_desc,
-                            CUS.name,
-                            ORD.order_type,
-                            PER.role,
-                            ORD.current_crd,
-                            ORD.taken_date,
-                            CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                            ACT.name,
-                            ACT.due_date,
-                            ACT.ready_date,
-                            DATE(ACT.exe_date),
-                            DATE(ACT.dly_date),
-                            ACT.completed_date
-                        FROM RestInterface_activity ACT
-                            INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                            LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                            LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                            AND NPP.level = 'MainLine'
-                            LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                        WHERE ORD.id IN (
-                                SELECT DISTINCT ORD.id
-                                FROM RestInterface_activity ACT
-                                    LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                                    LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                                WHERE PER.role IN ({})
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                            )
-                            AND (
-                                (
-                                    PER.role IN ({})
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                                )
-                                OR (
-                                    PER.role IN ({})
-                                    AND ACT.name IN ({})
-                                )
-                            )
-                        ORDER BY ORD.order_code,
-                            activity_code;
-                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
-
-            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(orionDb.queryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
-            generateReport(csvFile, outputList, headers)
-            updateTableauDB(outputList, list[1])
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupIdList_1 = ['MPP']
-    groupIdStr_1 = ', '.join([(group_Id) for group_Id in groupIdList_1])
-
-    groupIdList_2 = ['GSDT8']
-    groupIdStr_2 = ', '.join([(group_Id) for group_Id in groupIdList_2])
-
-    priority1 = ['Circuit Configuration']
-    priority2 = ['GSDT Co-ordination OS LLC', 'GSDT Co-ordination Work']
-
-    actList_1 = ['Activate E-Access',
-                 'Activate EVPL',
-                 'Activate RMS/TOPS - MP',
-                 'Cease IaaS Connectivity',
-                 'Cessation of PE Port',
-                 'Cessation of UTM',
-                 'Change C+ IP',
-                 'Circuit Configuration',
-                 'Config PE Port',
-                 'Config UTM',
-                 'De-Activate E-Access',
-                 'De-Activate RMS on PE',
-                 'End to End PNOC Test',
-                 'Extranet Config',
-                 'GSDT Co-ordination Work',
-                 'm2m EVC Provisioning',
-                 'mLink EVC Provisioning',
-                 'mLink EVC Termination',
-                 'Pre-Configuration on PE',
-                 'Re-config E-Access',
-                 'Reconfiguration',
-                 'Recovery - PNOC Work',
-                 'SD-WAN Config',
-                 'SD-WAN Svc Provisioning']
-
-    actStr_1 = ', '.join([("'" + activity + "'") for activity in actList_1])
-
-    actList_2 = ['Cease IaaS Connectivity',
-                 'Connection of RMS for MP',
-                 'GSDT Co-ordination Wk-BQ',
-                 'GSDT Co-ordination Work',
-                 'GSDT Co-ordination Wrk-BQ']
-
-    actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
-
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, groupIdStr_2, actStr_2], 'MPP'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT8'])
-
-    for list in queryArgs:
-        if groupId == '' or list[1].casefold() == groupId.casefold():
-            sqlquery = ("""
-                        SELECT DISTINCT ORD.order_code,
-                            ORD.service_number,
-                            PRD.network_product_code,
-                            PRD.network_product_desc,
-                            CUS.name,
-                            ORD.order_type,
-                            PER.role,
-                            ORD.current_crd,
-                            ORD.taken_date,
-                            CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                            ACT.name,
-                            ACT.due_date,
-                            ACT.ready_date,
-                            DATE(ACT.exe_date),
-                            DATE(ACT.dly_date),
-                            ACT.completed_date
-                        FROM RestInterface_activity ACT
-                            INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                            LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                            LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                            AND NPP.level = 'MainLine'
-                            LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                        WHERE ORD.id IN (
-                                SELECT DISTINCT ORD.id
-                                FROM RestInterface_activity ACT
-                                    LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                                    LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                                WHERE PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                            )
-                            AND (
-                                (
-                                    PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                                )
-                                OR (
-                                    PER.role LIKE '{}%'
-                                    AND ACT.name IN ({})
-                                )
-                            )
-                        ORDER BY ORD.order_code,
-                            activity_code;
-                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
-
-            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(orionDb.queryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
-            generateReport(csvFile, outputList, headers)
-            updateTableauDB(outputList, list[1])
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupIdList_1 = ['MPP70', 'MPP71', 'MPP72', 'MPP73', 'MPP74', 'MPP75', 'MPP76', 'MPP77', 'MPP78',
-                     'MPP79', 'MPP80', 'MPP81', 'MPP82', 'MPP83', 'MPP84', 'MPP85', 'MPP86', 'MPP87', 'MPP88', 'MPP89']
-    groupIdStr_1 = ', '.join([("'" + groupIdList_1 + "'")
-                             for groupIdList_1 in groupIdList_1])
-
-    groupIdList_2 = ['GSDT870', 'GSDT871', 'GSDT872', 'GSDT873', 'GSDT874', 'GSDT875', 'GSDT876', 'GSDT877', 'GSDT878',
-                     'GSDT879', 'GSDT880', 'GSDT881', 'GSDT882', 'GSDT883', 'GSDT884', 'GSDT885', 'GSDT886', 'GSDT887', 'GSDT888', 'GSDT889']
-    groupIdStr_2 = ', '.join([("'" + groupIdList_2 + "'")
-                             for groupIdList_2 in groupIdList_2])
-
-    priority1 = ['Circuit Configuration']
-    priority2 = ['GSDT Co-ordination OS LLC', 'GSDT Co-ordination Work']
-
-    actList_1 = ['Activate E-Access',
-                 'Activate EVPL',
-                 'Activate RMS/TOPS - MP',
-                 'Cease IaaS Connectivity',
-                 'Cessation of PE Port',
-                 'Cessation of UTM',
-                 'Change C+ IP',
-                 'Circuit Configuration',
-                 'Config PE Port',
-                 'Config UTM',
-                 'De-Activate E-Access',
-                 'De-Activate RMS on PE',
-                 'End to End PNOC Test',
-                 'Extranet Config',
-                 'GSDT Co-ordination Work',
-                 'm2m EVC Provisioning',
-                 'mLink EVC Provisioning',
-                 'mLink EVC Termination',
-                 'Pre-Configuration on PE',
-                 'Re-config E-Access',
-                 'Reconfiguration',
-                 'Recovery - PNOC Work',
-                 'SD-WAN Config',
-                 'SD-WAN Svc Provisioning']
-
-    actStr_1 = ', '.join([("'" + activity + "'") for activity in actList_1])
-
-    actList_2 = ['Cease IaaS Connectivity',
-                 'Connection of RMS for MP',
-                 'GSDT Co-ordination Wk-BQ',
-                 'GSDT Co-ordination Work',
-                 'GSDT Co-ordination Wrk-BQ']
-
-    actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
-
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, groupIdStr_2, actStr_2], 'MPP'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, groupIdStr_1, actStr_1], 'GSDT8'])
-
-    for list in queryArgs:
-        if groupId == '' or list[1].casefold() == groupId.casefold():
-            sqlquery = ("""
-                        SELECT DISTINCT ORD.order_code,
-                            ORD.service_number,
-                            PRD.network_product_code,
-                            PRD.network_product_desc,
-                            CUS.name,
-                            ORD.order_type,
-                            PER.role,
-                            ORD.current_crd,
-                            ORD.taken_date,
-                            CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                            ACT.name,
-                            ACT.due_date,
-                            ACT.ready_date,
-                            DATE(ACT.exe_date),
-                            DATE(ACT.dly_date),
-                            ACT.completed_date
-                        FROM RestInterface_activity ACT
-                            INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                            LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                            LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                            AND NPP.level = 'MainLine'
-                            LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                        WHERE ORD.id IN (
-                                SELECT DISTINCT ORD.id
-                                FROM RestInterface_activity ACT
-                                    LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                                    LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                                WHERE PER.role IN ({})
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                            )
-                            AND (
-                                (
-                                    PER.role IN ({})
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND ACT.name IN ({})
-                                )
-                                OR (
-                                    PER.role IN ({})
-                                    AND ACT.name IN ({})
-                                )
-                            )
-                        ORDER BY ORD.order_code,
-                            activity_code;
-                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
-
-            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(orionDb.queryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
-            generateReport(csvFile, outputList, headers)
-            updateTableauDB(outputList, list[1])
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupIdList_1 = ['SGX1']
-    groupIdStr_1 = ', '.join([(group_Id) for group_Id in groupIdList_1])
-
-    groupIdList_2 = ['GSDT7']
-    groupIdStr_2 = ', '.join([(group_Id) for group_Id in groupIdList_2])
-
-    priority1 = ['Cease SG Cct @PubNet', 'Cease SingNet Svc',
-                 'Provision SingNet Svc', 'Modify SingNet Svc', 'Circuit Configuration']
-    priority2 = []
-
-    actList_1 = ['Activate E-Access',
-                 'Cease SG Cct @PubNet',
-                 'Cease SingNet Svc',
-                 'Circuit Configuration',
-                 'Comn SgNet PubNet Wk',
-                 'Comn SingNet PubNet Wk',
-                 'De-Activate E-Access',
-                 'DNS Set-Up',
-                 'GSDT Co-ordination Work',
-                 'IP Verification - MegaPOP',
-                 'Modify Microsoft Direct',
-                 'Modify SingNet Svc',
-                 'Provision SingNet Svc',
-                 'Reconfiguration',
-                 'Recovery - PNOC Work',
-                 'SN Evolve Static IP Work']
-
-    actStr_1 = ', '.join([("'" + activity + "'") for activity in actList_1])
-
-    actList_2 = ['Circuit Configuration',
-                 'GSDT Coordination',
-                 'GSDT Co-ordination WK-BQ',
-                 'GSDT Co-ordination Work',
-                 'GSDT Co-ordination Wrk-BQ']
-
-    actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
-
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'SGX1'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'GSDT7'])
-
-    for list in queryArgs:
-        if groupId == '' or list[1].casefold() == groupId.casefold():
-            sqlquery = ("""
-                        SELECT DISTINCT ORD.order_code,
-                            ORD.service_number,
-                            PRD.network_product_code,
-                            PRD.network_product_desc,
-                            CUS.name,
-                            ORD.order_type,
-                            PER.role,
-                            ORD.current_crd,
-                            ORD.taken_date,
-                            CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                            ACT.name,
-                            ACT.due_date,
-                            ACT.ready_date,
-                            DATE(ACT.exe_date),
-                            DATE(ACT.dly_date),
-                            ACT.completed_date
-                        FROM RestInterface_activity ACT
-                            INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                            LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                            LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                            AND NPP.level = 'MainLine'
-                            LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                        WHERE ORD.id IN (
-                                SELECT DISTINCT ORD.id
-                                FROM RestInterface_activity ACT
-                                    LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                                    LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                                WHERE PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
-                            )
-                            AND (
-                                (
-                                    PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
-                                )
-                                OR (
-                                    PER.role LIKE '{}%'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
-                                )
-                            )
-                        ORDER BY ORD.order_code,
-                            activity_code;
-                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
-
-            csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
-            outputList = processList(orionDb.queryToList(
-                sqlquery), groupIdList_1, groupIdList_2, priority1, priority2)
-            generateReport(csvFile, outputList, headers)
-            updateTableauDB(outputList, list[1])
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupId = ['GSDT9']
-    groupIdStr = ', '.join([(groupId) for groupId in groupId])
-
-    actList = ['GSDT Co-ordination OS LLC', 'GSDT Co-ordination Work']
-    actStr = ', '.join([("'" + activity + "'") for activity in actList])
-
-    sqlquery = ("""
-                    SELECT DISTINCT ORD.order_code,
-                        ORD.service_number,
-                        PRD.network_product_code,
-                        PRD.network_product_desc,
-                        CUS.name,
-                        ORD.order_type,
-                        PER.role,
-                        ORD.current_crd,
-                        ORD.taken_date,
-                        CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                        ACT.name,
-                        ACT.due_date,
-                        ACT.ready_date,
-                        DATE(ACT.exe_date),
-                        DATE(ACT.dly_date),
-                        ACT.completed_date
-                    FROM RestInterface_activity ACT
-                        INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                        LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                        LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                        LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                        AND NPP.level = 'MainLine'
-                        LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                    WHERE PER.role LIKE '{}%'
-                        AND ACT.completed_date BETWEEN '{}' AND '{}'
-                        AND ACT.name IN ({})
-                    ORDER BY ORD.order_code,
-                        activity_code;
-                """).format(groupIdStr, startDate, endDate, actStr)
-
-    csvFile = ("{}_{}.csv").format('GSDT9', utils.getCurrentDateTime())
-    outputList = processList(
-        orionDb.queryToList(sqlquery), groupId, '', [], [])
-    generateReport(csvFile, outputList, headers2)
-    updateTableauDB(outputList, 'GSDT9')
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupId = ['GSDT_PS21', 'GSDT_PS23']
-    groupIdStr = ', '.join([("'" + groupId + "'") for groupId in groupId])
-
-    actList = ['GSDT Co-ordination Work', 'GSDT GI Coordination Work']
-    actStr = ', '.join([("'" + activity + "'") for activity in actList])
-
-    sqlquery = ("""
-                    SELECT DISTINCT ORD.order_code,
-                        ORD.service_number,
-                        PRD.network_product_code,
-                        PRD.network_product_desc,
-                        CUS.name,
-                        ORD.order_type,
-                        PER.role,
-                        ORD.current_crd,
-                        ORD.taken_date,
-                        CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                        ACT.name,
-                        ACT.due_date,
-                        ACT.ready_date,
-                        DATE(ACT.exe_date),
-                        DATE(ACT.dly_date),
-                        ACT.completed_date
-                    FROM RestInterface_activity ACT
-                        INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                        LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                        LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                        LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                        AND NPP.level = 'MainLine'
-                        LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                    WHERE PER.role IN ({})
-                        AND ACT.completed_date BETWEEN '{}' AND '{}'
-                        AND ACT.name IN ({})
-                    ORDER BY ORD.order_code,
-                        activity_code;
-                """).format(groupIdStr, startDate, endDate, actStr)
-
-    csvFile = ("{}_{}.csv").format(
-        'GSDT_PS21_GSDT_PS23', utils.getCurrentDateTime())
-    outputList = processList(
-        orionDb.queryToList(sqlquery), groupId, '', [], [])
-    generateReport(csvFile, outputList, headers2)
-    updateTableauDB(outputList, 'GSDT_PS23')
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
-
-    logger.info('********************')
-    logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
-
-    groupId = ['GSP_SDN_TM', 'GSDT_TM']
-    groupIdStr = ', '.join([("'" + groupId + "'") for groupId in groupId])
-
-    actList = ['GSDT Co-ordination Wk-BQ',
-               'GSDT Co-ordination Wrk-BQ', 'GSP-TM Coordination Work']
-    actStr = ', '.join([("'" + activity + "'") for activity in actList])
-
-    sqlquery = ("""
-                    SELECT DISTINCT ORD.order_code,
-                        ORD.service_number,
-                        PRD.network_product_code,
-                        PRD.network_product_desc,
-                        CUS.name,
-                        ORD.order_type,
-                        PER.role,
-                        ORD.current_crd,
-                        ORD.taken_date,
-                        CAST(ACT.activity_code AS UNSIGNED) AS activity_code,
-                        ACT.name,
-                        ACT.due_date,
-                        ACT.ready_date,
-                        DATE(ACT.exe_date),
-                        DATE(ACT.dly_date),
-                        ACT.completed_date
-                    FROM RestInterface_activity ACT
-                        INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
-                        LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                        LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                        LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                        AND NPP.level = 'MainLine'
-                        LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                    WHERE PER.role IN ({})
-                        AND ACT.completed_date BETWEEN '{}' AND '{}'
-                        AND ACT.name IN ({})
-                    ORDER BY ORD.order_code,
-                        activity_code;
-                """).format(groupIdStr, startDate, endDate, actStr)
-
-    csvFile = ("{}_{}.csv").format(
-        'GSP_SDN_TM_GSDT_TM', utils.getCurrentDateTime())
-    outputList = processList(
-        orionDb.queryToList(sqlquery), groupId, '', [], [])
-    generateReport(csvFile, outputList, headers2)
-    updateTableauDB(outputList, 'GSP_SDN_TM_GSDT_TM')
-
-    if csvFiles:
-        zipFile = ("{}_{}.zip").format(zipFileName, utils.getCurrentDateTime())
-        utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                      defaultConfig['ZipPassword'])
-        sendEmail(emailSubject, zipFile, emailTo)
-
-    logger.info("Processing [" + emailSubject + "] complete")
-
-
-def sendEmail(subject, attachment, emailTo):
+def sendEmail(subject, attachment):
 
     emailBodyText = """
         Hello,
@@ -1188,13 +61,7 @@ def sendEmail(subject, attachment, emailTo):
         try:
             emailClient = EmailClient()
             emailClient.subject = emailClient.addTimestamp(subject)
-
-            if defaultConfig['EmailInfo'] == 'Email':
-                emailClient.receiverTo = emailConfig["receiverTo"] + \
-                    ';' + emailTo
-            else:
-                emailClient.receiverTo = emailConfig["receiverTo"]
-
+            emailClient.receiverTo = emailConfig["receiverTo"]
             emailClient.receiverCc = emailConfig["receiverCc"]
             emailClient.emailBodyText = emailBodyText
             emailClient.emailBodyHtml = emailBodyhtml
@@ -1212,3 +79,433 @@ def sendEmail(subject, attachment, emailTo):
         except Exception as e:
             logger.error("Failed to send email.")
             logger.error(e)
+
+
+def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
+
+    logger.info('********************')
+    logger.info("Processing [" + emailSubject + "] ...")
+
+    csvFiles.clear()
+
+    columns = [
+        'OrderCode',
+        'NetworkProductCode',
+        'GroupID',
+        'CRD',
+        'TakenDate',
+        'OrderType',
+        'ServiceNumber',
+        'ProjectCode',
+        'CustomerName',
+        'AEndAddress',
+        'FamilyName',
+        'GivenName',
+        'ContactType',
+        'EmailAddress',
+        'ParameterName',
+        'ParameterValue'
+    ]
+
+    orderTypes = ', '.join([("'" + item + "'")
+                            for item in ['Provide',
+                                         'Change']])
+
+    contactTypes = ', '.join([("'" + item + "'")
+                              for item in ['AM',
+                                           'SDE',
+                                           'Project Manager',
+                                           'A-end-Cust']])
+
+    productCodes = ', '.join([("'" + item + "'")
+                              for item in ['SDW0002',
+                                           'SDW0024',
+                                           'SDW0025',
+                                           'SDW0026',
+                                           'CNP0213']])
+
+    parameters = ', '.join([("'" + item + "'")
+                            for item in ['CircuitRef1',
+                                         'CircuitRef2',
+                                         'CircuitRef3',
+                                         'CircuitRef4',
+                                         'CustCircuitTy1',
+                                         'CustCircuitTy2',
+                                         'CustCircuitTy3',
+                                         'CustCircuitTy4',
+                                         'MainEquipModel',
+                                         'OriginCtry',
+                                         'OriginCity',
+                                         'EquipmentVendorPONo',
+                                         'EquipmentVendor',
+                                         'InstallationPartnerPONo',
+                                         'InstallationPartner',
+                                         'SIInstallPartner',
+                                         'SIMaintPartner',
+                                         'CSDWSIInstall',
+                                         'CSDWSIMaint',
+                                         'MainSLA']])
+
+    sqlquery = ("""
+                    SELECT
+                        DISTINCT ORD.order_code AS OrderCode,
+                        PRD.network_product_code AS NetworkProductCode,
+                        PER.role AS GroupID,
+                        ORD.current_crd AS CRD,
+                        ORD.taken_date AS TakenDate,
+                        ORD.order_type AS OrderType,
+                        ORD.service_number AS ServiceNumber,
+                        PRJ.project_code AS ProjectCode,
+                        CUS.name AS CustomerName,
+                        SITE.location AS AEndAddress,
+                        CON.given_name AS FamilyName,
+                        CON.family_name AS GivenName,
+                        CON.contact_type AS ContactType,
+                        CON.email_address AS EmailAddress,
+                        PAR.parameter_name AS ParameterName,
+                        PAR.parameter_value AS ParameterValue
+                    FROM
+                        RestInterface_order ORD
+                        JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id
+                        LEFT JOIN RestInterface_person PER ON ACT.person_id = PER.id
+                        LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
+                        LEFT JOIN RestInterface_customer CUS ON ORD.customer_id = CUS.id
+                        LEFT JOIN RestInterface_site SITE ON ORD.site_id = SITE.id
+                        LEFT JOIN RestInterface_contactdetails CON ON ORD.id = CON.order_id
+                        AND CON.contact_type IN ({})
+                        LEFT JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
+                        AND NPP.level = 'Mainline'
+                        AND NPP.status <> 'Cancel'
+                        LEFT JOIN RestInterface_parameter PAR ON NPP.id = PAR.npp_id
+                        AND PAR.parameter_name IN ({})
+                        LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
+                    WHERE
+                        ORD.order_type IN ({})
+                        AND PRD.network_product_code IN ({})
+                        AND ORD.taken_date BETWEEN '{}'
+                        AND '{}'
+                    ORDER BY
+                        OrderCode,
+                        ContactType,
+                        ParameterName;
+                """).format(contactTypes, parameters, orderTypes, productCodes, startDate, endDate)
+
+    csvFile = ("{}_{}.csv").format('SDWAN', utils.getCurrentDateTime())
+    outputList, reportColumns = processList(
+        orionDb.queryToList(sqlquery), columns)
+    generateReport(csvFile, outputList, reportColumns)
+
+    if csvFiles:
+        attachement = None
+        if defaultConfig.getboolean('CompressFiles'):
+            zipFile = ("{}_{}.zip").format(
+                zipFileName, utils.getCurrentDateTime())
+            utils.zipFile(csvFiles, zipFile, reportsFolderPath,
+                          defaultConfig['ZipPassword'])
+            attachement = zipFile
+        else:
+            attachement = csvFile
+        sendEmail(emailSubject, attachement)
+
+    logger.info("Processing [" + emailSubject + "] complete")
+
+
+def processList(queryList, columns):
+
+    reportColumns = ['OrderCode',
+                     'NetworkProductCode',
+                     'GroupID',
+                     'CRD',
+                     'TakenDate',
+                     'ServiceNumber',
+                     'ProjectCode',
+                     'CustomerName',
+                     'AEndAddress',
+                     'AM_ContactName',
+                     'AM_ContactEmail',
+                     'SDE_ContactName',
+                     'SDE_ContactEmail',
+                     'PM_ContactName',
+                     'PM_ContactEmail',
+                     'AEndCus_ContactName',
+                     'AEndCus_ContactEmail',
+                     'CircuitRef1',
+                     'CircuitRef2',
+                     'CircuitRef3',
+                     'CircuitRef4',
+                     'CustCircuitTy1',
+                     'CustCircuitTy2',
+                     'CustCircuitTy3',
+                     'CustCircuitTy4',
+                     'MainEquipModel',
+                     'OriginCtry',
+                     'OriginCity',
+                     'EquipmentVendorPONo',
+                     'EquipmentVendor',
+                     'InstallationPartnerPONo',
+                     'InstallationPartner',
+                     'SIInstallPartner',
+                     'SIMaintPartner',
+                     'CSDWSIInstall',
+                     'CSDWSIMaint',
+                     'MainSLA'
+                     ]
+
+    df_report = pd.DataFrame(columns=reportColumns)
+    df = pd.DataFrame(queryList, columns=columns)
+
+    for order in df['OrderCode'].unique():
+        # add new data (df_toAdd) to df_report
+        df_order = df[df['OrderCode'] == order]
+        df_toAdd = processUniqueOrders(df_order, reportColumns) if defaultConfig.getboolean(
+            'ProcessUniqueOrders') else processDuplicateOrders(df_order, reportColumns)
+        df_report = pd.concat([df_report, df_toAdd])
+
+    return df_report.values.tolist(), reportColumns
+
+
+def processDuplicateOrders(df_order, reportColumns):
+    # Add values to columns
+    orderCode = dfUniqueValue(df_order['OrderCode'])
+    productCode = dfUniqueValue(df_order['NetworkProductCode'])
+    # groupID = dfValuesToList(df_order['GroupID'])
+    crd = dfUniqueValue(df_order['CRD'])
+    takenDate = dfUniqueValue(df_order['TakenDate'])
+    serviceNumber = dfUniqueValue(df_order['ServiceNumber'])
+    projectCode = dfUniqueValue(df_order['ProjectCode'])
+    customerName = dfUniqueValue(df_order['CustomerName'])
+    aEndAddress = dfUniqueValue(df_order['AEndAddress'])
+    # amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
+    # sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
+    # pmContactName, pmContactEmail = dfContactInformation(
+    #     df_order, 'Project Manager')
+    # aEndCusContactName, aEndCusContactEmail = dfContactInformation(
+    #     df_order, 'A-end-Cust')
+    circuitRef1 = dfParameterValue(df_order, 'CircuitRef1')
+    circuitRef2 = dfParameterValue(df_order, 'CircuitRef2')
+    circuitRef3 = dfParameterValue(df_order, 'CircuitRef3')
+    circuitRef4 = dfParameterValue(df_order, 'CircuitRef4')
+    custCircuitTy1 = dfParameterValue(df_order, 'CustCircuitTy1')
+    custCircuitTy2 = dfParameterValue(df_order, 'CustCircuitTy2')
+    custCircuitTy3 = dfParameterValue(df_order, 'CustCircuitTy3')
+    custCircuitTy4 = dfParameterValue(df_order, 'CustCircuitTy4')
+    mainEquipModel = dfParameterValue(df_order, 'MainEquipModel')
+    originCtry = dfParameterValue(df_order, 'OriginCtry')
+    originCity = dfParameterValue(df_order, 'OriginCity')
+    equipmentVendorPONo = dfParameterValue(df_order, 'EquipmentVendorPONo')
+    equipmentVendor = dfParameterValue(df_order, 'EquipmentVendor')
+    installationPartnerPONo = dfParameterValue(
+        df_order, 'InstallationPartnerPONo')
+    installationPartner = dfParameterValue(df_order, 'InstallationPartner')
+    sIInstallPartner = dfParameterValue(df_order, 'SIInstallPartner')
+    sIMaintPartner = dfParameterValue(df_order, 'SIMaintPartner')
+    cSDWSIInstall = dfParameterValue(df_order, 'CSDWSIInstall')
+    cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
+    mainSLA = dfParameterValue(df_order, 'MainSLA')
+
+    df_report = pd.DataFrame(columns=reportColumns)
+
+    for groupID in df_order['GroupID'].unique().tolist():
+
+        df_contact = df_order[df_order['ContactType'] == 'AM'][[
+            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+        for ind in df_contact.index:
+            amContactName, amContactEmail = dfContactNameEmail(
+                df_contact, ind)
+
+            df_contact = df_order[df_order['ContactType'] == 'SDE'][[
+                'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+            for ind in df_contact.index:
+                sdeContactName, sdeContactEmail = dfContactNameEmail(
+                    df_contact, ind)
+
+                df_contact = df_order[df_order['ContactType'] == 'Project Manager'][[
+                    'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+                for ind in df_contact.index:
+                    pmContactName, pmContactEmail = dfContactNameEmail(
+                        df_contact, ind)
+
+                    df_contact = df_order[df_order['ContactType'] == 'A-end-Cust'][[
+                        'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+                    for ind in df_contact.index:
+                        aEndCusContactName, aEndCusContactEmail = dfContactNameEmail(
+                            df_contact, ind)
+
+                        reportData = [
+                            orderCode,
+                            productCode,
+                            groupID,
+                            crd,
+                            takenDate,
+                            serviceNumber,
+                            projectCode,
+                            customerName,
+                            aEndAddress,
+                            amContactName,
+                            amContactEmail,
+                            sdeContactName,
+                            sdeContactEmail,
+                            pmContactName,
+                            pmContactEmail,
+                            aEndCusContactName,
+                            aEndCusContactEmail,
+                            circuitRef1,
+                            circuitRef2,
+                            circuitRef3,
+                            circuitRef4,
+                            custCircuitTy1,
+                            custCircuitTy2,
+                            custCircuitTy3,
+                            custCircuitTy4,
+                            mainEquipModel,
+                            originCtry,
+                            originCity,
+                            equipmentVendorPONo,
+                            equipmentVendor,
+                            installationPartnerPONo,
+                            installationPartner,
+                            sIInstallPartner,
+                            sIMaintPartner,
+                            cSDWSIInstall,
+                            cSDWSIMaint,
+                            mainSLA
+                        ]
+
+                        # add new data (df_toAdd) to df_report
+                        df_toAdd = pd.DataFrame(
+                            data=[reportData], columns=reportColumns)
+                        df_report = pd.concat([df_report, df_toAdd])
+
+    return df_report
+
+
+def processUniqueOrders(df_order, reportColumns):
+
+    # Add values to columns
+    orderCode = dfUniqueValue(df_order['OrderCode'])
+    productCode = dfUniqueValue(df_order['NetworkProductCode'])
+    groupID = dfValuesToList(df_order['GroupID'])
+    crd = dfUniqueValue(df_order['CRD'])
+    takenDate = dfUniqueValue(df_order['TakenDate'])
+    serviceNumber = dfUniqueValue(df_order['ServiceNumber'])
+    projectCode = dfUniqueValue(df_order['ProjectCode'])
+    customerName = dfUniqueValue(df_order['CustomerName'])
+    aEndAddress = dfUniqueValue(df_order['AEndAddress'])
+    amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
+    sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
+    pmContactName, pmContactEmail = dfContactInformation(
+        df_order, 'Project Manager')
+    aEndCusContactName, aEndCusContactEmail = dfContactInformation(
+        df_order, 'A-end-Cust')
+    circuitRef1 = dfParameterValue(df_order, 'CircuitRef1')
+    circuitRef2 = dfParameterValue(df_order, 'CircuitRef2')
+    circuitRef3 = dfParameterValue(df_order, 'CircuitRef3')
+    circuitRef4 = dfParameterValue(df_order, 'CircuitRef4')
+    custCircuitTy1 = dfParameterValue(df_order, 'CustCircuitTy1')
+    custCircuitTy2 = dfParameterValue(df_order, 'CustCircuitTy2')
+    custCircuitTy3 = dfParameterValue(df_order, 'CustCircuitTy3')
+    custCircuitTy4 = dfParameterValue(df_order, 'CustCircuitTy4')
+    mainEquipModel = dfParameterValue(df_order, 'MainEquipModel')
+    originCtry = dfParameterValue(df_order, 'OriginCtry')
+    originCity = dfParameterValue(df_order, 'OriginCity')
+    equipmentVendorPONo = dfParameterValue(df_order, 'EquipmentVendorPONo')
+    equipmentVendor = dfParameterValue(df_order, 'EquipmentVendor')
+    installationPartnerPONo = dfParameterValue(
+        df_order, 'InstallationPartnerPONo')
+    installationPartner = dfParameterValue(df_order, 'InstallationPartner')
+    sIInstallPartner = dfParameterValue(df_order, 'SIInstallPartner')
+    sIMaintPartner = dfParameterValue(df_order, 'SIMaintPartner')
+    cSDWSIInstall = dfParameterValue(df_order, 'CSDWSIInstall')
+    cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
+    mainSLA = dfParameterValue(df_order, 'MainSLA')
+
+    reportData = [
+        orderCode,
+        productCode,
+        groupID,
+        crd,
+        takenDate,
+        serviceNumber,
+        projectCode,
+        customerName,
+        aEndAddress,
+        amContactName,
+        amContactEmail,
+        sdeContactName,
+        sdeContactEmail,
+        pmContactName,
+        pmContactEmail,
+        aEndCusContactName,
+        aEndCusContactEmail,
+        circuitRef1,
+        circuitRef2,
+        circuitRef3,
+        circuitRef4,
+        custCircuitTy1,
+        custCircuitTy2,
+        custCircuitTy3,
+        custCircuitTy4,
+        mainEquipModel,
+        originCtry,
+        originCity,
+        equipmentVendorPONo,
+        equipmentVendor,
+        installationPartnerPONo,
+        installationPartner,
+        sIInstallPartner,
+        sIMaintPartner,
+        cSDWSIInstall,
+        cSDWSIMaint,
+        mainSLA
+    ]
+
+    # add new data (df_toAdd) to df_report
+    df_toAdd = pd.DataFrame(data=[reportData], columns=reportColumns)
+
+    return df_toAdd
+
+
+def dfValuesToList(df):
+    list = df.unique().tolist()
+    list.sort()
+    return('; '.join(filter(None, list)))
+
+
+def dfUniqueValue(df):
+    if df.empty:
+        return None
+    else:
+        return df.unique()[0]
+
+
+def dfContactNameEmail(df, ind):
+    contactName = df['FamilyName'][ind] + ', ' + df['GivenName'][ind]
+    contactEmail = df['EmailAddress'][ind]
+
+    return contactName, contactEmail
+
+
+def dfContactInformation(df, contactType):
+    df_contact = df[df['ContactType'] == contactType][[
+        'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+
+    contactNameList = []
+    contactEmailList = []
+
+    for ind in df_contact.index:
+        contactNameList.append(
+            df_contact['FamilyName'][ind] + ', ' + df_contact['GivenName'][ind])
+        contactEmailList.append(
+            df_contact['EmailAddress'][ind])
+
+    contactNames = '; '.join(filter(None, contactNameList))
+    contactEmails = '; '.join(filter(None, contactEmailList))
+
+    return contactNames, contactEmails
+
+
+def dfParameterValue(df, parameterName):
+    df_parameterValue = df[df['ParameterName']
+                           == parameterName][['ParameterValue']]
+
+    return dfUniqueValue(df_parameterValue['ParameterValue'])
