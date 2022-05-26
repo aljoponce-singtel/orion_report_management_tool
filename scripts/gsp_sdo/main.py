@@ -16,14 +16,14 @@ from scripts import utils
 from scripts.gsp_sdwan import reports
 
 config = configparser.ConfigParser()
-config.read('scripts/gsp_sdo/config.ini')
+configFile = 'scripts/gsp_sdo/config.ini'
+config.read(configFile)
+log.initialize(configFile)
 defaultConfig = config['DEFAULT']
+logger = logging.getLogger(__name__)
 
 
 def main():
-    log.initialize('scripts/gsp_sdo/config.ini')
-    logger = logging.getLogger(__name__)
-
     logger.info("==========================================")
     logger.info("START of script - " +
                 datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
