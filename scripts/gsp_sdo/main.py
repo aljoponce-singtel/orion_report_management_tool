@@ -13,7 +13,7 @@ import configparser
 from datetime import datetime, timedelta
 from scripts import log
 from scripts import utils
-from scripts.gsp_sdwan import reports
+from scripts.gsp_sdo import reports
 
 config = configparser.ConfigParser()
 configFile = 'scripts/gsp_sdo/config.ini'
@@ -47,8 +47,8 @@ def main():
         logger.info("start date: " + str(startDate))
         logger.info("end date: " + str(endDate))
 
-        reports.generateSDWANReport(
-            'sdwan_weekly_report', startDate, endDate, "SDWAN Weekly Report")
+        reports.generateSDOReport(
+            'sdo_singnet_report', startDate, endDate, "SDO Singnet Report")
 
     except Exception as err:
         logger.error(err)
