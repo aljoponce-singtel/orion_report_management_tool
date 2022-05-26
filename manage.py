@@ -3,16 +3,12 @@ import importlib
 from datetime import datetime
 
 try:
-    # All arguments
+    # Print All arguments
+    # sys.argv[0] = This file (manage.py)
+    # sys.argv[1] - Report/script folder
+    # sys.argv[2] - Main file/module
+    # sys.argv[3] - function to call
     print(sys.argv)
-    # This file (manage.py)
-    print(sys.argv[0])
-    # Report/script folder
-    print(sys.argv[1])
-    # Main file/module
-    print(sys.argv[2])
-    # function to call
-    print(sys.argv[3])
 
     # Add script folder path to python system path
     sys.path.insert(0, './scripts/' + sys.argv[1])
