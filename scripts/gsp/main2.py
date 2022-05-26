@@ -76,13 +76,11 @@ def main():
 
             #-- END --#
 
-        logger.info("END of script - " +
-                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-
     except Exception as err:
         logger.exception(err)
-        logger.info("END of script - " +
-                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+
+    logger.info("END of script - " +
+                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':
