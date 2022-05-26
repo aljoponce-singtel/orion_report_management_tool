@@ -53,20 +53,20 @@ def main():
 
             reports.generateCPluseIpReport(
                 'cplusip_report', startDate,  endDate, '', "CPlusIP Report")
-            reports.generateMegaPopReport(
-                'megapop_report', startDate, endDate, '', "MegaPop Report")
-            reports.generateSingnetReport(
-                'singnet_report', startDate, endDate, '', "Singnet Report")
-            reports.generateStixReport(
-                'stix_report', startDate, endDate, "STIX Report")
-            reports.generateInternetReport(
-                'internet_report', startDate, endDate, "Internet Report")
-            reports.generateSDWANReport(
-                'sdwan_report', startDate, endDate, "SDWAN Report")
-            reports.generateCPluseIpReportGrp(
-                'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report")
-            reports.generateMegaPopReportGrp(
-                'megapop_report_grp', startDate, endDate, '', "MegaPop Report")
+            # reports.generateMegaPopReport(
+            #     'megapop_report', startDate, endDate, '', "MegaPop Report")
+            # reports.generateSingnetReport(
+            #     'singnet_report', startDate, endDate, '', "Singnet Report")
+            # reports.generateStixReport(
+            #     'stix_report', startDate, endDate, "STIX Report")
+            # reports.generateInternetReport(
+            #     'internet_report', startDate, endDate, "Internet Report")
+            # reports.generateSDWANReport(
+            #     'sdwan_report', startDate, endDate, "SDWAN Report")
+            # reports.generateCPluseIpReportGrp(
+            #     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report")
+            # reports.generateMegaPopReportGrp(
+            #     'megapop_report_grp', startDate, endDate, '', "MegaPop Report")
 
         else:
             #-- START --#
