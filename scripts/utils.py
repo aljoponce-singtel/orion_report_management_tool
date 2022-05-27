@@ -8,6 +8,15 @@ from zipfile import ZipFile
 logger = logging.getLogger(__name__)
 
 
+# Converts a list to a string without the brackets
+# E.g. ['GSDT7', 'GSDT8'] => -'GSDT7', 'GSDT8'
+def listToString(list):
+    strList = str(list)
+    strListNoBrackets = str(strList).replace('[','').replace(']','')
+
+    return strListNoBrackets
+
+
 def write_to_csv(csvfile, dataset, headers, folderPath):
 
     try:
