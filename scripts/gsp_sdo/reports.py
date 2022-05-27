@@ -190,8 +190,47 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, ti_columns)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
 
-    print(df_rawReport)
-    df_rawReport.to_csv('{}.csv'.format(fileName), index=False)
+    final_columns = [
+        'OrderCode',
+        'ServiceNumber',
+        'ProductCode',
+        'CRD',
+        'CustomerName',
+        'OrderCreated',
+        'OrderType',
+        'OrderCodeNew',
+        'CRDNew',
+        'ServiceNoNew',
+        'StepNo_SS',
+        'ActName_SS',
+        'GrpID_SS',
+        'DueDate_SS',
+        'RDY_Date_SS',
+        'EXC_Date_SS',
+        'DLY_Date_SS',
+        'COM_Date_SS',
+        'StepNo_RI',
+        'ActName_RI',
+        'GrpID_RI',
+        'DueDate_RI',
+        'RDY_Date_RI',
+        'EXC_Date_RI',
+        'DLY_Date_RI',
+        'COM_Date_RI',
+        'StepNo_TI',
+        'ActName_TI',
+        'GrpID_TI',
+        'DueDate_TI',
+        'RDY_Date_TI',
+        'EXC_Date_TI',
+        'DLY_Date_TI',
+        'COM_Date_TI',
+        'ProjectManager'
+    ]
+
+    df_finalReport = df_rawReport[final_columns]
+    # print(df_finalReport)
+    df_finalReport.to_csv('{}.csv'.format(fileName), index=False)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
@@ -296,8 +335,47 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, ti_columns)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
 
-    print(df_rawReport)
-    df_rawReport.to_csv('{}.csv'.format(fileName), index=False)
+    final_columns = [
+        'OrderCode',
+        'ServiceNumber',
+        'ProductCode',
+        'CRD',
+        'CustomerName',
+        'OrderCreated',
+        'OrderType',
+        'OrderCodeNew',
+        'CRDNew',
+        'ServiceNoNew',
+        'StepNo_SS',
+        'ActName_SS',
+        'GrpID_SS',
+        'DueDate_SS',
+        'RDY_Date_SS',
+        'EXC_Date_SS',
+        'DLY_Date_SS',
+        'COM_Date_SS',
+        'StepNo_RI',
+        'ActName_RI',
+        'GrpID_RI',
+        'DueDate_RI',
+        'RDY_Date_RI',
+        'EXC_Date_RI',
+        'DLY_Date_RI',
+        'COM_Date_RI',
+        'StepNo_TI',
+        'ActName_TI',
+        'GrpID_TI',
+        'DueDate_TI',
+        'RDY_Date_TI',
+        'EXC_Date_TI',
+        'DLY_Date_TI',
+        'COM_Date_TI',
+        'ProjectManager'
+    ]
+
+    df_finalReport = df_rawReport[final_columns]
+    # print(df_finalReport)
+    df_finalReport.to_csv('{}.csv'.format(fileName), index=False)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
