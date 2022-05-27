@@ -102,13 +102,17 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
         'SGN2004'
     ]
 
+    productCodeInstance = ['SGN0170', 'SGN2004']
+    parametersToSearch = ['FTTHNo', 'MetroENo', 'GigawaveNo']
+
     df_tableauWorkorders = getWorkOrdersFromTableau(
         'GSDT7', reportDate, productCodeList)
     df_rawReport = createNewReportDf(df_tableauWorkorders['Workorder_no'])
-    df_rawReport = addParamAndSvcnoColToDf(df_rawReport, ['SGN0170', 'SGN2004'], [
-        'FTTHNo', 'MetroENo', 'GigawaveNo'])
+    df_rawReport = addParamAndSvcnoColToDf(
+        df_rawReport, productCodeInstance, parametersToSearch)
     df_rawReport = addOrderInfoColToDf(df_rawReport)
 
+    # Add Site survey (SS) activities to df_rawReport
     ss_activitiesMap = [
         {"productCodes": ['SGN0170', 'SGN2004', 'SGN0051', 'SGN0157'],
          "activities": ['Site Survey - A End']},
@@ -120,8 +124,35 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
 
     df_ss = createActivityDf(df_rawReport, ss_activitiesMap)
     df_rawReport = pd.merge(df_rawReport, df_ss, how='left')
-    # print(df_rawReport)
-    # df_rawReport.to_csv('{}.csv'.format(fileName))
+
+    # Add Routing info (RI) activities to df_rawReport
+    ri_activitiesMap = [
+        {"productCodes": ['SGN0170', 'SGN2004', 'SGN0051', 'SGN0157'],
+         "activities": ['Cct Allocate-ETE Routing', 'Circuit Allocation']},
+        {"productCodes": ['SGN0160'],
+         "activities": ['TNP/HSD Activities']},
+        {"productCodes": ['SGN0119', 'SGN0340'],
+         "activities": ['Cct Allocate-ETE Routing', 'Circuit Allocation', 'TNP/HSD Activities']}
+    ]
+
+    df_ri = createActivityDf(df_rawReport, ri_activitiesMap)
+    df_rawReport = pd.merge(df_rawReport, df_ri, how='left')
+
+    # Add Testing and Installation (TI) activities to df_rawReport
+    ti_activitiesMap = [
+        {"productCodes": ['SGN0170', 'SGN2004', 'SGN0051', 'SGN0157'],
+         "activities": ['CPE Instln & Testingg', 'End-To-End Test - A End']},
+        {"productCodes": ['SGN0160'],
+         "activities": ['E-To-E Test (PNOC)']},
+        {"productCodes": ['SGN0119', 'SGN0340'],
+         "activities": ['CPE Instln & Testingg', 'DWFM Installation Work', 'E-To-E Test (PNOC)', 'End-To-End Test - A End']}
+    ]
+
+    df_ti = createActivityDf(df_rawReport, ti_activitiesMap)
+    df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
+
+    print(df_rawReport)
+    df_rawReport.to_csv('{}.csv'.format(fileName))
 
     logger.info("Processing [" + emailSubject + "] complete")
 
@@ -142,13 +173,17 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
         'GEL0036'
     ]
 
+    productCodeInstance = ['GEL0001', 'GEL0018', 'GEL0023', 'GEL0036']
+    parametersToSearch = ['FTTHNo', 'MetroENo', 'GigawaveNo']
+
     df_tableauWorkorders = getWorkOrdersFromTableau(
         'GSDT8', reportDate, productCodeList)
     df_rawReport = createNewReportDf(df_tableauWorkorders['Workorder_no'])
-    df_rawReport = addParamAndSvcnoColToDf(df_rawReport, ['GEL0001', 'GEL0018', 'GEL0023', 'GEL0036'], [
-        'FTTHNo', 'MetroENo', 'GigawaveNo'])
+    df_rawReport = addParamAndSvcnoColToDf(
+        df_rawReport, productCodeInstance, parametersToSearch)
     df_rawReport = addOrderInfoColToDf(df_rawReport)
 
+    # Add Site survey (SS) activities to df_rawReport
     ss_activitiesMap = [
         {"productCodes": ['GEL0001', 'GEL0036', 'ELK0052', 'ELK0053', 'ELK0055', 'ELK0089'],
          "activities": ['Site Survey - A End']},
@@ -158,10 +193,35 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
          "activities": ['Site Survey', 'Check & Plan Fiber  - SME', 'Check & Plan Fiber  - ON']}
     ]
 
+    # ss_columns = ['OrderCodeNew', 'GrpID_SS',  'StepNo_SS',         'ActName_SS',    'DueDate_SS',
+    #               'status',  'RDY_Date_SS',    'EXC_Date_SS',    'DLY_Date_SS', 'COM_Date_SS']
     df_ss = createActivityDf(df_rawReport, ss_activitiesMap)
     df_rawReport = pd.merge(df_rawReport, df_ss, how='left')
-    # print(df_rawReport)
-    # df_rawReport.to_csv('{}.csv'.format(fileName))
+
+    # Add Routing info (RI) activities to df_rawReport
+    ri_activitiesMap = [
+        {"productCodes": ['GEL0001', 'GEL0036', 'ELK0052', 'ELK0053', 'ELK0055', 'ELK0089'],
+         "activities": ['Cct Allocate-ETE Routing', 'Circuit Allocation']},
+        {"productCodes": ['GEL0018', 'GEL0023'],
+         "activities": ['Cct Allocate-ETE Routing', 'Cct Allocate ETE Rtg - ON']}
+    ]
+
+    df_ri = createActivityDf(df_rawReport, ri_activitiesMap)
+    df_rawReport = pd.merge(df_rawReport, df_ri, how='left')
+
+    # Add Testing and Installation (TI) activities to df_rawReport
+    ti_activitiesMap = [
+        {"productCodes": ['GEL0001', 'GEL0036', 'ELK0052', 'ELK0053', 'ELK0055', 'ELK0089'],
+         "activities": ['CPE Instln & Testing', 'End-To-End Test - A End']},
+        {"productCodes": ['GEL0018', 'GEL0023'],
+         "activities": ['DWFM Installation Work', 'CPE Instln & Testing']}
+    ]
+
+    df_ti = createActivityDf(df_rawReport, ti_activitiesMap)
+    df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
+
+    print(df_rawReport)
+    df_rawReport.to_csv('{}.csv'.format(fileName))
 
     logger.info("Processing [" + emailSubject + "] complete")
 
