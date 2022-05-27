@@ -5,6 +5,7 @@ import os
 from scripts.DBConnection import DBConnection
 from scripts.EmailClient import EmailClient
 import pandas as pd
+import numpy as np
 
 logger = logging.getLogger(__name__)
 defaultConfig = None
@@ -101,17 +102,17 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
         'SGN2004'
     ]
 
-    productCodeListStr = ', '.join(
-        [("'" + productCode + "'") for productCode in productCodeList])
-
-    tableauOrderList = queryTableauTable(
-        'GSDT7', reportDate, productCodeListStr)
+    df_tableauWorkorders = getWorkOrdersFromTableau(
+        'GSDT7', reportDate, productCodeList)
+    df_rawReport = createNewReportDf(df_tableauWorkorders['Workorder_no'])
+    addOrderInfoColToDf(df_rawReport, ['SGN0170', 'SGN2004'], [
+        'FTTHNo', 'MetroENo', 'GigawaveNo'])
 
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def queryTableauTable(reportId, reportDate, productCodes):
-    sqlquery = (""" 
+def getWorkOrdersFromTableau(reportId, reportDate, productCodeList):
+    query = (""" 
                 SELECT
                     DISTINCT Workorder_no
                 FROM
@@ -123,6 +124,159 @@ def queryTableauTable(reportId, reportDate, productCodes):
                         {}
                     )
                     AND DATE(update_time) = '{}'; 
-            """).format(reportId, productCodes, reportDate)
+            """).format(reportId, utils.listToString(productCodeList), reportDate)
 
-    return tableauDb.queryToList(sqlquery)
+    result = tableauDb.queryToList(query)
+    return pd.DataFrame(result)
+
+
+def createNewReportDf(df_Workorders):
+    query = (""" 
+                SELECT
+                    DISTINCT ORD.id AS OrderId,
+                    ORD.order_code AS OrderCode,
+                    ORD.service_number AS ServiceNumber,
+                    REPLACE(
+                        REPLACE(
+                            REPLACE(ORD.service_number, 'ELITE', ''),
+                            'ETH',
+                            ''
+                        ),
+                        'GWL',
+                        ''
+                    ) AS ServiceNumberUpd,
+                    PRD.network_product_code AS ProductCode,
+                    ORD.current_crd AS CRD,
+                    CUS.name AS CustomerName,
+                    ORD.taken_date AS OrderCreated,
+                    ORD.order_type AS OrderType,
+                    (
+                        SELECT
+                            GROUP_CONCAT(
+                                CONCAT_WS(" ", family_name, given_name)
+                                ORDER BY
+                                    id DESC SEPARATOR " / "
+                            )
+                        FROM
+                            RestInterface_contactdetails
+                        WHERE
+                            order_id = ORD.id
+                            AND contact_type = "Project Manager"
+                        GROUP BY
+                            order_id
+                    ) AS ProjectManager
+                FROM
+                    RestInterface_order ORD
+                    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
+                    AND NPP.level = 'Mainline'
+                    AND NPP.status <> 'Cancel'
+                    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+                    LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                WHERE
+                    ORD.order_code IN ({})
+                    AND ORD.order_type = 'Provide'; 
+            """).format(utils.listToString(df_Workorders.to_list()))
+
+    result = orionDb.queryToList(query)
+    return pd.DataFrame(result)
+
+
+def addOrderInfoColToDf(dataframe, productCodes, parameter_names):
+
+    df = pd.DataFrame(dataframe)
+
+    # add new ParameterName and ParameterValue columns to df
+    df_instance = df[df['ProductCode'].isin(productCodes)]
+    parameterList = getParametersInfo(
+        df_instance['ServiceNumberUpd'], parameter_names)
+    df_parameters = pd.DataFrame(parameterList)
+
+    df = pd.merge(df, df_parameters, how='left')
+
+    df['ServiceNoNew'] = None
+
+    # indexes = df.loc[df['ServiceNumberUpd'].isin(df_parameters['ServiceNumberUpd'].values)].index
+    # df.at[indexes, 'ServiceNoNew'] = df_parameters['ParameterValue'].values
+
+    # df['ServiceNoNew'] = df_parameters[df['ServiceNumberUpd'] == df_parameters['ServiceNumberUpd']]['ParameterValue']
+
+    # df = df.set_index('ServiceNumberUpd')
+    # df_parameters.set_index('ServiceNumberUpd')
+    # df['ServiceNoNew'] = np.where(df_parameters.loc[df.index]['ParameterValue'])
+
+    df_nonInstance = df[~df['ProductCode'].isin(productCodes)]
+    # df['ServiceNoNew'].isin(df_nonInstance['ServiceNumberUpd'].values) = df['ServiceNumberUpd']
+    # print(df_nonInstance['ServiceNumberUpd'].to_list())
+    # df[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].to_list()), 'ServiceNoNew'] = df['ServiceNumberUpd']
+
+    # df.isin(df_nonInstance['ServiceNumberUpd'].to_list())['ServiceNoNew'] = df_nonInstance['ServiceNumberUpd']
+
+    df.loc[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].to_list()), 'ServiceNoNew'] = df_nonInstance['ServiceNumberUpd']
+
+    print(df)
+
+    df.set_index('ServiceNumberUpd',inplace=True)
+    df_parameters.set_index('ServiceNumberUpd',inplace=True)
+    df_parameters.rename(columns={'ParameterValue':'ServiceNoNew'}, inplace=True)
+    df.update(df_parameters)
+    df.reset_index(inplace=True)
+
+    print(df)
+    # print(df_parameters)
+
+    # df_nonInstance = df[~df['ProductCode'].isin(productCodes)]
+    # df['ServiceNoNew'] = df['ServiceNumberUpd']
+    # df[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].values), 'ServiceNoNew'] = df['ServiceNumberUpd']
+
+    # df_nonInstance = df[~df['ProductCode'].isin(productCodes)]
+    # df_nonInstance.set_index('ServiceNumberUpd',inplace=True)
+    # df_nonInstance.rename(columns={'ServiceNumberUpd':'ServiceNoNew'}, inplace=True)
+    # df.update(df_parameters)
+    # df.reset_index(inplace=True)
+    #df['ServiceNoNew'] = df
+
+    # print(df)
+
+    # df.to_csv("sdo_singnet.csv")
+
+    # df_nonInstSvcNo = df_nonInstance['ServiceNumberUpd']
+    # nonInstSvcNoList = getOrdersUsingServiceNo(
+    #     utils.listToString(df_nonInstSvcNo.to_list()))
+
+    # print(pd.DataFrame(nonInstSvcNoList))
+
+
+def getParametersInfo(df_serviceNo, parameter_names):
+    serviceNoList = utils.listToString(df_serviceNo.to_list())
+    parameterNamesList = utils.listToString(parameter_names)
+
+    query = (""" 
+            SELECT
+                DISTINCT ORD.service_number AS ServiceNumberUpd,
+                PAR.parameter_name AS ParameterName,
+                PAR.parameter_value AS ParameterValue
+            FROM
+                RestInterface_order ORD
+                LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
+                AND NPP.level = 'Mainline'
+                LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
+                AND PAR.parameter_name IN ({})
+            WHERE
+                ORD.order_type = 'Provide'
+                AND ORD.service_number IN ({});
+        """).format(parameterNamesList, serviceNoList)
+
+    return orionDb.queryToList(query)
+
+
+def getOrdersUsingServiceNo(serviceNo):
+    query = (""" 
+            SELECT
+                DISTINCT order_code, service_number
+            FROM
+                RestInterface_order
+            WHERE
+                service_number IN ({}); 
+        """).format(serviceNo)
+
+    return orionDb.queryToList(query)
