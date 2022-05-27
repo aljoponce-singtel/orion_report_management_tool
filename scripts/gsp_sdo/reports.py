@@ -105,8 +105,41 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
     df_tableauWorkorders = getWorkOrdersFromTableau(
         'GSDT7', reportDate, productCodeList)
     df_rawReport = createNewReportDf(df_tableauWorkorders['Workorder_no'])
-    addOrderInfoColToDf(df_rawReport, ['SGN0170', 'SGN2004'], [
+    df_rawReport = addParamAndSvcnoColToDf(df_rawReport, ['SGN0170', 'SGN2004'], [
         'FTTHNo', 'MetroENo', 'GigawaveNo'])
+    df_rawReport = addOrderInfoColToDf(df_rawReport)
+
+    # print(df_rawReport)
+    # df_rawReport.to_csv('{}.csv'.format(fileName))
+
+    logger.info("Processing [" + emailSubject + "] complete")
+
+
+def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
+
+    logger.info('********************')
+    logger.info("Processing [" + emailSubject + "] ...")
+
+    productCodeList = [
+        'ELK0052',
+        'ELK0053',
+        'ELK0055',
+        'ELK0089',
+        'GEL0001',
+        'GEL0018',
+        'GEL0023',
+        'GEL0036'
+    ]
+
+    df_tableauWorkorders = getWorkOrdersFromTableau(
+        'GSDT8', reportDate, productCodeList)
+    df_rawReport = createNewReportDf(df_tableauWorkorders['Workorder_no'])
+    df_rawReport = addParamAndSvcnoColToDf(df_rawReport, ['GEL0001', 'GEL0018', 'GEL0023', 'GEL0036'], [
+        'FTTHNo', 'MetroENo', 'GigawaveNo'])
+    df_rawReport = addOrderInfoColToDf(df_rawReport)
+
+    # print(df_rawReport)
+    # df_rawReport.to_csv('{}.csv'.format(fileName))
 
     logger.info("Processing [" + emailSubject + "] complete")
 
@@ -181,7 +214,7 @@ def createNewReportDf(df_Workorders):
     return pd.DataFrame(result)
 
 
-def addOrderInfoColToDf(dataframe, productCodes, parameter_names):
+def addParamAndSvcnoColToDf(dataframe, productCodes, parameter_names):
 
     df = pd.DataFrame(dataframe)
 
@@ -208,10 +241,7 @@ def addOrderInfoColToDf(dataframe, productCodes, parameter_names):
     df.update(df_parameters)
     df.reset_index(inplace=True)
 
-    # df_nonInstSvcNo = df_nonInstance['ServiceNumberUpd']
-    # nonInstSvcNoList = getOrdersUsingServiceNo(
-    #     utils.listToString(df_nonInstSvcNo.to_list()))
-    # print(pd.DataFrame(nonInstSvcNoList))
+    return df
 
 
 def getParametersInfo(df_serviceNo, parameter_names):
@@ -237,14 +267,25 @@ def getParametersInfo(df_serviceNo, parameter_names):
     return orionDb.queryToList(query)
 
 
-def getOrdersUsingServiceNo(serviceNo):
+def addOrderInfoColToDf(dataframe):
+    df = pd.DataFrame(dataframe)
+    serviceNoList = df['ServiceNoNew'].dropna().to_list()
+
     query = (""" 
             SELECT
-                DISTINCT order_code, service_number
+                DISTINCT service_number AS ServiceNoNew,
+                id AS OrderIdNew,
+                order_code AS OrderCodeNew,
+                current_crd AS CRDNew
             FROM
                 RestInterface_order
             WHERE
-                service_number IN ({}); 
-        """).format(serviceNo)
+                order_type = 'Provide'
+                AND service_number IN ({});
+        """).format(utils.listToString(serviceNoList))
 
-    return orionDb.queryToList(query)
+    result = orionDb.queryToList(query)
+    df_orderInfo = pd.DataFrame(result)
+    df = pd.merge(df, df_orderInfo, how='left')
+
+    return df

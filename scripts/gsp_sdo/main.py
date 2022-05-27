@@ -47,6 +47,8 @@ def main():
 
         reports.generateSdoSingnetReport(
             'sdo_singnet_report', reportDate, "SDO Singnet Report")
+        # reports.generateSdoMegaPopReport(
+        #     'sdo_megapop_report', reportDate, "SDO MegaPop Report")
 
     except Exception as err:
         logger.exception(err)
