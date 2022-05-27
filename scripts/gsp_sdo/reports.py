@@ -118,8 +118,8 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
          "activities": ['Site Survey - A End', 'Site Survey', 'Check HSD Resources']}
     ]
 
-    createActivityDf(df_rawReport, ss_activitiesMap)
-
+    df_ss = createActivityDf(df_rawReport, ss_activitiesMap)
+    df_rawReport = pd.merge(df_rawReport, df_ss, how='left')
     # print(df_rawReport)
     # df_rawReport.to_csv('{}.csv'.format(fileName))
 
@@ -149,7 +149,7 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
         'FTTHNo', 'MetroENo', 'GigawaveNo'])
     df_rawReport = addOrderInfoColToDf(df_rawReport)
 
-    ss_activities = [
+    ss_activitiesMap = [
         {"productCodes": ['GEL0001', 'GEL0036', 'ELK0052', 'ELK0053', 'ELK0055', 'ELK0089'],
          "activities": ['Site Survey - A End']},
         {"productCodes": ['GEL0018'],
@@ -158,8 +158,8 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
          "activities": ['Site Survey', 'Check & Plan Fiber  - SME', 'Check & Plan Fiber  - ON']}
     ]
 
-    createActivityDf(df_rawReport, ss_activities)
-
+    df_ss = createActivityDf(df_rawReport, ss_activitiesMap)
+    df_rawReport = pd.merge(df_rawReport, df_ss, how='left')
     # print(df_rawReport)
     # df_rawReport.to_csv('{}.csv'.format(fileName))
 
@@ -352,16 +352,17 @@ def createActivityDf(df_rawReport, activitiesMap):
 
     result = orionDb.queryToList(query)
     df_actInfo = pd.DataFrame(result)
+    df_actFinal = removeDuplicates(df_rawReport, df_actInfo, activitiesMap)
 
-    removeDuplicates(df_rawReport, df_actInfo, activitiesMap)
-
-    return df_actInfo
+    return df_actFinal
 
 
 def removeDuplicates(df_rawReport, df_actInfo, activitiesMap):
 
     df_rawReport = pd.DataFrame(df_rawReport)
     df_actInfo = pd.DataFrame(df_actInfo)
+
+    df_actFinal = pd.DataFrame(columns=df_actInfo.columns)
 
     for activityMap in activitiesMap:
         df_products = df_rawReport[df_rawReport['ProductCode'].isin(
@@ -374,7 +375,7 @@ def removeDuplicates(df_rawReport, df_actInfo, activitiesMap):
 
             # Drop duplicate OrderCodeNew with same ActivityName by keeping the highest step_no column
             df_sorted = df_act.sort_values(by=['OrderCodeNew', 'step_no'])
-            print(df_sorted)
+            # print(df_sorted)
             df_rmDuplicates = df_sorted.drop_duplicates(
                 subset=['OrderCodeNew', 'ActivityName'], keep='last')
 
@@ -386,6 +387,8 @@ def removeDuplicates(df_rawReport, df_actInfo, activitiesMap):
                 by=['OrderCodeNew', 'ActivityName'])
             df_actPriorityRmDup = df_actPrioritySorted.drop_duplicates(
                 subset=['OrderCodeNew'], keep='first')
-            print(df_actPriorityRmDup)
+            # print(df_actPriorityRmDup)
 
-    return None
+            df_actFinal = pd.concat([df_actFinal, df_actPriorityRmDup])
+
+    return df_actFinal
