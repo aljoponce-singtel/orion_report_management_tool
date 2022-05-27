@@ -185,22 +185,26 @@ def addOrderInfoColToDf(dataframe, productCodes, parameter_names):
 
     df = pd.DataFrame(dataframe)
 
-    # add new ParameterName and ParameterValue columns to df
+    # Add new ParameterName and ParameterValue columns to df
     df_instance = df[df['ProductCode'].isin(productCodes)]
     parameterList = getParametersInfo(
         df_instance['ServiceNumberUpd'], parameter_names)
     df_parameters = pd.DataFrame(parameterList)
-
     df = pd.merge(df, df_parameters, how='left')
 
+    # Add new ServiceNoNew column
     df['ServiceNoNew'] = None
 
+    # Copy df['ServiceNumberUpd'] values to df['ServiceNoNew] where df['ServiceNumberUpd'] == df_nonInstance['ServiceNumberUpd']
     df_nonInstance = df[~df['ProductCode'].isin(productCodes)]
-    df.loc[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].to_list()), 'ServiceNoNew'] = df_nonInstance['ServiceNumberUpd']
+    df.loc[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].to_list(
+    )), 'ServiceNoNew'] = df_nonInstance['ServiceNumberUpd']
 
-    df.set_index('ServiceNumberUpd',inplace=True)
-    df_parameters.set_index('ServiceNumberUpd',inplace=True)
-    df_parameters.rename(columns={'ParameterValue':'ServiceNoNew'}, inplace=True)
+    # Copy df_parameters['ParameterValue'] values to df['ServiceNoNew] where df['ServiceNumberUpd'] == df_parameters['ParameterValue']
+    df.set_index('ServiceNumberUpd', inplace=True)
+    df_parameters.set_index('ServiceNumberUpd', inplace=True)
+    df_parameters.rename(
+        columns={'ParameterValue': 'ServiceNoNew'}, inplace=True)
     df.update(df_parameters)
     df.reset_index(inplace=True)
 
