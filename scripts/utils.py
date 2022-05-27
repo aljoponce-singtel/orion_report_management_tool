@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 # E.g. ['GSDT7', 'GSDT8'] => -'GSDT7', 'GSDT8'
 def listToString(list):
     strList = str(list)
-    strListNoBrackets = str(strList).replace('[','').replace(']','')
+    strListNoBrackets = str(strList).replace('[', '').replace(']', '')
 
     return strListNoBrackets
 
