@@ -195,25 +195,8 @@ def addOrderInfoColToDf(dataframe, productCodes, parameter_names):
 
     df['ServiceNoNew'] = None
 
-    # indexes = df.loc[df['ServiceNumberUpd'].isin(df_parameters['ServiceNumberUpd'].values)].index
-    # df.at[indexes, 'ServiceNoNew'] = df_parameters['ParameterValue'].values
-
-    # df['ServiceNoNew'] = df_parameters[df['ServiceNumberUpd'] == df_parameters['ServiceNumberUpd']]['ParameterValue']
-
-    # df = df.set_index('ServiceNumberUpd')
-    # df_parameters.set_index('ServiceNumberUpd')
-    # df['ServiceNoNew'] = np.where(df_parameters.loc[df.index]['ParameterValue'])
-
     df_nonInstance = df[~df['ProductCode'].isin(productCodes)]
-    # df['ServiceNoNew'].isin(df_nonInstance['ServiceNumberUpd'].values) = df['ServiceNumberUpd']
-    # print(df_nonInstance['ServiceNumberUpd'].to_list())
-    # df[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].to_list()), 'ServiceNoNew'] = df['ServiceNumberUpd']
-
-    # df.isin(df_nonInstance['ServiceNumberUpd'].to_list())['ServiceNoNew'] = df_nonInstance['ServiceNumberUpd']
-
     df.loc[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].to_list()), 'ServiceNoNew'] = df_nonInstance['ServiceNumberUpd']
-
-    print(df)
 
     df.set_index('ServiceNumberUpd',inplace=True)
     df_parameters.set_index('ServiceNumberUpd',inplace=True)
@@ -221,28 +204,9 @@ def addOrderInfoColToDf(dataframe, productCodes, parameter_names):
     df.update(df_parameters)
     df.reset_index(inplace=True)
 
-    print(df)
-    # print(df_parameters)
-
-    # df_nonInstance = df[~df['ProductCode'].isin(productCodes)]
-    # df['ServiceNoNew'] = df['ServiceNumberUpd']
-    # df[df['ServiceNumberUpd'].isin(df_nonInstance['ServiceNumberUpd'].values), 'ServiceNoNew'] = df['ServiceNumberUpd']
-
-    # df_nonInstance = df[~df['ProductCode'].isin(productCodes)]
-    # df_nonInstance.set_index('ServiceNumberUpd',inplace=True)
-    # df_nonInstance.rename(columns={'ServiceNumberUpd':'ServiceNoNew'}, inplace=True)
-    # df.update(df_parameters)
-    # df.reset_index(inplace=True)
-    #df['ServiceNoNew'] = df
-
-    # print(df)
-
-    # df.to_csv("sdo_singnet.csv")
-
     # df_nonInstSvcNo = df_nonInstance['ServiceNumberUpd']
     # nonInstSvcNoList = getOrdersUsingServiceNo(
     #     utils.listToString(df_nonInstSvcNo.to_list()))
-
     # print(pd.DataFrame(nonInstSvcNoList))
 
 
