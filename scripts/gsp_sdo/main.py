@@ -40,15 +40,20 @@ def main():
         if defaultConfig.getboolean('GenReportManually'):
             logger.info('\\* MANUAL RUN *\\')
             reportDate = defaultConfig['ReportDate']
+            logger.info("report date: " + str(reportDate))
+
+            # reports.generateSdoSingnetReport(
+            #     'sdo_singnet_report', reportDate, "SDO Singnet Report")
+            reports.generateSdoMegaPopReport(
+                'sdo_megapop_report', reportDate, "SDO MegaPop Report")
         else:
             reportDate = str(today_date.replace(day=1))
+            logger.info("report date: " + str(reportDate))
 
-        logger.info("report date: " + str(reportDate))
-
-        reports.generateSdoSingnetReport(
-            'sdo_singnet_report', reportDate, "SDO Singnet Report")
-        # reports.generateSdoMegaPopReport(
-        #     'sdo_megapop_report', reportDate, "SDO MegaPop Report")
+            reports.generateSdoSingnetReport(
+                'sdo_singnet_report', reportDate, "SDO Singnet Report")
+            reports.generateSdoMegaPopReport(
+                'sdo_megapop_report', reportDate, "SDO MegaPop Report")
 
     except Exception as err:
         logger.exception(err)
