@@ -353,9 +353,6 @@ def createActivityDf(df_rawReport, activitiesMap):
     result = orionDb.queryToList(query)
     df_actInfo = pd.DataFrame(result)
 
-    # df = pd.merge(df, df_orderInfo, how='left')
-    # print(df_actInfo.sort_values(['OrderCodeNew', 'step_no', 'ActivityName']))
-
     removeDuplicates(df_rawReport, df_actInfo, activitiesMap)
 
     return df_actInfo
@@ -363,7 +360,6 @@ def createActivityDf(df_rawReport, activitiesMap):
 
 def removeDuplicates(df_rawReport, df_actInfo, activitiesMap):
 
-    # Drop duplicate records and keep the bigger number in step_no column
     df_rawReport = pd.DataFrame(df_rawReport)
     df_actInfo = pd.DataFrame(df_actInfo)
 
@@ -373,20 +369,23 @@ def removeDuplicates(df_rawReport, df_actInfo, activitiesMap):
         df_act = df_actInfo[df_actInfo['OrderCodeNew'].isin(
             df_products['OrderCodeNew'].to_list())]
 
-        actPriority = activityMap['activities']
+        if not df_act.empty:
+            actPriority = activityMap['activities']
 
-        df_sorted = df_act.sort_values(by=['OrderCodeNew', 'step_no'])
-        print(df_sorted)
-        df_rmDuplicates = df_sorted.drop_duplicates(
-            subset=['OrderCodeNew', 'ActivityName'], keep='last')
+            # Drop duplicate OrderCodeNew with same ActivityName by keeping the highest step_no column
+            df_sorted = df_act.sort_values(by=['OrderCodeNew', 'step_no'])
+            print(df_sorted)
+            df_rmDuplicates = df_sorted.drop_duplicates(
+                subset=['OrderCodeNew', 'ActivityName'], keep='last')
 
-        df_actPriority = pd.DataFrame(df_rmDuplicates)
-        df_actPriority['ActivityName'] = pd.Categorical(
-            values=df_actPriority['ActivityName'], categories=actPriority)
-        df_actPrioritySorted = df_actPriority.sort_values(
-            by=['OrderCodeNew', 'ActivityName'])
-        df_actPriorityRmDup = df_actPrioritySorted.drop_duplicates(
-            subset=['OrderCodeNew'], keep='first')
-        print(df_actPriorityRmDup)
+            # Drop duplicate OrderCodeNew with diff ActivityName by keeping 1 ActivityName from the actPriority list
+            df_actPriority = pd.DataFrame(df_rmDuplicates)
+            df_actPriority['ActivityName'] = pd.Categorical(
+                values=df_actPriority['ActivityName'], categories=actPriority)
+            df_actPrioritySorted = df_actPriority.sort_values(
+                by=['OrderCodeNew', 'ActivityName'])
+            df_actPriorityRmDup = df_actPrioritySorted.drop_duplicates(
+                subset=['OrderCodeNew'], keep='first')
+            print(df_actPriorityRmDup)
 
     return None
