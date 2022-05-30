@@ -1,4 +1,5 @@
 from scripts import utils
+import constants as const
 import logging.config
 import logging
 import os
@@ -103,13 +104,12 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
     ]
 
     productCodeInstance = ['SGN0170', 'SGN2004']
-    parametersToSearch = ['FTTHNo', 'MetroENo', 'GigawaveNo']
 
     df_tableauWorkorders = getWorkOrdersFromTableau(
         'GSDT7', reportDate, productCodeList)
     df_rawReport = createNewReportDf(df_tableauWorkorders['Workorder_no'])
     df_rawReport = addParamAndSvcnoColToDf(
-        df_rawReport, productCodeInstance, parametersToSearch)
+        df_rawReport, productCodeInstance, const.PARAMETERS_TO_SEARCH)
     df_rawReport = addOrderInfoColToDf(df_rawReport)
 
     # Add Site survey (SS) activities to df_rawReport
@@ -122,20 +122,7 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
          "activities": ['Site Survey - A End', 'Site Survey', 'Check HSD Resources']}
     ]
 
-    ss_columns = [
-        'OrderCodeNew',
-        'GrpID_SS',
-        'StepNo_SS',
-        'ActName_SS',
-        'DueDate_SS',
-        'Status_SS',
-        'RDY_Date_SS',
-        'EXC_Date_SS',
-        'DLY_Date_SS',
-        'COM_Date_SS'
-    ]
-
-    df_ss = createActivityDf(df_rawReport, ss_activitiesMap, ss_columns)
+    df_ss = createActivityDf(df_rawReport, ss_activitiesMap, const.SS_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ss, how='left')
 
     # Add Routing info (RI) activities to df_rawReport
@@ -148,20 +135,7 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
          "activities": ['Cct Allocate-ETE Routing', 'Circuit Allocation', 'TNP/HSD Activities']}
     ]
 
-    ri_columns = [
-        'OrderCodeNew',
-        'GrpID_RI',
-        'StepNo_RI',
-        'ActName_RI',
-        'DueDate_RI',
-        'Status_RI',
-        'RDY_Date_RI',
-        'EXC_Date_RI',
-        'DLY_Date_RI',
-        'COM_Date_RI'
-    ]
-
-    df_ri = createActivityDf(df_rawReport, ri_activitiesMap, ri_columns)
+    df_ri = createActivityDf(df_rawReport, ri_activitiesMap, const.RI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ri, how='left')
 
     # Add Testing and Installation (TI) activities to df_rawReport
@@ -174,62 +148,9 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
          "activities": ['CPE Instln & Testingg', 'DWFM Installation Work', 'E-To-E Test (PNOC)', 'End-To-End Test - A End']}
     ]
 
-    ti_columns = [
-        'OrderCodeNew',
-        'GrpID_TI',
-        'StepNo_TI',
-        'ActName_TI',
-        'DueDate_TI',
-        'Status_TI',
-        'RDY_Date_TI',
-        'EXC_Date_TI',
-        'DLY_Date_TI',
-        'COM_Date_TI'
-    ]
-
-    df_ti = createActivityDf(df_rawReport, ti_activitiesMap, ti_columns)
+    df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
-
-    final_columns = [
-        'OrderCode',
-        'ServiceNumber',
-        'ProductCode',
-        'CRD',
-        'CustomerName',
-        'OrderCreated',
-        'OrderType',
-        'OrderCodeNew',
-        'CRDNew',
-        'ServiceNoNew',
-        'StepNo_SS',
-        'ActName_SS',
-        'GrpID_SS',
-        'DueDate_SS',
-        'RDY_Date_SS',
-        'EXC_Date_SS',
-        'DLY_Date_SS',
-        'COM_Date_SS',
-        'StepNo_RI',
-        'ActName_RI',
-        'GrpID_RI',
-        'DueDate_RI',
-        'RDY_Date_RI',
-        'EXC_Date_RI',
-        'DLY_Date_RI',
-        'COM_Date_RI',
-        'StepNo_TI',
-        'ActName_TI',
-        'GrpID_TI',
-        'DueDate_TI',
-        'RDY_Date_TI',
-        'EXC_Date_TI',
-        'DLY_Date_TI',
-        'COM_Date_TI',
-        'ProjectManager'
-    ]
-
-    df_finalReport = df_rawReport[final_columns]
-    # print(df_finalReport)
+    df_finalReport = df_rawReport[const.FINAL_COLUMNS]
     df_finalReport.to_csv('{}.csv'.format(fileName), index=False)
 
     logger.info("Processing [" + emailSubject + "] complete")
@@ -252,13 +173,12 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     ]
 
     productCodeInstance = ['GEL0001', 'GEL0018', 'GEL0023', 'GEL0036']
-    parametersToSearch = ['FTTHNo', 'MetroENo', 'GigawaveNo']
 
     df_tableauWorkorders = getWorkOrdersFromTableau(
         'GSDT8', reportDate, productCodeList)
     df_rawReport = createNewReportDf(df_tableauWorkorders['Workorder_no'])
     df_rawReport = addParamAndSvcnoColToDf(
-        df_rawReport, productCodeInstance, parametersToSearch)
+        df_rawReport, productCodeInstance, const.PARAMETERS_TO_SEARCH)
     df_rawReport = addOrderInfoColToDf(df_rawReport)
 
     # Add Site survey (SS) activities to df_rawReport
@@ -271,20 +191,7 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
          "activities": ['Site Survey', 'Check & Plan Fiber  - SME', 'Check & Plan Fiber  - ON']}
     ]
 
-    ss_columns = [
-        'OrderCodeNew',
-        'GrpID_SS',
-        'StepNo_SS',
-        'ActName_SS',
-        'DueDate_SS',
-        'Status_SS',
-        'RDY_Date_SS',
-        'EXC_Date_SS',
-        'DLY_Date_SS',
-        'COM_Date_SS'
-    ]
-
-    df_ss = createActivityDf(df_rawReport, ss_activitiesMap, ss_columns)
+    df_ss = createActivityDf(df_rawReport, ss_activitiesMap, const.SS_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ss, how='left')
 
     # Add Routing info (RI) activities to df_rawReport
@@ -295,20 +202,7 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
          "activities": ['Cct Allocate-ETE Routing', 'Cct Allocate ETE Rtg - ON']}
     ]
 
-    ri_columns = [
-        'OrderCodeNew',
-        'GrpID_RI',
-        'StepNo_RI',
-        'ActName_RI',
-        'DueDate_RI',
-        'Status_RI',
-        'RDY_Date_RI',
-        'EXC_Date_RI',
-        'DLY_Date_RI',
-        'COM_Date_RI'
-    ]
-
-    df_ri = createActivityDf(df_rawReport, ri_activitiesMap, ri_columns)
+    df_ri = createActivityDf(df_rawReport, ri_activitiesMap, const.RI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ri, how='left')
 
     # Add Testing and Installation (TI) activities to df_rawReport
@@ -319,62 +213,9 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
          "activities": ['DWFM Installation Work', 'CPE Instln & Testing']}
     ]
 
-    ti_columns = [
-        'OrderCodeNew',
-        'GrpID_TI',
-        'StepNo_TI',
-        'ActName_TI',
-        'DueDate_TI',
-        'Status_TI',
-        'RDY_Date_TI',
-        'EXC_Date_TI',
-        'DLY_Date_TI',
-        'COM_Date_TI'
-    ]
-
-    df_ti = createActivityDf(df_rawReport, ti_activitiesMap, ti_columns)
+    df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
-
-    final_columns = [
-        'OrderCode',
-        'ServiceNumber',
-        'ProductCode',
-        'CRD',
-        'CustomerName',
-        'OrderCreated',
-        'OrderType',
-        'OrderCodeNew',
-        'CRDNew',
-        'ServiceNoNew',
-        'StepNo_SS',
-        'ActName_SS',
-        'GrpID_SS',
-        'DueDate_SS',
-        'RDY_Date_SS',
-        'EXC_Date_SS',
-        'DLY_Date_SS',
-        'COM_Date_SS',
-        'StepNo_RI',
-        'ActName_RI',
-        'GrpID_RI',
-        'DueDate_RI',
-        'RDY_Date_RI',
-        'EXC_Date_RI',
-        'DLY_Date_RI',
-        'COM_Date_RI',
-        'StepNo_TI',
-        'ActName_TI',
-        'GrpID_TI',
-        'DueDate_TI',
-        'RDY_Date_TI',
-        'EXC_Date_TI',
-        'DLY_Date_TI',
-        'COM_Date_TI',
-        'ProjectManager'
-    ]
-
-    df_finalReport = df_rawReport[final_columns]
-    # print(df_finalReport)
+    df_finalReport = df_rawReport[const.FINAL_COLUMNS]
     df_finalReport.to_csv('{}.csv'.format(fileName), index=False)
 
     logger.info("Processing [" + emailSubject + "] complete")
