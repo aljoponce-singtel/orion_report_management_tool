@@ -151,7 +151,26 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
     df_finalReport = df_rawReport[const.FINAL_COLUMNS]
-    df_finalReport.to_csv('{}.csv'.format(fileName), index=False)
+
+    # Write to CSV
+    csvFiles = []
+    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime())
+    csvFiles.append(csvFile)
+    csvfilePath = os.path.join(reportsFolderPath, csvFile)
+    df_finalReport.to_csv(csvfilePath, index=False)
+
+    # Compress files and send email
+    if csvFiles:
+        attachement = None
+        if defaultConfig.getboolean('CompressFiles'):
+            zipFile = ("{}_{}.zip").format(
+                fileName, utils.getCurrentDateTime())
+            utils.zipFile(csvFiles, zipFile, reportsFolderPath,
+                          defaultConfig['ZipPassword'])
+            attachement = zipFile
+        else:
+            attachement = csvFile
+        sendEmail(emailSubject, attachement)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
@@ -216,7 +235,26 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
     df_finalReport = df_rawReport[const.FINAL_COLUMNS]
-    df_finalReport.to_csv('{}.csv'.format(fileName), index=False)
+
+    # Write to CSV
+    csvFiles = []
+    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime())
+    csvFiles.append(csvFile)
+    csvfilePath = os.path.join(reportsFolderPath, csvFile)
+    df_finalReport.to_csv(csvfilePath, index=False)
+
+    # Compress files and send email
+    if csvFiles:
+        attachement = None
+        if defaultConfig.getboolean('CompressFiles'):
+            zipFile = ("{}_{}.zip").format(
+                fileName, utils.getCurrentDateTime())
+            utils.zipFile(csvFiles, zipFile, reportsFolderPath,
+                          defaultConfig['ZipPassword'])
+            attachement = zipFile
+        else:
+            attachement = csvFile
+        sendEmail(emailSubject, attachement)
 
     logger.info("Processing [" + emailSubject + "] complete")
 
