@@ -67,7 +67,7 @@ def sendEmail(subject, attachment):
     if defaultConfig.getboolean('SendEmail'):
         try:
             emailClient = EmailClient()
-            emailClient.subject = emailClient.addTimestamp(subject)
+            emailClient.subject = emailClient.addTimestamp2(subject)
             emailClient.receiverTo = emailConfig["receiverTo"]
             emailClient.receiverCc = emailConfig["receiverCc"]
             emailClient.emailBodyText = emailBodyText
