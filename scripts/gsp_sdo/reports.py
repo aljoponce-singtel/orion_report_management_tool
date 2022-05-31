@@ -35,12 +35,6 @@ def loadConfig(config):
     tableauDb.connect()
 
 
-def generateReport(csvfile, querylist, headers):
-    logger.info("Generating report " + csvfile + " ...")
-    utils.write_to_csv(csvfile, querylist, headers, reportsFolderPath)
-    csvFiles.append(csvfile)
-
-
 def sendEmail(subject, attachment):
 
     emailBodyText = """
