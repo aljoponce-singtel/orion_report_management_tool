@@ -31,10 +31,10 @@ def main():
                 datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
     logger.info("Running script in " + utils.getPlatform())
 
-    reports.loadConfig(config)
     today_date = datetime.now().date()
 
     try:
+        reports.loadConfig(config)
         reportDate = None
 
         if defaultConfig.getboolean('GenReportManually'):
@@ -42,10 +42,10 @@ def main():
             reportDate = defaultConfig['ReportDate']
             logger.info("report date: " + str(reportDate))
 
-            # reports.generateSdoSingnetReport(
-            #     'sdo_singnet_report', reportDate, "SDO Singnet Report")
-            reports.generateSdoMegaPopReport(
-                'sdo_megapop_report', reportDate, "SDO MegaPop Report")
+            reports.generateSdoSingnetReport(
+                'sdo_singnet_report', reportDate, "SDO Singnet Report")
+            # reports.generateSdoMegaPopReport(
+            #     'sdo_megapop_report', reportDate, "SDO MegaPop Report")
         else:
             reportDate = str(today_date.replace(day=1))
             logger.info("report date: " + str(reportDate))
@@ -57,9 +57,11 @@ def main():
 
     except Exception as err:
         logger.exception(err)
+        raise Exception(err)
 
-    logger.info("END of script - " +
-                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+    finally:
+        logger.info("END of script - " +
+                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':

@@ -36,10 +36,11 @@ def main():
                 datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
     logger.info("Running script in " + utils.getPlatform())
 
-    reports.loadConfig(config)
     today_date = datetime.now().date()
 
     try:
+        reports.loadConfig(config)
+
         if defaultConfig.getboolean('GenReportManually'):
             logger.info('\\* MANUAL RUN *\\')
             startDate = defaultConfig['ReportStartDate']
@@ -149,9 +150,11 @@ def main():
 
     except Exception as err:
         logger.exception(err)
+        raise Exception(err)
 
-    logger.info("END of script - " +
-                datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+    finally:
+        logger.info("END of script - " +
+                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
 
 
 if __name__ == '__main__':
