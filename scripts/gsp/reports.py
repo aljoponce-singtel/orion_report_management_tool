@@ -1211,4 +1211,4 @@ def sendEmail(subject, attachment, emailTo):
 
         except Exception as e:
             logger.error("Failed to send email.")
-            logger.error(e)
+            raise Exception(e)

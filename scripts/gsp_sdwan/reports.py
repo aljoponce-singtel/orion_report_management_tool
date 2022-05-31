@@ -78,7 +78,7 @@ def sendEmail(subject, attachment):
 
         except Exception as e:
             logger.error("Failed to send email.")
-            logger.error(e)
+            raise Exception(e)
 
 
 def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
