@@ -35,6 +35,19 @@ class EmailClient:
 
         return str
 
+    def addTimestamp2(self, str):
+        today_datetime = datetime.now()
+        day = today_datetime.strftime('%d').lstrip('0')
+        hour = today_datetime.strftime('%I').lstrip('0')
+        minute = today_datetime.strftime('%M').lstrip('0')
+        ampm = today_datetime.strftime('%p')
+        year = today_datetime.strftime('%Y')
+        month = today_datetime.strftime('%b')
+        str = "[{}] {} {}, {} {}:{} {}".format(
+            str, month, day, year, hour, minute, ampm)
+
+        return str
+
     def attachFile(self, attachment):
         logger.info('Attaching file {} ...'.format(
             os.path.basename(attachment)))
