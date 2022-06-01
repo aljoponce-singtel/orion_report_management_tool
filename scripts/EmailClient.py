@@ -57,10 +57,10 @@ class EmailClient:
         logger.info('Sending email with subject "{}" ...'.format(self.subject))
 
         try:
-
-            # Turn these into plain/html MIMEText objects
-            # part1 = MIMEText(emailBodyText, "plain")
-            part2 = MIMEText(self.emailBodyHtml, "html")
+            if self.emailBodyHtml:
+                # Turn these into plain/html MIMEText objects
+                # part1 = MIMEText(emailBodyText, "plain")
+                part2 = MIMEText(self.emailBodyHtml, "html")
 
             message = MIMEMultipart()
 
@@ -101,8 +101,11 @@ class EmailClient:
             mail.To = self.receiverTo
             mail.CC = self.receiverCc
             mail.Subject = self.subject
-            mail.HTMLBody = self.emailBodyHtml
-            mail.Body = self.emailBodyText
+
+            if self.emailBodyHtml:
+                mail.HTMLBody = self.emailBodyHtml
+            if self.emailBodyText:
+                mail.Body = self.emailBodyText
 
             for attachment in self.attachments:
                 mail.Attachments.Add(attachment)
