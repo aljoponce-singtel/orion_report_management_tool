@@ -1175,7 +1175,7 @@ def sendEmail(subject, attachment, emailTo):
 
     emailBodyhtml = """\
         <html>
-        <p>Helllo,</p>
+        <p>Hello,</p>
         <p>Please see attached ORION report.</p>
         <p>&nbsp;</p>
         <p>Thank you and best regards,</p>
