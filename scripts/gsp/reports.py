@@ -336,7 +336,7 @@ def generateReport(csvfile, querylist, headers):
     csvFiles.append(csvfile)
 
 
-def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
+def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -477,7 +477,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
+def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -621,7 +621,7 @@ def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSub
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
+def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -740,7 +740,7 @@ def generateMegaPopReport(zipFileName, startDate, endDate, groupId, emailSubject
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
+def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -863,7 +863,7 @@ def generateMegaPopReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=None):
+def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -981,7 +981,7 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
+def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -1040,7 +1040,7 @@ def generateStixReport(zipFileName, startDate, endDate, emailSubject, emailTo=No
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
+def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -1100,7 +1100,7 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo=None):
+def generateSDWANReport(zipFileName, startDate, endDate, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
