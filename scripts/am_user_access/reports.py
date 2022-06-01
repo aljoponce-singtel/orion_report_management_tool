@@ -44,7 +44,7 @@ def sendEmail(startDate, endDate, subject, attachment, emailBody):
     emailBodyhtml = ("""\
         <html>
         <p>Hello,</p>
-        <p>Please see AM weekly access report from {} to {}.</p>
+        <p>Please see AM user weekly access report from {} to {}.</p>
         <p>{}</p>
         <p>&nbsp;</p>
         <p>Thank you and best regards,</p>
@@ -63,7 +63,8 @@ def sendEmail(startDate, endDate, subject, attachment, emailBody):
             emailClient.emailBodyHtml = emailBodyhtml
 
             if attachment:
-                emailClient.attachFile(os.path.join(reportsFolderPath, attachment))
+                emailClient.attachFile(os.path.join(
+                    reportsFolderPath, attachment))
 
             if utils.getPlatform() == 'Windows':
                 emailClient.win32comSend()
@@ -85,6 +86,8 @@ def generateAmUserReport(startDate, endDate, emailSubject):
     logger.info("Processing [" + emailSubject + "] ...")
 
     df_report = pd.DataFrame(getAmWeeklyAccess(startDate, endDate))
+    # Add column name
+    df_report.columns = ['username']
     # Start index at 1 for table presentation in email
     df_report.index += 1
     sendEmail(startDate, endDate, emailSubject, None, df_report.to_html())
@@ -96,7 +99,7 @@ def getAmWeeklyAccess(startDate, endDate):
 
     logger.info("Getting data from DB ...")
 
-    query = (""" 
+    query = ("""
                 SELECT
                     DISTINCT USR.username
                 FROM
@@ -123,7 +126,7 @@ def getAmWeeklyAccess(startDate, endDate):
                     AND DATE(USR.last_login) BETWEEN '{}'
                     AND '{}'
                 ORDER BY
-                    USR.username; 
+                    USR.username;
             """).format(startDate, endDate)
 
     result = orionDb.queryToList(query)
