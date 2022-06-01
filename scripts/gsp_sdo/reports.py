@@ -271,7 +271,7 @@ def getWorkOrdersFromTableau(reportId, reportDate, productCodeList):
             """).format(reportId, utils.listToString(productCodeList), reportDate)
 
     result = tableauDb.queryToList(query)
-    return pd.DataFrame(result)
+    return pd.DataFrame(data=result, columns=['Workorder_no'])
 
 
 def createNewReportDf(df_Workorders):
@@ -322,7 +322,9 @@ def createNewReportDf(df_Workorders):
             """).format(utils.listToString(df_Workorders.to_list()))
 
     result = orionDb.queryToList(query)
-    return pd.DataFrame(result)
+    df = pd.DataFrame(data=result, columns=['OrderId', 'OrderCode', 'ServiceNumber', 'ServiceNumberUpd',
+                      'ProductCode', 'CRD', 'CustomerName', 'OrderCreated', 'OrderType', 'ProjectManager'])
+    return df
 
 
 def addParamAndSvcnoColToDf(dataframe, productCodes, parameter_names):
@@ -333,7 +335,8 @@ def addParamAndSvcnoColToDf(dataframe, productCodes, parameter_names):
     df_instance = df[df['ProductCode'].isin(productCodes)]
     parameterList = getParametersInfo(
         df_instance['ServiceNumberUpd'], parameter_names)
-    df_parameters = pd.DataFrame(parameterList)
+    df_parameters = pd.DataFrame(data=parameterList, columns=[
+                                 'ServiceNumberUpd', 'ParameterName', 'ParameterValue'])
     df = pd.merge(df, df_parameters, how='left')
 
     # Add new ServiceNoNew column
@@ -396,7 +399,8 @@ def addOrderInfoColToDf(dataframe):
         """).format(utils.listToString(serviceNoList))
 
     result = orionDb.queryToList(query)
-    df_orderInfo = pd.DataFrame(result)
+    df_orderInfo = pd.DataFrame(
+        data=result, columns=['ServiceNoNew', 'OrderIdNew', 'OrderCodeNew', 'CRDNew'])
     df = pd.merge(df, df_orderInfo, how='left')
 
     return df
@@ -440,7 +444,8 @@ def createActivityDf(df_rawReport, activitiesMap, actColumns):
         """).format(utils.listToString(uniqueActList), utils.listToString(workOrderList))
 
     result = orionDb.queryToList(query)
-    df_actInfo = pd.DataFrame(result)
+    df_actInfo = pd.DataFrame(data=result, columns=['OrderCodeNew', 'GroupId', 'step_no', 'ActivityName',
+                              'due_date', 'status', 'ready_date', 'exe_date', 'dly_date', 'completed_date'])
     df_actFinal = removeDuplicates(df_rawReport, df_actInfo, activitiesMap)
     df_actFinal.columns = actColumns
 
