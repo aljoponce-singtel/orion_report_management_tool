@@ -1,0 +1,13 @@
+2022-06-01 Wed 13:18:27 - main - INFO - ==========================================
+2022-06-01 Wed 13:18:27 - main - INFO - START of script - Wed 06/01/2022, 13:18:27
+2022-06-01 Wed 13:18:27 - main - INFO - Running script in Windows
+2022-06-01 Wed 13:18:27 - DBConnection - INFO - Connected to DB o2pprod at o2p_tableau@localhost:53307
+2022-06-01 Wed 13:18:27 - main - INFO - \* MANUAL RUN *\
+2022-06-01 Wed 13:18:27 - main - INFO - start date: 2022-05-23
+2022-06-01 Wed 13:18:27 - main - INFO - end date: 2022-05-29
+2022-06-01 Wed 13:18:27 - reports - INFO - ********************
+2022-06-01 Wed 13:18:27 - reports - INFO - Processing [AM User Weekly Access Report] ...
+2022-06-01 Wed 13:18:27 - reports - INFO - Getting data from DB ...
+2022-06-01 Wed 13:18:27 - EmailClient - INFO - Sending email with subject "[AM User Weekly Access Report] Jun 1, 2022 1:18 PM" ...
+2022-06-01 Wed 13:18:28 - reports - INFO - Processing [AM User Weekly Access Report] complete
+2022-06-01 Wed 13:18:28 - main - INFO - END of script - Wed 06/01/2022, 13:18:28
