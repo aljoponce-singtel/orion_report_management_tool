@@ -39,7 +39,7 @@ class EmailClient:
         today_datetime = datetime.now()
         day = today_datetime.strftime('%d').lstrip('0')
         hour = today_datetime.strftime('%I').lstrip('0')
-        minute = today_datetime.strftime('%M').lstrip('0')
+        minute = today_datetime.strftime('%M')
         ampm = today_datetime.strftime('%p')
         year = today_datetime.strftime('%Y')
         month = today_datetime.strftime('%b')
