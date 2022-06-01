@@ -62,9 +62,9 @@ def zip_file(filesToZip, zipfile):
 
 
 def os_zip_file(filesToZip, zipfile, password):
-    filesToZip = ' '.join(filesToZip)
+    files = ' '.join(filesToZip)
     os.system("zip -e %s %s -P %s" %
-              (zipfile, filesToZip, password))
+              (zipfile, files, password))
     for file in filesToZip:
         os.remove(file)
 
