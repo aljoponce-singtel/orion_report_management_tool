@@ -35,7 +35,6 @@ def main():
 
     try:
         reports.loadConfig(config)
-        reportDate = None
 
         if defaultConfig.getboolean('GenReportManually'):
             logger.info('\\* MANUAL RUN *\\')
