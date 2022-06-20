@@ -85,9 +85,17 @@ def generateAmUserReport(startDate, endDate, emailSubject):
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
 
-    df_report = pd.DataFrame(getAmWeeklyAccess(startDate, endDate))
-    # Add column name
-    df_report.columns = ['username']
+    queryResult = getAmWeeklyAccess(startDate, endDate)
+    df_report = None
+
+    if queryResult:
+        df_report = pd.DataFrame(getAmWeeklyAccess(startDate, endDate))
+        # Add column name
+        df_report.columns = ['username']
+    else:
+        # Create empty dataframe with 1 column
+        df_report = pd.DataFrame(columns=['username'])
+
     # Start index at 1 for table presentation in email
     df_report.index += 1
     sendEmail(startDate, endDate, emailSubject, None, df_report.to_html())
