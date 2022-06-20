@@ -116,7 +116,7 @@ def getAmWeeklyAccess(startDate, endDate):
                         OR USR.username = 'opsmanager'
                         OR USR.username = 'mluser@singtel.com'
                         OR USR.username = 'aljo.ponce@singtel.com'
-                        OR USR.username = 'jiangxu@ncs.com.sg'
+                        OR USR.username = 'jiangxu.jiang@singtel.com'
                         OR USR.username = 'adelinethk@singtel.com'
                         OR USR.username = 'jacob.toh@singtel.com'
                         OR USR.username = 'yuchen.liu@singtel.com'
