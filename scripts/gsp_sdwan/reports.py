@@ -108,44 +108,39 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
         'ParameterValue'
     ]
 
-    orderTypes = ', '.join([("'" + item + "'")
-                            for item in ['Provide',
-                                         'Change']])
+    orderTypes = ['Provide', 'Change']
 
-    contactTypes = ', '.join([("'" + item + "'")
-                              for item in ['AM',
-                                           'SDE',
-                                           'Project Manager',
-                                           'A-end-Cust']])
+    contactTypes = ['AM',
+                    'SDE',
+                    'Project Manager',
+                    'A-end-Cust']
 
-    productCodes = ', '.join([("'" + item + "'")
-                              for item in ['SDW0002',
-                                           'SDW0024',
-                                           'SDW0025',
-                                           'SDW0026',
-                                           'CNP0213']])
+    productCodes = ['SDW0002',
+                    'SDW0024',
+                    'SDW0025',
+                    'SDW0026',
+                    'CNP0213']
 
-    parameters = ', '.join([("'" + item + "'")
-                            for item in ['CircuitRef1',
-                                         'CircuitRef2',
-                                         'CircuitRef3',
-                                         'CircuitRef4',
-                                         'CustCircuitTy1',
-                                         'CustCircuitTy2',
-                                         'CustCircuitTy3',
-                                         'CustCircuitTy4',
-                                         'MainEquipModel',
-                                         'OriginCtry',
-                                         'OriginCity',
-                                         'EquipmentVendorPONo',
-                                         'EquipmentVendor',
-                                         'InstallationPartnerPONo',
-                                         'InstallationPartner',
-                                         'SIInstallPartner',
-                                         'SIMaintPartner',
-                                         'CSDWSIInstall',
-                                         'CSDWSIMaint',
-                                         'MainSLA']])
+    parameters = ['CircuitRef1',
+                  'CircuitRef2',
+                  'CircuitRef3',
+                  'CircuitRef4',
+                  'CustCircuitTy1',
+                  'CustCircuitTy2',
+                  'CustCircuitTy3',
+                  'CustCircuitTy4',
+                  'MainEquipModel',
+                  'OriginCtry',
+                  'OriginCity',
+                  'EquipmentVendorPONo',
+                  'EquipmentVendor',
+                  'InstallationPartnerPONo',
+                  'InstallationPartner',
+                  'SIInstallPartner',
+                  'SIMaintPartner',
+                  'CSDWSIInstall',
+                  'CSDWSIMaint',
+                  'MainSLA']
 
     sqlquery = ("""
                     SELECT
@@ -189,7 +184,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
                         OrderCode,
                         ContactType,
                         ParameterName;
-                """).format(contactTypes, parameters, orderTypes, productCodes, startDate, endDate)
+                """).format(utils.listToString(contactTypes), utils.listToString(parameters), utils.listToString(orderTypes), utils.listToString(productCodes), startDate, endDate)
 
     csvFile = ("{}_{}.csv").format('SDWAN', utils.getCurrentDateTime())
     outputList, reportColumns = processList(
