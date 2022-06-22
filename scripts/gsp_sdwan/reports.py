@@ -1,4 +1,5 @@
 from scripts import utils
+import constants as const
 import logging.config
 import logging
 import os
@@ -212,56 +213,17 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
 
 def processList(queryList, columns):
 
-    reportColumns = ['OrderCode',
-                     'NetworkProductCode',
-                     'GroupID',
-                     'CRD',
-                     'TakenDate',
-                     'ServiceNumber',
-                     'ProjectCode',
-                     'CustomerName',
-                     'AEndAddress',
-                     'AM_ContactName',
-                     'AM_ContactEmail',
-                     'SDE_ContactName',
-                     'SDE_ContactEmail',
-                     'PM_ContactName',
-                     'PM_ContactEmail',
-                     'AEndCus_ContactName',
-                     'AEndCus_ContactEmail',
-                     'CircuitRef1',
-                     'CircuitRef2',
-                     'CircuitRef3',
-                     'CircuitRef4',
-                     'CustCircuitTy1',
-                     'CustCircuitTy2',
-                     'CustCircuitTy3',
-                     'CustCircuitTy4',
-                     'MainEquipModel',
-                     'OriginCtry',
-                     'OriginCity',
-                     'EquipmentVendorPONo',
-                     'EquipmentVendor',
-                     'InstallationPartnerPONo',
-                     'InstallationPartner',
-                     'SIInstallPartner',
-                     'SIMaintPartner',
-                     'CSDWSIInstall',
-                     'CSDWSIMaint',
-                     'MainSLA'
-                     ]
-
-    df_report = pd.DataFrame(columns=reportColumns)
+    df_report = pd.DataFrame(columns=const.REPORT_COLUMNS)
     df = pd.DataFrame(queryList, columns=columns)
 
     for order in df['OrderCode'].unique():
         # add new data (df_toAdd) to df_report
         df_order = df[df['OrderCode'] == order]
-        df_toAdd = processUniqueOrders(df_order, reportColumns) if defaultConfig.getboolean(
-            'ProcessUniqueOrders') else processDuplicateOrders(df_order, reportColumns)
+        df_toAdd = processUniqueOrders(df_order, const.REPORT_COLUMNS) if defaultConfig.getboolean(
+            'ProcessUniqueOrders') else processDuplicateOrders(df_order, const.REPORT_COLUMNS)
         df_report = pd.concat([df_report, df_toAdd])
 
-    return df_report.values.tolist(), reportColumns
+    return df_report.values.tolist(), const.REPORT_COLUMNS
 
 
 def processDuplicateOrders(df_order, reportColumns):
