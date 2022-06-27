@@ -223,8 +223,7 @@ def processList(queryList, columns):
 
 def processDuplicateOrders(df_order, reportColumns):
     df_order = pd.DataFrame(df_order)
-
-    df_act_report = pd.DataFrame(columns=reportColumns)
+    df_order_report = pd.DataFrame(columns=reportColumns)
 
     # Add values to columns
     orderCode = dfUniqueValue(df_order['OrderCode'])
@@ -257,8 +256,8 @@ def processDuplicateOrders(df_order, reportColumns):
     cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
     mainSLA = dfParameterValue(df_order, 'MainSLA')
 
-    df_final_report = pd.DataFrame(columns=[
-                                   'GroupID', 'AM_ContactName', 'AM_ContactEmail', 'SDE_ContactName', 'SDE_ContactEmail', 'PM_ContactName', 'PM_ContactEmail', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
+    df_group = pd.DataFrame(columns=[
+        'GroupID', 'AM_ContactName', 'AM_ContactEmail', 'SDE_ContactName', 'SDE_ContactEmail', 'PM_ContactName', 'PM_ContactEmail', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
 
     group_id_list = df_order['GroupID'].unique().tolist()
 
@@ -371,29 +370,29 @@ def processDuplicateOrders(df_order, reportColumns):
             df_report = pd.concat([df_report, df_temp], ignore_index=True)
             multiple = True
 
-        df_final_report = pd.concat(
-            [df_final_report, df_report], ignore_index=True)
+        df_group = pd.concat(
+            [df_group, df_report], ignore_index=True)
 
-    for ind in df_final_report.index:
+    for ind in df_group.index:
 
         reportData = [
             orderCode,
             productCode,
-            df_final_report['GroupID'][ind],
+            df_group['GroupID'][ind],
             crd,
             takenDate,
             serviceNumber,
             projectCode,
             customerName,
             aEndAddress,
-            df_final_report['AM_ContactName'][ind],
-            df_final_report['AM_ContactEmail'][ind],
-            df_final_report['SDE_ContactName'][ind],
-            df_final_report['SDE_ContactEmail'][ind],
-            df_final_report['PM_ContactName'][ind],
-            df_final_report['PM_ContactEmail'][ind],
-            df_final_report['AEndCus_ContactName'][ind],
-            df_final_report['AEndCus_ContactEmail'][ind],
+            df_group['AM_ContactName'][ind],
+            df_group['AM_ContactEmail'][ind],
+            df_group['SDE_ContactName'][ind],
+            df_group['SDE_ContactEmail'][ind],
+            df_group['PM_ContactName'][ind],
+            df_group['PM_ContactEmail'][ind],
+            df_group['AEndCus_ContactName'][ind],
+            df_group['AEndCus_ContactEmail'][ind],
             circuitRef1,
             circuitRef2,
             circuitRef3,
@@ -419,9 +418,9 @@ def processDuplicateOrders(df_order, reportColumns):
         # add new data (df_toAdd) to df_report
         df_toAdd = pd.DataFrame(
             data=[reportData], columns=reportColumns)
-        df_act_report = pd.concat([df_act_report, df_toAdd])
+        df_order_report = pd.concat([df_order_report, df_toAdd])
 
-    return df_act_report
+    return df_order_report
 
 
 def processUniqueOrders(df_order, reportColumns):
