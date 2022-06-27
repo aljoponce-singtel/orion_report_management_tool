@@ -222,22 +222,19 @@ def processList(queryList, columns):
 
 
 def processDuplicateOrders(df_order, reportColumns):
+    df_order = pd.DataFrame(df_order)
+
+    df_act_report = pd.DataFrame(columns=reportColumns)
+
     # Add values to columns
     orderCode = dfUniqueValue(df_order['OrderCode'])
     productCode = dfUniqueValue(df_order['NetworkProductCode'])
-    # groupID = dfValuesToList(df_order['GroupID'])
     crd = dfUniqueValue(df_order['CRD'])
     takenDate = dfUniqueValue(df_order['TakenDate'])
     serviceNumber = dfUniqueValue(df_order['ServiceNumber'])
     projectCode = dfUniqueValue(df_order['ProjectCode'])
     customerName = dfUniqueValue(df_order['CustomerName'])
     aEndAddress = dfUniqueValue(df_order['AEndAddress'])
-    # amContactName, amContactEmail = dfContactInformation(df_order, 'AM')
-    # sdeContactName, sdeContactEmail = dfContactInformation(df_order, 'SDE')
-    # pmContactName, pmContactEmail = dfContactInformation(
-    #     df_order, 'Project Manager')
-    # aEndCusContactName, aEndCusContactEmail = dfContactInformation(
-    #     df_order, 'A-end-Cust')
     circuitRef1 = dfParameterValue(df_order, 'CircuitRef1')
     circuitRef2 = dfParameterValue(df_order, 'CircuitRef2')
     circuitRef3 = dfParameterValue(df_order, 'CircuitRef3')
@@ -260,80 +257,171 @@ def processDuplicateOrders(df_order, reportColumns):
     cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
     mainSLA = dfParameterValue(df_order, 'MainSLA')
 
-    df_report = pd.DataFrame(columns=reportColumns)
+    df_final_report = pd.DataFrame(columns=[
+                                   'GroupID', 'AM_ContactName', 'AM_ContactEmail', 'SDE_ContactName', 'SDE_ContactEmail', 'PM_ContactName', 'PM_ContactEmail', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
 
-    for groupID in df_order['GroupID'].unique().tolist():
+    group_id_list = df_order['GroupID'].unique().tolist()
+
+    for groupId in group_id_list:
+
+        df_report = pd.DataFrame()
+        df_report['GroupID'] = [groupId]
 
         df_contact = df_order[df_order['ContactType'] == 'AM'][[
             'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+
+        multiple = False
+        df_toMerge = None
+
         for ind in df_contact.index:
             amContactName, amContactEmail = dfContactNameEmail(
                 df_contact, ind)
 
-            df_contact = df_order[df_order['ContactType'] == 'SDE'][[
-                'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
-            for ind in df_contact.index:
-                sdeContactName, sdeContactEmail = dfContactNameEmail(
-                    df_contact, ind)
+            df_toAdd = pd.DataFrame(data=[[groupId, amContactName, amContactEmail]], columns=[
+                                    'GroupID', 'AM_ContactName', 'AM_ContactEmail'], index=[ind])
 
-                df_contact = df_order[df_order['ContactType'] == 'Project Manager'][[
-                    'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
-                for ind in df_contact.index:
-                    pmContactName, pmContactEmail = dfContactNameEmail(
-                        df_contact, ind)
+            df_temp = df_report
 
-                    df_contact = df_order[df_order['ContactType'] == 'A-end-Cust'][[
-                        'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
-                    for ind in df_contact.index:
-                        aEndCusContactName, aEndCusContactEmail = dfContactNameEmail(
-                            df_contact, ind)
+            if not multiple:
+                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
+                df_toMerge = df_report
+            else:
+                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
+                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
 
-                        reportData = [
-                            orderCode,
-                            productCode,
-                            groupID,
-                            crd,
-                            takenDate,
-                            serviceNumber,
-                            projectCode,
-                            customerName,
-                            aEndAddress,
-                            amContactName,
-                            amContactEmail,
-                            sdeContactName,
-                            sdeContactEmail,
-                            pmContactName,
-                            pmContactEmail,
-                            aEndCusContactName,
-                            aEndCusContactEmail,
-                            circuitRef1,
-                            circuitRef2,
-                            circuitRef3,
-                            circuitRef4,
-                            custCircuitTy1,
-                            custCircuitTy2,
-                            custCircuitTy3,
-                            custCircuitTy4,
-                            mainEquipModel,
-                            originCtry,
-                            originCity,
-                            equipmentVendorPONo,
-                            equipmentVendor,
-                            installationPartnerPONo,
-                            installationPartner,
-                            sIInstallPartner,
-                            sIMaintPartner,
-                            cSDWSIInstall,
-                            cSDWSIMaint,
-                            mainSLA
-                        ]
+            df_report = pd.DataFrame()
+            df_report = pd.concat([df_report, df_temp], ignore_index=True)
+            multiple = True
 
-                        # add new data (df_toAdd) to df_report
-                        df_toAdd = pd.DataFrame(
-                            data=[reportData], columns=reportColumns)
-                        df_report = pd.concat([df_report, df_toAdd])
+        df_contact = df_order[df_order['ContactType'] == 'SDE'][[
+            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
 
-    return df_report
+        multiple = False
+        df_toMerge = None
+
+        for ind in df_contact.index:
+            sdeContactName, sdeContactEmail = dfContactNameEmail(
+                df_contact, ind)
+
+            df_toAdd = pd.DataFrame(data=[[groupId, sdeContactName, sdeContactEmail]], columns=[
+                                    'GroupID', 'SDE_ContactName', 'SDE_ContactEmail'])
+
+            df_temp = df_report
+
+            if not multiple:
+                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
+                df_toMerge = df_report
+            else:
+                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
+                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
+
+            df_report = pd.DataFrame()
+            df_report = pd.concat([df_report, df_temp], ignore_index=True)
+            multiple = True
+
+        df_contact = df_order[df_order['ContactType'] == 'Project Manager'][[
+            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+
+        multiple = False
+        df_toMerge = None
+
+        for ind in df_contact.index:
+            pmContactName, pmContactEmail = dfContactNameEmail(
+                df_contact, ind)
+
+            df_toAdd = pd.DataFrame(data=[[groupId, pmContactName, pmContactEmail]], columns=[
+                                    'GroupID', 'PM_ContactName', 'PM_ContactEmail'])
+
+            df_temp = df_report
+
+            if not multiple:
+                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
+                df_toMerge = df_report
+            else:
+                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
+                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
+
+            df_report = pd.DataFrame()
+            df_report = pd.concat([df_report, df_temp], ignore_index=True)
+            multiple = True
+
+        df_contact = df_order[df_order['ContactType'] == 'A-end-Cust'][[
+            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+
+        multiple = False
+        df_toMerge = None
+
+        for ind in df_contact.index:
+            aEndCusContactName, aEndCusContactEmail = dfContactNameEmail(
+                df_contact, ind)
+
+            df_toAdd = pd.DataFrame(data=[[groupId, aEndCusContactName, aEndCusContactEmail]], columns=[
+                                    'GroupID', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
+
+            df_temp = df_report
+
+            if not multiple:
+                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
+                df_toMerge = df_report
+            else:
+                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
+                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
+
+            df_report = pd.DataFrame()
+            df_report = pd.concat([df_report, df_temp], ignore_index=True)
+            multiple = True
+
+        df_final_report = pd.concat(
+            [df_final_report, df_report], ignore_index=True)
+
+    for ind in df_final_report.index:
+
+        reportData = [
+            orderCode,
+            productCode,
+            df_final_report['GroupID'][ind],
+            crd,
+            takenDate,
+            serviceNumber,
+            projectCode,
+            customerName,
+            aEndAddress,
+            df_final_report['AM_ContactName'][ind],
+            df_final_report['AM_ContactEmail'][ind],
+            df_final_report['SDE_ContactName'][ind],
+            df_final_report['SDE_ContactEmail'][ind],
+            df_final_report['PM_ContactName'][ind],
+            df_final_report['PM_ContactEmail'][ind],
+            df_final_report['AEndCus_ContactName'][ind],
+            df_final_report['AEndCus_ContactEmail'][ind],
+            circuitRef1,
+            circuitRef2,
+            circuitRef3,
+            circuitRef4,
+            custCircuitTy1,
+            custCircuitTy2,
+            custCircuitTy3,
+            custCircuitTy4,
+            mainEquipModel,
+            originCtry,
+            originCity,
+            equipmentVendorPONo,
+            equipmentVendor,
+            installationPartnerPONo,
+            installationPartner,
+            sIInstallPartner,
+            sIMaintPartner,
+            cSDWSIInstall,
+            cSDWSIMaint,
+            mainSLA
+        ]
+
+        # add new data (df_toAdd) to df_report
+        df_toAdd = pd.DataFrame(
+            data=[reportData], columns=reportColumns)
+        df_act_report = pd.concat([df_act_report, df_toAdd])
+
+    return df_act_report
 
 
 def processUniqueOrders(df_order, reportColumns):
