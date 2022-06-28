@@ -255,9 +255,11 @@ def processDuplicateOrders(df_order, reportColumns):
     cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
     mainSLA = dfParameterValue(df_order, 'MainSLA')
 
+    # Create a dataframe to store multiple group records for the same group ID. 
     df_group = pd.DataFrame(columns=[
         'GroupID', 'AM_ContactName', 'AM_ContactEmail', 'SDE_ContactName', 'SDE_ContactEmail', 'PM_ContactName', 'PM_ContactEmail', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
 
+    # Loop through each group IDs to get the contact information
     group_id_list = df_order['GroupID'].unique().tolist()
 
     for groupId in group_id_list:
@@ -265,24 +267,19 @@ def processDuplicateOrders(df_order, reportColumns):
         df_group_toAdd = pd.DataFrame()
         df_group_toAdd['GroupID'] = [groupId]
 
-        # print(df_group_toAdd)
+        # Add contact information to group for each contact type
         df_group_toAdd = createDfGroup(
             df_order, df_group_toAdd, groupId, 'AM', 'AM_ContactName', 'AM_ContactEmail')
-        # print(df_group_toAdd)
         df_group_toAdd = createDfGroup(
             df_order, df_group_toAdd, groupId, 'SDE', 'SDE_ContactName', 'SDE_ContactEmail')
-        # print(df_group_toAdd)
         df_group_toAdd = createDfGroup(
             df_order, df_group_toAdd, groupId, 'Project Manager', 'PM_ContactName', 'PM_ContactEmail')
-        # print(df_group_toAdd)
         df_group_toAdd = createDfGroup(
             df_order, df_group_toAdd, groupId, 'A-end-Cust', 'AEndCus_ContactName', 'AEndCus_ContactEmail')
-        # print(df_group_toAdd)
 
+        # Add the merged contact details (df_group_toAdd) to df_group 
         df_group = pd.concat(
             [df_group, df_group_toAdd], ignore_index=True)
-
-        # print(df_group)
 
     df_order_report = pd.DataFrame(columns=reportColumns)
 
@@ -336,22 +333,23 @@ def processDuplicateOrders(df_order, reportColumns):
     return df_order_report
 
 
+# Creates a dataframe to store multiple contact information for the same contact type
 def createDfGroup(df_order, df_group_toAdd, groupId, contactType, contactNameCol, contactEmailCol):
 
     df_order = pd.DataFrame(df_order)
     df_contact = df_order[df_order['ContactType'] == contactType][[
         'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
 
+    # Flag to handle multiple contact information for the same contact type
     isMultiContacts = False
     df_temp = None
 
     for ind in df_contact.index:
+        # Get tje contact name and email
         contactName, contactEmail = dfContactNameEmail(
             df_contact, ind)
-
         df_contacts_toAdd = pd.DataFrame(data=[[groupId, contactName, contactEmail]], columns=[
             'GroupID', contactNameCol, contactEmailCol])
-
         df_merged = df_group_toAdd
 
         if not isMultiContacts:
