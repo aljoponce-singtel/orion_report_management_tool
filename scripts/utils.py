@@ -4,6 +4,7 @@ import os
 import csv
 from datetime import datetime
 from zipfile import ZipFile
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,12 @@ def listToString(list):
     strListNoBrackets = str(strList).replace('[', '').replace(']', '')
 
     return strListNoBrackets
+
+
+def dataframeToCsv(df, filePath):
+    logger.info("Creating file " + os.path.basename(filePath) + " ...")
+    df = pd.DataFrame(df)
+    df.to_csv(filePath, index=False)
 
 
 def write_to_csv(csvfile, dataset, headers, folderPath):
