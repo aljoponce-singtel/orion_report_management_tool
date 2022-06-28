@@ -234,10 +234,9 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     # Write to CSV
     csvFiles = []
     csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime())
-    logger.info("Generating report " + csvFile + " ...")
     csvFiles.append(csvFile)
     csvfilePath = os.path.join(reportsFolderPath, csvFile)
-    df_finalReport.to_csv(csvfilePath, index=False)
+    utils.dataframeToCsv(df_finalReport, csvfilePath)
 
     # Compress files and send email
     if csvFiles:
