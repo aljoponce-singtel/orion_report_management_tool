@@ -265,120 +265,24 @@ def processDuplicateOrders(df_order, reportColumns):
         df_group_toAdd = pd.DataFrame()
         df_group_toAdd['GroupID'] = [groupId]
 
-        df_contact = df_order[df_order['ContactType'] == 'AM'][[
-            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
-
-        isMultiContacts = False
-        df_temp = None
-
-        for ind in df_contact.index:
-            amContactName, amContactEmail = dfContactNameEmail(
-                df_contact, ind)
-
-            df_contacts_toAdd = pd.DataFrame(data=[[groupId, amContactName, amContactEmail]], columns=[
-                'GroupID', 'AM_ContactName', 'AM_ContactEmail'])
-
-            df_merged = df_group_toAdd
-
-            if not isMultiContacts:
-                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
-                df_temp = df_group_toAdd
-            else:
-                df_temp = pd.merge(
-                    df_temp, df_contacts_toAdd, on='GroupID')
-                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
-
-            df_group_toAdd = pd.DataFrame()
-            df_group_toAdd = pd.concat(
-                [df_group_toAdd, df_merged], ignore_index=True)
-            isMultiContacts = True
-
-        df_contact = df_order[df_order['ContactType'] == 'SDE'][[
-            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
-
-        isMultiContacts = False
-        df_temp = None
-
-        for ind in df_contact.index:
-            sdeContactName, sdeContactEmail = dfContactNameEmail(
-                df_contact, ind)
-
-            df_contacts_toAdd = pd.DataFrame(data=[[groupId, sdeContactName, sdeContactEmail]], columns=[
-                'GroupID', 'SDE_ContactName', 'SDE_ContactEmail'])
-
-            df_merged = df_group_toAdd
-
-            if not isMultiContacts:
-                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
-                df_temp = df_group_toAdd
-            else:
-                df_temp = pd.merge(
-                    df_temp, df_contacts_toAdd, on='GroupID')
-                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
-
-            df_group_toAdd = pd.DataFrame()
-            df_group_toAdd = pd.concat(
-                [df_group_toAdd, df_merged], ignore_index=True)
-            isMultiContacts = True
-
-        df_contact = df_order[df_order['ContactType'] == 'Project Manager'][[
-            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
-
-        isMultiContacts = False
-        df_temp = None
-
-        for ind in df_contact.index:
-            pmContactName, pmContactEmail = dfContactNameEmail(
-                df_contact, ind)
-
-            df_contacts_toAdd = pd.DataFrame(data=[[groupId, pmContactName, pmContactEmail]], columns=[
-                'GroupID', 'PM_ContactName', 'PM_ContactEmail'])
-
-            df_merged = df_group_toAdd
-
-            if not isMultiContacts:
-                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
-                df_temp = df_group_toAdd
-            else:
-                df_temp = pd.merge(
-                    df_temp, df_contacts_toAdd, on='GroupID')
-                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
-
-            df_group_toAdd = pd.DataFrame()
-            df_group_toAdd = pd.concat(
-                [df_group_toAdd, df_merged], ignore_index=True)
-            isMultiContacts = True
-
-        df_contact = df_order[df_order['ContactType'] == 'A-end-Cust'][[
-            'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
-
-        isMultiContacts = False
-        df_temp = None
-
-        for ind in df_contact.index:
-            aEndCusContactName, aEndCusContactEmail = dfContactNameEmail(
-                df_contact, ind)
-
-            df_contacts_toAdd = pd.DataFrame(data=[[groupId, aEndCusContactName, aEndCusContactEmail]], columns=[
-                'GroupID', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
-
-            df_merged = df_group_toAdd
-
-            if not isMultiContacts:
-                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
-                df_temp = df_group_toAdd
-            else:
-                df_temp = pd.merge(
-                    df_temp, df_contacts_toAdd, on='GroupID')
-                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
-
-            df_group_toAdd = pd.DataFrame()
-            df_group_toAdd = pd.concat(
-                [df_group_toAdd, df_merged], ignore_index=True)
-            isMultiContacts = True
+        # print(df_group_toAdd)
+        df_group_toAdd = createDfGroup(
+            df_order, df_group_toAdd, groupId, 'AM', 'AM_ContactName', 'AM_ContactEmail')
+        # print(df_group_toAdd)
+        df_group_toAdd = createDfGroup(
+            df_order, df_group_toAdd, groupId, 'SDE', 'SDE_ContactName', 'SDE_ContactEmail')
+        # print(df_group_toAdd)
+        df_group_toAdd = createDfGroup(
+            df_order, df_group_toAdd, groupId, 'Project Manager', 'PM_ContactName', 'PM_ContactEmail')
+        # print(df_group_toAdd)
+        df_group_toAdd = createDfGroup(
+            df_order, df_group_toAdd, groupId, 'A-end-Cust', 'AEndCus_ContactName', 'AEndCus_ContactEmail')
+        # print(df_group_toAdd)
 
         df_group = pd.concat(
             [df_group, df_group_toAdd], ignore_index=True)
+
+        # print(df_group)
 
     df_order_report = pd.DataFrame(columns=reportColumns)
 
@@ -430,6 +334,40 @@ def processDuplicateOrders(df_order, reportColumns):
         df_order_report = pd.concat([df_order_report, df_order_report_toAdd])
 
     return df_order_report
+
+
+def createDfGroup(df_order, df_group_toAdd, groupId, contactType, contactNameCol, contactEmailCol):
+
+    df_order = pd.DataFrame(df_order)
+    df_contact = df_order[df_order['ContactType'] == contactType][[
+        'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
+
+    isMultiContacts = False
+    df_temp = None
+
+    for ind in df_contact.index:
+        contactName, contactEmail = dfContactNameEmail(
+            df_contact, ind)
+
+        df_contacts_toAdd = pd.DataFrame(data=[[groupId, contactName, contactEmail]], columns=[
+            'GroupID', contactNameCol, contactEmailCol])
+
+        df_merged = df_group_toAdd
+
+        if not isMultiContacts:
+            df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
+            df_temp = df_group_toAdd
+        else:
+            df_temp = pd.merge(
+                df_temp, df_contacts_toAdd, on='GroupID')
+            df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
+
+        df_group_toAdd = pd.DataFrame()
+        df_group_toAdd = pd.concat(
+            [df_group_toAdd, df_merged], ignore_index=True)
+        isMultiContacts = True
+
+    return df_group_toAdd
 
 
 def processUniqueOrders(df_order, reportColumns):
