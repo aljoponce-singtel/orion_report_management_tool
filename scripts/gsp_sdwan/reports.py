@@ -223,7 +223,6 @@ def processList(queryList, columns):
 
 def processDuplicateOrders(df_order, reportColumns):
     df_order = pd.DataFrame(df_order)
-    df_order_report = pd.DataFrame(columns=reportColumns)
 
     # Add values to columns
     orderCode = dfUniqueValue(df_order['OrderCode'])
@@ -263,115 +262,125 @@ def processDuplicateOrders(df_order, reportColumns):
 
     for groupId in group_id_list:
 
-        df_report = pd.DataFrame()
-        df_report['GroupID'] = [groupId]
+        df_group_toAdd = pd.DataFrame()
+        df_group_toAdd['GroupID'] = [groupId]
 
         df_contact = df_order[df_order['ContactType'] == 'AM'][[
             'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
 
-        multiple = False
-        df_toMerge = None
+        isMultiContacts = False
+        df_temp = None
 
         for ind in df_contact.index:
             amContactName, amContactEmail = dfContactNameEmail(
                 df_contact, ind)
 
-            df_toAdd = pd.DataFrame(data=[[groupId, amContactName, amContactEmail]], columns=[
-                                    'GroupID', 'AM_ContactName', 'AM_ContactEmail'], index=[ind])
+            df_contacts_toAdd = pd.DataFrame(data=[[groupId, amContactName, amContactEmail]], columns=[
+                'GroupID', 'AM_ContactName', 'AM_ContactEmail'])
 
-            df_temp = df_report
+            df_merged = df_group_toAdd
 
-            if not multiple:
-                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
-                df_toMerge = df_report
+            if not isMultiContacts:
+                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
+                df_temp = df_group_toAdd
             else:
-                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
-                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
+                df_temp = pd.merge(
+                    df_temp, df_contacts_toAdd, on='GroupID')
+                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
 
-            df_report = pd.DataFrame()
-            df_report = pd.concat([df_report, df_temp], ignore_index=True)
-            multiple = True
+            df_group_toAdd = pd.DataFrame()
+            df_group_toAdd = pd.concat(
+                [df_group_toAdd, df_merged], ignore_index=True)
+            isMultiContacts = True
 
         df_contact = df_order[df_order['ContactType'] == 'SDE'][[
             'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
 
-        multiple = False
-        df_toMerge = None
+        isMultiContacts = False
+        df_temp = None
 
         for ind in df_contact.index:
             sdeContactName, sdeContactEmail = dfContactNameEmail(
                 df_contact, ind)
 
-            df_toAdd = pd.DataFrame(data=[[groupId, sdeContactName, sdeContactEmail]], columns=[
-                                    'GroupID', 'SDE_ContactName', 'SDE_ContactEmail'])
+            df_contacts_toAdd = pd.DataFrame(data=[[groupId, sdeContactName, sdeContactEmail]], columns=[
+                'GroupID', 'SDE_ContactName', 'SDE_ContactEmail'])
 
-            df_temp = df_report
+            df_merged = df_group_toAdd
 
-            if not multiple:
-                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
-                df_toMerge = df_report
+            if not isMultiContacts:
+                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
+                df_temp = df_group_toAdd
             else:
-                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
-                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
+                df_temp = pd.merge(
+                    df_temp, df_contacts_toAdd, on='GroupID')
+                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
 
-            df_report = pd.DataFrame()
-            df_report = pd.concat([df_report, df_temp], ignore_index=True)
-            multiple = True
+            df_group_toAdd = pd.DataFrame()
+            df_group_toAdd = pd.concat(
+                [df_group_toAdd, df_merged], ignore_index=True)
+            isMultiContacts = True
 
         df_contact = df_order[df_order['ContactType'] == 'Project Manager'][[
             'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
 
-        multiple = False
-        df_toMerge = None
+        isMultiContacts = False
+        df_temp = None
 
         for ind in df_contact.index:
             pmContactName, pmContactEmail = dfContactNameEmail(
                 df_contact, ind)
 
-            df_toAdd = pd.DataFrame(data=[[groupId, pmContactName, pmContactEmail]], columns=[
-                                    'GroupID', 'PM_ContactName', 'PM_ContactEmail'])
+            df_contacts_toAdd = pd.DataFrame(data=[[groupId, pmContactName, pmContactEmail]], columns=[
+                'GroupID', 'PM_ContactName', 'PM_ContactEmail'])
 
-            df_temp = df_report
+            df_merged = df_group_toAdd
 
-            if not multiple:
-                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
-                df_toMerge = df_report
+            if not isMultiContacts:
+                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
+                df_temp = df_group_toAdd
             else:
-                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
-                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
+                df_temp = pd.merge(
+                    df_temp, df_contacts_toAdd, on='GroupID')
+                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
 
-            df_report = pd.DataFrame()
-            df_report = pd.concat([df_report, df_temp], ignore_index=True)
-            multiple = True
+            df_group_toAdd = pd.DataFrame()
+            df_group_toAdd = pd.concat(
+                [df_group_toAdd, df_merged], ignore_index=True)
+            isMultiContacts = True
 
         df_contact = df_order[df_order['ContactType'] == 'A-end-Cust'][[
             'FamilyName', 'GivenName', 'EmailAddress']].drop_duplicates()
 
-        multiple = False
-        df_toMerge = None
+        isMultiContacts = False
+        df_temp = None
 
         for ind in df_contact.index:
             aEndCusContactName, aEndCusContactEmail = dfContactNameEmail(
                 df_contact, ind)
 
-            df_toAdd = pd.DataFrame(data=[[groupId, aEndCusContactName, aEndCusContactEmail]], columns=[
-                                    'GroupID', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
+            df_contacts_toAdd = pd.DataFrame(data=[[groupId, aEndCusContactName, aEndCusContactEmail]], columns=[
+                'GroupID', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
 
-            df_temp = df_report
+            df_merged = df_group_toAdd
 
-            if not multiple:
-                df_temp = pd.merge(df_temp, df_toAdd, on='GroupID')
-                df_toMerge = df_report
+            if not isMultiContacts:
+                df_merged = pd.merge(df_merged, df_contacts_toAdd, on='GroupID')
+                df_temp = df_group_toAdd
             else:
-                df_toMerge = pd.merge(df_toMerge, df_toAdd, on='GroupID')
-                df_temp = pd.concat([df_temp, df_toMerge], ignore_index=True)
+                df_temp = pd.merge(
+                    df_temp, df_contacts_toAdd, on='GroupID')
+                df_merged = pd.concat([df_merged, df_temp], ignore_index=True)
 
-            df_report = pd.DataFrame()
-            df_report = pd.concat([df_report, df_temp], ignore_index=True)
-            multiple = True
+            df_group_toAdd = pd.DataFrame()
+            df_group_toAdd = pd.concat(
+                [df_group_toAdd, df_merged], ignore_index=True)
+            isMultiContacts = True
 
         df_group = pd.concat(
-            [df_group, df_report], ignore_index=True)
+            [df_group, df_group_toAdd], ignore_index=True)
+
+    df_order_report = pd.DataFrame(columns=reportColumns)
 
     for ind in df_group.index:
 
@@ -415,10 +424,10 @@ def processDuplicateOrders(df_order, reportColumns):
             mainSLA
         ]
 
-        # add new data (df_toAdd) to df_report
-        df_toAdd = pd.DataFrame(
+        # add new data (df_order_report_toAdd) to df_order_report
+        df_order_report_toAdd = pd.DataFrame(
             data=[reportData], columns=reportColumns)
-        df_order_report = pd.concat([df_order_report, df_toAdd])
+        df_order_report = pd.concat([df_order_report, df_order_report_toAdd])
 
     return df_order_report
 
