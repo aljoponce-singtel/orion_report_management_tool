@@ -29,12 +29,6 @@ def loadConfig(config):
     orionDb.connect()
 
 
-def generateReport(csvfile, querylist, headers):
-    logger.info("Generating report " + csvfile + " ...")
-    utils.write_to_csv(csvfile, querylist, headers, reportsFolderPath)
-    csvFiles.append(csvfile)
-
-
 def sendEmail(subject, attachment):
 
     emailBodyText = """
@@ -86,8 +80,6 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
-
-    csvFiles.clear()
 
     columns = [
         'OrderCode',
@@ -187,9 +179,14 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
                 """).format(utils.listToString(contactTypes), utils.listToString(parameters), utils.listToString(orderTypes), utils.listToString(productCodes), startDate, endDate)
 
     csvFile = ("{}_{}.csv").format('SDWAN', utils.getCurrentDateTime())
-    outputList, reportColumns = processList(
-        orionDb.queryToList(sqlquery), columns)
-    generateReport(csvFile, outputList, reportColumns)
+    df_report = process(orionDb.queryToList(sqlquery), columns)
+
+    # Write to CSV
+    csvFiles = []
+    csvFile = ("{}_{}.csv").format('SDWAN', utils.getCurrentDateTime())
+    csvFiles.append(csvFile)
+    csvfilePath = os.path.join(reportsFolderPath, csvFile)
+    utils.dataframeToCsv(df_report, csvfilePath)
 
     if csvFiles:
         attachement = None
@@ -206,7 +203,7 @@ def generateSDWANReport(zipFileName, startDate, endDate, emailSubject):
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def processList(queryList, columns):
+def process(queryList, columns):
 
     df_report = pd.DataFrame(columns=const.REPORT_COLUMNS)
     df = pd.DataFrame(queryList, columns=columns)
@@ -218,7 +215,7 @@ def processList(queryList, columns):
             'ProcessUniqueOrders') else processDuplicateOrders(df_order, const.REPORT_COLUMNS)
         df_report = pd.concat([df_report, df_toAdd])
 
-    return df_report.values.tolist(), const.REPORT_COLUMNS
+    return df_report
 
 
 def processDuplicateOrders(df_order, reportColumns):
@@ -255,7 +252,7 @@ def processDuplicateOrders(df_order, reportColumns):
     cSDWSIMaint = dfParameterValue(df_order, 'CSDWSIMaint')
     mainSLA = dfParameterValue(df_order, 'MainSLA')
 
-    # Create a dataframe to store multiple group records for the same group ID. 
+    # Create a dataframe to store multiple group records for the same group ID.
     df_group = pd.DataFrame(columns=[
         'GroupID', 'AM_ContactName', 'AM_ContactEmail', 'SDE_ContactName', 'SDE_ContactEmail', 'PM_ContactName', 'PM_ContactEmail', 'AEndCus_ContactName', 'AEndCus_ContactEmail'])
 
@@ -277,7 +274,7 @@ def processDuplicateOrders(df_order, reportColumns):
         df_group_toAdd = createDfGroup(
             df_order, df_group_toAdd, groupId, 'A-end-Cust', 'AEndCus_ContactName', 'AEndCus_ContactEmail')
 
-        # Add the merged contact details (df_group_toAdd) to df_group 
+        # Add the merged contact details (df_group_toAdd) to df_group
         df_group = pd.concat(
             [df_group, df_group_toAdd], ignore_index=True)
 
