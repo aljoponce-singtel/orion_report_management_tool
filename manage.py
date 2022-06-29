@@ -5,6 +5,9 @@ from scripts.EmailClient import EmailClient
 from scripts import utils
 import traceback
 
+createAndEmailErrFile = True
+emailErrFile = False
+
 
 def main():
 
@@ -25,15 +28,16 @@ def main():
         func()
 
     except Exception as error:
-        # Output error to file
-        timeStamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        fileName = '{}.{}.error.log'.format(__file__, timeStamp)
+        if createAndEmailErrFile:
+            # Output error to file
+            timeStamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            fileName = '{}.{}.error.log'.format(__file__, timeStamp)
 
-        with open(fileName, 'a') as f:
-            f.write(str(error))
-            f.write(traceback.format_exc())
+            with open(fileName, 'a') as f:
+                f.write(str(error))
+                f.write(traceback.format_exc())
 
-        sendEmail(sys.argv[1], fileName)
+            sendEmail(sys.argv[1], fileName)
 
 
 def sendEmail(report, fileName):
@@ -73,14 +77,15 @@ def sendEmail(report, fileName):
         emailClient.emailBodyHtml = emailBodyhtml
         emailClient.attachFile(fileName)
 
-        if utils.getPlatform() == 'Windows':
-            emailClient.win32comSend()
-        else:
-            emailClient.server = 'gddsspsmtp.gebgd.org'
-            emailClient.port = 25
-            emailClient.sender = 'orion@ncs.com.sg'
-            emailClient.emailFrom = 'orion@singtel.com;orion@ncs.com.sg'
-            emailClient.smtpSend()
+        if emailErrFile:
+            if utils.getPlatform() == 'Windows':
+                emailClient.win32comSend()
+            else:
+                emailClient.server = 'gddsspsmtp.gebgd.org'
+                emailClient.port = 25
+                emailClient.sender = 'orion@ncs.com.sg'
+                emailClient.emailFrom = 'orion@singtel.com;orion@ncs.com.sg'
+                emailClient.smtpSend()
 
     except Exception as e:
         print("Failed to send email.")
