@@ -51,4 +51,5 @@ class DBConnection:
                   method='multi')
 
     def __del__(self):
-        self.__conn.close()
+        if self.__conn:
+            self.__conn.close()
