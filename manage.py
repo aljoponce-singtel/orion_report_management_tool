@@ -3,6 +3,7 @@ import importlib
 from datetime import datetime
 from scripts.EmailClient import EmailClient
 from scripts import utils
+import traceback
 
 
 def main():
@@ -24,14 +25,17 @@ def main():
         func()
 
     except Exception as error:
-        print(error)
+        print("ALJO")
+        print(traceback.format_exc())
 
         # Output error to file
         timeStamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        fileName = '{}.error.{}.log'.format(__file__, timeStamp)
-        errorFile = open(fileName, 'a')
-        errorFile.write(str(error))
-        errorFile.close()
+        fileName = '{}.{}.error.log'.format(__file__, timeStamp)
+
+        with open(fileName, 'a') as f:
+            f.write(str(error))
+            f.write(traceback.format_exc())
+
         sendEmail(sys.argv[1], fileName)
 
 
