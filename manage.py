@@ -6,7 +6,7 @@ from scripts import utils
 import traceback
 
 createAndEmailErrFile = True
-emailErrFile = False
+emailErrFile = True
 
 
 def main():
