@@ -25,9 +25,6 @@ def main():
         func()
 
     except Exception as error:
-        print("ALJO")
-        print(traceback.format_exc())
-
         # Output error to file
         timeStamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         fileName = '{}.{}.error.log'.format(__file__, timeStamp)
