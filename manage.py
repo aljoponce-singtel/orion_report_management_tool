@@ -1,12 +1,16 @@
 import sys
 import importlib
+import traceback
+import configparser
 from datetime import datetime
 from scripts.EmailClient import EmailClient
 from scripts import utils
-import traceback
 
-createAndEmailErrFile = True
-emailErrFile = True
+config = configparser.ConfigParser()
+configFile = 'manage.ini'
+config.read(configFile)
+defaultConfig = config['DEFAULT']
+emailConfig = config['Email']
 
 
 def main():
@@ -28,7 +32,7 @@ def main():
         func()
 
     except Exception as error:
-        if createAndEmailErrFile:
+        if defaultConfig.getboolean('CreateSendErrorFile'):
             # Output error to file
             timeStamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             fileName = '{}.{}.error.log'.format(__file__, timeStamp)
@@ -71,20 +75,20 @@ def sendEmail(report, fileName):
         subject = 'ERROR for Orion Report - {}'.format(report)
         emailClient = EmailClient()
         emailClient.subject = emailClient.addTimestamp2(subject)
-        emailClient.receiverTo = 'aljo.ponce@singtel.com'
-        emailClient.receiverCc = ''
+        emailClient.receiverTo = emailConfig["receiverTo"]
+        emailClient.receiverCc = emailConfig["receiverCc"]
         emailClient.emailBodyText = emailBodyText
         emailClient.emailBodyHtml = emailBodyhtml
         emailClient.attachFile(fileName)
 
-        if emailErrFile:
+        if defaultConfig.getboolean('SendEmail'):
             if utils.getPlatform() == 'Windows':
                 emailClient.win32comSend()
             else:
-                emailClient.server = 'gddsspsmtp.gebgd.org'
-                emailClient.port = 25
-                emailClient.sender = 'orion@ncs.com.sg'
-                emailClient.emailFrom = 'orion@singtel.com;orion@ncs.com.sg'
+                emailClient.server = emailConfig['server']
+                emailClient.port = emailConfig['port']
+                emailClient.sender = emailConfig['sender']
+                emailClient.emailFrom = emailConfig["from"]
                 emailClient.smtpSend()
 
     except Exception as e:
