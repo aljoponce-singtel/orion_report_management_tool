@@ -8,14 +8,14 @@ Add this crontab command for report scheduling:
 
 This script will generate the following reports:
 
-- [CPluseIP](#cpluseip)
+- [CPlusIP](#cplusip)
 - [MegaPOP](#megapop)
 - [Singnet](#singnet)
 - [STIX](#stix)
 - [Internet](#internet)
 - [SDWAN](#sdwan)
 
-## CPluseIP
+## CPlusIP
 
 ### CNP
 
