@@ -15,6 +15,8 @@ This script will generate the following reports:
 - [Internet](#internet)
 - [SDWAN](#sdwan)
 
+![Test](resource/main_flow.jpg)
+
 ## CPlusIP
 
 ### CNP
