@@ -80,3 +80,24 @@ TI_COLUMNS = [
     'DLY_Date_TI',
     'COM_Date_TI'
 ]
+
+TABLEAU_DATE_COLUMNS = [
+    'CRD',
+    'OrderCreated',
+    'CRDNew',
+    'DueDate_SS',
+    'RDY_Date_SS',
+    'EXC_Date_SS',
+    'DLY_Date_SS',
+    'COM_Date_SS',
+    'DueDate_RI',
+    'RDY_Date_RI',
+    'EXC_Date_RI',
+    'DLY_Date_RI',
+    'COM_Date_RI',
+    'DueDate_TI',
+    'RDY_Date_TI',
+    'EXC_Date_TI',
+    'DLY_Date_TI',
+    'COM_Date_TI',
+]

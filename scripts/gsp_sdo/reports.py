@@ -35,6 +35,38 @@ def loadConfig(config):
     tableauDb.connect()
 
 
+def updateTableauDB(dataframe, report_id):
+    # Allow Tableaue DB update
+    if defaultConfig.getboolean('UpdateTableauDB'):
+        try:
+            logger.info(
+                'Inserting records to ' + dbConfig['tableau_db'] + '.' + defaultConfig['TableauTable'] + ' for ' + report_id.lower() + ' ...')
+
+            df = pd.DataFrame(dataframe)
+
+            # add new columns
+            df["report_id"] = report_id.lower()
+            df["update_time"] = pd.Timestamp.now()
+
+            # set columns to datetime type
+            df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
+                pd.to_datetime)
+
+            # set empty values to null
+            # insert records to DB
+            df.replace('', None)
+            tableauDb.insertDataframeToTable(df, defaultConfig['TableauTable'])
+
+            # logger.info("TableauDB Updated for " + report_id.lower())
+
+        except Exception as err:
+            logger.info("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
+                        dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            logger.exception(err)
+
+            raise Exception(err)
+
+
 def sendEmail(subject, attachment):
 
     emailBodyText = """
@@ -146,6 +178,9 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
     df_finalReport = df_rawReport[const.FINAL_COLUMNS]
 
+    # Insert records to tableau db
+    updateTableauDB(df_finalReport, 'SINGNET')
+
     # Write to CSV
     csvFiles = []
     csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime())
@@ -230,6 +265,9 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
     df_finalReport = df_rawReport[const.FINAL_COLUMNS]
+
+    # Insert records to tableau db
+    updateTableauDB(df_finalReport, 'MEGAPOP')
 
     # Write to CSV
     csvFiles = []

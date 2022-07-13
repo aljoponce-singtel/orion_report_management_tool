@@ -42,13 +42,20 @@ def main():
             reportDate = defaultConfig['ReportDate']
             logger.info("report date: " + str(reportDate))
 
-            reports.generateSdoSingnetReport(
-                'sdo_singnet_report', reportDate, "SDO Singnet Report")
-            # reports.generateSdoMegaPopReport(
-            #     'sdo_megapop_report', reportDate, "SDO MegaPop Report")
+            defaultConfig['UpdateTableauDB'] = 'false'
+            logger.info('UpdateTableauDB = ' +
+                        str(defaultConfig.getboolean('UpdateTableauDB')))
+
+            # reports.generateSdoSingnetReport(
+            #     'sdo_singnet_report', reportDate, "SDO Singnet Report")
+            reports.generateSdoMegaPopReport(
+                'sdo_megapop_report', reportDate, "SDO MegaPop Report")
         else:
             reportDate = str(today_date.replace(day=1))
             logger.info("report date: " + str(reportDate))
+
+            logger.info('UpdateTableauDB = ' +
+                        str(defaultConfig.getboolean('UpdateTableauDB')))
 
             reports.generateSdoSingnetReport(
                 'sdo_singnet_report', reportDate, "SDO Singnet Report")
