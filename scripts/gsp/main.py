@@ -107,7 +107,7 @@ def main():
                 config['Email']['receiverTo'] = emailReceiver + \
                     emailReceiverToAdd
 
-                reports.generateCPluseIpReport(
+                reports.generateCPlusIpReport(
                     'cplusip_report', startDate, endDate, '', "CPlusIP Report")
                 reports.generateMegaPopReport(
                     'megapop_report', startDate, endDate, '', "MegaPop Report")
@@ -141,7 +141,7 @@ def main():
                 config['Email']['receiverTo'] = emailReceiver + \
                     emailReceiverToAdd
 
-                reports.generateCPluseIpReportGrp(
+                reports.generateCPlusIpReportGrp(
                     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report")
                 reports.generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report")

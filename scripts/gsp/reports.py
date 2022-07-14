@@ -336,7 +336,7 @@ def generateReport(csvfile, querylist, headers):
     csvFiles.append(csvfile)
 
 
-def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
+def generateCPlusIpReport(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
@@ -477,7 +477,7 @@ def generateCPluseIpReport(zipFileName, startDate, endDate, groupId, emailSubjec
     logger.info("Processing [" + emailSubject + "] complete")
 
 
-def generateCPluseIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
+def generateCPlusIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubject, emailTo=''):
 
     logger.info('********************')
     logger.info("Processing [" + emailSubject + "] ...")
