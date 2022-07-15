@@ -432,6 +432,7 @@ def addOrderInfoColToDf(dataframe):
                 RestInterface_order
             WHERE
                 order_type = 'Provide'
+                AND order_status <> 'Cancelled'
                 AND service_number IN ({});
         """).format(utils.listToString(serviceNoList))
 
@@ -493,24 +494,30 @@ def removeDuplicates(df_rawReport, df_actInfo, activitiesMap):
 
     df_rawReport = pd.DataFrame(df_rawReport)
     df_actInfo = pd.DataFrame(df_actInfo)
-
     df_actFinal = pd.DataFrame(columns=df_actInfo.columns)
 
     for activityMap in activitiesMap:
+        # Get the df_rawReport records only if the product codes are included in the activityMap's product codes
         df_products = df_rawReport[df_rawReport['ProductCode'].isin(
             activityMap['productCodes'])]
+        # Get the df_actInfo records only if the OrderCodeNew is in the df_products records
         df_act = df_actInfo[df_actInfo['OrderCodeNew'].isin(
             df_products['OrderCodeNew'].to_list())]
+        # Get the df_act records only if the activities are included in the activityMap's activities
+        df_valid_act = df_act[df_act['ActivityName'].isin(
+            activityMap['activities'])]
 
-        if not df_act.empty:
+        if not df_valid_act.empty:
             actPriority = activityMap['activities']
 
+            # If there are duplicates, select the activity with the highest step_no
             # Drop duplicate OrderCodeNew with same ActivityName by keeping the highest step_no column
-            df_sorted = df_act.sort_values(by=['OrderCodeNew', 'step_no'])
-            # print(df_sorted)
+            df_sorted = df_valid_act.sort_values(
+                by=['OrderCodeNew', 'step_no'])
             df_rmDuplicates = df_sorted.drop_duplicates(
                 subset=['OrderCodeNew', 'ActivityName'], keep='last')
 
+            # If there are duplicates, select 1 activity based from the sequence in the actPriority list
             # Drop duplicate OrderCodeNew with diff ActivityName by keeping 1 ActivityName from the actPriority list
             df_actPriority = pd.DataFrame(df_rmDuplicates)
             df_actPriority['ActivityName'] = pd.Categorical(
@@ -519,7 +526,6 @@ def removeDuplicates(df_rawReport, df_actInfo, activitiesMap):
                 by=['OrderCodeNew', 'ActivityName'])
             df_actPriorityRmDup = df_actPrioritySorted.drop_duplicates(
                 subset=['OrderCodeNew'], keep='first')
-            # print(df_actPriorityRmDup)
 
             df_actFinal = pd.concat([df_actFinal, df_actPriorityRmDup])
 

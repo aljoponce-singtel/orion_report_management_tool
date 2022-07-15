@@ -7,4 +7,5 @@ FROM
     RestInterface_order
 WHERE
     order_type = 'Provide'
+    AND order_status <> 'Cancelled'
     AND service_number IN ({});
