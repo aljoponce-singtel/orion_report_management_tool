@@ -1191,9 +1191,14 @@ def sendEmail(subject, attachment, emailTo):
             emailClient = EmailClient()
             emailClient.subject = emailClient.addTimestamp(subject)
 
+            # Check the [DEFAULT]>EmailInfo option from config.ini
+            # If (EmailInfo = EmailTest), use receiverTo under [Email] config
+            # This is for production environment
             if defaultConfig['EmailInfo'] == 'Email':
                 emailClient.receiverTo = emailConfig["receiverTo"] + \
                     ';' + emailTo
+            # If (EmailInfo = EmailTest), use receiverTo under [EmailTest] config
+            # This is for test environment
             else:
                 emailClient.receiverTo = emailConfig["receiverTo"]
 
