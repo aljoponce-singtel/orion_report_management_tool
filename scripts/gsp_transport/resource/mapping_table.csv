@@ -1,0 +1,13 @@
+Service,NPC,Type of order,Pre-configuration Grp ID,Activity description,Co-ordination Grp ID,Activity description,Remarks
+Diginet,DGNxxxx,Provide,"ODC_xxx, RDC_xxx, GSPSG_xxx",Circuit creation,"ODC_xxx, RDC_xxx, GSPSG_xxx",GSDT Co-ordination Wrk-BQ,
+,,Change,"ODC_xxx, RDC_xxx, GSPSG_xxx",Circuit creation,"ODC_xxx, RDC_xxx, GSPSG_xxx",GSDT Co-ordination Wrk-BQ,
+,,Cease,"ODC_xxx, RDC_xxx, GSPSG_xxx",Node & Cct Del (DN-ISDN),"ODC_xxx, RDC_xxx, GSPSG_xxx",GSDT Co-ordination Wrk-BQ,
+MetroE,DMExxxx,Provide,"ODC_xxx, RDC_xxx, GSPSG_xxx",Circuit creation,"ODC_xxx, RDC_xxx, GSPSG_xxx",GSDT Co-ordination Wrk-BQ,
+,,Change,"ODC_xxx, RDC_xxx, GSPSG_xxx",Circuit creation,"ODC_xxx, RDC_xxx, GSPSG_xxx",GSDT Co-ordination Wrk-BQ,
+,,Cease,"ODC_xxx, RDC_xxx, GSPSG_xxx",Node & Circuit Deletion,"ODC_xxx, RDC_xxx, GSPSG_xxx",GSDT Co-ordination Wrk-BQ,
+Megapop (CE),ELK0052,Provide,"ODC_xxx, RDC_xxx, GSPSG_xxx",Circuit creation,,Nil,
+,,Change," ODC_xxx, RDC_xxx, GSPSG_xxx",,,,no sample from Andrew
+,,Cease,"ODC_xxx, RDC_xxx, GSPSG_xxx",Node & Circuit Deletion,,Nil,
+Gigawave,GGWxxxx,Provide,"ODC_xxx, RDC_xxx, GSPSG_xxx",Circuit creation,GSP_LTC_GW,GSDT Co-ordination Wrk-BQ,
+,,Change, No order, No order, No order, No order,
+,,Cease,Nil,Nil,GSDT31,GSDT Co-ordination Wrk-BQ,
