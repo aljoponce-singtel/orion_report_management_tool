@@ -97,20 +97,14 @@ def main():
                 reports.generateStixReport(
                     'stix_report', startDate, endDate, "STIX Report")
                 reports.generateInternetReport(
-                    'internet_report', startDate, endDate, "Internet Report")
+                    'internet_report', startDate, endDate, "Internet Report", 'kajendran@singtel.com')
                 reports.generateSDWANReport(
-                    'sdwan_report', startDate, endDate, "SDWAN Report")
-
-                # add email recepients to config file
-                emailReceiver = config['Email']['receiverTo']
-                emailReceiverToAdd = ';karthik.manjunath@singtel.com'
-                config['Email']['receiverTo'] = emailReceiver + \
-                    emailReceiverToAdd
+                    'sdwan_report', startDate, endDate, "SDWAN Report", 'kajendran@singtel.com')
 
                 reports.generateCPlusIpReport(
-                    'cplusip_report', startDate, endDate, '', "CPlusIP Report")
+                    'cplusip_report', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com;kajendran@singtel.com')
                 reports.generateMegaPopReport(
-                    'megapop_report', startDate, endDate, '', "MegaPop Report")
+                    'megapop_report', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
 
             #-- END --#
 
@@ -135,16 +129,10 @@ def main():
                 logger.info('UpdateTableauDB = ' +
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
-                # add additional email recepients to config file
-                emailReceiver = config['Email']['receiverTo']
-                emailReceiverToAdd = ';karthik.manjunath@singtel.com'
-                config['Email']['receiverTo'] = emailReceiver + \
-                    emailReceiverToAdd
-
                 reports.generateCPlusIpReportGrp(
-                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report")
+                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
                 reports.generateMegaPopReportGrp(
-                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report")
+                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
 
             #-- END --#
 
