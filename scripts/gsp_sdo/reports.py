@@ -265,6 +265,9 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
     df_finalReport = df_rawReport[const.FINAL_COLUMNS]
+    
+    # Set emply cells to NULL only for the ProjectManager column
+    df_finalReport['ProjectManager'].replace(np.nan, 'NULL', inplace=True)
 
     # Insert records to tableau db
     updateTableauDB(df_finalReport, 'MEGAPOP')
