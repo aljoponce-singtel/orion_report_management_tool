@@ -6,6 +6,51 @@ Add this crontab command for report scheduling:
 
     15 9 * * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp main main
 
+Columns:
+
+Report 1
+
+- Workorder no
+- Service No
+- Product Code
+- Product Description
+- Customer Name
+- Order Type
+- CRD
+- Order Taken Date
+- Group ID
+- Activity Name
+- DUE
+- RDY
+- EXC
+- DLY
+- COM
+- Group ID
+- Activity Name
+- DUE
+- RDY
+- EXC
+- DLY
+- COM
+
+Report 2
+
+- Workorder no
+- Service No
+- Product Code
+- Product Description
+- Customer Name
+- Order Type
+- CRD
+- Order Taken Date
+- Group ID
+- Activity Name
+- DUE
+- RDY
+- EXC
+- DLY
+- COM
+
 This script will generate the following reports:
 
 - [CPlusIP](#cplusip)
@@ -15,9 +60,12 @@ This script will generate the following reports:
 - [Internet](#internet)
 - [SDWAN](#sdwan)
 
-![Test](resource/main_flow.jpg)
+<!-- ![Test](resource/main_flow.jpg) -->
 
 ## CPlusIP
+
+- [CNP](#cnp)
+- [GSDT6](#gsdt6)
 
 ### CNP
 
@@ -81,6 +129,9 @@ Activities:
 
 ## MegaPOP
 
+- [MPP](#mpp)
+- [GSDT8](#gsdt8)
+
 ### MPP
 
 Activities:
@@ -121,6 +172,9 @@ Activities:
 - GSDT Co-ordination Wrk-BQ
 
 ## Singnet
+
+- [SGX1](#sgx1)
+- [GSDT7](#gsdt7)
 
 ### SGX1
 
