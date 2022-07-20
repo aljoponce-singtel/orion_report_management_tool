@@ -1,3 +1,32 @@
+"""
+This script will read the arguments passed from manage.sh.
+
+This is an example of a full command:
+$source manage.sh gsp main main
+
+Running manage.sh will run manage.py and pass the last 3 arguments
+$manage.py gsp main main
+
+The arguments are described as follows:
+    sys.argv[0] - manage.py (this file)
+    sys.argv[1] - gsp => scripts/gsp (script folder)
+    sys.argv[2] - main => scripts/gsp/main.py (file/module to run/import)
+    sys.argv[3] - main => main() (function to call)
+
+The last 2 arguments (sys.argv[2] and sys.argv[3]) are optional.
+
+If the command executed is $manage.py gsp main:
+sys.argv[3] will be set to 'main' by default.
+There should be a main() fucntion defined inside file from sys.argv[2]
+
+If the command executed is: $manage.py gsp,
+sys.argv[2] and sys.argv[3] will both be set to 'main' by default.
+There should be a main.py file inside the scripts folder.
+There should be a main() fucntion defined inside file from sys.argv[2].
+
+Any exception errors when running the script will inform admin through email.
+"""
+
 import sys
 import importlib
 import traceback
@@ -17,19 +46,30 @@ def main():
 
     try:
         # Print All arguments
-        # sys.argv[0] = This file (manage.py)
-        # sys.argv[1] - Report/script folder
-        # sys.argv[2] - Main file/module
-        # sys.argv[3] - function to call
         print(sys.argv)
 
         # Add script folder path to python system path
         sys.path.insert(0, './scripts/' + sys.argv[1])
-        # Import module
-        importModule = importlib.import_module(sys.argv[2])
-        # Call function from the imported module
-        func = getattr(importModule, sys.argv[3])
-        func()
+
+        if len(sys.argv) > 2:
+            # Import module
+            importModule = importlib.import_module(sys.argv[2])
+
+            if len(sys.argv) > 3:
+                # Call function from the imported module
+                func = getattr(importModule, sys.argv[3])
+                func()
+            else:
+                # Call function from the imported module
+                func = getattr(importModule, 'main')
+                func()
+
+        else:
+            # Import module
+            importModule = importlib.import_module('main')
+            # Call function from the imported module
+            func = getattr(importModule, 'main')
+            func()
 
     except Exception as error:
         if defaultConfig.getboolean('CreateSendErrorFile'):
