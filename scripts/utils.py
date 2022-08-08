@@ -92,4 +92,10 @@ def getPlatform():
 
 
 def getCurrentDateTime():
+    # sample format - '050622_1845'
     return datetime.now().strftime("%d%m%y_%H%M")
+
+
+def getCurrentDateTime2():
+    # sample format - '20220808_1800'
+    return datetime.now().strftime("%Y%m%d_%H%M")
