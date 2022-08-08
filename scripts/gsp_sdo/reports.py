@@ -44,6 +44,40 @@ def updateTableauDB(dataframe, report_id):
 
             df = pd.DataFrame(dataframe)
 
+            # Get a list of public holidays from Tableaue DB
+            publicHolidays = tableauDb.queryToList(
+                "SELECT * FROM t_GSP_holidays;")
+            df_holidays = pd.DataFrame(data=publicHolidays)
+            HOLIDAYS = df_holidays['Date'].values.tolist()
+
+            # Counts the number of valid days between begindates and enddates, not including the day of enddates.
+            # Weekends (Sat/Sun) and Public Holidays are excluded
+            # Add 3 new columns (COM_Date_SS, COM_Date_RI and COM_Date_TI)
+            for index, row in df.iterrows():
+                if not pd.isnull(row["COM_Date_SS"]):
+                    days = np.busday_count(
+                        begindates=row["COM_Date_SS"], enddates=row["CRDNew"], holidays=HOLIDAYS)
+
+                    # Add 1 day to the count since np.busyday_count does not include enddates
+                    df.at[index, "SS_to_CRD"] = days + \
+                        1 if days >= 0 else days - 1
+
+                if not pd.isnull(row["COM_Date_RI"]):
+                    days = np.busday_count(
+                        begindates=row["COM_Date_RI"], enddates=row["CRDNew"], holidays=HOLIDAYS)
+
+                    # Add 1 day to the count since np.busyday_count does not include enddates
+                    df.at[index, "RI_to_CRD"] = days + \
+                        1 if days >= 0 else days - 1
+
+                if not pd.isnull(row["COM_Date_TI"]):
+                    days = np.busday_count(
+                        begindates=row["COM_Date_TI"], enddates=row["CRDNew"], holidays=HOLIDAYS)
+
+                    # Add 1 day to the count since np.busyday_count does not include enddates
+                    df.at[index, "TI_to_CRD"] = days + \
+                        1 if days >= 0 else days - 1
+
             # add new columns
             df["report_id"] = report_id.lower()
             df["update_time"] = pd.Timestamp.now()
@@ -53,8 +87,8 @@ def updateTableauDB(dataframe, report_id):
                 pd.to_datetime)
 
             # set empty values to null
-            # insert records to DB
             df.replace('', None)
+            # insert records to DB
             tableauDb.insertDataframeToTable(df, defaultConfig['TableauTable'])
 
             # logger.info("TableauDB Updated for " + report_id.lower())
@@ -265,7 +299,7 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
     df_finalReport = df_rawReport[const.FINAL_COLUMNS]
-    
+
     # Set emply cells to NULL only for the ProjectManager column
     df_finalReport['ProjectManager'].replace(np.nan, 'NULL', inplace=True)
 
