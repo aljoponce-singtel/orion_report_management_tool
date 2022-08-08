@@ -3,7 +3,7 @@ CREATE TABLE `t_GSP_ip_sdo` (
     `ServiceNumber` varchar(80) NOT NULL,
     `ProductCode` varchar(20) NOT NULL,
     `CRD` date NOT NULL,
-    `CustomerName` varchar(80) NOT NULL,
+    `CustomerName` varchar(80) DEFAULT NULL,
     `OrderCreated` date NOT NULL,
     `OrderType` varchar(20) NOT NULL,
     `OrderCodeNew` varchar(20) DEFAULT NULL,
