@@ -47,7 +47,8 @@ def updateTableauDB(dataframe, report_id):
             # Get a list of public holidays from Tableaue DB
             publicHolidays = tableauDb.queryToList(
                 "SELECT * FROM t_GSP_holidays;")
-            df_holidays = pd.DataFrame(data=publicHolidays)
+            df_holidays = pd.DataFrame(
+                data=publicHolidays, columns=['Holiday', 'Date'])
             HOLIDAYS = df_holidays['Date'].values.tolist()
 
             # Counts the number of valid days between begindates and enddates, not including the day of enddates.
@@ -210,25 +211,28 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
 
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
-    df_finalReport = df_rawReport[const.FINAL_COLUMNS]
+    df_finalReport = df_rawReport[const.FINAL_COLUMNS]\
 
-    # Insert records to tableau db
-    updateTableauDB(df_finalReport, 'SINGNET')
+    # Set emply cells to NULL only for the ProjectManager column
+    df_finalReport['ProjectManager'].replace(np.nan, 'NULL', inplace=True)
 
     # Write to CSV
     csvFiles = []
-    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime())
+    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
     logger.info("Generating report " + csvFile + " ...")
     csvFiles.append(csvFile)
     csvfilePath = os.path.join(reportsFolderPath, csvFile)
     df_finalReport.to_csv(csvfilePath, index=False)
+
+    # Insert records to tableau db
+    updateTableauDB(df_finalReport, 'SINGNET')
 
     # Compress files and send email
     if csvFiles:
         attachement = None
         if defaultConfig.getboolean('CompressFiles'):
             zipFile = ("{}_{}.zip").format(
-                fileName, utils.getCurrentDateTime())
+                fileName, utils.getCurrentDateTime2())
             utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                           defaultConfig['ZipPassword'])
             attachement = zipFile
@@ -303,22 +307,22 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     # Set emply cells to NULL only for the ProjectManager column
     df_finalReport['ProjectManager'].replace(np.nan, 'NULL', inplace=True)
 
-    # Insert records to tableau db
-    updateTableauDB(df_finalReport, 'MEGAPOP')
-
     # Write to CSV
     csvFiles = []
-    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime())
+    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
     csvFiles.append(csvFile)
     csvfilePath = os.path.join(reportsFolderPath, csvFile)
     utils.dataframeToCsv(df_finalReport, csvfilePath)
+
+    # Insert records to tableau db
+    updateTableauDB(df_finalReport, 'MEGAPOP')
 
     # Compress files and send email
     if csvFiles:
         attachement = None
         if defaultConfig.getboolean('CompressFiles'):
             zipFile = ("{}_{}.zip").format(
-                fileName, utils.getCurrentDateTime())
+                fileName, utils.getCurrentDateTime2())
             utils.zipFile(csvFiles, zipFile, reportsFolderPath,
                           defaultConfig['ZipPassword'])
             attachement = zipFile
