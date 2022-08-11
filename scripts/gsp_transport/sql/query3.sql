@@ -3,18 +3,16 @@ SELECT
         CASE
             WHEN PRD.network_product_code LIKE 'DGN%' THEN 'Diginet'
             WHEN PRD.network_product_code LIKE 'DME%' THEN 'MetroE'
+            WHEN PRD.network_product_code = 'ELK0052' THEN 'MegaPop (CE)'
             WHEN PRD.network_product_code LIKE 'GGW%' THEN 'Gigawave'
             ELSE 'Service'
         END
     ) AS Service,
     ORD.order_code,
     ORD.current_crd,
-    ORD.service_number,
-    ORD.order_status,
     ORD.order_type,
     PRD.network_product_code,
     PER.role,
-    CAST(ACT.activity_code AS UNSIGNED) AS ActStepNo,
     ACT.name,
     ACT.status,
     ACT.completed_date
@@ -28,744 +26,160 @@ FROM
     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
 WHERE
     (
-        (
-            PRD.network_product_code LIKE 'DGN%'
-            AND (
-                PER.role LIKE 'ODC_%'
-                OR PER.role LIKE 'RDC_%'
-                OR PER.role LIKE 'GSPSG_%'
-            )
-            AND (
-                (
-                    ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                    AND ACT.status = 'COM'
-                    AND ACT.completed_date BETWEEN '2022-07-01'
-                    AND '2022-07-31'
-                )
-                OR (
-                    ORD.order_type IN ('Provide', 'Change')
-                    AND ACT.name = 'Circuit creation'
-                )
-                OR (
-                    ORD.order_type = 'Cease'
-                    AND ACT.name = 'Node & Cct Del (DN-ISDN)'
-                )
-            )
+        ORD.id IN (
+            SELECT
+                id
+            FROM
+                COM_QUEUES
         )
-        OR (
-            PRD.network_product_code LIKE 'DME%'
-            AND (
-                PER.role LIKE 'ODC_%'
-                OR PER.role LIKE 'RDC_%'
-                OR PER.role LIKE 'GSPSG_%'
-            )
-            AND (
-                (
-                    ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                    AND ACT.status = 'COM'
-                    AND ACT.completed_date BETWEEN '2022-07-01'
-                    AND '2022-07-31'
-                )
-                OR (
-                    ORD.order_type IN ('Provide', 'Change')
-                    AND ACT.name = 'Circuit creation'
-                )
-                OR (
-                    ORD.order_type = 'Cease'
-                    AND ACT.name = 'Node & Circuit Deletion'
-                )
-            )
-        )
-        OR (
-            PRD.network_product_code LIKE 'GGW%'
-            AND (
-                (
-                    ORD.order_type = 'Provide'
-                    AND (
-                        (
-                            (
-                                PER.role LIKE 'ODC_%'
-                                OR PER.role LIKE 'RDC_%'
-                                OR PER.role LIKE 'GSPSG_%'
-                            )
-                            AND ACT.name = 'Circuit creation'
+        AND (
+            (
+                PRD.network_product_code LIKE 'DGN%'
+                AND (
+                    (
+                        ORD.order_type IN ('Provide', 'Change')
+                        AND (
+                            PER.role LIKE 'ODC_%'
+                            OR PER.role LIKE 'RDC_%'
+                            OR PER.role LIKE 'GSPSG_%'
                         )
-                        OR (
-                            PER.role = 'GSP_LTC_GW'
-                            AND ACT.name = 'GSDT Co-ordination Work'
+                        AND (
+                            (
+                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                AND ACT.status = 'COM'
+                                AND ACT.completed_date BETWEEN '2022-07-01'
+                                AND '2022-07-31'
+                            )
+                            OR ACT.name = 'Circuit creation'
+                        )
+                    )
+                    OR (
+                        ORD.order_type = 'Cease'
+                        AND (
+                            PER.role LIKE 'ODC_%'
+                            OR PER.role LIKE 'RDC_%'
+                            OR PER.role LIKE 'GSPSG_%'
+                        )
+                        AND (
+                            (
+                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                AND ACT.status = 'COM'
+                                AND ACT.completed_date BETWEEN '2022-07-01'
+                                AND '2022-07-31'
+                            )
+                            OR ACT.name = 'Node & Cct Del (DN-ISDN)'
                         )
                     )
                 )
-                OR (
-                    ORD.order_type = 'Cease'
-                    AND PER.role = 'GSDT31'
-                    AND ACT.name = 'GSDT Co-ordination Work'
+            )
+            OR (
+                PRD.network_product_code LIKE 'DME%'
+                AND (
+                    (
+                        ORD.order_type IN ('Provide', 'Change')
+                        AND (
+                            PER.role LIKE 'ODC_%'
+                            OR PER.role LIKE 'RDC_%'
+                            OR PER.role LIKE 'GSPSG_%'
+                        )
+                        AND (
+                            (
+                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                AND ACT.status = 'COM'
+                                AND ACT.completed_date BETWEEN '2022-07-01'
+                                AND '2022-07-31'
+                            )
+                            OR ACT.name = 'Circuit creation'
+                        )
+                    )
+                    OR (
+                        ORD.order_type = 'Cease'
+                        AND (
+                            PER.role LIKE 'ODC_%'
+                            OR PER.role LIKE 'RDC_%'
+                            OR PER.role LIKE 'GSPSG_%'
+                        )
+                        AND (
+                            (
+                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                AND ACT.status = 'COM'
+                                AND ACT.completed_date BETWEEN '2022-07-01'
+                                AND '2022-07-31'
+                            )
+                            OR ACT.name = 'Node & Circuit Deletion'
+                        )
+                    )
+                )
+            )
+            OR (
+                PRD.network_product_code = 'ELK0052'
+                AND (
+                    (
+                        ORD.order_type IN ('Provide', 'Change')
+                        AND (
+                            PER.role LIKE 'ODC_%'
+                            OR PER.role LIKE 'RDC_%'
+                            OR PER.role LIKE 'GSPSG_%'
+                        )
+                        AND ACT.name = 'Circuit Creation'
+                        AND ACT.status = 'COM'
+                        AND ACT.completed_date BETWEEN '2022-07-01'
+                        AND '2022-07-31'
+                    )
+                    OR (
+                        ORD.order_type = 'Cease'
+                        AND (
+                            PER.role LIKE 'ODC_%'
+                            OR PER.role LIKE 'RDC_%'
+                            OR PER.role LIKE 'GSPSG_%'
+                        )
+                        AND ACT.name = 'Node & Circuit Deletion'
+                        AND ACT.status = 'COM'
+                        AND ACT.completed_date BETWEEN '2022-07-01'
+                        AND '2022-07-31'
+                    )
+                )
+            )
+            OR (
+                PRD.network_product_code LIKE 'GGW%'
+                AND (
+                    (
+                        ORD.order_type = 'Provide'
+                        AND (
+                            (
+                                PER.role = 'GSP_LTC_GW'
+                                AND ACT.name = 'GSDT Co-ordination Work'
+                                AND ACT.status = 'COM'
+                                AND ACT.completed_date BETWEEN '2022-07-01'
+                                AND '2022-07-31'
+                            )
+                            OR (
+                                (
+                                    PER.role LIKE 'ODC_%'
+                                    OR PER.role LIKE 'RDC_%'
+                                    OR PER.role LIKE 'GSPSG_%'
+                                )
+                                AND ACT.name = 'Circuit creation'
+                            )
+                        )
+                    )
+                    OR (
+                        ORD.order_type = 'Cease'
+                        AND (
+                            PER.role = 'GSDT31'
+                            AND ACT.name = 'GSDT Co-ordination Work'
+                            AND ACT.status = 'COM'
+                            AND ACT.completed_date BETWEEN '2022-07-01'
+                            AND '2022-07-31'
+                        )
+                    )
                 )
             )
         )
     )
-    AND ORD.order_code IN (
-        'YOB9979010',
-        'YOH1068007',
-        'YMD4350001',
-        'YNS5484006',
-        'YNV5352006',
-        'YNV5352007',
-        'YOA6190003',
-        'YOH1068006',
-        'XZR4069012',
-        'XZW9533020',
-        'YCO2287001',
-        'YCO2287002',
-        'YCX6532001',
-        'YGQ9996001',
-        'YIJ1550009',
-        'YJQ4886009',
-        'YJQ4886019',
-        'YJQ4886020',
-        'YJW8915007',
-        'YJW8915008',
-        'YJW8915011',
-        'YJW8915012',
-        'YJW8915014',
-        'YJW8915019',
-        'YJW8915020',
-        'YJW8915021',
-        'YJW8915022',
-        'YKB4478006',
-        'YKU7756001',
-        'YKU7756002',
-        'YLD2857015',
-        'YLF1389013',
-        'YLF1389020',
-        'YLF1389021',
-        'YLF1389028',
-        'YLF1389029',
-        'YLG5885004',
-        'YLG5885006',
-        'YLG5885007',
-        'YLG5885009',
-        'YLG5885011',
-        'YLH5625007',
-        'YLH5625010',
-        'YLR5441015',
-        'YLR7981001',
-        'YLT9065001',
-        'YLT9065002',
-        'YLW1921002',
-        'YLW3101002',
-        'YMD4350002',
-        'YMD4350005',
-        'YMD4350006',
-        'YMF6735001',
-        'YMF6735002',
-        'YMF9135001',
-        'YMF9135005',
-        'YMF9135006',
-        'YMM8126002',
-        'YMN0025004',
-        'YMT0034001',
-        'YMV8357001',
-        'YMZ3955006',
-        'YMZ3955007',
-        'YMZ3955011',
-        'YMZ3955012',
-        'YMZ3955016',
-        'YMZ3955017',
-        'YMZ3955021',
-        'YMZ3955022',
-        'YNC4336002',
-        'YMY9000003',
-        'YNB7888004',
-        'YNE5164001',
-        'YNH8879002',
-        'YNI0107002',
-        'YNN6566007',
-        'YMW0408001',
-        'YNQ2705001',
-        'YNQ2705002',
-        'YNS5484001',
-        'YNS5484005',
-        'YNG7058001',
-        'YNU8128001',
-        'YNU8128002',
-        'YNW3617004',
-        'YNW8199001',
-        'YNW8272002',
-        'YNX1698001',
-        'YNX1698002',
-        'YNX3517003',
-        'YNX3517004',
-        'YNX8175001',
-        'YNX8175005',
-        'YNX8326003',
-        'YNX8326004',
-        'YNX8326005',
-        'YNX8326006',
-        'YNY1782001',
-        'YNY7689001',
-        'YNY7689002',
-        'YNY8454002',
-        'YNY8714001',
-        'YNY8714002',
-        'YNY8565001',
-        'YNY8565002',
-        'YNY8565006',
-        'YNZ6892001',
-        'YOA0852001',
-        'YOA2214001',
-        'YOA2214002',
-        'YOA6176002',
-        'YOA6190004',
-        'YOA2893001',
-        'YOA2893002',
-        'YOA1262008',
-        'YOB7423001',
-        'YOC3140001',
-        'YOC3140004',
-        'YOC3140005',
-        'YOC3140006',
-        'YOC3140007',
-        'YOC3140008',
-        'YOC3140009',
-        'YOC3140010',
-        'YOC3140011',
-        'YOC3140012',
-        'YOC3140013',
-        'YOB9979009',
-        'YOC9306001',
-        'YOD6188005',
-        'YOD6188006',
-        'YOD7800001',
-        'YOD7800002',
-        'YOD8068001',
-        'YOD8068002',
-        'YOD8160002',
-        'YOD8160003',
-        'YOD8160004',
-        'YOD8160007',
-        'YOD8160008',
-        'YOD8160009',
-        'YOD8459001',
-        'YOD8459002',
-        'YOD8459003',
-        'YOD8459004',
-        'YOE1273001',
-        'YOE1273002',
-        'YOE2839001',
-        'YOE2839006',
-        'YOE2839007',
-        'YOE3333001',
-        'YOE3333002',
-        'YOE3333005',
-        'YOE3333006',
-        'YOF5517001',
-        'YOF5517002',
-        'YOF5517003',
-        'YOF5517004',
-        'YOF5517005',
-        'YOF5517006',
-        'YOF5517009',
-        'YOF5517010',
-        'YOF6490003',
-        'YOF6490004',
-        'YOE3474001',
-        'YOE3474003',
-        'YOF2906001',
-        'YOF2928001',
-        'YOH6642001',
-        'YOH6642002',
-        'YOI0109001',
-        'YOJ3629001',
-        'YOJ3843001',
-        'YOJ3843002',
-        'YOJ3843005',
-        'YOJ3843006',
-        'YOJ5666001',
-        'YOK7154002',
-        'YOK7154003',
-        'YOK8257002',
-        'YOL3084005',
-        'YOL3084009',
-        'YOL3084010',
-        'YOL7305001',
-        'YOL7305003',
-        'YOO5473001',
-        'YOO5473002',
-        'YOO5473003',
-        'YOO9749001',
-        'YOQ3589001',
-        'YOR5481001',
-        'YOR6848008',
-        'YOR8278002',
-        'YOD6620014',
-        'YOD6620028',
-        'YOD6620043',
-        'YOD6620062',
-        'YOS5084001',
-        'YOS5084003',
-        'YOS5084005',
-        'YOU1871001',
-        'YOZ6374001',
-        'YNS4039001',
-        'YNY3441002',
-        'YNZ2447002',
-        'YOB4134001',
-        'YOB4134005',
-        'YOB4134008',
-        'YOB4134012',
-        'YOB4134015',
-        'YOB4134019',
-        'YOB4134022',
-        'YOB4134025',
-        'YOB4134029',
-        'YOE2839002',
-        'YOF4815001',
-        'YOF5087001',
-        'YOE3474005',
-        'YOH1990001',
-        'YOH2809001',
-        'YOP6317001',
-        'YOP6317002',
-        'YOP6317003',
-        'YOP6317004',
-        'YOP6317005',
-        'YOP6317006',
-        'YOP6317007',
-        'YOP6317008',
-        'YOP6317009',
-        'YOP6317010',
-        'YOP6317012',
-        'YOP6317013',
-        'YOP6317014',
-        'YOP6317015',
-        'YOP6317016',
-        'YOS3604001',
-        'YOS3604002',
-        'YOS3604004',
-        'YOS3604005',
-        'YOT0266001',
-        'YOI3157001',
-        'YOU1947001',
-        'YMB2619001',
-        'YMY1368001',
-        'YMZ4333001',
-        'YNF5589003',
-        'YNY3341002',
-        'YNY3341003',
-        'YNY6190009',
-        'YOC0240001',
-        'YOC8121001',
-        'YOE2823001',
-        'YOH1501001',
-        'YOH7733001',
-        'YOP5955002',
-        'YOR5793001',
-        'YOU2153001',
-        'YNL2598001',
-        'YNL2598002',
-        'YNL2598003',
-        'YNX1442007',
-        'YOA9429001',
-        'YOB1849002',
-        'YOB1858001',
-        'YOB3930001',
-        'YOB7207002',
-        'YOD1098002',
-        'YOD7089001',
-        'YOD7459001',
-        'YOD7795001',
-        'YOD8436001',
-        'YOD8436002',
-        'YOG5990002',
-        'YOG5811001',
-        'YOG7073001',
-        'YOG7559001',
-        'YOG9656001',
-        'YOI0253001',
-        'YOH1747004',
-        'YOI6779001',
-        'YOJ3771001',
-        'YOL2933001',
-        'YOO5451001',
-        'YOQ0569001',
-        'YOR8211001',
-        'YOU7408001',
-        'YOW5554001',
-        'YOW5654001',
-        'YOW5711001',
-        'YMZ6173001',
-        'YMG7924001',
-        'YMM2714001',
-        'YNY3171002',
-        'YNZ6747001',
-        'YOD8121001',
-        'YOE1297001',
-        'YOF4097001',
-        'YOI6321001',
-        'YOI6727001',
-        'YOK0763003',
-        'YOP2491001',
-        'YOQ4656001',
-        'YOX5220001',
-        'YNA7926002',
-        'YNU9685001',
-        'YNW8272001',
-        'YNX1442009',
-        'YNZ0469001',
-        'YNY2493002',
-        'YOA6176003',
-        'YOA9183001',
-        'YOA9320001',
-        'YOB7830001',
-        'YOC3572001',
-        'YOC8025002',
-        'YOD7459002',
-        'YOE0769001',
-        'YOE1297002',
-        'YOE7803002',
-        'YOG7191001',
-        'YOG8056001',
-        'YOF7400001',
-        'YOH5506001',
-        'YOH6892001',
-        'YOI1995001',
-        'YOI6094001',
-        'YOI6094002',
-        'YOI6094003',
-        'YOI6094004',
-        'YOI6094005',
-        'YOI6094006',
-        'YOI6094007',
-        'YOI6094008',
-        'YOI6094009',
-        'YOJ6345003',
-        'YOK0559004',
-        'YOK0559009',
-        'YOM7469001',
-        'YOO6886001',
-        'YOP2918006',
-        'YOV0713001',
-        'YOW5737001',
-        'YOW5883001',
-        'YOW5914001',
-        'YOW5928001',
-        'YJM8762001',
-        'YLP0051001',
-        'YMI2588043',
-        'YMI2588044',
-        'YMI2588046',
-        'YMI2588047',
-        'YMI2588048',
-        'YMI2588049',
-        'YMI2588053',
-        'YMZ5427001',
-        'YNF7577001',
-        'YNF7577004',
-        'YNN6132001',
-        'YNS6787001',
-        'YNU8749004',
-        'YNV3803001',
-        'YNT2413002',
-        'YNY3171001',
-        'YNZ2310001',
-        'YOA8335001',
-        'YOA8335002',
-        'YOB1858002',
-        'YOB3379001',
-        'YOB3830001',
-        'YOB4646001',
-        'YOC8025001',
-        'YOD6548002',
-        'YOD6548003',
-        'YOD6548001',
-        'YOD6548005',
-        'YOD6548004',
-        'YOD7559003',
-        'YOD7559004',
-        'YOD7559005',
-        'YOD7559006',
-        'YOD7559007',
-        'YOD7559008',
-        'YOF1964006',
-        'YOF2975001',
-        'YOF2975002',
-        'YOF4434001',
-        'YOH6561001',
-        'YOI1190002',
-        'YOI1479001',
-        'YOI1479002',
-        'YOI1479003',
-        'YOI1479004',
-        'YOI6684001',
-        'YOM5033001',
-        'YOP3049001',
-        'YOU1576002',
-        'YOO4323001',
-        'YLI1053001',
-        'YMY9000004',
-        'YNY8617001',
-        'YNY8565005',
-        'YNW8541002',
-        'YOD5304001',
-        'YNZ7941001',
-        'YOF3236001',
-        'YOH4890001',
-        'YOI3024001',
-        'YOJ5449001',
-        'YOJ5449002',
-        'YOL0233001',
-        'YOL1016001',
-        'YOM7008001',
-        'YOP3049003',
-        'YOR1943001',
-        'YOS2019001',
-        'YMC4322002',
-        'YNQ0035003',
-        'YOB7356001',
-        'YOD7398001',
-        'YOD7398002',
-        'YOH2712001',
-        'YOJ5633001',
-        'YOK7930010',
-        'YOP2491003',
-        'YOT2656001',
-        'YOW4258001',
-        'YMC2856001',
-        'YNA4219001',
-        'YNF5653002',
-        'YNS6583001',
-        'YNS6219001',
-        'YNT2671001',
-        'YNV3287001',
-        'YNV4145001',
-        'YNW7142002',
-        'YOA1581001',
-        'YOD0546002',
-        'YOD0546003',
-        'YOD0933001',
-        'YOD6548006',
-        'YOD6548007',
-        'YOD6548008',
-        'YNZ7941002',
-        'YOE9829003',
-        'YOG4003002',
-        'YOF3134001',
-        'YOG1008001',
-        'YOH1121001',
-        'YOI3442002',
-        'YOI6434001',
-        'YOJ0410002',
-        'YOJ6040001',
-        'YOL1682002',
-        'YOM6303002',
-        'YOP7705001',
-        'YOU7168001',
-        'YOX6852001',
-        'YOA8300001',
-        'YOB3571001',
-        'YOI6794002',
-        'YNV0729001',
-        'YNW8001001',
-        'YOA8051001',
-        'YOB7207001',
-        'YOB7920001',
-        'YOD0236002',
-        'YOH0253002',
-        'YOH5940006',
-        'YOH5940007',
-        'YOI1041002',
-        'YOM4382002',
-        'YOM4382005',
-        'YOO5625001',
-        'YOP3049002',
-        'YLU2957001',
-        'YLU2957002',
-        'YNQ2852001',
-        'YNX2007002',
-        'YNY7242002',
-        'YNZ7280001',
-        'YNZ7280002',
-        'YOA9973001',
-        'YOB0015001',
-        'YOC8751001',
-        'YOD0236001',
-        'YOF0326003',
-        'YOF1964005',
-        'YOF0489001',
-        'YOG4059001',
-        'YOG4059002',
-        'YOD7891001',
-        'YOI5641001',
-        'YOJ9430001',
-        'YOK7360001',
-        'YOL7097001',
-        'YOM5212002',
-        'YOR7110001',
-        'YOH1541060',
-        'YLQ9641004',
-        'YOA5423002',
-        'YOB1958001',
-        'YOC8240003',
-        'YOH2236001',
-        'YOK4161005',
-        'YOR7281001',
-        'YMA1068017',
-        'YMW0271001',
-        'YOI2356001',
-        'YOI8045001',
-        'YOK4161002',
-        'YOQ3416001',
-        'YLY5633015',
-        'YLY5633036',
-        'YNY5777001',
-        'YNZ7897022',
-        'YOB9580001',
-        'YLQ9641001',
-        'YMA1068029',
-        'YMY2269001',
-        'YNB0639001',
-        'YNQ0402001',
-        'YNX8822001',
-        'YOA8661001',
-        'YOC3597001',
-        'YOF1242005',
-        'YOF1641002',
-        'YMY3049001',
-        'YNS3886001',
-        'YOD7392001',
-        'YOL9772001',
-        'YOK2111005',
-        'YOR5764002',
-        'YNT2933002',
-        'YOH7429001',
-        'YOL0736003',
-        'YOL0736004',
-        'YLY5633012',
-        'YMZ3992001',
-        'YNA0592002',
-        'YNA7058001',
-        'YNW5559002',
-        'YNY5896001',
-        'YNZ2657001',
-        'YNZ2701001',
-        'YOB2666001',
-        'YOD8789001',
-        'YOI8325001',
-        'YOI2753003',
-        'YOJ6370001',
-        'YKS4702001',
-        'YLW3860002',
-        'YMZ6220001',
-        'YNQ3130001',
-        'YOE2036001',
-        'YOF7002001',
-        'YOG7761001',
-        'YOK5714001',
-        'YOL0736002',
-        'YOP7280001',
-        'YKV6672001',
-        'YOI0637001',
-        'YMA2043001',
-        'YNG4711001',
-        'YOA0895001',
-        'YOI7334002',
-        'YOB2666002',
-        'YNT2933008',
-        'YOK8023002',
-        'YNA7058002',
-        'YNQ0065001',
-        'YOC3398002',
-        'YOK4161006',
-        'YNA0592001',
-        'YOI6626002',
-        'YOB0080001',
-        'YOA5609004',
-        'YNW6828004',
-        'YOC7501002',
-        'YMF1563001',
-        'YNB7888005',
-        'YNI0923005',
-        'YNI0923011',
-        'YNT7769002',
-        'YNT7769003',
-        'YNT7769004',
-        'YNT7769005',
-        'YNT7769006',
-        'YNT7769007',
-        'YNT7769008',
-        'YNT7769009',
-        'YNT7769010',
-        'YNT7769012',
-        'YNT7769013',
-        'YNT7769014',
-        'YNT7769015',
-        'YNT7769016',
-        'YNT7769017',
-        'YNT7769018',
-        'YNT7769019',
-        'YNT7769020',
-        'YNT7769021',
-        'YOA6356002',
-        'YOB5167004',
-        'YOE1531001',
-        'YOE1531002',
-        'YOF5597001',
-        'YOG6868001',
-        'YOI0281001',
-        'YOI6684003',
-        'YOH8462002',
-        'YOK3206001',
-        'YOK3255001',
-        'YOK3933012',
-        'YOK3933019',
-        'YOK8290002',
-        'YOO5347001',
-        'YOP2918002',
-        'YOQ0569002',
-        'YOR8334002',
-        'YOK6327001',
-        'ZAA1301001',
-        'YNY8251001',
-        'YNZ0908003',
-        'YOA0212002',
-        'YOA8482001',
-        'YOD5789001',
-        'YOD5789002',
-        'YOD5789003',
-        'YOD5789004',
-        'YOF0104001',
-        'YOI6506001',
-        'YOD8457001',
-        'YOP3049004',
-        'YOP7889002',
-        'YOA0645004',
-        'YOA0645005',
-        'YOB4764001',
-        'YOB8072001',
-        'YOB9062001',
-        'YOF4696001',
-        'YOI1995004',
-        'YOI7691002',
-        'YOK2061001',
-        'YOK7930007',
-        'YOJ8966001',
-        'YOL4771001',
-        'YOP9897001',
-        'YOQ9013002',
-        'YOR5613001',
-        'YOD0741003',
-        'YOK0551001',
-        'YOA8812001',
-        'YLQ9641003',
-        'YOB1710001',
-        'YOA3282001',
-        'YOI2753001'
-    )
 ORDER BY
     Service,
-    ORD.order_type,
-    ORD.order_code,
-    PRD.network_product_code,
+    ORD.order_type DESC,
+    ACT.name,
     PER.role,
-    ActStepNo;
+    ORD.order_code;
