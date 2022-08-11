@@ -52,6 +52,9 @@ class DBConnection:
         dataset = self.__conn.execute(query).fetchall()
         return dataset
 
+    def queryWithoutResult(self, query):
+        self.__conn.execute(text(query))
+
     def insertDataframeToTable(self, dataframe, table):
         df = pd.DataFrame(dataframe)
         df.to_sql(table,
