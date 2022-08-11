@@ -10,6 +10,8 @@ SELECT
     ) AS Service,
     ORD.order_code,
     ORD.current_crd,
+    ORD.service_number,
+    ORD.order_status,
     ORD.order_type,
     PRD.network_product_code,
     PER.role,
