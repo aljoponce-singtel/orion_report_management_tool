@@ -36,6 +36,39 @@ def main():
 
     today_date = datetime.now().date()
 
+    try:
+        reports.loadConfig(config)
+        reportDate = None
+
+        if defaultConfig.getboolean('GenReportManually'):
+            logger.info('\\* MANUAL RUN *\\')
+            reportDate = defaultConfig['ReportDate']
+            logger.info("report date: " + str(reportDate))
+
+            defaultConfig['UpdateTableauDB'] = 'false'
+            logger.info('UpdateTableauDB = ' +
+                        str(defaultConfig.getboolean('UpdateTableauDB')))
+
+            reports.generateTransportReport(
+                'transport_report', reportDate, "Transport Report")
+        else:
+            reportDate = str(today_date.replace(day=1))
+            logger.info("report date: " + str(reportDate))
+
+            logger.info('UpdateTableauDB = ' +
+                        str(defaultConfig.getboolean('UpdateTableauDB')))
+
+            reports.generateTransportReport(
+                'transport_report', reportDate, "Transport Report")
+
+    except Exception as err:
+        logger.exception(err)
+        raise Exception(err)
+
+    finally:
+        logger.info("END of script - " +
+                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+
 
 if __name__ == '__main__':
     main()
