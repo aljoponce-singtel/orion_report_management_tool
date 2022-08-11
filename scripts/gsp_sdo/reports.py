@@ -7,6 +7,7 @@ from scripts.DBConnection import DBConnection
 from scripts.EmailClient import EmailClient
 import pandas as pd
 import numpy as np
+import sqlalchemy as db
 
 logger = logging.getLogger(__name__)
 defaultConfig = None
@@ -42,42 +43,65 @@ def updateTableauDB(dataframe, report_id):
             logger.info(
                 'Inserting records to ' + dbConfig['tableau_db'] + '.' + defaultConfig['TableauTable'] + ' for ' + report_id.lower() + ' ...')
 
-            df = pd.DataFrame(dataframe)
-
             # Get a list of public holidays from Tableaue DB
-            publicHolidays = tableauDb.queryToList(
-                "SELECT * FROM t_GSP_holidays;")
+            t_GSP_holidays = tableauDb.getTableMetadata('t_GSP_holidays')
+            # SELECT * FROM t_GSP_holidays
+            query = db.select([t_GSP_holidays])
+            publicHolidays = tableauDb.queryToList2(query)
             df_holidays = pd.DataFrame(
                 data=publicHolidays, columns=['Holiday', 'Date'])
             HOLIDAYS = df_holidays['Date'].values.tolist()
+
+            df = pd.DataFrame(dataframe)
 
             # Counts the number of valid days between begindates and enddates, not including the day of enddates.
             # Weekends (Sat/Sun) and Public Holidays are excluded
             # Add 3 new columns (COM_Date_SS, COM_Date_RI and COM_Date_TI)
             for index, row in df.iterrows():
                 if not pd.isnull(row["COM_Date_SS"]):
-                    days = np.busday_count(
-                        begindates=row["COM_Date_SS"], enddates=row["CRDNew"], holidays=HOLIDAYS)
+                    startDate = row["COM_Date_SS"]
+                    endDate = row["CRDNew"]
 
-                    # Add 1 day to the count since np.busyday_count does not include enddates
-                    df.at[index, "SS_to_CRD"] = days + \
-                        1 if days >= 0 else days - 1
+                    if endDate >= startDate:
+                        df_bdays = pd.bdate_range(
+                            start=startDate, end=endDate, freq='C', holidays=HOLIDAYS)
+                        df.at[index, "SS_to_CRD"] = len(df_bdays)
+                    else:
+                        # Need to switch start & end date and explicitly set the count to negative
+                        # as pd.bdate_range() does not calculate negative business days
+                        df_bdays = pd.bdate_range(
+                            start=endDate, end=startDate, freq='C', holidays=HOLIDAYS)
+                        df.at[index, "SS_to_CRD"] = len(df_bdays)*(-1)
 
                 if not pd.isnull(row["COM_Date_RI"]):
-                    days = np.busday_count(
-                        begindates=row["COM_Date_RI"], enddates=row["CRDNew"], holidays=HOLIDAYS)
+                    startDate = row["COM_Date_RI"]
+                    endDate = row["CRDNew"]
 
-                    # Add 1 day to the count since np.busyday_count does not include enddates
-                    df.at[index, "RI_to_CRD"] = days + \
-                        1 if days >= 0 else days - 1
+                    if endDate >= startDate:
+                        df_bdays = pd.bdate_range(
+                            start=startDate, end=endDate, freq='C', holidays=HOLIDAYS)
+                        df.at[index, "RI_to_CRD"] = len(df_bdays)
+                    else:
+                        # Need to switch start & end date and explicitly set the count to negative
+                        # as pd.bdate_range() does not calculate negative business days
+                        df_bdays = pd.bdate_range(
+                            start=endDate, end=startDate, freq='C', holidays=HOLIDAYS)
+                        df.at[index, "RI_to_CRD"] = len(df_bdays)*(-1)
 
                 if not pd.isnull(row["COM_Date_TI"]):
-                    days = np.busday_count(
-                        begindates=row["COM_Date_TI"], enddates=row["CRDNew"], holidays=HOLIDAYS)
+                    startDate = row["CRDNew"]
+                    endDate = row["COM_Date_TI"]
 
-                    # Add 1 day to the count since np.busyday_count does not include enddates
-                    df.at[index, "TI_to_CRD"] = days + \
-                        1 if days >= 0 else days - 1
+                    if endDate >= startDate:
+                        df_bdays = pd.bdate_range(
+                            start=startDate, end=endDate, freq='C', holidays=HOLIDAYS)
+                        df.at[index, "TI_to_CRD"] = len(df_bdays)
+                    else:
+                        # Need to switch start & end date and explicitly set the count to negative
+                        # as pd.bdate_range() does not calculate negative business days
+                        df_bdays = pd.bdate_range(
+                            start=endDate, end=startDate, freq='C', holidays=HOLIDAYS)
+                        df.at[index, "TI_to_CRD"] = len(df_bdays)*(-1)
 
             # add new columns
             df["report_id"] = report_id.lower()
@@ -211,7 +235,7 @@ def generateSdoSingnetReport(fileName, reportDate, emailSubject):
 
     df_ti = createActivityDf(df_rawReport, ti_activitiesMap, const.TI_COLUMNS)
     df_rawReport = pd.merge(df_rawReport, df_ti, how='left')
-    df_finalReport = df_rawReport[const.FINAL_COLUMNS]\
+    df_finalReport = df_rawReport[const.FINAL_COLUMNS]
 
     # Set emply cells to NULL only for the ProjectManager column
     df_finalReport['ProjectManager'].replace(np.nan, 'NULL', inplace=True)
@@ -310,6 +334,7 @@ def generateSdoMegaPopReport(fileName, reportDate, emailSubject):
     # Write to CSV
     csvFiles = []
     csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
+    logger.info("Generating report " + csvFile + " ...")
     csvFiles.append(csvFile)
     csvfilePath = os.path.join(reportsFolderPath, csvFile)
     utils.dataframeToCsv(df_finalReport, csvfilePath)
