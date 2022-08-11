@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.sql import text
 import pymysql
 
@@ -38,8 +38,18 @@ class DBConnection:
         self.__conn.close()
         logger.info("Disconnected to " + self.database + '.')
 
+    def getTableMetadata(self, table):
+        metadata = MetaData()
+        tableMetadata = Table(table, metadata,
+                              autoload=True, autoload_with=self.__engine)
+        return tableMetadata
+
     def queryToList(self, query):
         dataset = self.__conn.execute(text(query)).fetchall()
+        return dataset
+
+    def queryToList2(self, query):
+        dataset = self.__conn.execute(query).fetchall()
         return dataset
 
     def insertDataframeToTable(self, dataframe, table):
