@@ -3,6 +3,7 @@ import sys
 import logging.config
 import logging
 import pandas as pd
+import numpy as np
 import constants as const
 from scripts import utils
 from scripts.DBConnection import DBConnection
@@ -94,6 +95,174 @@ def sendEmail(subject, attachment):
 def generateTransportReport(fileName, reportDate, emailSubject):
     createTempTable()
     df = pd.DataFrame(getComQueues())
+
+    df_finalReport = pd.DataFrame(columns=const.FINAL_COLUMNS)
+
+    df_orders = df[['Service', 'OrderCode', 'CRD',
+                   'ServiceNumber', 'OrderStatus', 'OrderType', 'ProductCode']]
+
+    for index, row in df_orders.iterrows():
+        df_activities = df[df['OrderCode'] == row['OrderCode']]
+
+        service = row['Service']
+        orderCode = row['OrderCode']
+        crd = row['CRD']
+        serviceNumber = row['ServiceNumber']
+        orderStatus = row['OrderStatus']
+        orderType = row['OrderType']
+        productCode = row['ProductCode']
+
+        if df_orders.at[index, 'Service'] == 'Diginet':
+
+            if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
+                preConfigGroupId = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['GroupID']
+                preConfigActName = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['ActName']
+                preConfigStatus = df_activities[df_activities['ActName']
+                                                == 'Circuit Creation']['ActStatus']
+                coordGroupId = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
+                coordActStatus = df_activities[df_activities['ActName']
+                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
+
+            if df_orders.at[index, 'OrderType'] == 'Cease':
+                preConfigGroupId = df_activities[df_activities['ActName']
+                                                 == 'Node & Cct Del (DN-ISDN)']['GroupID']
+                preConfigActName = df_activities[df_activities['ActName']
+                                                 == 'Node & Cct Del (DN-ISDN)']['ActName']
+                preConfigStatus = df_activities[df_activities['ActName']
+                                                == 'Node & Cct Del (DN-ISDN)']['ActStatus']
+                coordGroupId = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
+                coordActStatus = df_activities[df_activities['ActName']
+                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
+
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
+
+        if df_orders.at[index, 'Service'] == 'MetroE':
+
+            if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
+                preConfigGroupId = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['GroupID']
+                preConfigActName = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['ActName']
+                preConfigStatus = df_activities[df_activities['ActName']
+                                                == 'Circuit Creation']['ActStatus']
+                coordGroupId = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
+                coordActStatus = df_activities[df_activities['ActName']
+                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
+
+            if df_orders.at[index, 'OrderType'] == 'Cease':
+                preConfigGroupId = df_activities[df_activities['ActName']
+                                                 == 'Node & Circuit Deletion']['GroupID']
+                preConfigActName = df_activities[df_activities['ActName']
+                                                 == 'Node & Circuit Deletion']['ActName']
+                preConfigStatus = df_activities[df_activities['ActName']
+                                                == 'Node & Circuit Deletion']['ActStatus']
+                coordGroupId = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
+                coordActStatus = df_activities[df_activities['ActName']
+                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
+
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
+
+        if df_orders.at[index, 'Service'] == 'MegaPop (CE)':
+
+            if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
+                preConfigGroupId = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['GroupID']
+                preConfigActName = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['ActName']
+                preConfigStatus = df_activities[df_activities['ActName']
+                                                == 'Circuit Creation']['ActStatus']
+                coordGroupId = pd.DataFrame()
+                coordActName = pd.DataFrame()
+                coordActStatus = pd.DataFrame()
+
+            if df_orders.at[index, 'OrderType'] == 'Cease':
+                preConfigGroupId = df_activities[df_activities['ActName']
+                                                 == 'Node & Circuit Deletion']['GroupID']
+                preConfigActName = df_activities[df_activities['ActName']
+                                                 == 'Node & Circuit Deletion']['ActName']
+                preConfigStatus = df_activities[df_activities['ActName']
+                                                == 'Node & Circuit Deletion']['ActStatus']
+                coordGroupId = pd.DataFrame()
+                coordActName = pd.DataFrame()
+                coordActStatus = pd.DataFrame()
+
+        if df_orders.at[index, 'Service'] == 'Gigawave':
+
+            if df_orders.at[index, 'OrderType'] == 'Provide':
+                preConfigGroupId = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['GroupID']
+                preConfigActName = df_activities[df_activities['ActName']
+                                                 == 'Circuit Creation']['ActName']
+                preConfigStatus = df_activities[df_activities['ActName']
+                                                == 'Circuit Creation']['ActStatus']
+                coordGroupId = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Work']['GroupID']
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Work']['ActName']
+                coordActStatus = df_activities[df_activities['ActName']
+                                               == 'GSDT Co-ordination Work']['ActStatus']
+
+            if df_orders.at[index, 'OrderType'] == 'Cease':
+                preConfigGroupId = pd.DataFrame()
+                preConfigActName = pd.DataFrame()
+                preConfigStatus = pd.DataFrame()
+                coordGroupId = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Work']['GroupID']
+                coordActName = df_activities[df_activities['ActName']
+                                             == 'GSDT Co-ordination Work']['ActName']
+                coordActStatus = df_activities[df_activities['ActName']
+                                               == 'GSDT Co-ordination Work']['ActStatus']
+
+        reportData = [
+            service,
+            orderCode,
+            crd,
+            serviceNumber,
+            orderStatus,
+            orderType,
+            productCode,
+            preConfigGroupId.values[0] if np.size(
+                preConfigGroupId.values) else None,
+            preConfigActName.values[0] if np.size(
+                preConfigActName.values) else None,
+            preConfigStatus.values[0] if np.size(
+                preConfigStatus.values) else None,
+            coordGroupId.values[0] if np.size(
+                coordGroupId.values) else None,
+            coordActName.values[0] if np.size(
+                coordActName.values) else None,
+            coordActStatus.values[0] if np.size(
+                coordActStatus.values) else None
+        ]
+
+        # add new data (df_toAdd) to df_report
+        df_toAdd = pd.DataFrame(
+            data=[reportData], columns=const.FINAL_COLUMNS)
+        df_finalReport = pd.concat([df_finalReport, df_toAdd])
+
+    # Write to CSV
+    csvFiles = []
+    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
+    logger.info("Generating report " + csvFile + " ...")
+    csvFiles.append(csvFile)
+    csvfilePath = os.path.join(reportsFolderPath, csvFile)
+    utils.dataframeToCsv(df_finalReport, csvfilePath)
 
 
 def createTempTable():
