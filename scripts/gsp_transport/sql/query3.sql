@@ -52,7 +52,7 @@ WHERE
                                 AND ACT.completed_date BETWEEN '2022-07-01'
                                 AND '2022-07-31'
                             )
-                            OR ACT.name = 'Circuit Creation'
+                            OR ACT.name = 'Circuit creation'
                         )
                     )
                     OR (
@@ -91,7 +91,7 @@ WHERE
                                 AND ACT.completed_date BETWEEN '2022-07-01'
                                 AND '2022-07-31'
                             )
-                            OR ACT.name = 'Circuit Creation'
+                            OR ACT.name = 'Circuit creation'
                         )
                     )
                     OR (
@@ -161,7 +161,7 @@ WHERE
                                     OR PER.role LIKE 'RDC_%'
                                     OR PER.role LIKE 'GSPSG_%'
                                 )
-                                AND ACT.name = 'Circuit Creation'
+                                AND ACT.name = 'Circuit creation'
                             )
                         )
                     )
