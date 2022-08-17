@@ -430,7 +430,7 @@ def getComQueues():
                                                 AND ACT.completed_date BETWEEN '2022-07-01'
                                                 AND '2022-07-31'
                                             )
-                                            OR ACT.name = 'Circuit creation'
+                                            OR ACT.name = 'Circuit Creation'
                                         )
                                     )
                                     OR (
@@ -469,7 +469,7 @@ def getComQueues():
                                                 AND ACT.completed_date BETWEEN '2022-07-01'
                                                 AND '2022-07-31'
                                             )
-                                            OR ACT.name = 'Circuit creation'
+                                            OR ACT.name = 'Circuit Creation'
                                         )
                                     )
                                     OR (
@@ -539,7 +539,7 @@ def getComQueues():
                                                     OR PER.role LIKE 'RDC_%'
                                                     OR PER.role LIKE 'GSPSG_%'
                                                 )
-                                                AND ACT.name = 'Circuit creation'
+                                                AND ACT.name = 'Circuit Creation'
                                             )
                                         )
                                     )
