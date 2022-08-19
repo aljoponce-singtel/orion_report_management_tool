@@ -7,8 +7,10 @@ DRAFT_COLUMNS = [
     'OrderType',
     'ProductCode',
     'GroupID',
+    'ActStepNo',
     'ActName',
     'ActStatus',
+    'ActDueDate',
     'ActComDate'
 ]
 
@@ -23,7 +25,11 @@ FINAL_COLUMNS = [
     'PreConfig_GroupID',
     'PreConfig_ActName',
     'PreConfig_ActStatus',
+    'PreConfig_ActDueDate',
+    'PreConfig_COM_Date',
     'Coordination_GroupID',
     'Coordination_ActName',
-    'Coordination_ActStatus'
+    'Coordination_ActStatus',
+    'Coordination_ActDueDate',
+    'Coordination_COM_Date'
 ]
