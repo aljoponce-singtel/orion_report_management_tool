@@ -100,6 +100,7 @@ def generateTransportReport(fileName, reportDate, emailSubject):
 
     df_orders = df[['Service', 'OrderCode', 'CRD',
                    'ServiceNumber', 'OrderStatus', 'OrderType', 'ProductCode']]
+    df_orders = df_orders.drop_duplicates()
 
     for index, row in df_orders.iterrows():
         df_activities = df[df['OrderCode'] == row['OrderCode']]
@@ -113,121 +114,155 @@ def generateTransportReport(fileName, reportDate, emailSubject):
         productCode = row['ProductCode']
 
         if df_orders.at[index, 'Service'] == 'Diginet':
+            coordGroupId = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'GroupID')
+            coordActName = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActName')
+            coordActStatus = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActStatus')
+            coordActDueDate = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActDueDate')
+            coordActCOMDate = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActComDate')
 
             if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['GroupID']
-                preConfigActName = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['ActName']
-                preConfigStatus = df_activities[df_activities['ActName']
-                                                == 'Circuit Creation']['ActStatus']
-                coordGroupId = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
-                coordActStatus = df_activities[df_activities['ActName']
-                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Circuit Creation'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActComDate')
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId = df_activities[df_activities['ActName']
-                                                 == 'Node & Cct Del (DN-ISDN)']['GroupID']
-                preConfigActName = df_activities[df_activities['ActName']
-                                                 == 'Node & Cct Del (DN-ISDN)']['ActName']
-                preConfigStatus = df_activities[df_activities['ActName']
-                                                == 'Node & Cct Del (DN-ISDN)']['ActStatus']
-                coordGroupId = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
-                coordActStatus = df_activities[df_activities['ActName']
-                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
-
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'], 'ActComDate')
 
         if df_orders.at[index, 'Service'] == 'MetroE':
-
-            if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['GroupID']
-                preConfigActName = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['ActName']
-                preConfigStatus = df_activities[df_activities['ActName']
-                                                == 'Circuit Creation']['ActStatus']
-                coordGroupId = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
-                coordActStatus = df_activities[df_activities['ActName']
-                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
-
-            if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId = df_activities[df_activities['ActName']
-                                                 == 'Node & Circuit Deletion']['GroupID']
-                preConfigActName = df_activities[df_activities['ActName']
-                                                 == 'Node & Circuit Deletion']['ActName']
-                preConfigStatus = df_activities[df_activities['ActName']
-                                                == 'Node & Circuit Deletion']['ActStatus']
-                coordGroupId = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['GroupID']
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
-                coordActStatus = df_activities[df_activities['ActName']
-                                               == 'GSDT Co-ordination Wrk-BQ']['ActStatus']
-
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Wrk-BQ']['ActName']
-
-        if df_orders.at[index, 'Service'] == 'MegaPop (CE)':
-
-            if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['GroupID']
-                preConfigActName = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['ActName']
-                preConfigStatus = df_activities[df_activities['ActName']
-                                                == 'Circuit Creation']['ActStatus']
-                coordGroupId = pd.DataFrame()
-                coordActName = pd.DataFrame()
-                coordActStatus = pd.DataFrame()
-
-            if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId = df_activities[df_activities['ActName']
-                                                 == 'Node & Circuit Deletion']['GroupID']
-                preConfigActName = df_activities[df_activities['ActName']
-                                                 == 'Node & Circuit Deletion']['ActName']
-                preConfigStatus = df_activities[df_activities['ActName']
-                                                == 'Node & Circuit Deletion']['ActStatus']
-                coordGroupId = pd.DataFrame()
-                coordActName = pd.DataFrame()
-                coordActStatus = pd.DataFrame()
-
-        if df_orders.at[index, 'Service'] == 'Gigawave':
+            coordGroupId = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'GroupID')
+            coordActName = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActName')
+            coordActStatus = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActStatus')
+            coordActDueDate = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActDueDate')
+            coordActCOMDate = getActRecords(
+                df_activities, ['GSDT Co-ordination Wrk-BQ'], 'ActComDate')
 
             if df_orders.at[index, 'OrderType'] == 'Provide':
-                preConfigGroupId = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['GroupID']
-                preConfigActName = df_activities[df_activities['ActName']
-                                                 == 'Circuit Creation']['ActName']
-                preConfigStatus = df_activities[df_activities['ActName']
-                                                == 'Circuit Creation']['ActStatus']
-                coordGroupId = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Work']['GroupID']
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Work']['ActName']
-                coordActStatus = df_activities[df_activities['ActName']
-                                               == 'GSDT Co-ordination Work']['ActStatus']
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Circuit Creation'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActComDate')
+
+            if df_orders.at[index, 'OrderType'] == 'Change':
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Circuit Creation', 'Change Speed Configure'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Circuit Creation', 'Change Speed Configure'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Circuit Creation', 'Change Speed Configure'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Circuit Creation', 'Change Speed Configure'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Circuit Creation', 'Change Speed Configure'], 'ActComDate')
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId = pd.DataFrame()
-                preConfigActName = pd.DataFrame()
-                preConfigStatus = pd.DataFrame()
-                coordGroupId = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Work']['GroupID']
-                coordActName = df_activities[df_activities['ActName']
-                                             == 'GSDT Co-ordination Work']['ActName']
-                coordActStatus = df_activities[df_activities['ActName']
-                                               == 'GSDT Co-ordination Work']['ActStatus']
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActComDate')
+
+        if df_orders.at[index, 'Service'] == 'MegaPop (CE)':
+            coordGroupId = pd.DataFrame()
+            coordActName = pd.DataFrame()
+            coordActStatus = pd.DataFrame()
+            coordActDueDate = pd.DataFrame()
+            coordActCOMDate = pd.DataFrame()
+
+            if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Circuit Creation'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActComDate')
+
+            if df_orders.at[index, 'OrderType'] == 'Cease':
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Node & Circuit Deletion'], 'ActComDate')
+
+        if df_orders.at[index, 'Service'] == 'Gigawave':
+            coordGroupId = getActRecords(
+                df_activities, ['GSDT Co-ordination Work'], 'GroupID')
+            coordActName = getActRecords(
+                df_activities, ['GSDT Co-ordination Work'], 'ActName')
+            coordActStatus = getActRecords(
+                df_activities, ['GSDT Co-ordination Work'], 'ActStatus')
+            coordActDueDate = getActRecords(
+                df_activities, ['GSDT Co-ordination Work'], 'ActDueDate')
+            coordActCOMDate = getActRecords(
+                df_activities, ['GSDT Co-ordination Work'], 'ActComDate')
+
+            if df_orders.at[index, 'OrderType'] == 'Provide':
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Circuit Creation'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Circuit Creation'], 'ActComDate')
+
+            if df_orders.at[index, 'OrderType'] == 'Cease':
+                preConfigGroupId = getActRecords(
+                    df_activities, ['Circuit Removal from NMS'], 'GroupID')
+                preConfigActName = getActRecords(
+                    df_activities, ['Circuit Removal from NMS'], 'ActName')
+                preConfigStatus = getActRecords(
+                    df_activities, ['Circuit Removal from NMS'], 'ActStatus')
+                preConfigDueDate = getActRecords(
+                    df_activities, ['Circuit Removal from NMS'], 'ActDueDate')
+                preConfigCOMDate = getActRecords(
+                    df_activities, ['Circuit Removal from NMS'], 'ActComDate')
 
         reportData = [
             service,
@@ -243,12 +278,20 @@ def generateTransportReport(fileName, reportDate, emailSubject):
                 preConfigActName.values) else None,
             preConfigStatus.values[0] if np.size(
                 preConfigStatus.values) else None,
+            preConfigDueDate.values[0] if np.size(
+                preConfigDueDate.values) else None,
+            preConfigCOMDate.values[0] if np.size(
+                preConfigCOMDate.values) else None,
             coordGroupId.values[0] if np.size(
                 coordGroupId.values) else None,
             coordActName.values[0] if np.size(
                 coordActName.values) else None,
             coordActStatus.values[0] if np.size(
-                coordActStatus.values) else None
+                coordActStatus.values) else None,
+            coordActDueDate.values[0] if np.size(
+                coordActDueDate.values) else None,
+            coordActCOMDate.values[0] if np.size(
+                coordActCOMDate.values) else None
         ]
 
         # add new data (df_toAdd) to df_report
@@ -265,26 +308,83 @@ def generateTransportReport(fileName, reportDate, emailSubject):
     utils.dataframeToCsv(df_finalReport, csvfilePath)
 
 
+def getActRecord(df, activities, column):
+    df_activities = pd.DataFrame(df)
+    df_activities = df_activities[df_activities['ActName'].isin(activities)]
+
+    # If there are multiple records, keep only 1 based on priority
+    if len(df_activities) > 1:
+        # If there are multiple records of the same activity name,
+        # keep the activity with the highest step_no
+        df_sorted = df_activities.sort_values(by=['ActStepNo', 'ActName'])
+        df_dropped_duplicates = df_sorted.drop_duplicates(
+            subset=['ActName'], keep='last')
+
+        # If there are multiple records of different activity name,
+        # select the 1st activity based from the priority sequence in [activities]
+
+        # Configure 'ActName' column to follow priority sequence from [activities]
+        df_actPriority = pd.DataFrame(df_dropped_duplicates)
+        df_actPriority['ActName'] = pd.Categorical(
+            values=df_actPriority['ActName'], categories=activities)
+        # Sort rows by 'ActName' priority
+        df_actPrioritySorted = df_actPriority.sort_values(
+            by=['ActName'])
+        # Keep only 1 activity based from priority (1st row)
+        df_activity = df_actPrioritySorted.head(1)
+
+        # print(df_activity[['Service', 'OrderCode',
+        #                    'OrderType', 'ActStepNo', 'ActName']])
+
+        df_activities = df_activity[column]
+
+    actGroupId = df_activities['GroupID']
+    actName = df_activities['ActName']
+    actStatus = df_activities['ActStatus']
+    actDueDate = df_activities['ActDueDate']
+    actComDate = df_activities['ActComDate']
+
+    return actGroupId, actName, actStatus, actDueDate, actComDate
+
+
+def getActRecords(df, activities, column):
+    df_activities = pd.DataFrame(df)
+    df_activities = df_activities[df_activities['ActName'].isin(activities)]
+
+    # If there are multiple records, keep only 1 based on priority
+    if len(df_activities) > 1:
+        # If there are multiple records of the same activity name,
+        # keep the activity with the highest step_no
+        df_sorted = df_activities.sort_values(by=['ActStepNo', 'ActName'])
+        df_dropped_duplicates = df_sorted.drop_duplicates(
+            subset=['ActName'], keep='last')
+
+        # If there are multiple records of different activity name,
+        # select the 1st activity based from the priority sequence in [activities]
+
+        # Configure 'ActName' column to follow priority sequence from [activities]
+        df_actPriority = pd.DataFrame(df_dropped_duplicates)
+        df_actPriority['ActName'] = pd.Categorical(
+            values=df_actPriority['ActName'], categories=activities)
+        # Sort rows by 'ActName' priority
+        df_actPrioritySorted = df_actPriority.sort_values(
+            by=['ActName'])
+        # Keep only 1 activity based from priority (1st row)
+        df_activity = df_actPrioritySorted.head(1)
+
+        # print(df_activity[['Service', 'OrderCode',
+        #                    'OrderType', 'ActStepNo', 'ActName']])
+
+        return df_activity[column]
+
+    else:
+        return df_activities[column]
+
+
 def createTempTable():
     query = """ 
                 CREATE TEMPORARY TABLE COM_QUEUES
                 SELECT
-                    DISTINCT (
-                        CASE
-                            WHEN PRD.network_product_code LIKE 'DGN%' THEN 'Diginet'
-                            WHEN PRD.network_product_code LIKE 'DME%' THEN 'MetroE'
-                            WHEN PRD.network_product_code = 'ELK0052' THEN 'MegaPop (CE)'
-                            WHEN PRD.network_product_code LIKE 'GGW%' THEN 'Gigawave'
-                            ELSE 'Service'
-                        END
-                    ) AS Service,
-                    PRD.network_product_code,
-                    ORD.order_type,
-                    ORD.order_code,
-                    PER.role,
-                    ACT.name,
-                    ACT.status,
-                    ACT.completed_date,
                     ORD.id
                 FROM
                     RestInterface_order ORD
@@ -362,13 +462,7 @@ def createTempTable():
                         )
                     )
                     AND ACT.completed_date BETWEEN '2022-07-01'
-                    AND '2022-07-31'
-                ORDER BY
-                    Service,
-                    ORD.order_type DESC,
-                    PER.role,
-                    ORD.order_code,
-                    ACT.name;
+                    AND '2022-07-31';
             """
 
     orionDb.queryWithoutResult(query)
@@ -393,8 +487,10 @@ def getComQueues():
                     ORD.order_type,
                     PRD.network_product_code,
                     PER.role,
+                    CAST(ACT.activity_code AS UNSIGNED) AS step_no,
                     ACT.name,
                     ACT.status,
+                    ACT.due_date,
                     ACT.completed_date
                 FROM
                     RestInterface_order ORD
@@ -405,152 +501,183 @@ def getComQueues():
                     AND NPP.status <> 'Cancel'
                     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
                 WHERE
-                    (
-                        ORD.id IN (
-                            SELECT
-                                id
-                            FROM
-                                COM_QUEUES
+                    ORD.id IN (
+                        SELECT
+                            id
+                        FROM
+                            COM_QUEUES
+                    )
+                    AND (
+                        (
+                            PRD.network_product_code LIKE 'DGN%'
+                            AND (
+                                (
+                                    ORD.order_type IN ('Provide', 'Change')
+                                    AND (
+                                        PER.role LIKE 'ODC_%'
+                                        OR PER.role LIKE 'RDC_%'
+                                        OR PER.role LIKE 'GSPSG_%'
+                                    )
+                                    AND (
+                                        (
+                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                            AND ACT.status = 'COM'
+                                            AND ACT.completed_date BETWEEN '2022-07-01'
+                                            AND '2022-07-31'
+                                        )
+                                        OR ACT.name = 'Circuit Creation'
+                                    )
+                                )
+                                OR (
+                                    ORD.order_type = 'Cease'
+                                    AND (
+                                        PER.role LIKE 'ODC_%'
+                                        OR PER.role LIKE 'RDC_%'
+                                        OR PER.role LIKE 'GSPSG_%'
+                                    )
+                                    AND (
+                                        (
+                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                            AND ACT.status = 'COM'
+                                            AND ACT.completed_date BETWEEN '2022-07-01'
+                                            AND '2022-07-31'
+                                        )
+                                        OR ACT.name IN (
+                                            'Node & Cct Del (DN-ISDN)',
+                                            'Node & Cct Deletion (DN)'
+                                        )
+                                    )
+                                )
+                            )
                         )
-                        AND (
-                            (
-                                PRD.network_product_code LIKE 'DGN%'
-                                AND (
-                                    (
-                                        ORD.order_type IN ('Provide', 'Change')
-                                        AND (
-                                            PER.role LIKE 'ODC_%'
-                                            OR PER.role LIKE 'RDC_%'
-                                            OR PER.role LIKE 'GSPSG_%'
+                        OR (
+                            PRD.network_product_code LIKE 'DME%'
+                            AND (
+                                (
+                                    ORD.order_type IN ('Provide')
+                                    AND (
+                                        PER.role LIKE 'ODC_%'
+                                        OR PER.role LIKE 'RDC_%'
+                                        OR PER.role LIKE 'GSPSG_%'
+                                    )
+                                    AND (
+                                        (
+                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                            AND ACT.status = 'COM'
+                                            AND ACT.completed_date BETWEEN '2022-07-01'
+                                            AND '2022-07-31'
                                         )
-                                        AND (
+                                        OR ACT.name = 'Circuit Creation'
+                                    )
+                                )
+                                OR (
+                                    ORD.order_type IN ('Change')
+                                    AND (
+                                        (
                                             (
-                                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                                AND ACT.status = 'COM'
-                                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                                AND '2022-07-31'
+                                                PER.role LIKE 'ODC_%'
+                                                OR PER.role LIKE 'RDC_%'
+                                                OR PER.role LIKE 'GSPSG_%'
                                             )
-                                            OR ACT.name = 'Circuit Creation'
+                                            AND ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                            AND ACT.status = 'COM'
+                                            AND ACT.completed_date BETWEEN '2022-07-01'
+                                            AND '2022-07-31'
                                         )
                                     )
                                     OR (
-                                        ORD.order_type = 'Cease'
-                                        AND (
+                                        (
                                             PER.role LIKE 'ODC_%'
                                             OR PER.role LIKE 'RDC_%'
-                                            OR PER.role LIKE 'GSPSG_%'
+                                            OR PER.role LIKE 'GSP%'
                                         )
-                                        AND (
-                                            (
-                                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                                AND ACT.status = 'COM'
-                                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                                AND '2022-07-31'
-                                            )
-                                            OR ACT.name = 'Node & Cct Del (DN-ISDN)'
+                                        AND ACT.name IN ('Circuit Creation', 'Change Speed Configure')
+                                    )
+                                )
+                                OR (
+                                    ORD.order_type = 'Cease'
+                                    AND (
+                                        PER.role LIKE 'ODC_%'
+                                        OR PER.role LIKE 'RDC_%'
+                                        OR PER.role LIKE 'GSPSG_%'
+                                    )
+                                    AND (
+                                        (
+                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                                            AND ACT.status = 'COM'
+                                            AND ACT.completed_date BETWEEN '2022-07-01'
+                                            AND '2022-07-31'
                                         )
+                                        OR ACT.name = 'Node & Circuit Deletion'
                                     )
                                 )
                             )
-                            OR (
-                                PRD.network_product_code LIKE 'DME%'
-                                AND (
-                                    (
-                                        ORD.order_type IN ('Provide', 'Change')
-                                        AND (
-                                            PER.role LIKE 'ODC_%'
-                                            OR PER.role LIKE 'RDC_%'
-                                            OR PER.role LIKE 'GSPSG_%'
-                                        )
-                                        AND (
-                                            (
-                                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                                AND ACT.status = 'COM'
-                                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                                AND '2022-07-31'
-                                            )
-                                            OR ACT.name = 'Circuit Creation'
-                                        )
+                        )
+                        OR (
+                            PRD.network_product_code = 'ELK0052'
+                            AND (
+                                (
+                                    ORD.order_type IN ('Provide', 'Change')
+                                    AND (
+                                        PER.role LIKE 'ODC_%'
+                                        OR PER.role LIKE 'RDC_%'
+                                        OR PER.role LIKE 'GSPSG_%'
                                     )
-                                    OR (
-                                        ORD.order_type = 'Cease'
-                                        AND (
-                                            PER.role LIKE 'ODC_%'
-                                            OR PER.role LIKE 'RDC_%'
-                                            OR PER.role LIKE 'GSPSG_%'
+                                    AND ACT.name = 'Circuit Creation'
+                                    AND ACT.status = 'COM'
+                                    AND ACT.completed_date BETWEEN '2022-07-01'
+                                    AND '2022-07-31'
+                                )
+                                OR (
+                                    ORD.order_type = 'Cease'
+                                    AND (
+                                        PER.role LIKE 'ODC_%'
+                                        OR PER.role LIKE 'RDC_%'
+                                        OR PER.role LIKE 'GSPSG_%'
+                                    )
+                                    AND ACT.name = 'Node & Circuit Deletion'
+                                    AND ACT.status = 'COM'
+                                    AND ACT.completed_date BETWEEN '2022-07-01'
+                                    AND '2022-07-31'
+                                )
+                            )
+                        )
+                        OR (
+                            PRD.network_product_code LIKE 'GGW%'
+                            AND (
+                                (
+                                    ORD.order_type = 'Provide'
+                                    AND (
+                                        (
+                                            PER.role = 'GSP_LTC_GW'
+                                            AND ACT.name = 'GSDT Co-ordination Work'
+                                            AND ACT.status = 'COM'
+                                            AND ACT.completed_date BETWEEN '2022-07-01'
+                                            AND '2022-07-31'
                                         )
-                                        AND (
+                                        OR (
                                             (
-                                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                                AND ACT.status = 'COM'
-                                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                                AND '2022-07-31'
+                                                PER.role LIKE 'ODC_%'
+                                                OR PER.role LIKE 'RDC_%'
+                                                OR PER.role LIKE 'GSPSG_%'
                                             )
-                                            OR ACT.name = 'Node & Circuit Deletion'
+                                            AND ACT.name = 'Circuit Creation'
                                         )
                                     )
                                 )
-                            )
-                            OR (
-                                PRD.network_product_code = 'ELK0052'
-                                AND (
-                                    (
-                                        ORD.order_type IN ('Provide', 'Change')
-                                        AND (
-                                            PER.role LIKE 'ODC_%'
-                                            OR PER.role LIKE 'RDC_%'
-                                            OR PER.role LIKE 'GSPSG_%'
-                                        )
-                                        AND ACT.name = 'Circuit Creation'
-                                        AND ACT.status = 'COM'
-                                        AND ACT.completed_date BETWEEN '2022-07-01'
-                                        AND '2022-07-31'
-                                    )
-                                    OR (
-                                        ORD.order_type = 'Cease'
-                                        AND (
-                                            PER.role LIKE 'ODC_%'
-                                            OR PER.role LIKE 'RDC_%'
-                                            OR PER.role LIKE 'GSPSG_%'
-                                        )
-                                        AND ACT.name = 'Node & Circuit Deletion'
-                                        AND ACT.status = 'COM'
-                                        AND ACT.completed_date BETWEEN '2022-07-01'
-                                        AND '2022-07-31'
-                                    )
-                                )
-                            )
-                            OR (
-                                PRD.network_product_code LIKE 'GGW%'
-                                AND (
-                                    (
-                                        ORD.order_type = 'Provide'
-                                        AND (
-                                            (
-                                                PER.role = 'GSP_LTC_GW'
-                                                AND ACT.name = 'GSDT Co-ordination Work'
-                                                AND ACT.status = 'COM'
-                                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                                AND '2022-07-31'
-                                            )
-                                            OR (
-                                                (
-                                                    PER.role LIKE 'ODC_%'
-                                                    OR PER.role LIKE 'RDC_%'
-                                                    OR PER.role LIKE 'GSPSG_%'
-                                                )
-                                                AND ACT.name = 'Circuit Creation'
-                                            )
-                                        )
-                                    )
-                                    OR (
-                                        ORD.order_type = 'Cease'
-                                        AND (
+                                OR (
+                                    ORD.order_type = 'Cease'
+                                    AND (
+                                        (
                                             PER.role = 'GSDT31'
                                             AND ACT.name = 'GSDT Co-ordination Work'
                                             AND ACT.status = 'COM'
                                             AND ACT.completed_date BETWEEN '2022-07-01'
                                             AND '2022-07-31'
+                                        )
+                                        OR (
+                                            PER.role = 'GSP_LTC_GW'
+                                            AND ACT.name = 'Circuit Removal from NMS'
                                         )
                                     )
                                 )
@@ -561,6 +688,7 @@ def getComQueues():
                     Service,
                     ORD.order_type DESC,
                     ACT.name,
+                    step_no,
                     PER.role,
                     ORD.order_code;
             """
