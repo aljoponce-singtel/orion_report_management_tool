@@ -15,8 +15,10 @@ SELECT
     ORD.order_type,
     PRD.network_product_code,
     PER.role,
+    CAST(ACT.activity_code AS UNSIGNED) AS step_no,
     ACT.name,
     ACT.status,
+    ACT.due_date,
     ACT.completed_date
 FROM
     RestInterface_order ORD
@@ -27,152 +29,183 @@ FROM
     AND NPP.status <> 'Cancel'
     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
 WHERE
-    (
-        ORD.id IN (
-            SELECT
-                id
-            FROM
-                COM_QUEUES
+    ORD.id IN (
+        SELECT
+            id
+        FROM
+            COM_QUEUES
+    )
+    AND (
+        (
+            PRD.network_product_code LIKE 'DGN%'
+            AND (
+                (
+                    ORD.order_type IN ('Provide', 'Change')
+                    AND (
+                        PER.role LIKE 'ODC_%'
+                        OR PER.role LIKE 'RDC_%'
+                        OR PER.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND ACT.status = 'COM'
+                            AND ACT.completed_date BETWEEN '2022-07-01'
+                            AND '2022-07-31'
+                        )
+                        OR ACT.name = 'Circuit Creation'
+                    )
+                )
+                OR (
+                    ORD.order_type = 'Cease'
+                    AND (
+                        PER.role LIKE 'ODC_%'
+                        OR PER.role LIKE 'RDC_%'
+                        OR PER.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND ACT.status = 'COM'
+                            AND ACT.completed_date BETWEEN '2022-07-01'
+                            AND '2022-07-31'
+                        )
+                        OR ACT.name IN (
+                            'Node & Cct Del (DN-ISDN)',
+                            'Node & Cct Deletion (DN)'
+                        )
+                    )
+                )
+            )
         )
-        AND (
-            (
-                PRD.network_product_code LIKE 'DGN%'
-                AND (
-                    (
-                        ORD.order_type IN ('Provide', 'Change')
-                        AND (
-                            PER.role LIKE 'ODC_%'
-                            OR PER.role LIKE 'RDC_%'
-                            OR PER.role LIKE 'GSPSG_%'
+        OR (
+            PRD.network_product_code LIKE 'DME%'
+            AND (
+                (
+                    ORD.order_type IN ('Provide')
+                    AND (
+                        PER.role LIKE 'ODC_%'
+                        OR PER.role LIKE 'RDC_%'
+                        OR PER.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND ACT.status = 'COM'
+                            AND ACT.completed_date BETWEEN '2022-07-01'
+                            AND '2022-07-31'
                         )
-                        AND (
+                        OR ACT.name = 'Circuit Creation'
+                    )
+                )
+                OR (
+                    ORD.order_type IN ('Change')
+                    AND (
+                        (
                             (
-                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                AND ACT.status = 'COM'
-                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                AND '2022-07-31'
+                                PER.role LIKE 'ODC_%'
+                                OR PER.role LIKE 'RDC_%'
+                                OR PER.role LIKE 'GSPSG_%'
                             )
-                            OR ACT.name = 'Circuit Creation'
+                            AND ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND ACT.status = 'COM'
+                            AND ACT.completed_date BETWEEN '2022-07-01'
+                            AND '2022-07-31'
                         )
                     )
                     OR (
-                        ORD.order_type = 'Cease'
-                        AND (
+                        (
                             PER.role LIKE 'ODC_%'
                             OR PER.role LIKE 'RDC_%'
-                            OR PER.role LIKE 'GSPSG_%'
+                            OR PER.role LIKE 'GSP%'
                         )
-                        AND (
-                            (
-                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                AND ACT.status = 'COM'
-                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                AND '2022-07-31'
-                            )
-                            OR ACT.name = 'Node & Cct Del (DN-ISDN)'
+                        AND ACT.name IN ('Circuit Creation', 'Change Speed Configure')
+                    )
+                )
+                OR (
+                    ORD.order_type = 'Cease'
+                    AND (
+                        PER.role LIKE 'ODC_%'
+                        OR PER.role LIKE 'RDC_%'
+                        OR PER.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND ACT.status = 'COM'
+                            AND ACT.completed_date BETWEEN '2022-07-01'
+                            AND '2022-07-31'
                         )
+                        OR ACT.name = 'Node & Circuit Deletion'
                     )
                 )
             )
-            OR (
-                PRD.network_product_code LIKE 'DME%'
-                AND (
-                    (
-                        ORD.order_type IN ('Provide', 'Change')
-                        AND (
-                            PER.role LIKE 'ODC_%'
-                            OR PER.role LIKE 'RDC_%'
-                            OR PER.role LIKE 'GSPSG_%'
-                        )
-                        AND (
-                            (
-                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                AND ACT.status = 'COM'
-                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                AND '2022-07-31'
-                            )
-                            OR ACT.name = 'Circuit Creation'
-                        )
+        )
+        OR (
+            PRD.network_product_code = 'ELK0052'
+            AND (
+                (
+                    ORD.order_type IN ('Provide', 'Change')
+                    AND (
+                        PER.role LIKE 'ODC_%'
+                        OR PER.role LIKE 'RDC_%'
+                        OR PER.role LIKE 'GSPSG_%'
                     )
-                    OR (
-                        ORD.order_type = 'Cease'
-                        AND (
-                            PER.role LIKE 'ODC_%'
-                            OR PER.role LIKE 'RDC_%'
-                            OR PER.role LIKE 'GSPSG_%'
+                    AND ACT.name = 'Circuit Creation'
+                    AND ACT.status = 'COM'
+                    AND ACT.completed_date BETWEEN '2022-07-01'
+                    AND '2022-07-31'
+                )
+                OR (
+                    ORD.order_type = 'Cease'
+                    AND (
+                        PER.role LIKE 'ODC_%'
+                        OR PER.role LIKE 'RDC_%'
+                        OR PER.role LIKE 'GSPSG_%'
+                    )
+                    AND ACT.name = 'Node & Circuit Deletion'
+                    AND ACT.status = 'COM'
+                    AND ACT.completed_date BETWEEN '2022-07-01'
+                    AND '2022-07-31'
+                )
+            )
+        )
+        OR (
+            PRD.network_product_code LIKE 'GGW%'
+            AND (
+                (
+                    ORD.order_type = 'Provide'
+                    AND (
+                        (
+                            PER.role = 'GSP_LTC_GW'
+                            AND ACT.name = 'GSDT Co-ordination Work'
+                            AND ACT.status = 'COM'
+                            AND ACT.completed_date BETWEEN '2022-07-01'
+                            AND '2022-07-31'
                         )
-                        AND (
+                        OR (
                             (
-                                ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                AND ACT.status = 'COM'
-                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                AND '2022-07-31'
+                                PER.role LIKE 'ODC_%'
+                                OR PER.role LIKE 'RDC_%'
+                                OR PER.role LIKE 'GSPSG_%'
                             )
-                            OR ACT.name = 'Node & Circuit Deletion'
+                            AND ACT.name = 'Circuit Creation'
                         )
                     )
                 )
-            )
-            OR (
-                PRD.network_product_code = 'ELK0052'
-                AND (
-                    (
-                        ORD.order_type IN ('Provide', 'Change')
-                        AND (
-                            PER.role LIKE 'ODC_%'
-                            OR PER.role LIKE 'RDC_%'
-                            OR PER.role LIKE 'GSPSG_%'
-                        )
-                        AND ACT.name = 'Circuit Creation'
-                        AND ACT.status = 'COM'
-                        AND ACT.completed_date BETWEEN '2022-07-01'
-                        AND '2022-07-31'
-                    )
-                    OR (
-                        ORD.order_type = 'Cease'
-                        AND (
-                            PER.role LIKE 'ODC_%'
-                            OR PER.role LIKE 'RDC_%'
-                            OR PER.role LIKE 'GSPSG_%'
-                        )
-                        AND ACT.name = 'Node & Circuit Deletion'
-                        AND ACT.status = 'COM'
-                        AND ACT.completed_date BETWEEN '2022-07-01'
-                        AND '2022-07-31'
-                    )
-                )
-            )
-            OR (
-                PRD.network_product_code LIKE 'GGW%'
-                AND (
-                    (
-                        ORD.order_type = 'Provide'
-                        AND (
-                            (
-                                PER.role = 'GSP_LTC_GW'
-                                AND ACT.name = 'GSDT Co-ordination Work'
-                                AND ACT.status = 'COM'
-                                AND ACT.completed_date BETWEEN '2022-07-01'
-                                AND '2022-07-31'
-                            )
-                            OR (
-                                (
-                                    PER.role LIKE 'ODC_%'
-                                    OR PER.role LIKE 'RDC_%'
-                                    OR PER.role LIKE 'GSPSG_%'
-                                )
-                                AND ACT.name = 'Circuit Creation'
-                            )
-                        )
-                    )
-                    OR (
-                        ORD.order_type = 'Cease'
-                        AND (
+                OR (
+                    ORD.order_type = 'Cease'
+                    AND (
+                        (
                             PER.role = 'GSDT31'
                             AND ACT.name = 'GSDT Co-ordination Work'
                             AND ACT.status = 'COM'
                             AND ACT.completed_date BETWEEN '2022-07-01'
                             AND '2022-07-31'
+                        )
+                        OR (
+                            PER.role = 'GSP_LTC_GW'
+                            AND ACT.name = 'Circuit Removal from NMS'
                         )
                     )
                 )
@@ -183,5 +216,6 @@ ORDER BY
     Service,
     ORD.order_type DESC,
     ACT.name,
+    step_no,
     PER.role,
     ORD.order_code;
