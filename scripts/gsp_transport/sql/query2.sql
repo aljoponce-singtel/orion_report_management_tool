@@ -1,21 +1,5 @@
 CREATE TEMPORARY TABLE COM_QUEUES
 SELECT
-    DISTINCT (
-        CASE
-            WHEN PRD.network_product_code LIKE 'DGN%' THEN 'Diginet'
-            WHEN PRD.network_product_code LIKE 'DME%' THEN 'MetroE'
-            WHEN PRD.network_product_code = 'ELK0052' THEN 'MegaPop (CE)'
-            WHEN PRD.network_product_code LIKE 'GGW%' THEN 'Gigawave'
-            ELSE 'Service'
-        END
-    ) AS Service,
-    PRD.network_product_code,
-    ORD.order_type,
-    ORD.order_code,
-    PER.role,
-    ACT.name,
-    ACT.status,
-    ACT.completed_date,
     ORD.id
 FROM
     RestInterface_order ORD
@@ -93,10 +77,4 @@ WHERE
         )
     )
     AND ACT.completed_date BETWEEN '2022-07-01'
-    AND '2022-07-31'
-ORDER BY
-    Service,
-    ORD.order_type DESC,
-    PER.role,
-    ORD.order_code,
-    ACT.name;
+    AND '2022-07-31';
