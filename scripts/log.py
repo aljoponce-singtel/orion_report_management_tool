@@ -18,12 +18,15 @@ def initialize(configPath):
     consoleFormat = logging.Formatter(
         fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%T")
     consoleHandler.setFormatter(consoleFormat)
-    fileHandler = TimedRotatingFileHandler(logConfig['logFile'], 'D', 1)
-    fileFormat = logging.Formatter(
-        fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
-    fileHandler.setFormatter(fileFormat)
     logger.addHandler(consoleHandler)
-    logger.addHandler(fileHandler)
+
+    if logConfig.getboolean('logToFile') != False:
+        fileHandler = TimedRotatingFileHandler(logConfig['logFile'], 'D', 1)
+        fileFormat = logging.Formatter(
+            fmt="%(asctime)s - %(module)s - %(levelname)s - %(message)s", datefmt="%F %a %T")
+        fileHandler.setFormatter(fileFormat)
+        logger.addHandler(fileHandler)
+
     logger.setLevel(getLevelNumValue(logConfig['level']))
 
 
