@@ -190,10 +190,12 @@ def generateTransportReport(fileName, reportDate, emailSubject):
     # Write to CSV
     csvFiles = []
     csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
-    logger.info("Generating report " + csvFile + " ...")
-    csvFiles.append(csvFile)
-    csvfilePath = os.path.join(reportsFolderPath, csvFile)
-    utils.dataframeToCsv(df_finalReport, csvfilePath)
+
+    if defaultConfig.getboolean('CreateReport') != False:
+        logger.info("Generating report " + csvFile + " ...")
+        csvFiles.append(csvFile)
+        csvfilePath = os.path.join(reportsFolderPath, csvFile)
+        utils.dataframeToCsv(df_finalReport, csvfilePath)
 
 
 def getActRecord(df, activities):
@@ -238,40 +240,6 @@ def getActRecord(df, activities):
         df_activities['ActComDate'].values) else None
 
     return actGroupId, actName, actStatus, actDueDate, actComDate
-
-
-def getActRecords(df, activities, column):
-    df_activities = pd.DataFrame(df)
-    df_activities = df_activities[df_activities['ActName'].isin(activities)]
-
-    # If there are multiple records, keep only 1 based on priority
-    if len(df_activities) > 1:
-        # If there are multiple records of the same activity name,
-        # keep the activity with the highest step_no
-        df_sorted = df_activities.sort_values(by=['ActStepNo', 'ActName'])
-        df_dropped_duplicates = df_sorted.drop_duplicates(
-            subset=['ActName'], keep='last')
-
-        # If there are multiple records of different activity name,
-        # select the 1st activity based from the priority sequence in [activities]
-
-        # Configure 'ActName' column to follow priority sequence from [activities]
-        df_actPriority = pd.DataFrame(df_dropped_duplicates)
-        df_actPriority['ActName'] = pd.Categorical(
-            values=df_actPriority['ActName'], categories=activities)
-        # Sort rows by 'ActName' priority
-        df_actPrioritySorted = df_actPriority.sort_values(
-            by=['ActName'])
-        # Keep only 1 activity based from priority (1st row)
-        df_activity = df_actPrioritySorted.head(1)
-
-        # print(df_activity[['Service', 'OrderCode',
-        #                    'OrderType', 'ActStepNo', 'ActName']])
-
-        return df_activity[column]
-
-    else:
-        return df_activities[column]
 
 
 def createTempTable():
