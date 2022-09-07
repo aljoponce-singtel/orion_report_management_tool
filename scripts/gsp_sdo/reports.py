@@ -441,7 +441,7 @@ def addParamAndSvcnoColToDf(dataframe, productCodes, parameter_names):
     df_parameters = pd.DataFrame(data=parameterList, columns=[
                                  'ServiceNumberUpd', 'ParameterName', 'ParameterValue'])
     df = pd.merge(df, df_parameters, how='left')
-    
+
     # Add new ServiceNoNew column
     df['ServiceNoNew'] = None
 
@@ -506,7 +506,16 @@ def addOrderInfoColToDf(dataframe):
     result = orionDb.queryToList(query)
     df_orderInfo = pd.DataFrame(
         data=result, columns=['ServiceNoNew', 'OrderIdNew', 'OrderCodeNew', 'CRDNew'])
-    df = pd.merge(df, df_orderInfo, how='left')
+
+    # There are cases where a service number can have multiple orders.
+    # Choose the order with the latest CRD.
+    # Drop duplicate using ServiceNoNew by keeping the latest CRDNew.
+    df_sorted = df_orderInfo.sort_values(
+        by=['ServiceNoNew', 'CRDNew'])
+    df_rmDuplicates = df_sorted.drop_duplicates(
+        subset=['ServiceNoNew'], keep='last')
+
+    df = pd.merge(df, df_rmDuplicates, how='left')
 
     return df
 
