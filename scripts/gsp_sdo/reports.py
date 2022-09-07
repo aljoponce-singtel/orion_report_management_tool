@@ -441,7 +441,7 @@ def addParamAndSvcnoColToDf(dataframe, productCodes, parameter_names):
     df_parameters = pd.DataFrame(data=parameterList, columns=[
                                  'ServiceNumberUpd', 'ParameterName', 'ParameterValue'])
     df = pd.merge(df, df_parameters, how='left')
-
+    
     # Add new ServiceNoNew column
     df['ServiceNoNew'] = None
 
@@ -474,6 +474,7 @@ def getParametersInfo(df_serviceNo, parameter_names):
                 RestInterface_order ORD
                 LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
                 AND NPP.level = 'Mainline'
+                AND NPP.status <> 'Cancel'
                 LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
                 AND PAR.parameter_name IN ({})
             WHERE

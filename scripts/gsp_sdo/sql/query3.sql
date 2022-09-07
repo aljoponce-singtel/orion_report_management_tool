@@ -6,6 +6,7 @@ FROM
     RestInterface_order ORD
     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
     AND NPP.level = 'Mainline'
+    AND NPP.status <> 'Cancel'
     LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
     AND PAR.parameter_name IN ({})
 WHERE
