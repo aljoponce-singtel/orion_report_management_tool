@@ -387,6 +387,8 @@ def getTransportOrders(startDate, endDate):
         )
     )
 
+    orionDb.logFullQuery(query)
+
     result = orionDb.queryToList2(query)
     return pd.DataFrame(data=result, columns=['order_id'])
 
@@ -641,6 +643,8 @@ def getTransportRecords(order_id_list, startDate, endDate):
             order_table.c.order_code
         )
     )
+
+    orionDb.logFullQuery(query)
 
     result = orionDb.queryToList2(query)
     return pd.DataFrame(data=result, columns=const.DRAFT_COLUMNS)
