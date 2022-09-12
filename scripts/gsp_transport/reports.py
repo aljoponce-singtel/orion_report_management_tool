@@ -242,6 +242,21 @@ def generateTransportReport(fileName, startDate, endDate, emailSubject):
         # Insert records to tableau db
         updateTableauDB(df_finalReport)
 
+        # Compress files and send email
+        if csvFiles:
+            attachement = None
+            if defaultConfig.getboolean('CompressFiles'):
+                zipFile = ("{}_{}.zip").format(
+                    fileName, utils.getCurrentDateTime2())
+                utils.zipFile(csvFiles, zipFile, reportsFolderPath,
+                              defaultConfig['ZipPassword'])
+                attachement = zipFile
+            else:
+                attachement = csvFile
+            sendEmail(emailSubject, attachement)
+
+    logger.info("Processing [" + emailSubject + "] complete")
+
 
 def getActRecord(df, activities):
     df_activities = pd.DataFrame(df)
