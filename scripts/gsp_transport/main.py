@@ -2,7 +2,8 @@
 import os
 import logging
 import configparser
-from datetime import datetime
+import calendar
+from datetime import datetime, timedelta
 from scripts import log
 from scripts import utils
 from scripts.gsp_transport import reports
@@ -37,29 +38,36 @@ def main():
     today_date = datetime.now().date()
 
     try:
-        reports.loadConfig(config)
-        reportDate = None
+        reports.initialize(config)
 
         if defaultConfig.getboolean('GenReportManually'):
             logger.info('\\* MANUAL RUN *\\')
-            reportDate = defaultConfig['ReportDate']
-            logger.info("report date: " + str(reportDate))
+            startDate = defaultConfig['ReportStartDate']
+            endDate = defaultConfig['ReportEndDate']
+            logger.info("start date: " + str(startDate))
+            logger.info("end date: " + str(endDate))
 
             defaultConfig['UpdateTableauDB'] = 'false'
             logger.info('UpdateTableauDB = ' +
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
             reports.generateTransportReport(
-                'transport_report', reportDate, "Transport Report")
+                'transport_report', startDate,  endDate, "Transport Report")
         else:
-            reportDate = str(today_date.replace(day=1))
-            logger.info("report date: " + str(reportDate))
+            previousMonth = (today_date.replace(day=1) -
+                             timedelta(days=1)).replace(day=today_date.day)
+            startDate = str(previousMonth)
+            lastDay = calendar.monthrange(
+                previousMonth.year, previousMonth.month)[1]
+            endDate = str(previousMonth.replace(day=lastDay))
+            logger.info("start date: " + str(startDate))
+            logger.info("end date: " + str(endDate))
 
             logger.info('UpdateTableauDB = ' +
                         str(defaultConfig.getboolean('UpdateTableauDB')))
 
             reports.generateTransportReport(
-                'transport_report', reportDate, "Transport Report")
+                'transport_report', startDate,  endDate, "Transport Report")
 
     except Exception as err:
         logger.exception(err)
