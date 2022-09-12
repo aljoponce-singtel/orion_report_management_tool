@@ -5,7 +5,10 @@ import logging
 import pandas as pd
 import numpy as np
 import constants as const
+from sqlalchemy import select, case, and_, or_, null
+from sqlalchemy.types import Integer
 from scripts import utils
+from models import TransportBase
 from scripts.DBConnection import DBConnection
 from scripts.EmailClient import EmailClient
 
@@ -30,10 +33,11 @@ dbConfig = None
 csvFiles = []
 reportsFolderPath = None
 orionDb = None
+tableauDb = None
 
 
-def loadConfig(config):
-    global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb
+def initialize(config):
+    global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb, tableauDb
     defaultConfig = config['DEFAULT']
     emailConfig = config[defaultConfig['EmailInfo']]
     dbConfig = config[defaultConfig['DatabaseEnv']]
@@ -43,6 +47,42 @@ def loadConfig(config):
     orionDb = DBConnection(dbConfig['host'], dbConfig['port'],
                            dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
     orionDb.connect()
+
+    tableauDb = DBConnection(dbConfig['host'], dbConfig['port'],
+                             dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
+    tableauDb.connect()
+    tableauDb.createTablesFromMetadata(TransportBase)
+
+
+def updateTableauDB(dataframe):
+    # Allow Tableaue DB update
+    if defaultConfig.getboolean('UpdateTableauDB'):
+        try:
+            logger.info(
+                'Inserting records to ' + dbConfig['tableau_db'] + '.' + defaultConfig['TableauTable'] + ' ...')
+
+            df = pd.DataFrame(dataframe)
+
+            # add new column
+            df["update_time"] = pd.Timestamp.now()
+
+            # set columns to datetime type
+            df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
+                pd.to_datetime)
+
+            # set empty values to null
+            df.replace('', None)
+            # insert records to DB
+            tableauDb.insertDataframeToTable(df, defaultConfig['TableauTable'])
+
+            # logger.info("TableauDB Updated for " + report_id.lower())
+
+        except Exception as err:
+            logger.info("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
+                        dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            logger.exception(err)
+
+            raise Exception(err)
 
 
 def sendEmail(subject, attachment):
@@ -92,9 +132,11 @@ def sendEmail(subject, attachment):
             raise Exception(e)
 
 
-def generateTransportReport(fileName, reportDate, emailSubject):
-    createTempTable()
-    df = pd.DataFrame(getComQueues())
+def generateTransportReport(fileName, startDate, endDate, emailSubject):
+
+    df_order_id = getTransportOrders(startDate, endDate)
+    df = pd.DataFrame(getTransportRecords(
+        df_order_id['order_id'].to_list(), startDate, endDate))
     df_finalReport = pd.DataFrame(columns=const.FINAL_COLUMNS)
     df_orders = df[['Service', 'OrderCode', 'CRD',
                    'ServiceNumber', 'OrderStatus', 'OrderType', 'ProductCode']]
@@ -197,6 +239,9 @@ def generateTransportReport(fileName, reportDate, emailSubject):
         csvfilePath = os.path.join(reportsFolderPath, csvFile)
         utils.dataframeToCsv(df_finalReport, csvfilePath)
 
+        # Insert records to tableau db
+        updateTableauDB(df_finalReport)
+
 
 def getActRecord(df, activities):
     df_activities = pd.DataFrame(df)
@@ -222,10 +267,6 @@ def getActRecord(df, activities):
             by=['ActName'])
         # Keep only 1 activity based from priority (1st row)
         df_activity = df_actPrioritySorted.head(1)
-
-        # print(df_activity[['Service', 'OrderCode',
-        #                    'OrderType', 'ActStepNo', 'ActName']])
-
         df_activities = df_activity
 
     actGroupId = df_activities['GroupID'].values[0] if np.size(
@@ -242,317 +283,364 @@ def getActRecord(df, activities):
     return actGroupId, actName, actStatus, actDueDate, actComDate
 
 
-def createTempTable():
-    query = """ 
-                CREATE TEMPORARY TABLE COM_QUEUES
-                SELECT
-                    ORD.id
-                FROM
-                    RestInterface_order ORD
-                    JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-                    LEFT JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.ID
-                    AND NPP.level = 'Mainline'
-                    AND NPP.status <> 'Cancel'
-                    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
-                WHERE
-                    (
-                        (
-                            PRD.network_product_code LIKE 'DGN%'
-                            AND ORD.order_type IN ('Provide', 'Change', 'Cease')
-                            AND (
-                                PER.role LIKE 'ODC_%'
-                                OR PER.role LIKE 'RDC_%'
-                                OR PER.role LIKE 'GSPSG_%'
-                            )
-                            AND ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                            AND ACT.status = 'COM'
-                        )
-                        OR (
-                            PRD.network_product_code LIKE 'DME%'
-                            AND ORD.order_type IN ('Provide', 'Change', 'Cease')
-                            AND (
-                                PER.role LIKE 'ODC_%'
-                                OR PER.role LIKE 'RDC_%'
-                                OR PER.role LIKE 'GSPSG_%'
-                            )
-                            AND ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                            AND ACT.status = 'COM'
-                        )
-                        OR (
-                            PRD.network_product_code = 'ELK0052'
-                            AND (
-                                (
-                                    ORD.order_type IN ('Provide', 'Change')
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND ACT.name = 'Circuit Creation'
-                                    AND ACT.status = 'COM'
-                                )
-                                OR (
-                                    ORD.order_type = 'Cease'
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND ACT.name = 'Node & Circuit Deletion'
-                                    AND ACT.status = 'COM'
-                                )
-                            )
-                        )
-                        OR (
-                            PRD.network_product_code LIKE 'GGW%'
-                            AND (
-                                (
-                                    ORD.order_type = 'Provide'
-                                    AND PER.role = 'GSP_LTC_GW'
-                                    AND ACT.name = 'GSDT Co-ordination Work'
-                                    AND ACT.status = 'COM'
-                                )
-                                OR (
-                                    ORD.order_type = 'Cease'
-                                    AND PER.role = 'GSDT31'
-                                    AND ACT.name = 'GSDT Co-ordination Work'
-                                    AND ACT.status = 'COM'
-                                )
-                            )
-                        )
-                    )
-                    AND ACT.completed_date BETWEEN '2022-07-01'
-                    AND '2022-07-31';
-            """
+def getTransportOrders(startDate, endDate):
 
-    orionDb.queryWithoutResult(query)
+    # store variables to upper_case variables for better readability in the query
+    START_DATE = startDate
+    END_DATE = endDate
+
+    order_table = orionDb.getTableMetadata('RestInterface_order', 'ord')
+    activity_table = orionDb.getTableMetadata('RestInterface_activity', 'act')
+    person_table = orionDb.getTableMetadata('RestInterface_person', 'per')
+    npp_table = orionDb.getTableMetadata('RestInterface_npp', 'npp')
+    product_table = orionDb.getTableMetadata('RestInterface_product', 'prd')
+
+    # see gsp_transport/sql/getTransportOrders.sql for the raw MySQL query
+    query = (
+        select([order_table.c.id])
+        .distinct()
+        .select_from(order_table)
+        .join(activity_table,
+              activity_table.c.order_id == order_table.c.id)
+        .outerjoin(person_table,
+                   person_table.c.id == activity_table.c.person_id)
+        .outerjoin(npp_table,
+                   and_(
+                       npp_table.c.order_id == order_table.c.id,
+                       npp_table.c.level == 'Mainline',
+                       npp_table.c.status != 'Cancel'
+                   ))
+        .outerjoin(product_table,
+                   product_table.c.id == npp_table.c.product_id)
+        .where(
+            and_(
+                or_(
+                    and_(
+                        product_table.c.network_product_code.like('DGN%'),
+                        order_table.c.order_type.in_(
+                            ['Provide', 'Change', 'Cease']),
+                        or_(
+                            person_table.c.role.like('ODC_%'),
+                            person_table.c.role.like('RDC_%'),
+                            person_table.c.role.like('GSPSG_%')
+                        ),
+                        activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                        activity_table.c.status == 'COM'
+                    ).self_group(),
+                    and_(
+                        product_table.c.network_product_code.like('DME%'),
+                        order_table.c.order_type.in_(
+                            ['Provide', 'Change', 'Cease']),
+                        or_(
+                            person_table.c.role.like('ODC_%'),
+                            person_table.c.role.like('RDC_%'),
+                            person_table.c.role.like('GSPSG_%')
+                        ),
+                        activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                        activity_table.c.status == 'COM'
+                    ).self_group(),
+                    and_(
+                        product_table.c.network_product_code == 'ELK0052',
+                        or_(
+                            and_(
+                                order_table.c.order_type.in_(
+                                    ['Provide', 'Change']),
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%'),
+                                ),
+                                activity_table.c.name == 'Circuit Creation',
+                                activity_table.c.status == 'COM'
+                            ).self_group(),
+                            and_(
+                                order_table.c.order_type == 'Cease',
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%'),
+                                ),
+                                activity_table.c.name == 'Node & Circuit Deletion',
+                                activity_table.c.status == 'COM'
+                            ).self_group()
+                        )
+                    ).self_group(),
+                    and_(
+                        or_(
+                            and_(
+                                order_table.c.order_type == 'Provide',
+                                person_table.c.role == 'GSP_LTC_GW',
+                                activity_table.c.name == 'GSDT Co-ordination Work',
+                                activity_table.c.status == 'COM'
+                            ).self_group(),
+                            and_(
+                                order_table.c.order_type == 'Cease',
+                                person_table.c.role == 'GSDT31',
+                                activity_table.c.name == 'GSDT Co-ordination Work',
+                                activity_table.c.status == 'COM'
+                            ).self_group(),
+                        )
+                    ).self_group()
+                ),
+                activity_table.c.completed_date.between(START_DATE, END_DATE)
+            )
+        )
+    )
+
+    result = orionDb.queryToList2(query)
+    return pd.DataFrame(data=result, columns=['order_id'])
 
 
-def getComQueues():
-    query = """ 
-                SELECT
-                    DISTINCT (
-                        CASE
-                            WHEN PRD.network_product_code LIKE 'DGN%' THEN 'Diginet'
-                            WHEN PRD.network_product_code LIKE 'DME%' THEN 'MetroE'
-                            WHEN PRD.network_product_code = 'ELK0052' THEN 'MegaPop (CE)'
-                            WHEN PRD.network_product_code LIKE 'GGW%' THEN 'Gigawave'
-                            ELSE 'Service'
-                        END
-                    ) AS Service,
-                    ORD.order_code,
-                    ORD.current_crd,
-                    ORD.service_number,
-                    ORD.order_status,
-                    ORD.order_type,
-                    PRD.network_product_code,
-                    PER.role,
-                    CAST(ACT.activity_code AS UNSIGNED) AS step_no,
-                    ACT.name,
-                    ACT.status,
-                    ACT.due_date,
-                    ACT.completed_date
-                FROM
-                    RestInterface_order ORD
-                    JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-                    LEFT JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.ID
-                    AND NPP.level = 'Mainline'
-                    AND NPP.status <> 'Cancel'
-                    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
-                WHERE
-                    ORD.id IN (
-                        SELECT
-                            id
-                        FROM
-                            COM_QUEUES
-                    )
-                    AND (
-                        (
-                            PRD.network_product_code LIKE 'DGN%'
-                            AND (
-                                (
-                                    ORD.order_type IN ('Provide', 'Change')
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND (
-                                        (
-                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                            AND ACT.status = 'COM'
-                                            AND ACT.completed_date BETWEEN '2022-07-01'
-                                            AND '2022-07-31'
-                                        )
-                                        OR ACT.name = 'Circuit Creation'
-                                    )
-                                )
-                                OR (
-                                    ORD.order_type = 'Cease'
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND (
-                                        (
-                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                            AND ACT.status = 'COM'
-                                            AND ACT.completed_date BETWEEN '2022-07-01'
-                                            AND '2022-07-31'
-                                        )
-                                        OR ACT.name IN (
-                                            'Node & Cct Del (DN-ISDN)',
-                                            'Node & Cct Deletion (DN)'
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                        OR (
-                            PRD.network_product_code LIKE 'DME%'
-                            AND (
-                                (
-                                    ORD.order_type IN ('Provide')
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND (
-                                        (
-                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                            AND ACT.status = 'COM'
-                                            AND ACT.completed_date BETWEEN '2022-07-01'
-                                            AND '2022-07-31'
-                                        )
-                                        OR ACT.name = 'Circuit Creation'
-                                    )
-                                )
-                                OR (
-                                    ORD.order_type IN ('Change')
-                                    AND (
-                                        (
-                                            (
-                                                PER.role LIKE 'ODC_%'
-                                                OR PER.role LIKE 'RDC_%'
-                                                OR PER.role LIKE 'GSPSG_%'
-                                            )
-                                            AND ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                            AND ACT.status = 'COM'
-                                            AND ACT.completed_date BETWEEN '2022-07-01'
-                                            AND '2022-07-31'
-                                        )
-                                    )
-                                    OR (
-                                        (
-                                            PER.role LIKE 'ODC_%'
-                                            OR PER.role LIKE 'RDC_%'
-                                            OR PER.role LIKE 'GSP%'
-                                        )
-                                        AND ACT.name IN ('Circuit Creation', 'Change Speed Configure')
-                                    )
-                                )
-                                OR (
-                                    ORD.order_type = 'Cease'
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND (
-                                        (
-                                            ACT.name = 'GSDT Co-ordination Wrk-BQ'
-                                            AND ACT.status = 'COM'
-                                            AND ACT.completed_date BETWEEN '2022-07-01'
-                                            AND '2022-07-31'
-                                        )
-                                        OR ACT.name = 'Node & Circuit Deletion'
-                                    )
-                                )
-                            )
-                        )
-                        OR (
-                            PRD.network_product_code = 'ELK0052'
-                            AND (
-                                (
-                                    ORD.order_type IN ('Provide', 'Change')
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND ACT.name = 'Circuit Creation'
-                                    AND ACT.status = 'COM'
-                                    AND ACT.completed_date BETWEEN '2022-07-01'
-                                    AND '2022-07-31'
-                                )
-                                OR (
-                                    ORD.order_type = 'Cease'
-                                    AND (
-                                        PER.role LIKE 'ODC_%'
-                                        OR PER.role LIKE 'RDC_%'
-                                        OR PER.role LIKE 'GSPSG_%'
-                                    )
-                                    AND ACT.name = 'Node & Circuit Deletion'
-                                    AND ACT.status = 'COM'
-                                    AND ACT.completed_date BETWEEN '2022-07-01'
-                                    AND '2022-07-31'
-                                )
-                            )
-                        )
-                        OR (
-                            PRD.network_product_code LIKE 'GGW%'
-                            AND (
-                                (
-                                    ORD.order_type = 'Provide'
-                                    AND (
-                                        (
-                                            PER.role = 'GSP_LTC_GW'
-                                            AND ACT.name = 'GSDT Co-ordination Work'
-                                            AND ACT.status = 'COM'
-                                            AND ACT.completed_date BETWEEN '2022-07-01'
-                                            AND '2022-07-31'
-                                        )
-                                        OR (
-                                            (
-                                                PER.role LIKE 'ODC_%'
-                                                OR PER.role LIKE 'RDC_%'
-                                                OR PER.role LIKE 'GSPSG_%'
-                                            )
-                                            AND ACT.name = 'Circuit Creation'
-                                        )
-                                    )
-                                )
-                                OR (
-                                    ORD.order_type = 'Cease'
-                                    AND (
-                                        (
-                                            PER.role = 'GSDT31'
-                                            AND ACT.name = 'GSDT Co-ordination Work'
-                                            AND ACT.status = 'COM'
-                                            AND ACT.completed_date BETWEEN '2022-07-01'
-                                            AND '2022-07-31'
-                                        )
-                                        OR (
-                                            PER.role = 'GSP_LTC_GW'
-                                            AND ACT.name = 'Circuit Removal from NMS'
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                ORDER BY
-                    Service,
-                    ORD.order_type DESC,
-                    ACT.name,
-                    step_no,
-                    PER.role,
-                    ORD.order_code;
-            """
+def getTransportRecords(order_id_list, startDate, endDate):
 
-    result = orionDb.queryToList(query)
+    # store variables to upper_case variables for better readability in the query
+    ORDER_ID_LIST = order_id_list
+    START_DATE = startDate
+    END_DATE = endDate
+
+    order_table = orionDb.getTableMetadata('RestInterface_order', 'ord')
+    activity_table = orionDb.getTableMetadata('RestInterface_activity', 'act')
+    person_table = orionDb.getTableMetadata('RestInterface_person', 'per')
+    npp_table = orionDb.getTableMetadata('RestInterface_npp', 'npp')
+    product_table = orionDb.getTableMetadata('RestInterface_product', 'prd')
+
+    # see gsp_transport/sql/getTransportRecords.sql for the raw MySQL query
+    query = (
+        select([
+            case(
+                (product_table.c.network_product_code.like('DGN%'), 'Diginet'),
+                (product_table.c.network_product_code.like('DME%'), 'MetroE'),
+                (product_table.c.network_product_code == 'ELK0052', 'MegaPop (CE)'),
+                (product_table.c.network_product_code.like('GGW%'), 'Gigawave'),
+                else_=null()
+            ).label('service'),
+            order_table.c.order_code,
+            order_table.c.current_crd,
+            order_table.c.service_number,
+            order_table.c.order_status,
+            order_table.c.order_type,
+            product_table.c.network_product_code,
+            person_table.c.role,
+            activity_table.c.activity_code.cast(Integer).label('step_no'),
+            activity_table.c.name,
+            activity_table.c.status,
+            activity_table.c.due_date,
+            activity_table.c.completed_date
+        ])
+        .distinct()
+        .select_from(order_table)
+        .join(activity_table,
+              activity_table.c.order_id == order_table.c.id)
+        .outerjoin(person_table,
+                   person_table.c.id == activity_table.c.person_id)
+        .outerjoin(npp_table,
+                   and_(
+                       npp_table.c.order_id == order_table.c.id,
+                       npp_table.c.level == 'Mainline',
+                       npp_table.c.status != 'Cancel'
+                   ))
+        .outerjoin(product_table,
+                   product_table.c.id == npp_table.c.product_id)
+        .where(
+            and_(
+                order_table.c.id.in_(ORDER_ID_LIST),
+                or_(
+                    and_(
+                        product_table.c.network_product_code.like('DGN%'),
+                        or_(
+                            and_(
+                                order_table.c.order_type.in_(
+                                    ['Provide', 'Change']),
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name == 'Circuit Creation'
+                                    )
+                                )
+                            ),
+                            and_(
+                                order_table.c.order_type == 'Cease',
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name.in_(
+                                            ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'])
+                                    )
+                                )
+                            ).self_group()
+                        )
+                    ).self_group(),
+                    and_(
+                        product_table.c.network_product_code.like('DME%'),
+                        or_(
+                            and_(
+                                order_table.c.order_type == 'Provide',
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name == 'Circuit Creation'
+                                    )
+                                )
+                            ).self_group(),
+                            and_(
+                                order_table.c.order_type == 'Change',
+                                or_(
+                                    and_(
+                                        or_(
+                                            person_table.c.role.like('ODC_%'),
+                                            person_table.c.role.like('RDC_%'),
+                                            person_table.c.role.like('GSPSG_%')
+                                        ),
+                                        activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                        activity_table.c.status == 'COM',
+                                        activity_table.c.completed_date.between(
+                                            START_DATE, END_DATE),
+                                    ).self_group(),
+                                    and_(
+                                        or_(
+                                            person_table.c.role.like('ODC_%'),
+                                            person_table.c.role.like('RDC_%'),
+                                            person_table.c.role.like('GSP_%')
+                                        ),
+                                        activity_table.c.name.in_(
+                                            ['Circuit Creation', 'Change Speed Configure'])
+                                    ).self_group()
+                                )
+                            ).self_group(),
+                            and_(
+                                order_table.c.order_type == 'Cease',
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name == 'Node & Circuit Deletion'
+                                    )
+                                )
+                            ).self_group()
+                        )
+                    ).self_group(),
+                    and_(
+                        product_table.c.network_product_code == 'ELK0052',
+                        or_(
+                            and_(
+                                order_table.c.order_type.in_(
+                                    ['Provide', 'Change']),
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                activity_table.c.name == 'Circuit Creation',
+                                activity_table.c.status == 'COM',
+                                activity_table.c.completed_date.between(
+                                    START_DATE, END_DATE)
+                            ).self_group(),
+                            and_(
+                                order_table.c.order_type == 'Cease',
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                activity_table.c.name == 'Node & Circuit Deletion',
+                                activity_table.c.status == 'COM',
+                                activity_table.c.completed_date.between(
+                                    START_DATE, END_DATE)
+                            ).self_group()
+                        )
+                    ).self_group(),
+                    and_(
+                        product_table.c.network_product_code.like('GGW%'),
+                        or_(
+                            and_(
+                                order_table.c.order_type == 'Provide',
+                                or_(
+                                    and_(
+                                        person_table.c.role == 'GSP_LTC_GW',
+                                        activity_table.c.name == 'GSDT Co-ordination Work',
+                                        activity_table.c.status == 'COM',
+                                        activity_table.c.completed_date.between(
+                                            START_DATE, END_DATE)
+                                    ).self_group(),
+                                    and_(
+                                        or_(
+                                            person_table.c.role.like('ODC_%'),
+                                            person_table.c.role.like('RDC_%'),
+                                            person_table.c.role.like('GSPSG_%')
+                                        ),
+                                        activity_table.c.name == 'Circuit Creation',
+                                    )
+                                )
+                            ).self_group(),
+                            and_(
+                                order_table.c.order_type == 'Cease',
+                                or_(
+                                    and_(
+                                        person_table.c.role == 'GSDT31',
+                                        activity_table.c.name == 'GSDT Co-ordination Work',
+                                        activity_table.c.status == 'COM',
+                                        activity_table.c.completed_date.between(
+                                            START_DATE, END_DATE)
+                                    ).self_group(),
+                                    and_(
+                                        person_table.c.role == 'GSP_LTC_GW',
+                                        activity_table.c.name == 'Circuit Removal from NMS',
+                                    ).self_group()
+                                )
+                            ).self_group()
+                        )
+                    ).self_group()
+                )
+            )
+        )
+        .order_by(
+            'service',
+            order_table.c.order_type.desc(),
+            activity_table.c.name,
+            'step_no',
+            person_table.c.role,
+            order_table.c.order_code
+        )
+    )
+
+    result = orionDb.queryToList2(query)
     return pd.DataFrame(data=result, columns=const.DRAFT_COLUMNS)
