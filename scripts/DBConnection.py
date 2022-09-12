@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.sql import text
 import pymysql
 
@@ -17,6 +17,7 @@ class DBConnection:
         self.password = password
         self.__conn = None
         self.__engine = None
+        self.__metadata = None
 
     def connect(self):
         try:
@@ -26,6 +27,9 @@ class DBConnection:
 
             logger.info("Connected to DB " + self.database + ' at ' +
                         self.user + '@' + self.host + ':' + self.port)
+
+            self.__metadata = MetaData()
+            self.__metadata.reflect(bind=self.__engine)
 
         except Exception as err:
             logger.error("Failed to connect to DB " + self.database + ' at ' +
@@ -38,16 +42,34 @@ class DBConnection:
         self.__conn.close()
         logger.info("Disconnected to " + self.database + '.')
 
-    def getTableMetadata(self, table):
-        metadata = MetaData()
-        tableMetadata = Table(table, metadata,
-                              autoload=True, autoload_with=self.__engine)
-        return tableMetadata
+    def getTableMetadata(self, tableName, alias=None):
 
+        table = None
+
+        if alias:
+            table = self.__metadata.tables[tableName].alias(alias)
+        else:
+            table = self.__metadata.tables[tableName]
+
+        return table
+
+    def logQuery(self, query):
+        # logger.info(query.compile(self.__engine))
+        # logger.info(query.compile(dialect=mysql.dialect()))
+        # logger.info(query.compile(compile_kwargs={"literal_binds": True}))
+        # logger.info(query.compile(dialect=mysql.dialect(), compile_kwargs={"literal_binds": True}))
+        logger.debug(query.compile(self.__engine,
+                                   compile_kwargs={"literal_binds": True}))
+
+    def createTablesFromMetadata(self, table):
+        return table.metadata.create_all(self.__engine)
+
+    # Query DB using a string
     def queryToList(self, query):
         dataset = self.__conn.execute(text(query)).fetchall()
         return dataset
 
+    # Quewry DB using an object
     def queryToList2(self, query):
         dataset = self.__conn.execute(query).fetchall()
         return dataset
