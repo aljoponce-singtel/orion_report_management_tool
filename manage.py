@@ -82,6 +82,8 @@ def main():
                 f.write(traceback.format_exc())
 
             sendEmail(sys.argv[1], fileName)
+        else:
+            print(error)
 
 
 def sendEmail(report, fileName):
