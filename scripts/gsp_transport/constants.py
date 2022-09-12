@@ -33,3 +33,11 @@ FINAL_COLUMNS = [
     'Coordination_ActDueDate',
     'Coordination_COM_Date'
 ]
+
+TABLEAU_DATE_COLUMNS = [
+    'CRD',
+    'PreConfig_ActDueDate',
+    'PreConfig_COM_Date',
+    'Coordination_ActDueDate',
+    'Coordination_COM_Date'
+]
