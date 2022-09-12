@@ -32,7 +32,7 @@ def main():
     today_date = datetime.now().date()
 
     try:
-        reports.loadConfig(config)
+        reports.initialize(config)
 
         if defaultConfig.getboolean('GenReportManually'):
             logger.info('\\* MANUAL RUN *\\')

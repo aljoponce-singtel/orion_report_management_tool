@@ -16,7 +16,7 @@ reportsFolderPath = None
 orionDb = None
 
 
-def loadConfig(config):
+def initialize(config):
     global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb
     defaultConfig = config['DEFAULT']
     emailConfig = config[defaultConfig['EmailInfo']]

@@ -34,7 +34,7 @@ def main():
     today_date = datetime.now().date()
 
     try:
-        reports.loadConfig(config)
+        reports.initialize(config)
         reportDate = None
 
         if defaultConfig.getboolean('GenReportManually'):

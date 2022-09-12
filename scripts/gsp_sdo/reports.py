@@ -19,7 +19,7 @@ orionDb = None
 tableauDb = None
 
 
-def loadConfig(config):
+def initialize(config):
     global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb, tableauDb
     defaultConfig = config['DEFAULT']
     emailConfig = config[defaultConfig['EmailInfo']]
