@@ -1,6 +1,6 @@
 import logging
 import pandas as pd
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.sql import text
 import pymysql
 
@@ -28,8 +28,8 @@ class DBConnection:
             logger.info("Connected to DB " + self.database + ' at ' +
                         self.user + '@' + self.host + ':' + self.port)
 
-            self.__metadata = MetaData()
-            self.__metadata.reflect(bind=self.__engine)
+            self.__metadata = MetaData(self.__engine)
+            # self.__metadata.reflect(bind=self.__engine)
 
         except Exception as err:
             logger.error("Failed to connect to DB " + self.database + ' at ' +
@@ -47,13 +47,16 @@ class DBConnection:
         table = None
 
         if alias:
-            table = self.__metadata.tables[tableName].alias(alias)
+            # table = self.__metadata.tables[tableName].alias(alias)
+            table = Table(tableName, self.__metadata,
+                          autoload=True).alias(alias)
         else:
-            table = self.__metadata.tables[tableName]
+            # table = self.__metadata.tables[tableName]
+            table = Table(tableName, self.__metadata, autoload=True)
 
         return table
 
-    def logQuery(self, query):
+    def logFullQuery(self, query):
         # logger.info(query.compile(self.__engine))
         # logger.info(query.compile(dialect=mysql.dialect()))
         # logger.info(query.compile(compile_kwargs={"literal_binds": True}))
