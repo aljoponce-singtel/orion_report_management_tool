@@ -8,6 +8,7 @@ from scripts.EmailClient import EmailClient
 import pandas as pd
 import numpy as np
 import sqlalchemy as db
+from models import SdoBase
 
 logger = logging.getLogger(__name__)
 defaultConfig = None
@@ -34,6 +35,7 @@ def initialize(config):
     tableauDb = DBConnection(dbConfig['host'], dbConfig['port'],
                              dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
     tableauDb.connect()
+    # tableauDb.createTablesFromMetadata(SdoBase)
 
 
 def updateTableauDB(dataframe, report_id):
