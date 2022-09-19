@@ -8,9 +8,9 @@ import constants as const
 from sqlalchemy import select, case, and_, or_, null
 from sqlalchemy.types import Integer
 from scripts import utils
-from models import TransportBase
 from scripts.DBConnection import DBConnection
 from scripts.EmailClient import EmailClient
+from models import TransportBase
 
 # # getting the name of the directory
 # # where this file is present.
@@ -51,7 +51,7 @@ def initialize(config):
     tableauDb = DBConnection(dbConfig['host'], dbConfig['port'],
                              dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
     tableauDb.connect()
-    tableauDb.createTablesFromMetadata(TransportBase)
+    # tableauDb.createTablesFromMetadata(TransportBase)
 
 
 def updateTableauDB(dataframe):
