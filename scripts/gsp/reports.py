@@ -872,18 +872,18 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     csvFiles.clear()
 
-    groupIdList_1 = ['SGX1']
-    groupIdStr_1 = ', '.join([(group_Id) for group_Id in groupIdList_1])
+    groupIdList_1 = ['SGX1', 'SGX3']
+    # groupIdStr_1 = ', '.join([("'" + groupId + "'") for groupId in groupId])
 
     groupIdList_2 = ['GSDT7']
-    groupIdStr_2 = ', '.join([(group_Id) for group_Id in groupIdList_2])
+    # groupIdStr_2 = ', '.join([(group_Id) for group_Id in groupIdList_2])
 
-    priority1 = ['Cease SG Cct @PubNet', 'Cease SingNet Svc',
+    priority1 = ['Cease SG Cct @PubNet ', 'Cease SingNet Svc',
                  'Provision SingNet Svc', 'Modify SingNet Svc', 'Circuit Configuration']
     priority2 = []
 
     actList_1 = ['Activate E-Access',
-                 'Cease SG Cct @PubNet',
+                 'Cease SG Cct @PubNet ',
                  'Cease SingNet Svc',
                  'Circuit Configuration',
                  'Comn SgNet PubNet Wk',
@@ -909,13 +909,14 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
 
     actStr_2 = ', '.join([("'" + activity + "'") for activity in actList_2])
 
-    queryArgs = ([[startDate, endDate, groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'", groupIdStr_2, actStr_2, ''], 'SGX1'],
-                 [[startDate, endDate, groupIdStr_2, actStr_2, '', groupIdStr_1, actStr_1, "OR REPLACE(ACT.name, '@', '') LIKE '%Cease SG Cct%'"], 'GSDT7'])
+    queryArgs = ([[startDate, endDate, "PER.role LIKE 'SGX1%' OR PER.role LIKE 'SGX3%'", actStr_1, "PER.role LIKE 'GSDT7%'", actStr_2], 'SGX1'],
+                 [[startDate, endDate, "PER.role LIKE 'GSDT7%'", actStr_2, "PER.role LIKE 'SGX1%' OR PER.role LIKE 'SGX3%'", actStr_1], 'GSDT7'])
 
     for list in queryArgs:
         if groupId == '' or list[1].casefold() == groupId.casefold():
             sqlquery = ("""
-                        SELECT DISTINCT ORD.order_code,
+                        SELECT
+                            DISTINCT ORD.order_code,
                             ORD.service_number,
                             PRD.network_product_code,
                             PRD.network_product_desc,
@@ -931,42 +932,44 @@ def generateSingnetReport(zipFileName, startDate, endDate, groupId, emailSubject
                             DATE(ACT.exe_date),
                             DATE(ACT.dly_date),
                             ACT.completed_date
-                        FROM RestInterface_activity ACT
+                        FROM
+                            RestInterface_activity ACT
                             INNER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
                             LEFT OUTER JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
                             LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
                             LEFT OUTER JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
                             AND NPP.level = 'MainLine'
                             LEFT OUTER JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                        WHERE ORD.id IN (
-                                SELECT DISTINCT ORD.id
-                                FROM RestInterface_activity ACT
+                        WHERE
+                            ORD.id IN (
+                                SELECT
+                                    DISTINCT ORD.id
+                                FROM
+                                    RestInterface_activity ACT
                                     LEFT OUTER JOIN RestInterface_order ORD ON ORD.id = ACT.order_id
                                     LEFT OUTER JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                                WHERE PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
+                                WHERE
+                                    ({})
+                                    AND ACT.completed_date BETWEEN '{}'
+                                    AND '{}'
+                                    AND ACT.name IN ({})
                             )
                             AND (
                                 (
-                                    PER.role LIKE '{}%'
-                                    AND ACT.completed_date BETWEEN '{}' AND '{}'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
+                                    ({})
+                                    AND ACT.completed_date BETWEEN '{}'
+                                    AND '{}'
+                                    AND ACT.name IN ({})
                                 )
                                 OR (
-                                    PER.role LIKE '{}%'
-                                    AND (
-                                        ACT.name IN ({}) {}
-                                    )
+                                    ({})
+                                    AND ACT.name IN ({})
                                 )
                             )
-                        ORDER BY ORD.order_code,
+                        ORDER BY
+                            ORD.order_code,
                             activity_code;
-                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5], list[0][6], list[0][7])
+                    """).format(list[0][2], list[0][0], list[0][1], list[0][3], list[0][2], list[0][0], list[0][1], list[0][3], list[0][4], list[0][5])
 
             csvFile = ("{}_{}.csv").format(list[1], utils.getCurrentDateTime())
             outputList = processList(orionDb.queryToList(
