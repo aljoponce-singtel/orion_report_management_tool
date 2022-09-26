@@ -91,7 +91,6 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
         person_table).where(person_table.c.role == 'GIP_KR')
 
     result = orionDb.queryToList(query)
-    result = orionDb.queryToList(1)
     df = pd.DataFrame(data=result)
 
     print(df)
