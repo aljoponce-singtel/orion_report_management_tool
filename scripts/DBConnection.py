@@ -67,18 +67,21 @@ class DBConnection:
     def createTablesFromMetadata(self, table):
         return table.metadata.create_all(self.__engine)
 
-    # Query DB using a string
-    def queryToList(self, query):
-        dataset = self.__conn.execute(text(query)).fetchall()
-        return dataset
+    def queryToList(self, query, data=None):
+        queryType = type(query)
 
-    # Quewry DB using an object
-    def queryToList2(self, query):
-        dataset = self.__conn.execute(query).fetchall()
-        return dataset
-
-    def queryWithoutResult(self, query):
-        self.__conn.execute(text(query))
+        # query has data
+        if data:
+            return self.__conn.execute(query, data).fetchall()
+        # query is a an SQL text
+        elif queryType is str:
+            return self.__conn.execute(text(query)).fetchall()
+        # query is a constructed SQL expression
+        elif queryType.__name__ == 'Select':
+            return self.__conn.execute(query).fetchall()
+        else:
+            logger.error("Failed to send email.")
+            raise Exception("INVALID QUERY")
 
     def insertDataframeToTable(self, dataframe, table):
         df = pd.DataFrame(dataframe)
