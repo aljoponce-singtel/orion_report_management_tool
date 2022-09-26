@@ -64,6 +64,7 @@ def main():
                 # Call main() function from the imported module by default
                 func = getattr(importModule, 'main')
                 func()
+
         # If only the script folder provided
         else:
             # Import/call main.py script/module by default
