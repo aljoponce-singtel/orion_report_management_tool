@@ -51,23 +51,24 @@ def main():
         # Add script folder path to python system path
         sys.path.insert(0, './scripts/' + sys.argv[1])
 
+        # If the main script and/or main function is provided
         if len(sys.argv) > 2:
-            # Import module
+            # Import module (call script file)
             importModule = importlib.import_module(sys.argv[2])
 
             if len(sys.argv) > 3:
-                # Call function from the imported module
+                # Call the main function from the imported module
                 func = getattr(importModule, sys.argv[3])
                 func()
             else:
-                # Call function from the imported module
+                # Call main() function from the imported module by default
                 func = getattr(importModule, 'main')
                 func()
-
+        # If only the script folder provided
         else:
-            # Import module
+            # Import/call main.py script/module by default
             importModule = importlib.import_module('main')
-            # Call function from the imported module
+            # Call main() function from the imported module by default
             func = getattr(importModule, 'main')
             func()
 
