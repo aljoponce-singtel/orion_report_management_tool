@@ -49,7 +49,7 @@ def updateTableauDB(dataframe, report_id):
             t_GSP_holidays = tableauDb.getTableMetadata('t_GSP_holidays')
             # SELECT * FROM t_GSP_holidays
             query = db.select([t_GSP_holidays])
-            publicHolidays = tableauDb.queryToList2(query)
+            publicHolidays = tableauDb.queryToList(query)
             df_holidays = pd.DataFrame(
                 data=publicHolidays, columns=['Holiday', 'Date'])
             HOLIDAYS = df_holidays['Date'].values.tolist()
