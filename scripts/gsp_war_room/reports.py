@@ -30,7 +30,7 @@ def initialize(config):
         os.getcwd(), defaultConfig['ReportsFolder'])
     debugConfig = config['DEBUG']
 
-    orionDb = DBConnection(dbConfig['host'], dbConfig['port'],
+    orionDb = DBConnection(dbConfig['dbapi'], dbConfig['host'], dbConfig['port'],
                            dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
     orionDb.connect()
 

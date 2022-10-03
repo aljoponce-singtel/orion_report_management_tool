@@ -67,7 +67,7 @@ def initialize(config):
     reportsFolderPath = os.path.join(
         os.getcwd(), defaultConfig['ReportsFolder'])
 
-    orionDb = DBConnection(dbConfig['host'], dbConfig['port'],
+    orionDb = DBConnection(dbConfig['dbapi'], dbConfig['host'], dbConfig['port'],
                            dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
     orionDb.connect()
 

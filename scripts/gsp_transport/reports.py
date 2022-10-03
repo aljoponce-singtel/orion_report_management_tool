@@ -44,11 +44,11 @@ def initialize(config):
     reportsFolderPath = os.path.join(
         os.getcwd(), defaultConfig['ReportsFolder'])
 
-    orionDb = DBConnection(dbConfig['host'], dbConfig['port'],
+    orionDb = DBConnection(dbConfig['dbapi'], dbConfig['host'], dbConfig['port'],
                            dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
     orionDb.connect()
 
-    tableauDb = DBConnection(dbConfig['host'], dbConfig['port'],
+    tableauDb = DBConnection(dbConfig['dbapi'], dbConfig['host'], dbConfig['port'],
                              dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
     tableauDb.connect()
     # tableauDb.createTablesFromMetadata(TransportBase)
