@@ -2,14 +2,13 @@ import logging
 import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.sql import text
-import pymysql
 
 logger = logging.getLogger(__name__)
-pymysql.install_as_MySQLdb()
 
 
 class DBConnection:
-    def __init__(self, host, port, database, user, password):
+    def __init__(self, dbapi, host, port, database, user, password):
+        self.dbapi = dbapi
         self.host = host
         self.port = port
         self.database = database
@@ -22,14 +21,13 @@ class DBConnection:
     def connect(self):
         try:
             self.__engine = create_engine(
-                'mysql://{}:{}@{}:{}/{}'.format(self.user, self.password, self.host, self.port, self.database))
+                '{}://{}:{}@{}:{}/{}'.format(self.dbapi, self.user, self.password, self.host, self.port, self.database))
             self.__conn = self.__engine.connect()
 
             logger.info("Connected to DB " + self.database + ' at ' +
                         self.user + '@' + self.host + ':' + self.port)
 
             self.__metadata = MetaData(self.__engine)
-            # self.__metadata.reflect(bind=self.__engine)
 
         except Exception as err:
             logger.error("Failed to connect to DB " + self.database + ' at ' +
@@ -47,20 +45,14 @@ class DBConnection:
         table = None
 
         if alias:
-            # table = self.__metadata.tables[tableName].alias(alias)
             table = Table(tableName, self.__metadata,
                           autoload=True).alias(alias)
         else:
-            # table = self.__metadata.tables[tableName]
             table = Table(tableName, self.__metadata, autoload=True)
 
         return table
 
     def logFullQuery(self, query):
-        # logger.info(query.compile(self.__engine))
-        # logger.info(query.compile(dialect=mysql.dialect()))
-        # logger.info(query.compile(compile_kwargs={"literal_binds": True}))
-        # logger.info(query.compile(dialect=mysql.dialect(), compile_kwargs={"literal_binds": True}))
         logger.debug(query.compile(self.__engine,
                                    compile_kwargs={"literal_binds": True}))
 
