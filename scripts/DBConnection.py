@@ -21,7 +21,7 @@ class DBConnection:
     def connect(self):
         try:
             self.__engine = create_engine(
-                '{}://{}:{}@{}:{}/{}'.format(self.dbapi, self.user, self.password, self.host, self.port, self.database))
+                '{}://{}:{}@{}:{}/{}'.format(self.dbapi, self.user, self.password, self.host, self.port, self.database), echo=False)
             self.__conn = self.__engine.connect()
 
             logger.info("Connected to DB " + self.database + ' at ' +
