@@ -99,3 +99,13 @@ def getCurrentDateTime():
 def getCurrentDateTime2():
     # sample format - '20220808_1800'
     return datetime.now().strftime("%Y%m%d_%H%M")
+
+
+def createFolder(folderPath, overwrite=False):
+    # Check if the specified path exists
+    isExist = os.path.exists(folderPath)
+
+    if not isExist:
+        # Create a new directory because it does not exist
+        logger.info("Creating directory " + folderPath + ' ...')
+        os.makedirs(folderPath)
