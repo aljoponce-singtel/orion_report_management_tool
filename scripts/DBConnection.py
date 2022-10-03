@@ -75,6 +75,9 @@ class DBConnection:
             logger.error("Failed to send email.")
             raise Exception("INVALID QUERY")
 
+    def insertIntoTable(self, statement):
+        return self.__conn.execute(statement)
+
     def insertDataframeToTable(self, dataframe, table):
         df = pd.DataFrame(dataframe)
         df.to_sql(table,
