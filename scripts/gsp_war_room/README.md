@@ -87,3 +87,110 @@ report frequency - weekly, monthly (TBD)
 
 
 All the orders are under GSP - Jiang Xu 
+
+
+
+mysql> SELECT DISTINCT categoty FROM RestInterface_ordersinote;
++--------------------------+
+| categoty                 |
++--------------------------+
+| Work Order               |
+| Service Instance Notes   |
+| OM                       |
+| eTracker Internal Notes  |
+| CRD                      |
+|                          |
+| Non eRequest             |
+| eRequest                 |
+| EAGLE RP                 |
+| Line ID                  |
+| Parallel Upgrade         |
+| Parallel ER              |
+| eTracker External Notes  |
+| Exchange Notes           |
+| Linked WO                |
+| Waiver Notes             |
+| Parallel Downgrade       |
+| Service Instance Contact |
+| Payment                  |
+| CPR                      |
+| ONL                      |
+| Mobile CI/CP Correction  |
+| ICC Contact              |
+| Transfer                 |
+| Charge Override Notes    |
+| Adjustment               |
++--------------------------+
+26 rows in set (35.78 sec)
+
+
+mysql> SELECT DISTINCT sub_categoty FROM RestInterface_ordersinote;
++---------------------------------------------------------------+
+| sub_categoty                                                  |
++---------------------------------------------------------------+
+| Sales Note (enter by OP taker)                                |
+|                                                               |
+| Others                                                        |
+| Amendment                                                     |
+| Installation Notes                                            |
+| Installation Remarks                                          |
+| CRD Change History                                            |
+| Initial CRD                                                   |
+| Pair Allocation Notes                                         |
+| 07)Customised Pdts e.g. speed, contract, 16IP not in eRequest |
+| 15)AM used manual Quote/SRCA                                  |
+| 03)Promo & Roadshow for In-Scope Pdt                          |
+| Awaiting Q Processing via Batch                               |
+| 14)Projects (more than 10 circuits)                           |
+| 02)Pdts Out-of-Scope e.g CPE, ILC, MS, Expan etc              |
+| 12)Bid/Tender                                                 |
+| eRequest                                                      |
+| 13)MSA Request for In-Scope Pdts                              |
+| 08)Business Scenario not supported in eRequest                |
+| 11)Process Issue for In-Scope Ptds                            |
+| Link order-Parallel Upgrade                                   |
+| DeLink-Parallel Upgrade                                       |
+| 01)Sales Sectors Out-of-Scope e.g. SGO, 1606, SN Registrar    |
+| Number Mgmt Unit                                              |
+| Port-in Details (Number Port)                                 |
+| 04)In-scope pdts combined with Out-of-Scope pdts              |
+| Link order-Parallel ER                                        |
+| 10)System Issue for In-Scope Pdts                             |
+| 06)Backdate Order for In-Scope Pdts                           |
+| 5 circuits                                                    |
+| 09)Parallel External Relocation (Retain existing MRC, Term)   |
+| Account Transfer - Clone Account                              |
+| Network Allocation Notes                                      |
+| Singtel Committed Date                                        |
+| 05)Customer does not have Internet                            |
+| Admin Charge Waiver                                           |
+| DeLink-Parallel ER                                            |
+| Miscellaneous Notes                                           |
+| MoIP Info                                                     |
+| Parental Control , Internet filter VAS                        |
+| Link order-Parallel Downgrade                                 |
+| Equipment Purchase                                            |
+| Account Transfer - Maintain Hierarchy                         |
+| Singtel Internal Remarks                                      |
+| DDI Cessation Notes                                           |
+| Bill Processing Attributes - Change in Value                  |
+| CPR SMS                                                       |
+| SingNet Unicron SE                                            |
+| Survey Plan Notes                                             |
+| Mobile Downgrade Penalty                                      |
+| Transition from Corporate to Consumer                         |
+| Credit Term - Change in Value                                 |
+| Cross Carriage                                                |
+| Cancellation of same-day currently effective payment mode     |
+| DeLink-Parallel Downgrade                                     |
+| Split customer for BCC                                        |
+| F1 Media                                                      |
+| Low Value Bill Threshold - Change in Value                    |
+| Do Not Call Registry                                          |
+| Deceased                                                      |
+| EMS elevate                                                   |
+| SPEAR                                                         |
+| Delivery Portal                                               |
+| Loss of control over payments                                 |
++---------------------------------------------------------------+
+64 rows in set (36.53 sec)
