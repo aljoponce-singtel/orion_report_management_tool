@@ -1,43 +1,57 @@
-DRAFT_COLUMNS = [
-    'Service',
-    'OrderCode',
+DATE_COLUMNS = [
     'CRD',
+    'PreConfig_ActDueDate',
+    'PreConfig_COM_Date',
+    'Coordination_ActDueDate',
+    'Coordination_COM_Date'
+]
+
+FINAL_COLUMNS = [
+    'OrderCode',
     'ServiceNumber',
-    'OrderStatus',
+    'Customer',
     'OrderType',
+    'OrderStatus',
+    'TakenDate',
+    'CurrentCRD',
+    'InitialCRD',
+    'CRDAmendmentDate',
+    'CRDAmendmentReason',
+    'Assignee',
+    'ProjectCode',
+    'CircuitTie',
     'ProductCode',
+    'ProductDescription',
+    'BusinessSector',
+    'ExchangeCode_A',
+    'ExchangeCode_B',
+    'BRN',
+    'SDEReceivedDate',
+    'ArborService',
+    'ServiceType',
+    'OrderPriority',
+    'ED_PD_Diversity',
+    'Department',
     'GroupID',
     'ActStepNo',
-    'ActName',
-    'ActStatus',
+    'ActivityName',
     'ActDueDate',
-    'ActComDate'
+    'ActStatus',
+    'ActReadyDate',
+    'ActComDate',
+    'ActDelayReasonDate',
+    'ActDelayReason'
 ]
 
-FINAL_COLUMNS = [
-    'Service',
+CRD_AMENDMENT_COLUMNS = [
     'OrderCode',
-    'CRD',
     'ServiceNumber',
-    'OrderStatus',
+    'Customer',
     'OrderType',
-    'ProductCode',
-    'PreConfig_GroupID',
-    'PreConfig_ActName',
-    'PreConfig_ActStatus',
-    'PreConfig_ActDueDate',
-    'PreConfig_COM_Date',
-    'Coordination_GroupID',
-    'Coordination_ActName',
-    'Coordination_ActStatus',
-    'Coordination_ActDueDate',
-    'Coordination_COM_Date'
-]
-
-TABLEAU_DATE_COLUMNS = [
-    'CRD',
-    'PreConfig_ActDueDate',
-    'PreConfig_COM_Date',
-    'Coordination_ActDueDate',
-    'Coordination_COM_Date'
+    'OrderStatus',
+    'TakenDate',
+    'CurrentCRD',
+    'InitialCRD',
+    'CRDAmendmentDate',
+    'CRDAmendmentReason',
 ]
