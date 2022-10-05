@@ -101,25 +101,29 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
                 SELECT
                     DISTINCT ORD.order_code,
                     ORD.service_number,
-                    CUS.name AS customer_name,
+                    CUS.name AS customer,
                     ORD.order_type,
                     ORD.order_status,
                     ORD.taken_date,
                     ORD.current_crd,
                     ORD.initial_crd,
                     SINOTE.date_created AS crd_amendment_date,
+                    SINOTE.details AS crd_amendment_details,
+                    REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
+                    REGEXP_SUBSTR(SINOTE.details, '(?<=New CRD:)(.*)(?= Category Code:)') AS new_crd,
                     NOTEDLY.reason_gsp AS crd_amendment_reason,
+                    NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
                     ORD.assignee,
                     PRJ.project_code,
                     CKT.circuit_code,
-                    PRD.network_product_code,
-                    PRD.network_product_desc,
+                    PRD.network_product_code AS product_code,
+                    PRD.network_product_desc AS product_description,
                     ORD.business_sector,
                     SITE.site_code AS exchange_code_a,
                     SITE.site_code_second AS exchange_code_b,
                     BRN.brn,
                     ORD.sde_received_date,
-                    ORD.arbor_disp,
+                    ORD.arbor_disp AS arbor_service,
                     ORD.service_type,
                     ORD.order_priority,
                     PAR.parameter_value AS ed_pd_diversity,
@@ -166,22 +170,64 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
                         'Pending Cancellation',
                         'Completed'
                     )
-                    -- AND ORD.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH);
-                    AND ORD.current_crd BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 1 DAY);
+                    AND ORD.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH);
+                    -- AND ORD.current_crd BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 1 DAY);
+                    -- AND ORD.order_code = 'YPD3691001';
+                    -- AND ORD.order_code IN ('YQC7084002');
             """)
 
     result = orionDb.queryToList(query)
-    df = pd.DataFrame(data=result, columns=const.FINAL_COLUMNS)
+    df_raw = pd.DataFrame(data=result)
+
+    # # logger.info(df_raw['crd_amendment_details'])
+    # # logger.info(df_raw['old_crd'])
+    # # logger.info(df_raw['new_crd'])
+
+    # for index, row in df_raw.iterrows():
+    #     logger.info(row['crd_amendment_details'])
+
+    #     df_date = pd.DataFrame(df_raw.loc[index])
+
+    #     # logger.info(df_date)
+
+    #     # logger.info(df_date.loc['old_crd'])
+    #     # logger.info(df_date.loc['new_crd'])
+
+    #     # pd.to_datetime(df_date.loc['old_crd'])
+
+    # return
+
+    # set columns to datetime type
+    df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
+        pd.to_datetime)
+
+    # convert datetime to date (remove time)
+    df_raw['act_dly_reason_date'] = pd.to_datetime(
+        df_raw['act_dly_reason_date']).dt.date
 
     # Write to CSV
     csvFiles = []
-    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
 
     if debugConfig.getboolean('CreateReport') != False:
+        csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
         logger.info("Generating report " + csvFile + " ...")
         csvFiles.append(csvFile)
         csvfilePath = os.path.join(reportsFolderPath, csvFile)
-        utils.dataframeToCsv(df, csvfilePath)
+        df_main = df_raw[const.MAIN_COLUMNS]
+        df_main = df_main.sort_values(
+            by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
+        utils.dataframeToCsv(df_main, csvfilePath)
+
+        csvFile = ("{}_crd_amendments_{}.csv").format(
+            fileName, utils.getCurrentDateTime2())
+        logger.info("Generating report " + csvFile + " ...")
+        csvFiles.append(csvFile)
+        csvfilePath = os.path.join(reportsFolderPath, csvFile)
+        df_crd_amendment = df_raw[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
+            subset=['crd_amendment_date'])
+        df_crd_amendment = df_crd_amendment.sort_values(
+            by=['order_code', 'crd_amendment_date'], ascending=[True, False])
+        utils.dataframeToCsv(df_crd_amendment, csvfilePath)
 
     return
 
