@@ -71,7 +71,7 @@ def initialize(config):
                            dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
     orionDb.connect()
 
-    tableauDb = DBConnection(dbConfig['host'], dbConfig['port'],
+    tableauDb = DBConnection(dbConfig['dbapi'], dbConfig['host'], dbConfig['port'],
                              dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
     tableauDb.connect()
 
@@ -1052,7 +1052,7 @@ def generateInternetReport(zipFileName, startDate, endDate, emailSubject, emailT
 
     csvFiles.clear()
 
-    groupId = ['GSDT_PS21', 'GSDT_PS23']
+    groupId = ['GSDT_PS21', 'GSDT_PS22', 'GSDT_PS23', 'GSDT_PS24']
     groupIdStr = ', '.join([("'" + groupId + "'") for groupId in groupId])
 
     actList = ['GSDT Co-ordination Work', 'GSDT GI Coordination Work']
