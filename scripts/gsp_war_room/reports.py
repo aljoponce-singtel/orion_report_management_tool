@@ -97,7 +97,17 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
 
     # return
 
-    query = (""" 
+    gsp_q_own_table = orionDb.getTableMetadata('GSP_Q_ownership')
+    # query = select(gsp_q_own_table)
+    query = select(gsp_q_own_table.c.group_id,
+                   gsp_q_own_table.c.department).select_from(gsp_q_own_table)
+    orionDb.logFullQuery(query)
+    result = orionDb.queryToList(query)
+    df_gsp_q_own = pd.DataFrame(data=result)
+    # print(df_gsp_q_own[['group_id', 'department']])
+    # print(df_gsp_q_own)
+
+    query = ("""
                 SELECT
                     DISTINCT ORD.order_code,
                     ORD.service_number,
@@ -205,6 +215,23 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
     df_raw['act_dly_reason_date'] = pd.to_datetime(
         df_raw['act_dly_reason_date']).dt.date
 
+    # Insert new column 'department_gsp' after 'department' column
+    # and set to empty default value
+    # df_raw.insert(loc=df_raw.columns.get_loc('department') + 1,
+    #               column='department_gsp', value=np.nan)
+    # print(df_raw.columns)
+
+    # Rename 'department' column to 'department_gsp'
+    df_gsp_q_own = df_gsp_q_own.rename(
+        columns={'department': 'department_gsp'})
+    # print(df_gsp_q_own.columns)
+
+    df_final = df_raw.merge(df_gsp_q_own, how='left', on=['group_id'])
+    # df_final = pd.merge(df_raw, df_gsp_q_own, how='left', left_index=True, right_index=True)
+
+    # print(df_final.columns)
+    # print(df_final)
+
     # Write to CSV
     csvFiles = []
 
@@ -213,7 +240,7 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
         logger.info("Generating report " + csvFile + " ...")
         csvFiles.append(csvFile)
         csvfilePath = os.path.join(reportsFolderPath, csvFile)
-        df_main = df_raw[const.MAIN_COLUMNS]
+        df_main = df_final[const.MAIN_COLUMNS]
         df_main = df_main.sort_values(
             by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
         utils.dataframeToCsv(df_main, csvfilePath)
@@ -223,7 +250,7 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
         logger.info("Generating report " + csvFile + " ...")
         csvFiles.append(csvFile)
         csvfilePath = os.path.join(reportsFolderPath, csvFile)
-        df_crd_amendment = df_raw[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
+        df_crd_amendment = df_final[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
             subset=['crd_amendment_date'])
         df_crd_amendment = df_crd_amendment.sort_values(
             by=['order_code', 'crd_amendment_date'], ascending=[True, False])
@@ -241,7 +268,7 @@ def generateWarRoomNonGovReport(fileName, startDate, endDate, emailSubject):
         df_order_id['order_id'].to_list(), startDate, endDate))
     df_finalReport = pd.DataFrame(columns=const.FINAL_COLUMNS)
     df_orders = df[['Service', 'OrderCode', 'CRD',
-                   'ServiceNumber', 'OrderStatus', 'OrderType', 'ProductCode']]
+                    'ServiceNumber', 'OrderStatus', 'OrderType', 'ProductCode']]
 
     for index, row in df_orders.drop_duplicates().iterrows():
         df_activities = df[df['OrderCode'] == row['OrderCode']]
