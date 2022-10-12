@@ -133,6 +133,10 @@ def main():
                     'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
                 reports.generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
+                reports.generateInternetReport(
+                    'internet_report', startDate, endDate, "Internet Report", 'kajendran@singtel.com')
+                reports.generateSDWANReport(
+                    'sdwan_report', startDate, endDate, "SDWAN Report", 'kajendran@singtel.com')
 
             #-- END --#
 
