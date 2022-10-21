@@ -27,6 +27,7 @@ There should be a main() fucntion defined inside file from sys.argv[2].
 Any exception errors when running the script will inform admin through email.
 """
 
+import os
 import sys
 import importlib
 import traceback
@@ -50,6 +51,7 @@ def main():
 
         # Add script folder path to python system path
         sys.path.insert(0, './scripts/' + sys.argv[1])
+        # initializeScript(sys.argv[1])
 
         # If the main script and/or main function is provided
         if len(sys.argv) > 2:
@@ -86,6 +88,26 @@ def main():
             sendEmail(sys.argv[1], fileName)
         else:
             print(error)
+
+
+def initializeScript(scriptFolder):
+
+    scriptConfig = configparser.ConfigParser()
+    configFile = 'manage.ini'
+    config.read(os.path.join('scripts', scriptFolder, 'config.ini'))
+    defaultConfig = config['DEFAULT']
+    emailConfig = config['Email']
+
+    for option in defaultConfig:
+        print(option + ' = ' + defaultConfig[option])
+
+    defaultConfig['project'] = 'orion'
+
+    for option in defaultConfig:
+        print(option + ' = ' + defaultConfig[option])
+
+    utils.createFolder(os.path.join('reports', scriptFolder))
+    utils.createFolder(os.path.join('logs', scriptFolder))
 
 
 def sendEmail(report, fileName):
