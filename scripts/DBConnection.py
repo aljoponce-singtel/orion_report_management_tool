@@ -35,11 +35,6 @@ class DBConnection:
             logger.exception(err)
             raise Exception(err)
 
-    # not used as the desctructor __del__ will take care of it
-    def disconnect(self):
-        self.__conn.close()
-        logger.info("Disconnected to " + self.database + '.')
-
     def getTableMetadata(self, tableName, alias=None):
 
         table = None
@@ -85,7 +80,3 @@ class DBConnection:
                   index=False,
                   if_exists='append',
                   method='multi')
-
-    def __del__(self):
-        if self.__conn:
-            self.__conn.close()
