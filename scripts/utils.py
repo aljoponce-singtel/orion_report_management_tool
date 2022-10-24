@@ -2,7 +2,8 @@ import sys
 import logging
 import os
 import csv
-from datetime import datetime
+import calendar
+from datetime import datetime, timedelta
 from zipfile import ZipFile
 import pandas as pd
 
@@ -99,6 +100,27 @@ def getCurrentDateTime():
 def getCurrentDateTime2():
     # sample format - '20220808_1800'
     return datetime.now().strftime("%Y%m%d_%H%M")
+
+
+def getPrevMonthFirstDayDate(date):
+    previousMonthDate = date.replace(day=1) - timedelta(days=1)
+    return previousMonthDate.replace(day=1)
+
+
+def getPrevMonthLastDayDate(date):
+    previousMonthDate = (date.replace(day=1) - timedelta(days=1)
+                         ).replace(day=date.day)
+    lastDay = calendar.monthrange(
+        previousMonthDate.year, previousMonthDate.month)[1]
+    return previousMonthDate.replace(day=lastDay)
+
+
+def getPrevMonthStartDate(date):
+    return (date.replace(day=1) - timedelta(days=1)).replace(day=date.day)
+
+
+def getPrevMonthEndDate(date):
+    return date - timedelta(days=1)
 
 
 def createFolder(folderPath, overwrite=False):
