@@ -17,8 +17,8 @@ class OrionReport(EmailClient):
 
         self.configFile = configFile
         self.defaultConfig = config['DEFAULT']
-        self.emailConfig = config[self.defaultConfig['EmailInfo']]
-        self.dbConfig = config[self.defaultConfig['DatabaseEnv']]
+        self.emailConfig = config[self.defaultConfig['emailInfo']]
+        self.dbConfig = config[self.defaultConfig['databaseEnv']]
         self.debugConfig = config['DEBUG']
 
         self.reportsFolderPath = None
