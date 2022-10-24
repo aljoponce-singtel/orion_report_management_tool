@@ -30,12 +30,12 @@ class OrionReport(EmailClient):
 
         self.orionDb = DBConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
                                     self.dbConfig['orion_db'], self.dbConfig['orion_user'], self.dbConfig['orion_pwd'])
-        # self.orionDb.connect()
+        self.orionDb.connect()
 
         if self.dbConfig['tableau_db']:
             self.tableauDb = DBConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
                                           self.dbConfig['tableau_db'], self.dbConfig['tableau_user'], self.dbConfig['tableau_pwd'])
-            # self.tableauDb.connect()
+            self.tableauDb.connect()
 
         super().__init__()
 
