@@ -69,6 +69,10 @@ class OrionReport(EmailClient):
 
                     logging.config.dictConfig(parsed_yaml)
 
+                    if config.has_option('DEBUG', 'logLevel') == True:
+                        logger.setLevel(self.getLevelNumValue(
+                            self.debugConfig['logLevel']))
+
             if config.has_option('DEFAULT', 'reportsFolder') == False:
                 self.reportsFolderPath = os.path.join(
                     'reports', scriptFolderName)
@@ -95,3 +99,18 @@ class OrionReport(EmailClient):
             return 'CRITICAL'
         else:  # 0
             return 'NOTSET'
+
+    def getLevelNumValue(self, level):
+
+        if level.casefold() == 'debug':
+            return 10
+        elif level.casefold() == 'info':
+            return 20
+        elif level.casefold() == 'warning':
+            return 30
+        elif level.casefold() == 'error':
+            return 40
+        elif level.casefold() == 'critical':
+            return 50
+        else:  # 'NOTSET'
+            return 0
