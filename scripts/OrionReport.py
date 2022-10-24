@@ -10,9 +10,6 @@ from scripts.EmailClient import EmailClient
 logger = logging.getLogger()
 
 config = configparser.ConfigParser()
-scriptFolderName = None
-loggerConfig = None
-logsFolder = None
 
 
 class OrionReport(EmailClient):
