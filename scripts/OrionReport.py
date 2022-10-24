@@ -8,7 +8,6 @@ from scripts.DBConnection import DBConnection
 from scripts.EmailClient import EmailClient
 
 logger = logging.getLogger()
-
 config = configparser.ConfigParser()
 
 
