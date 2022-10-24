@@ -48,6 +48,15 @@ class EmailClient:
 
         return str
 
+    def setEmailSubject(self, subject):
+        self.subject = subject
+
+    def setEmailBodyText(self, emailBody):
+        self.emailBodyText = emailBody
+
+    def setEmailBodyHtml(self, emailBody):
+        self.emailBodyHtml = emailBody
+
     def attachFile(self, attachment):
         logger.info('Attaching file {} ...'.format(
             os.path.basename(attachment)))
