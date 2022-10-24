@@ -1,20 +1,13 @@
-# import sys
 import os
 import logging
-import configparser
-import calendar
-from datetime import datetime, timedelta
-from scripts import log
+from datetime import datetime
 from scripts import utils
 from scripts.gsp_war_room import reports
 
-config = configparser.ConfigParser()
-configFile = 'scripts/gsp_war_room/config.ini'
-config.read(configFile)
-log.initialize(configFile)
-defaultConfig = config['DEFAULT']
-debugConfig = config['DEBUG']
 logger = logging.getLogger(__name__)
+
+configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+orionReport = reports.initialize(configFile)
 
 
 def main():
@@ -23,27 +16,21 @@ def main():
                 datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
     logger.info("Running script in " + utils.getPlatform())
 
-    today_date = datetime.now().date()
-
     try:
-        reports.initialize(config)
 
-        if debugConfig.getboolean('GenReportManually'):
+        if orionReport.debugConfig.getboolean('genReportManually'):
             logger.info('\\* MANUAL RUN *\\')
-            startDate = debugConfig['ReportStartDate']
-            endDate = debugConfig['ReportEndDate']
+            startDate = orionReport.debugConfig['reportStartDate']
+            endDate = orionReport.debugConfig['reportEndDate']
             logger.info("start date: " + str(startDate))
             logger.info("end date: " + str(endDate))
 
             reports.generateWarRoomReport(
                 'gsp_warroom_report', startDate,  endDate, "GSP War Room Report")
         else:
-            previousMonth = (today_date.replace(day=1) -
-                             timedelta(days=1)).replace(day=today_date.day)
-            startDate = str(previousMonth)
-            lastDay = calendar.monthrange(
-                previousMonth.year, previousMonth.month)[1]
-            endDate = str(previousMonth.replace(day=lastDay))
+            startDate = str(utils.getPrevMonthFirstDayDate(
+                datetime.now().date()))
+            endDate = str(utils.getPrevMonthLastDayDate(datetime.now().date()))
             logger.info("start date: " + str(startDate))
             logger.info("end date: " + str(endDate))
 
