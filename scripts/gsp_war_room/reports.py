@@ -189,7 +189,7 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
     orionReport.createCsvFromDataframe(df_crd_amendment, csvAmdFilePath)
 
     # Send Email
-    orionReport.setEmailSubject(orionReport.addTimestamp2(emailSubject))
+    orionReport.setEmailSubject(orionReport.addTimestamp(emailSubject))
     orionReport.attachFile(csvMainFilePath)
     orionReport.attachFile(csvAmdFilePath)
     orionReport.sendEmail()
