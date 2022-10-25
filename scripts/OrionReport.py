@@ -126,6 +126,9 @@ class OrionReport(EmailClient):
         if self.debugConfig.getboolean('createReport') == True:
             utils.dataframeToCsv(df, csvFilePath)
 
+    def zipFiles(self, filesToZip, zipFile):
+        utils.zipFiles(filesToZip, zipFile, self.defaultConfig['zipPassword'])
+
     def sendEmail(self):
         # Enable/Disable email
         if self.debugConfig.getboolean('sendEmail') == True:
