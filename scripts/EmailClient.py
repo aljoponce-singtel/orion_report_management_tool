@@ -23,19 +23,7 @@ class EmailClient:
         self.emailBodyHtml = None
         self.attachments = []
 
-    def addTimestamp(self, str):
-        today_datetime = datetime.now()
-        day = today_datetime.strftime('%d').lstrip('0')
-        hour = today_datetime.strftime('%I').lstrip('0')
-        ampm = today_datetime.strftime('%p').lower()
-        year = today_datetime.strftime('%Y')
-        month = today_datetime.strftime('%b').lower()
-        str = "[{}] {}{}{} {}{}".format(
-            str, year, month, day, hour, ampm)
-
-        return str
-
-    def addTimestamp2(self, str):
+    def addTimestamp(self, subject):
         today_datetime = datetime.now()
         day = today_datetime.strftime('%d').lstrip('0')
         hour = today_datetime.strftime('%I').lstrip('0')
@@ -43,10 +31,23 @@ class EmailClient:
         ampm = today_datetime.strftime('%p')
         year = today_datetime.strftime('%Y')
         month = today_datetime.strftime('%b')
-        str = "[{}] {} {}, {} {}:{} {}".format(
-            str, month, day, year, hour, minute, ampm)
+        subject = "[{}] {} {}, {} {}:{} {}".format(
+            subject, month, day, year, hour, minute, ampm)
 
-        return str
+        return subject
+
+    # Legacy/deprecated function
+    def addTimestamp2(self, subject):
+        today_datetime = datetime.now()
+        day = today_datetime.strftime('%d').lstrip('0')
+        hour = today_datetime.strftime('%I').lstrip('0')
+        ampm = today_datetime.strftime('%p').lower()
+        year = today_datetime.strftime('%Y')
+        month = today_datetime.strftime('%b').lower()
+        subject = "[{}] {}{}{} {}{}".format(
+            subject, year, month, day, hour, ampm)
+
+        return subject
 
     def setEmailSubject(self, subject):
         self.subject = subject
