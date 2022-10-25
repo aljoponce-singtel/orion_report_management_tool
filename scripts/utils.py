@@ -43,36 +43,49 @@ def write_to_csv(csvfile, dataset, headers, folderPath):
         raise Exception(e)
 
 
-def zipFile(filesToZip, zipfile, folderPath, password):
+def zipFiles(filesToZip, zipFile, password=None):
 
-    logger.info("Creating " + zipfile + " for " +
-                ', '.join(filesToZip) + ' ...')
-    os.chdir(folderPath)
+    files = []
+
+    if type(filesToZip) is not list:
+        files.append(filesToZip)
+    else:
+        files = filesToZip
 
     if getPlatform() == "Linux":
-        os_zip_file(filesToZip, zipfile, password)
+        os_zip_file(files, zipFile, password)
     elif getPlatform() == "Windows":
-        zip_file(filesToZip, zipfile)
+        zip_file(files, zipFile)
     else:
         errorMsg = "OS " + os + " not supported."
         logger.error(errorMsg)
         raise Exception(errorMsg)
 
-    os.chdir('../')
 
+def zip_file(filesToZip, zipfile, password=None):
+    # logger.info("Creating zip file " + os.path.basename(zipfile) + ' ...')
 
-def zip_file(filesToZip, zipfile):
-    with ZipFile(zipfile, 'w') as zipObj:
+    with ZipFile(zipfile, 'a') as zipObj:
         for file in filesToZip:
-            filePath = file
-            zipObj.write(filePath)
-            os.remove(filePath)
+            logger.info("Adding " + os.path.basename(file) +
+                        ' to ' + os.path.basename(zipfile) + ' ...')
+            zipObj.write(filename=file, arcname=os.path.basename(file))
+            os.remove(file)
 
 
-def os_zip_file(filesToZip, zipfile, password):
+# Linux
+def os_zip_file(filesToZip, zipfile, password=None):
     files = ' '.join(filesToZip)
-    os.system("zip -e %s %s -P %s" %
-              (zipfile, files, password))
+
+    # -j: junk (don't record) directory names
+    # -e: encrypt
+    # -P: password
+    if password:
+        os.system("zip -j -e %s %s -P %s" %
+                  (zipfile, files, password))
+    else:
+        os.system("zip -j %s %s" % (zipfile, files))
+
     for file in filesToZip:
         os.remove(file)
 
@@ -93,13 +106,14 @@ def getPlatform():
 
 
 def getCurrentDateTime():
-    # sample format - '050622_1845'
-    return datetime.now().strftime("%d%m%y_%H%M")
-
-
-def getCurrentDateTime2():
     # sample format - '20220808_1800'
     return datetime.now().strftime("%Y%m%d_%H%M")
+
+
+# Legacy/deprecated function
+def getCurrentDateTime2():
+    # sample format - '050622_1845'
+    return datetime.now().strftime("%d%m%y_%H%M")
 
 
 def getPrevMonthFirstDayDate(date):
