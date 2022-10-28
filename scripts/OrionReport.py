@@ -151,9 +151,6 @@ class OrionReport(EmailClient):
         if self.debugConfig.getboolean('sendEmail') == True:
             try:
 
-                logger.info(self.__receiverToList)
-                logger.info(self.__receiverCcList)
-
                 if self.defaultConfig['emailInfo'] == 'Email':
                     self.receiverTo = self.emailConfig["receiverTo"] + \
                         self.__emailListToStr(self.__receiverToList)
@@ -162,9 +159,6 @@ class OrionReport(EmailClient):
                 else:
                     self.receiverTo = self.emailConfig["receiverTo"]
                     self.receiverCc = self.emailConfig["receiverCc"]
-
-                logger.info(self.receiverTo)
-                logger.info(self.receiverCc)
 
                 if self.subject == None:
                     self.subject = self.addTimestamp2("Orion Report")
