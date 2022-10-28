@@ -187,7 +187,7 @@ class OrionReport(EmailClient):
                     self.receiverCc = self.emailConfig["receiverCc"]
 
                 if self.subject == None:
-                    self.subject = self.addTimestamp2("Orion Report")
+                    self.subject = self.addTimestamp("Orion Report")
 
                 if self.emailBodyText == None:
                     self.emailBodyText = """
