@@ -148,6 +148,10 @@ class OrionReport(EmailClient):
 
         return emailsStr
 
+    def attachFile(self, attachment):
+        if self.debugConfig.getboolean('createReport') == True:
+            super().attachFile(attachment)
+
     def sendEmail(self):
         # Enable/Disable email
         if self.debugConfig.getboolean('sendEmail') == True:
