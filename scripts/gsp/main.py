@@ -134,7 +134,7 @@ def main():
                 reports.generateMegaPopReportGrp(
                     'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
                 reports.generateInternetReport(
-                    'internet_report', startDate, endDate, "Internet Report", 'kajendran@singtel.com')
+                    'internet_report', startDate, endDate, "Internet Report", 'karthik.manjunath@singtel.com')
                 reports.generateSDWANReport(
                     'sdwan_report', startDate, endDate, "SDWAN Report", 'kajendran@singtel.com')
 
