@@ -97,14 +97,14 @@ def main():
                 reports.generateStixReport(
                     'stix_report', startDate, endDate, "STIX Report")
                 reports.generateInternetReport(
-                    'internet_report', startDate, endDate, "Internet Report", 'kajendran@singtel.com')
+                    'internet_report', startDate, endDate, "Internet Report", 'karthik.manjunath@singtel.com')
                 reports.generateSDWANReport(
-                    'sdwan_report', startDate, endDate, "SDWAN Report", 'kajendran@singtel.com')
+                    'sdwan_report', startDate, endDate, "SDWAN Report", 'karthik.manjunath@singtel.com')
 
                 reports.generateCPlusIpReport(
-                    'cplusip_report', startDate, endDate, '', "CPlusIP Report", 'kajendran@singtel.com')
+                    'cplusip_report', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
                 reports.generateMegaPopReport(
-                    'megapop_report', startDate, endDate, '', "MegaPop Report", 'kajendran@singtel.com')
+                    'megapop_report', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
 
             #-- END --#
 
@@ -130,13 +130,13 @@ def main():
                             str(defaultConfig.getboolean('UpdateTableauDB')))
 
                 reports.generateCPlusIpReportGrp(
-                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'kajendran@singtel.com')
+                    'cplusip_report_grp', startDate, endDate, '', "CPlusIP Report", 'karthik.manjunath@singtel.com')
                 reports.generateMegaPopReportGrp(
-                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'kajendran@singtel.com')
+                    'megapop_report_grp', startDate, endDate, '', "MegaPop Report", 'karthik.manjunath@singtel.com')
                 reports.generateInternetReport(
-                    'internet_report', startDate, endDate, "Internet Report", 'kajendran@singtel.com')
+                    'internet_report', startDate, endDate, "Internet Report", 'karthik.manjunath@singtel.com')
                 reports.generateSDWANReport(
-                    'sdwan_report', startDate, endDate, "SDWAN Report", 'kajendran@singtel.com')
+                    'sdwan_report', startDate, endDate, "SDWAN Report", 'karthik.manjunath@singtel.com')
 
             #-- END --#
 
