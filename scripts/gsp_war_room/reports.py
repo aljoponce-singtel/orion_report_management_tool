@@ -191,8 +191,8 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
     # Compress files
     zipFile = ("{}_{}.zip").format(fileName, utils.getCurrentDateTime())
     zipFilePath = os.path.join(orionReport.reportsFolderPath, zipFile)
-    orionReport.zipFiles(csvMainFilePath, zipFilePath)
-    orionReport.zipFiles(csvAmdFilePath, zipFilePath)
+    orionReport.addFileToZip(csvMainFilePath, zipFilePath)
+    orionReport.addFileToZip(csvAmdFilePath, zipFilePath)
 
     # Send Email
     orionReport.setEmailSubject(orionReport.addTimestamp(emailSubject))
