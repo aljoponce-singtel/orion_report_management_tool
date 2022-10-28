@@ -199,6 +199,8 @@ def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
     orionReport.attachFile(zipFilePath)
     # orionReport.attachFile(csvMainFilePath)
     # orionReport.attachFile(csvAmdFilePath)
+    # orionReport.addReceiverTo('test1@singtel.com')
+    # orionReport.addReceiverCc('test2@singtel.com')
     orionReport.sendEmail()
 
     return
