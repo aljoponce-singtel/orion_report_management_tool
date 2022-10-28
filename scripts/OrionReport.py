@@ -21,6 +21,9 @@ class OrionReport(EmailClient):
         self.dbConfig = config[self.defaultConfig['databaseEnv']]
         self.debugConfig = config['DEBUG']
 
+        self.__receiverToList = []
+        self.__receiverCcList = []
+
         self.reportsFolderPath = None
         self.__initialize()
 
@@ -129,12 +132,39 @@ class OrionReport(EmailClient):
     def zipFiles(self, filesToZip, zipFile):
         utils.zipFiles(filesToZip, zipFile, self.defaultConfig['zipPassword'])
 
+    def addReceiverTo(self, email):
+        self.__receiverToList.append(email)
+
+    def addReceiverCc(self, email):
+        self.__receiverCcList.append(email)
+
+    def __emailListToStr(self, emailList):
+        emailsStr = ''
+
+        for email in emailList:
+            emailsStr = emailsStr + ';' + email
+
+        return emailsStr
+
     def sendEmail(self):
         # Enable/Disable email
         if self.debugConfig.getboolean('sendEmail') == True:
             try:
-                self.receiverTo = self.emailConfig["receiverTo"]
-                self.receiverCc = self.emailConfig["receiverCc"]
+
+                logger.info(self.__receiverToList)
+                logger.info(self.__receiverCcList)
+
+                if self.defaultConfig['emailInfo'] == 'Email':
+                    self.receiverTo = self.emailConfig["receiverTo"] + \
+                        self.__emailListToStr(self.__receiverToList)
+                    self.receiverCc = self.emailConfig["receiverCc"] + \
+                        self.__emailListToStr(self.__receiverCcList)
+                else:
+                    self.receiverTo = self.emailConfig["receiverTo"]
+                    self.receiverCc = self.emailConfig["receiverCc"]
+
+                logger.info(self.receiverTo)
+                logger.info(self.receiverCc)
 
                 if self.subject == None:
                     self.subject = self.addTimestamp2("Orion Report")
