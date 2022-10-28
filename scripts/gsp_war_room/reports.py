@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 import logging
 from scripts.OrionReport import OrionReport
 import pandas as pd
@@ -9,19 +10,32 @@ from sqlalchemy import select, case, and_, or_, null, func
 from sqlalchemy.types import Integer
 from scripts import utils
 
-csvFiles = []
-
 logger = logging.getLogger(__name__)
 
+configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
-def initialize(configFile):
-    global orionReport
+
+def generateWarRoomReport():
+
     orionReport = OrionReport(configFile)
 
-    return orionReport
+    emailSubject = 'GSP War Room Report'
+    fileName = 'gsp_warroom_report'
+    startDate = None
+    endDate = None
 
+    if orionReport.debugConfig.getboolean('genReportManually'):
+        logger.info('\\* MANUAL RUN *\\')
+        startDate = orionReport.debugConfig['reportStartDate']
+        endDate = orionReport.debugConfig['reportEndDate']
 
-def generateWarRoomReport(fileName, startDate, endDate, emailSubject):
+    else:
+        startDate = str(utils.getPrevMonthFirstDayDate(
+            datetime.now().date()))
+        endDate = str(utils.getPrevMonthLastDayDate(datetime.now().date()))
+
+    logger.info("start date: " + str(startDate))
+    logger.info("end date: " + str(endDate))
 
     # query = "SELECT COUNT(id) FROM RestInterface_person WHERE role = 'GIP_KR'"
 
