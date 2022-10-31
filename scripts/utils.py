@@ -2,6 +2,7 @@ import sys
 import logging
 import os
 import csv
+import yaml
 import calendar
 from datetime import datetime, timedelta
 from zipfile import ZipFile
@@ -145,3 +146,12 @@ def createFolder(folderPath, overwrite=False):
         # Create a new directory because it does not exist
         logger.info("Creating directory " + folderPath + ' ...')
         os.makedirs(folderPath)
+
+
+def readYamlFile(filePath):
+    parsed_yaml = None
+
+    with open(filePath, 'r') as stream:
+        parsed_yaml = yaml.safe_load(stream)
+
+    return parsed_yaml

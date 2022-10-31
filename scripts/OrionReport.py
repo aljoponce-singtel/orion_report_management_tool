@@ -3,7 +3,6 @@ from datetime import datetime
 import logging
 import logging.config
 import configparser
-import yaml
 import scripts.utils as utils
 from scripts.DBConnection import DBConnection
 from scripts.EmailClient import EmailClient
@@ -68,37 +67,39 @@ class OrionReport(EmailClient):
     def __setupLogging(self):
         scriptFolderPath = os.path.dirname(self.configFile)
         scriptFolderName = os.path.basename(scriptFolderPath)
-        loggerConfig = os.path.join(os.path.dirname(
+        scriptLoggerConfig = os.path.join(scriptFolderPath, "logging.yml")
+        mainLoggerConfig = os.path.join(os.path.dirname(
             scriptFolderPath), "logging.yml")
         logsFolder = None
 
-        with open(loggerConfig, 'r') as stream:
+        parsed_yaml = utils.readYamlFile(mainLoggerConfig)
 
-            parsed_yaml = yaml.safe_load(stream)
+        # If there is a separate logging.yml file in the reports script folder, load this instead.
+        if os.path.exists(scriptLoggerConfig):
+            parsed_yaml = utils.readYamlFile(scriptLoggerConfig)
+            logging.config.dictConfig(parsed_yaml)
+        # Load the default logging.yml file
+        else:
+            if config.has_option('DEBUG', 'logToFile') == True and self.debugConfig.getboolean('logToFile') == False:
+                parsed_yaml['root']['handlers'] = ['console']
 
-            if os.path.exists(os.path.join(scriptFolderPath, "logging.yml")):
-                logging.config.dictConfig(parsed_yaml)
+            if config.has_option('DEFAULT', 'logFile') == False:
+                logsFolder = os.path.join('logs', scriptFolderName)
+                utils.createFolder(logsFolder)
+                parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
+                    logsFolder, f"{scriptFolderName}.log")
             else:
-                if config.has_option('DEBUG', 'logToFile') == True and self.debugConfig.getboolean('logToFile') == False:
-                    parsed_yaml['root']['handlers'] = ['console']
+                parsed_yaml['handlers']['timedRotatingFile']['filename'] = self.defaultConfig['logFile']
 
-                if config.has_option('DEFAULT', 'logFile') == False:
-                    logsFolder = os.path.join('logs', scriptFolderName)
-                    utils.createFolder(logsFolder)
-                    parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
-                        logsFolder, f"{scriptFolderName}.log")
-                else:
-                    parsed_yaml['handlers']['timedRotatingFile']['filename'] = self.defaultConfig['logFile']
+            logging.config.dictConfig(parsed_yaml)
 
-                logging.config.dictConfig(parsed_yaml)
+        self.logFilePath = os.path.realpath(
+            parsed_yaml['handlers']['timedRotatingFile']['filename'])
 
-            self.logFilePath = os.path.realpath(
-                parsed_yaml['handlers']['timedRotatingFile']['filename'])
-
-            # Set log level
-            if config.has_option('DEBUG', 'logLevel') == True:
-                logger.setLevel(self.getLevelNumValue(
-                    self.debugConfig['logLevel']))
+        # Set log level
+        if config.has_option('DEBUG', 'logLevel') == True:
+            logger.setLevel(self.getLevelNumValue(
+                self.debugConfig['logLevel']))
 
     def __setupReportsFolder(self):
         scriptFolderPath = os.path.dirname(self.configFile)
