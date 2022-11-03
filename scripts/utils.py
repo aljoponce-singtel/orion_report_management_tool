@@ -1,6 +1,7 @@
+import os
+import pathlib
 import sys
 import logging
-import os
 import csv
 import yaml
 import calendar
@@ -146,6 +147,26 @@ def createFolder(folderPath, overwrite=False):
         # Create a new directory because it does not exist
         logger.info("Creating directory " + folderPath + ' ...')
         os.makedirs(folderPath)
+
+
+def scanFiles(dir_path, regex=None):
+
+    logger.info(f'Scanning files in {dir_path} ...')
+
+    # to store file names
+    res = []
+
+    # construct path object
+    d = pathlib.Path(dir_path)
+
+    # iterate directory
+    for entry in d.iterdir():
+        # check if it a file
+        if entry.is_file():
+            res.append(entry)
+            logger.debug(f'Scanned file = {entry}')
+
+    return res
 
 
 def readYamlFile(filePath):
