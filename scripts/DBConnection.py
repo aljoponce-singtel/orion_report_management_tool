@@ -54,6 +54,12 @@ class DBConnection:
     def createTablesFromMetadata(self, table):
         return table.metadata.create_all(self.__engine)
 
+    def truncateTable(self, tableName):
+        self.__conn.execute(f'''TRUNCATE TABLE {tableName}''')
+
+    def dropTableFromMetadata(self, table):
+        return table.metadata.drop_all(self.__engine)
+
     def queryToList(self, query, data=None):
         queryType = type(query)
 
@@ -74,6 +80,8 @@ class DBConnection:
         return self.__conn.execute(statement)
 
     def insertDataframeToTable(self, dataframe, table):
+        logger.info(f'Inserting records to {table} table ...')
+
         df = pd.DataFrame(dataframe)
         df.to_sql(table,
                   con=self.__engine,
