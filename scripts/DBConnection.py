@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class DBConnection:
         self.__conn = None
         self.__engine = None
         self.__metadata = None
+        self.__sqlSession = None
 
     def connect(self):
         try:
@@ -29,11 +31,17 @@ class DBConnection:
 
             self.__metadata = MetaData(self.__engine)
 
+            Session = sessionmaker(bind=self.__engine)
+            self.__sqlSession = Session()
+
         except Exception as err:
             logger.error("Failed to connect to DB " + self.database + ' at ' +
                          self.user + '@' + self.host + ':' + self.port + '.')
             logger.exception(err)
             raise Exception(err)
+
+    def getSqlSession(self):
+        return self.__sqlSession
 
     def getTableMetadata(self, tableName, alias=None):
 
@@ -55,7 +63,8 @@ class DBConnection:
         return table.metadata.create_all(self.__engine)
 
     def truncateTable(self, tableName):
-        self.__conn.execute(f'''TRUNCATE TABLE {tableName}''')
+        table = self.getTableMetadata(tableName)
+        self.__conn.execute(table.delete())
 
     def dropTableFromMetadata(self, table):
         return table.metadata.drop_all(self.__engine)
@@ -73,7 +82,6 @@ class DBConnection:
         elif queryType.__name__ == 'Select':
             return self.__conn.execute(query).fetchall()
         else:
-            logger.error("Failed to send email.")
             raise Exception("INVALID QUERY")
 
     def insertIntoTable(self, statement):
