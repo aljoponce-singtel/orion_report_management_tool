@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             // "program": "manage.py",
-            // "args": ["gsp_transport", "main", "main"],
+            // "args": ["gsp_war_room"],
             "console": "integratedTerminal"
         }
     ]
