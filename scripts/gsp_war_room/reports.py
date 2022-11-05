@@ -2,16 +2,15 @@ import os
 import sys
 from datetime import datetime
 import logging
-from scripts.OrionReport import OrionReport
 import pandas as pd
 import numpy as np
 import constants as const
 from sqlalchemy import select, case, and_, or_, null, func
 from sqlalchemy.types import Integer
-from scripts import utils
+from _helper import OrionReport
+from _helper import utils
 
 logger = logging.getLogger(__name__)
-
 configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 

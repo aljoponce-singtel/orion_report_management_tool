@@ -1,5 +1,12 @@
+import os
+import sys
 import logging
-from scripts.gsp_war_room import reports
+
+# Add the parent (scripts) directory to sys.path
+currentDir = os.path.dirname(os.path.realpath(__file__))
+parentDir = os.path.dirname(currentDir)
+sys.path.append(parentDir)
+import reports
 
 logger = logging.getLogger(__name__)
 
