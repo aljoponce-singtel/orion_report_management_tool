@@ -31,7 +31,7 @@ class DBConnection:
 
             self.__metadata = MetaData(self.__engine)
 
-            Session = sessionmaker(bind=self.__engine)
+            Session = sessionmaker(self.__engine, future=True)
             self.__sqlSession = Session()
 
         except Exception as err:
@@ -87,12 +87,25 @@ class DBConnection:
     def insertIntoTable(self, statement):
         return self.__conn.execute(statement)
 
-    def insertDataframeToTable(self, dataframe, table):
+    def insertDataframeToTable(self, dataframe, table, if_exist=None):
         logger.info(f'Inserting records to {table} table ...')
 
         df = pd.DataFrame(dataframe)
         df.to_sql(table,
+                  #   con=self.__engine,
                   con=self.__engine,
+                  #   indexbool, default True
+                  #         Write DataFrame index as a column. Uses index_label as the column name in the table.
                   index=False,
-                  if_exists='append',
+                  # if_exists : {‘fail’, ‘replace’, ‘append’}, default ‘fail’
+                  #     How to behave if the table already exists.
+                  #     fail: Raise a ValueError.
+                  #     replace: Drop the table before inserting new values.
+                  #     append: Insert new values to the existing table.
+                  if_exists='append' if not if_exist else if_exist,
+                  # method : {None, ‘multi’, callable}, optional
+                  #     Controls the SQL insertion clause used:
+                  #     None : Uses standard SQL INSERT clause (one per row).
+                  #     ‘multi’: Pass multiple values in a single INSERT clause.
+                  #     callable with signature (pd_table, conn, keys, data_iter).
                   method='multi')
