@@ -3,9 +3,9 @@ from datetime import datetime
 import logging
 import logging.config
 import configparser
-import scripts.utils as utils
-from scripts.DBConnection import DBConnection
-from scripts.EmailClient import EmailClient
+from .DBConnection import DBConnection
+from .EmailClient import EmailClient
+from . import utils as utils
 
 logger = logging.getLogger()
 config = configparser.ConfigParser()
@@ -68,8 +68,10 @@ class OrionReport(EmailClient):
         scriptFolderPath = os.path.dirname(self.configFile)
         scriptFolderName = os.path.basename(scriptFolderPath)
         scriptLoggerConfig = os.path.join(scriptFolderPath, "logging.yml")
-        mainLoggerConfig = os.path.join(os.path.dirname(
-            scriptFolderPath), "logging.yml")
+        # mainLoggerConfig = os.path.join(os.path.dirname(
+        #     scriptFolderPath), "logging.yml")
+        mainLoggerConfig = os.path.join(
+            os.path.dirname(__file__), "logging.yml")
         logsFolder = None
 
         parsed_yaml = utils.readYamlFile(mainLoggerConfig)
