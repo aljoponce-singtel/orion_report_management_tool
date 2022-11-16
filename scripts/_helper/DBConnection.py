@@ -66,8 +66,15 @@ class DBConnection:
         table = self.getTableMetadata(tableName)
         self.__conn.execute(table.delete())
 
-    def dropTableFromMetadata(self, table):
-        return table.metadata.drop_all(self.__engine)
+    def dropTable(self, table):
+        table_to_drop = table
+
+        if type(table) is str:
+            table_to_drop = self.getTableMetadata(table)
+
+        logger.info(f"Dropping table {table_to_drop.name} ...")
+
+        return table_to_drop.metadata.drop_all(self.__engine)
 
     def queryToList(self, query, data=None):
         queryType = type(query)
