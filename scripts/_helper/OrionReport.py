@@ -147,9 +147,9 @@ class OrionReport(EmailClient):
             return 0
 
     def createCsvFromDataframe(self, df, csvFilePath):
-        logger.info("Generating report " +
-                    os.path.basename(csvFilePath) + " ...")
         if self.debugConfig.getboolean('createReport') == True:
+            logger.info("Generating report " +
+                        os.path.basename(csvFilePath) + " ...")
             utils.dataframeToCsv(df, csvFilePath)
 
     def addFileToZip(self, filesToZip, zipFile):
