@@ -118,7 +118,6 @@ def sendEmail(report, fileName):
     try:
         emailClient = EmailClient()
         subject = 'ERROR for Orion Report - {}'.format(report)
-        emailClient = EmailClient()
         emailClient.subject = emailClient.addTimestamp2(subject)
         emailClient.receiverTo = emailConfig["receiverTo"]
         emailClient.receiverCc = emailConfig["receiverCc"]
