@@ -1,3 +1,3 @@
 from . import utils
-from .EmailClient import EmailClient
-from .DBConnection import DBConnection
+from .email_client import EmailClient
+from .db_connection import DBConnection
