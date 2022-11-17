@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 import logging.config
 import os
+from os.path import abspath, basename, dirname
 
 # Import local packages
 from scripts.helpers import DbConnection
@@ -11,25 +12,26 @@ from scripts.helpers import EmailClient
 from scripts.helpers import utils
 
 logger = logging.getLogger()
-config = configparser.ConfigParser()
 
 
 class OrionReport(EmailClient):
 
+    config = configparser.ConfigParser()
     receiver_to_list = []
     receiver_cc_list = []
 
     def __init__(self, config_file):
-        config.read(config_file)
 
         self.config_file = config_file
-        self.default_config = config['DEFAULT']
-        self.email_config = config[self.default_config['email_info']]
-        self.db_config = config[self.default_config['database_env']]
-        self.debug_config = config['Debug']
+        self.config = self.__load_config()
+        self.default_config = self.config['DEFAULT']
+        self.email_config = self.config[self.default_config['email_info']]
+        self.db_config = self.config[self.default_config['database_env']]
+        self.debug_config = self.config['Debug']
 
         self.reports_folder_path = None
         self.log_file_path = None
+        # setup logging and reports folder
         self.__initialize()
 
         self.orion_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
@@ -47,6 +49,26 @@ class OrionReport(EmailClient):
     def __del__(self):
         logger.info("END of script - " +
                     utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
+
+    # private method
+    def __load_config(self):
+        # Load the parent (orion_report.ini) config file
+        parent_config_file = abspath(os.path.join(
+            dirname(__file__), "./orion_report.ini"))
+        parent_config = configparser.ConfigParser()
+        parent_config.read(parent_config_file)
+
+        # Load the current report (config.ini) config file
+        report_config = configparser.ConfigParser()
+        report_config.read(self.config_file)
+
+        # Create new config
+        # Load the parent config first
+        self.config.read(parent_config_file)
+        # Override the parent config with the report config
+        self.config.read(self.config_file)
+
+        return self.config
 
     # private method
     def __initialize(self):
@@ -71,13 +93,13 @@ class OrionReport(EmailClient):
 
     # private method
     def __setup_logging(self):
-        script_folder_path = os.path.dirname(self.config_file)
-        script_folder_name = os.path.basename(script_folder_path)
+        script_folder_path = dirname(self.config_file)
+        script_folder_name = basename(script_folder_path)
         script_logger_config = os.path.join(script_folder_path, "logging.yml")
-        # main_logger_config = os.path.join(os.path.dirname(
+        # main_logger_config = os.path.join(dirname(
         #     script_folder_path), "logging.yml")
         main_logger_config = os.path.join(
-            os.path.dirname(__file__), "logging.yml")
+            dirname(__file__), "logging.yml")
         logs_folder = None
 
         parsed_yaml = utils.read_yaml_file(main_logger_config)
@@ -88,10 +110,10 @@ class OrionReport(EmailClient):
             logging.config.dictConfig(parsed_yaml)
         # Load the default logging.yml file
         else:
-            if config.has_option('Debug', 'log_to_file') == True and self.debug_config.getboolean('log_to_file') == False:
+            if self.config.has_option('Debug', 'log_to_file') == True and self.debug_config.getboolean('log_to_file') == False:
                 parsed_yaml['root']['handlers'] = ['console']
 
-            if config.has_option('DEFAULT', 'log_file') == False:
+            if self.config.has_option('DEFAULT', 'log_file') == False:
                 logs_folder = os.path.join('logs', script_folder_name)
                 utils.create_folder(logs_folder)
                 parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
@@ -101,26 +123,26 @@ class OrionReport(EmailClient):
 
             logging.config.dictConfig(parsed_yaml)
 
-        self.log_file_path = os.path.realpath(
+        self.log_file_path = abspath(
             parsed_yaml['handlers']['timedRotatingFile']['filename'])
 
         # Set log level
-        if config.has_option('Debug', 'log_level') == True:
+        if self.config.has_option('Debug', 'log_level') == True:
             logger.setLevel(self.get_level_num_value(
                 self.debug_config['log_level']))
 
     # private method
     def __setup_reports_folder(self):
-        script_folder_path = os.path.dirname(self.config_file)
-        script_folder_name = os.path.basename(script_folder_path)
+        script_folder_path = dirname(self.config_file)
+        script_folder_name = basename(script_folder_path)
 
-        if config.has_option('DEFAULT', 'reports_folder') == False:
+        if self.config.has_option('DEFAULT', 'reports_folder') == False:
             self.reports_folder_path = os.path.join(
                 'reports', script_folder_name)
         else:
             self.reports_folder_path = self.default_config['reports_folder']
 
-        self.reports_folder_path = os.path.realpath(self.reports_folder_path)
+        self.reports_folder_path = abspath(self.reports_folder_path)
         utils.create_folder(self.reports_folder_path)
 
     def get_log_level(self):
