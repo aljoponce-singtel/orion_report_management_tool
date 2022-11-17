@@ -37,7 +37,7 @@ from scripts.helpers import EmailClient
 from scripts.helpers import utils
 
 config = configparser.ConfigParser()
-configFile = 'manage.ini'
+configFile = 'run.ini'
 config.read(configFile)
 defaultConfig = config['DEFAULT']
 emailConfig = config['Email']
@@ -75,18 +75,18 @@ def main():
             func()
 
     except Exception as error:
-        if defaultConfig.getboolean('CreateSendErrorFile'):
-            # Output error to file
-            timeStamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            fileName = '{}.{}.error.log'.format(__file__, timeStamp)
 
+        timeStamp = utils.getCurrentDateTime()
+        fileName = '{}.{}.error.log'.format(__file__, timeStamp)
+
+        if defaultConfig.getboolean('create_error_log'):
+            # Output error to file
             with open(fileName, 'a') as f:
                 f.write(str(error))
                 f.write(traceback.format_exc())
 
+        if defaultConfig.getboolean('send_email'):
             sendEmail(sys.argv[1], fileName)
-        else:
-            print(error)
 
 
 def sendEmail(report, fileName):
@@ -95,7 +95,7 @@ def sendEmail(report, fileName):
         Hello,
 
         There was an error generating the "{}" report.
-        Please see attached error logs.
+        Please see, if any, the attached error logs.
         Please see report logs for more information.
 
 
@@ -119,8 +119,8 @@ def sendEmail(report, fileName):
         emailClient = EmailClient()
         subject = 'ERROR for Orion Report - {}'.format(report)
         emailClient.subject = emailClient.addTimestamp2(subject)
-        emailClient.receiverTo = emailConfig["receiverTo"]
-        emailClient.receiverCc = emailConfig["receiverCc"]
+        emailClient.receiverTo = emailConfig["receiver_to"]
+        emailClient.receiverCc = emailConfig["receiver_cc"]
         emailClient.emailBodyText = emailBodyText
         emailClient.emailBodyHtml = emailBodyhtml
         emailClient.attachFile(fileName)

@@ -8,4 +8,4 @@
 source 'c:/Users/p1319639/Development/pythonenv/Scripts/activate'
 
 echo "Parsed arguments: $@"
-python manage.py $@
+python run.py $@
