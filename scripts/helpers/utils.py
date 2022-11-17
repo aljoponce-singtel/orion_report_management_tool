@@ -65,7 +65,6 @@ def compress_files(files_to_zip, zip_file_path, password=None, remove_file=True)
 
 
 def zip_file(files_to_zip, zip_file, remove_file=True):
-    logger.info(f"Creating {os.path.basename(zip_file)} ...")
 
     with ZipFile(zip_file, 'a') as zip_obj:
         for file in files_to_zip:
@@ -74,13 +73,17 @@ def zip_file(files_to_zip, zip_file, remove_file=True):
             zip_obj.write(filename=file, arcname=os.path.basename(file))
 
             if remove_file:
+                logger.info(f"Deleting file {os.path.basename(file)} ...")
                 os.remove(file)
 
 
 # Only works with Linux
 def os_zip_file(files_to_zip, zip_file, password=None, remove_file=True):
     files = ' '.join(files_to_zip)
-    logger.info(f"Creating {os.path.basename(zip_file)} ...")
+
+    for file in files_to_zip:
+        logger.info("Adding " + os.path.basename(file) +
+                    ' to ' + os.path.basename(zip_file) + ' ...')
 
     # -j: junk (don't record) directory names
     # -e: encrypt
@@ -93,6 +96,7 @@ def os_zip_file(files_to_zip, zip_file, password=None, remove_file=True):
 
     if remove_file:
         for file in files_to_zip:
+            logger.info(f"Deleting file {os.path.basename(file)} ...")
             os.remove(file)
 
 
