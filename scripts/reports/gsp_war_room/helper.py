@@ -16,26 +16,26 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 def generateWarRoomReport():
 
-    orionReport = OrionReport(configFile)
+    report = OrionReport(configFile)
 
-    emailSubject = 'GSP War Room Report'
-    fileName = 'gsp_warroom_report'
-    startDate = None
-    endDate = None
+    email_subject = 'GSP War Room Report'
+    filename = 'gsp_warroom_report'
+    start_date = None
+    end_date = None
 
-    if orionReport.debug_config.getboolean('genReportManually'):
+    if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
-        startDate = orionReport.debug_config['reportStartDate']
-        endDate = orionReport.debug_config['reportEndDate']
+        start_date = report.debug_config['report_start_date']
+        end_date = report.debug_config['report_end_date']
 
     else:
-        startDate = str(utils.get_first_day_from_prev_month(
+        start_date = str(utils.get_first_day_from_prev_month(
             datetime.now().date()))
-        endDate = str(utils.get_last_day_from_prev_month(
+        end_date = str(utils.get_last_day_from_prev_month(
             datetime.now().date()))
 
-    logger.info("start date: " + str(startDate))
-    logger.info("end date: " + str(endDate))
+    logger.info("start date: " + str(start_date))
+    logger.info("end date: " + str(end_date))
 
     # query = "SELECT COUNT(id) FROM RestInterface_person WHERE role = 'GIP_KR'"
 
@@ -50,12 +50,12 @@ def generateWarRoomReport():
 
     # return
 
-    gsp_q_own_table = orionReport.orionDb.get_table_metadata('GSP_Q_ownership')
+    gsp_q_own_table = report.orion_db.get_table_metadata('GSP_Q_ownership')
     # query = select(gsp_q_own_table)
     query = select(gsp_q_own_table.c.group_id,
                    gsp_q_own_table.c.department).select_from(gsp_q_own_table)
-    orionReport.orionDb.log_full_query(query)
-    result = orionReport.orionDb.query_to_list(query)
+    report.orion_db.log_full_query(query)
+    result = report.orion_db.query_to_list(query)
     df_gsp_q_own = pd.DataFrame(data=result)
     # print(df_gsp_q_own[['group_id', 'department']])
     # print(df_gsp_q_own)
@@ -139,7 +139,7 @@ def generateWarRoomReport():
                     -- AND ORD.order_code IN ('YQC7084002');
             """)
 
-    result = orionReport.orionDb.query_to_list(query)
+    result = report.orion_db.query_to_list(query)
     df_raw = pd.DataFrame(data=result)
 
     # # logger.info(df_raw['crd_amendment_details'])
@@ -189,37 +189,37 @@ def generateWarRoomReport():
     df_main = df_final[const.MAIN_COLUMNS]
     df_main = df_main.sort_values(
         by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
-    csvFile = ("{}_{}.csv").format(fileName, utils.get_current_datetime())
-    csvMainFilePath = os.path.join(orionReport.reports_folder_path, csvFile)
-    orionReport.create_csv_from_df(df_main, csvMainFilePath)
+    csvFile = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csvMainFilePath = os.path.join(report.reports_folder_path, csvFile)
+    report.create_csv_from_df(df_main, csvMainFilePath)
 
     df_crd_amendment = df_final[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
         subset=['crd_amendment_date'])
     df_crd_amendment = df_crd_amendment.sort_values(
         by=['order_code', 'crd_amendment_date'], ascending=[True, False])
     csvFile = ("{}_crd_amendments_{}.csv").format(
-        fileName, utils.get_current_datetime())
-    csvAmdFilePath = os.path.join(orionReport.reports_folder_path, csvFile)
-    orionReport.create_csv_from_df(df_crd_amendment, csvAmdFilePath)
+        filename, utils.get_current_datetime())
+    csvAmdFilePath = os.path.join(report.reports_folder_path, csvFile)
+    report.create_csv_from_df(df_crd_amendment, csvAmdFilePath)
 
     # Compress files
-    zipFile = ("{}_{}.zip").format(fileName, utils.get_current_datetime())
-    zipFilePath = os.path.join(orionReport.reports_folder_path, zipFile)
-    orionReport.add_to_zip_file(csvMainFilePath, zipFilePath)
-    orionReport.add_to_zip_file(csvAmdFilePath, zipFilePath)
+    zipFile = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    zipFilePath = os.path.join(report.reports_folder_path, zipFile)
+    report.add_to_zip_file(csvMainFilePath, zipFilePath)
+    report.add_to_zip_file(csvAmdFilePath, zipFilePath)
 
     # Send Email
-    orionReport.set_email_subject(orionReport.add_timestamp(emailSubject))
-    orionReport.attach_file_to_email(zipFilePath)
-    # orionReport.attachFile(csvMainFilePath)
-    # orionReport.attachFile(csvAmdFilePath)
-    # orionReport.addReceiverTo('test1@singtel.com')
-    # orionReport.addReceiverCc('test2@singtel.com')
-    orionReport.send_email()
+    report.set_email_subject(report.add_timestamp(email_subject))
+    report.attach_file_to_email(zipFilePath)
+    # report.attachFile(csvMainFilePath)
+    # report.attachFile(csvAmdFilePath)
+    # report.addReceiverTo('test1@singtel.com')
+    # report.addReceiverCc('test2@singtel.com')
+    report.send_email()
 
     return
 
 
-def generateWarRoomNonGovReport(fileName, startDate, endDate, emailSubject):
+def generateWarRoomNonGovReport(filename, start_date, end_date, email_subject):
 
     return

@@ -24,17 +24,17 @@ class OrionReport(EmailClient):
 
         self.config_file = config_file
         self.default_config = config['DEFAULT']
-        self.email_config = config[self.default_config['emailInfo']]
-        self.db_config = config[self.default_config['databaseEnv']]
-        self.debug_config = config['DEBUG']
+        self.email_config = config[self.default_config['email_info']]
+        self.db_config = config[self.default_config['database_env']]
+        self.debug_config = config['Debug']
 
         self.reports_folder_path = None
         self.log_file_path = None
         self.__initialize()
 
-        self.orionDb = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
-                                    self.db_config['orion_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
-        self.orionDb.connect()
+        self.orion_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
+                                     self.db_config['orion_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
+        self.orion_db.connect()
 
         if self.db_config['tableau_db']:
             self.tableau_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
@@ -88,10 +88,10 @@ class OrionReport(EmailClient):
             logging.config.dictConfig(parsed_yaml)
         # Load the default logging.yml file
         else:
-            if config.has_option('DEBUG', 'logToFile') == True and self.debug_config.getboolean('logToFile') == False:
+            if config.has_option('Debug', 'log_to_file') == True and self.debug_config.getboolean('log_to_file') == False:
                 parsed_yaml['root']['handlers'] = ['console']
 
-            if config.has_option('DEFAULT', 'logFile') == False:
+            if config.has_option('DEFAULT', 'log_file') == False:
                 logs_folder = os.path.join('logs', script_folder_name)
                 utils.create_folder(logs_folder)
                 parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
@@ -105,20 +105,20 @@ class OrionReport(EmailClient):
             parsed_yaml['handlers']['timedRotatingFile']['filename'])
 
         # Set log level
-        if config.has_option('DEBUG', 'logLevel') == True:
+        if config.has_option('Debug', 'log_level') == True:
             logger.setLevel(self.get_level_num_value(
-                self.debug_config['logLevel']))
+                self.debug_config['log_level']))
 
     # private method
     def __setup_reports_folder(self):
         script_folder_path = os.path.dirname(self.config_file)
         script_folder_name = os.path.basename(script_folder_path)
 
-        if config.has_option('DEFAULT', 'reportsFolder') == False:
+        if config.has_option('DEFAULT', 'reports_folder') == False:
             self.reports_folder_path = os.path.join(
                 'reports', script_folder_name)
         else:
-            self.reports_folder_path = self.default_config['reportsFolder']
+            self.reports_folder_path = self.default_config['reports_folder']
 
         self.reports_folder_path = os.path.realpath(self.reports_folder_path)
         utils.create_folder(self.reports_folder_path)
@@ -154,13 +154,13 @@ class OrionReport(EmailClient):
             return 0
 
     def create_csv_from_df(self, df, csv_file_path):
-        if self.debug_config.getboolean('createReport') == True:
+        if self.debug_config.getboolean('create_report') == True:
             utils.df_to_csv(df, csv_file_path)
 
     def add_to_zip_file(self, files_to_zip, zip_file):
-        if self.debug_config.getboolean('createReport') == True:
+        if self.debug_config.getboolean('create_report') == True:
             utils.compress_files(files_to_zip, zip_file,
-                                 self.default_config['zipPassword'])
+                                 self.default_config['zip_password'])
 
     def add_email_receiver_to(self, email):
         self.receiver_to_list.append(email)
@@ -178,26 +178,26 @@ class OrionReport(EmailClient):
         return email_str
 
     def attach_file_to_email(self, attachment):
-        if self.debug_config.getboolean('createReport') == True:
+        if self.debug_config.getboolean('create_report') == True:
             super().attach_file(attachment)
 
     def send_email(self):
         # Enable/Disable email
-        if self.debug_config.getboolean('sendEmail') == True:
+        if self.debug_config.getboolean('send_email') == True:
             try:
                 self.server = self.email_config['server']
                 self.port = self.email_config['port']
                 self.sender = self.email_config['sender']
                 self.email_from = self.email_config["from"]
 
-                if self.default_config['emailInfo'] == 'Email':
-                    self.receiver_to = self.email_config["receiverTo"] + \
+                if self.default_config['email_info'] == 'Email':
+                    self.receiver_to = self.email_config["receiver_to"] + \
                         self.__email_list_to_str(self.receiver_to_list)
-                    self.receiver_cc = self.email_config["receiverCc"] + \
+                    self.receiver_cc = self.email_config["receiver_cc"] + \
                         self.__email_list_to_str(self.receiver_cc_list)
                 else:
-                    self.receiver_to = self.email_config["receiverTo"]
-                    self.receiver_cc = self.email_config["receiverCc"]
+                    self.receiver_to = self.email_config["receiver_to"]
+                    self.receiver_cc = self.email_config["receiver_cc"]
 
                 if self.subject == None:
                     self.subject = self.add_timestamp("Orion Report")
