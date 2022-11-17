@@ -1,0 +1,66 @@
+DATE_COLUMNS = [
+    'taken_date',
+    'current_crd',
+    'initial_crd',
+    'crd_amendment_date',
+    'old_crd',
+    'new_crd',
+    'sde_received_date',
+    'due_date',
+    'ready_date',
+    'completed_date',
+    'act_dly_reason_date'
+]
+
+MAIN_COLUMNS = [
+    'order_code',
+    'service_number',
+    'customer',
+    'order_type',
+    'order_status',
+    'taken_date',
+    'current_crd',
+    'initial_crd',
+    'assignee',
+    'project_code',
+    'circuit_code',
+    'product_code',
+    'product_description',
+    'business_sector',
+    'exchange_code_a',
+    'exchange_code_b',
+    'brn',
+    'sde_received_date',
+    'arbor_service',
+    'service_type',
+    'order_priority',
+    'ed_pd_diversity',
+    # 'department',
+    'department_gsp',
+    'group_id',
+    'step_no',
+    'activity_name',
+    'due_date',
+    'status',
+    'ready_date',
+    'completed_date',
+    'act_dly_reason_date',
+    'act_delay_reason'
+]
+
+CRD_AMENDMENT_COLUMNS = [
+    'order_code',
+    'service_number',
+    'customer',
+    'order_type',
+    'order_status',
+    'taken_date',
+    'current_crd',
+    'initial_crd',
+    'crd_amendment_date',
+    'old_crd',
+    'new_crd',
+    # 'crd_amendment_reason',
+    'crd_amendment_reason_gsp'
+    # 'crd_amendment_details'
+]
