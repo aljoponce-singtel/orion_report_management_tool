@@ -1,5 +1,8 @@
-from helper import generateWarRoomReport
+# Import built-in packages
 import logging
+
+# Import local packages
+from helper import generate_warroom_report
 
 logger = logging.getLogger(__name__)
 
@@ -7,7 +10,7 @@ logger = logging.getLogger(__name__)
 def main():
 
     try:
-        generateWarRoomReport()
+        generate_warroom_report()
 
     except Exception as err:
         logger.exception(err)

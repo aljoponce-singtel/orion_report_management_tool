@@ -1,20 +1,23 @@
+# Import built-in packages
 import os
-import sys
 from datetime import datetime
 import logging
-import pandas as pd
+
+# Import third-party packages
 import numpy as np
-import constants as const
+import pandas as pd
 from sqlalchemy import select, case, and_, or_, null, func
-from sqlalchemy.types import Integer
-from scripts.orion_report import OrionReport
+
+# Import local packages
+import constants as const
 from scripts.helpers import utils
+from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
 configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
-def generateWarRoomReport():
+def generate_warroom_report():
 
     report = OrionReport(configFile)
 
@@ -39,11 +42,11 @@ def generateWarRoomReport():
 
     # query = "SELECT COUNT(id) FROM RestInterface_person WHERE role = 'GIP_KR'"
 
-    # person_table = orionDb.getTableMetadata('RestInterface_person')
+    # person_table = report.orion_db.get_table_metadata('RestInterface_person')
     # query = select([func.count()]).select_from(
     #     person_table).where(person_table.c.role == 'GIP_KR')
 
-    # result = orionDb.queryToList(query)
+    # result = report.orion_db.query_to_list(query)
     # df = pd.DataFrame(data=result)
 
     # print(df)
@@ -189,37 +192,37 @@ def generateWarRoomReport():
     df_main = df_final[const.MAIN_COLUMNS]
     df_main = df_main.sort_values(
         by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
-    csvFile = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csvMainFilePath = os.path.join(report.reports_folder_path, csvFile)
-    report.create_csv_from_df(df_main, csvMainFilePath)
+    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(df_main, csv_main_file_path)
 
     df_crd_amendment = df_final[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
         subset=['crd_amendment_date'])
     df_crd_amendment = df_crd_amendment.sort_values(
         by=['order_code', 'crd_amendment_date'], ascending=[True, False])
-    csvFile = ("{}_crd_amendments_{}.csv").format(
+    csv_file = ("{}_crd_amendments_{}.csv").format(
         filename, utils.get_current_datetime())
-    csvAmdFilePath = os.path.join(report.reports_folder_path, csvFile)
-    report.create_csv_from_df(df_crd_amendment, csvAmdFilePath)
+    csv_amd_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(df_crd_amendment, csv_amd_file_path)
 
     # Compress files
-    zipFile = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    zipFilePath = os.path.join(report.reports_folder_path, zipFile)
-    report.add_to_zip_file(csvMainFilePath, zipFilePath)
-    report.add_to_zip_file(csvAmdFilePath, zipFilePath)
+    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    report.add_to_zip_file(csv_main_file_path, zip_file_path)
+    report.add_to_zip_file(csv_amd_file_path, zip_file_path)
 
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(zipFilePath)
-    # report.attachFile(csvMainFilePath)
-    # report.attachFile(csvAmdFilePath)
-    # report.addReceiverTo('test1@singtel.com')
-    # report.addReceiverCc('test2@singtel.com')
+    report.attach_file_to_email(zip_file_path)
+    # report.attach_file_to_email(csv_main_file_path)
+    # report.attach_file_to_email(csv_amd_file_path)
+    # report.add_email_receiver_to('test1@singtel.com')
+    # report.add_email_receiver_cc('test2@singtel.com')
     report.send_email()
 
     return
 
 
-def generateWarRoomNonGovReport(filename, start_date, end_date, email_subject):
+def generate_warroom_nongov_report(filename, start_date, end_date, email_subject):
 
     return
