@@ -107,9 +107,12 @@ def getPlatform():
     return platforms[sys.platform]
 
 
-def getCurrentDateTime():
-    # sample format - '20220808_1800'
-    return datetime.now().strftime("%Y%m%d_%H%M")
+def getCurrentDateTime(format=None):
+    if format:
+        return datetime.now().strftime(format)
+    else:
+        # sample format - '20220808_1800'
+        return datetime.now().strftime("%Y%m%d_%H%M")
 
 
 # Legacy/deprecated function
