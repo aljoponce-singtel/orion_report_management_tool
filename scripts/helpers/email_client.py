@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 import smtplib
 from email.mime.base import MIMEBase
@@ -16,28 +17,28 @@ class EmailClient:
         self.port = None
         self.subject = None
         self.sender = None
-        self.receiverTo = None
-        self.receiverCc = None
-        self.emailFrom = None
-        self.emailBodyText = None
-        self.emailBodyHtml = None
+        self.receiver_to = None
+        self.receiver_cc = None
+        self.email_from = None
+        self.email_body_text = None
+        self.email_body_html = None
         self.attachments = []
 
-    def addTimestamp(self, subject):
+    def add_timestamp(self, subject):
         today_datetime = datetime.now()
         day = today_datetime.strftime('%d').lstrip('0')
         hour = today_datetime.strftime('%I').lstrip('0')
         minute = today_datetime.strftime('%M')
-        ampm = today_datetime.strftime('%p')
+        am_pm = today_datetime.strftime('%p')
         year = today_datetime.strftime('%Y')
         month = today_datetime.strftime('%b')
         subject = "[{}] {} {}, {} {}:{} {}".format(
-            subject, month, day, year, hour, minute, ampm)
+            subject, month, day, year, hour, minute, am_pm)
 
         return subject
 
     # Legacy/deprecated function
-    def addTimestamp2(self, subject):
+    def add_timestamp_2(self, subject):
         today_datetime = datetime.now()
         day = today_datetime.strftime('%d').lstrip('0')
         hour = today_datetime.strftime('%I').lstrip('0')
@@ -49,28 +50,42 @@ class EmailClient:
 
         return subject
 
-    def setEmailSubject(self, subject):
+    def get_platform(self):
+        platforms = {
+            'linux': 'Linux',
+            'linux1': 'Linux',
+            'linux2': 'Linux',
+            'darwin': 'OS X',
+            'win32': 'Windows'
+        }
+
+        if sys.platform not in platforms:
+            return sys.platform
+
+        return platforms[sys.platform]
+
+    def set_email_subject(self, subject):
         self.subject = subject
 
-    def setEmailBodyText(self, emailBody):
-        self.emailBodyText = emailBody
+    def set_email_body_text(self, email_body):
+        self.email_body_text = email_body
 
-    def setEmailBodyHtml(self, emailBody):
-        self.emailBodyHtml = emailBody
+    def set_email_body_html(self, email_body):
+        self.email_body_html = email_body
 
-    def attachFile(self, attachment):
+    def attach_file(self, attachment):
         logger.info('Attaching file {} ...'.format(
             os.path.basename(attachment)))
         self.attachments.append(attachment)
 
-    def smtpSend(self):
+    def smtp_send(self):
         logger.info('Sending email with subject "{}" ...'.format(self.subject))
 
         try:
-            if self.emailBodyHtml:
+            if self.email_body_html:
                 # Turn these into plain/html MIMEText objects
                 # part1 = MIMEText(emailBodyText, "plain")
-                part2 = MIMEText(self.emailBodyHtml, "html")
+                part2 = MIMEText(self.email_body_html, "html")
 
             message = MIMEMultipart()
 
@@ -87,20 +102,20 @@ class EmailClient:
             # message.attach(part1)
             message.attach(part2)
             message['Subject'] = self.subject
-            message['From'] = self.emailFrom
-            message['To'] = self.receiverTo
-            message['CC'] = self.receiverCc
-            receiver = self.receiverTo + ";" + self.receiverCc
-            smtpObj = smtplib.SMTP(self.server, self.port)
-            smtpObj.sendmail(self.sender, receiver.split(";"),
-                             message.as_string())
-            smtpObj.quit()
+            message['From'] = self.email_from
+            message['To'] = self.receiver_to
+            message['CC'] = self.receiver_cc
+            receiver = self.receiver_to + ";" + self.receiver_cc
+            smtp_obj = smtplib.SMTP(self.server, self.port)
+            smtp_obj.sendmail(self.sender, receiver.split(";"),
+                              message.as_string())
+            smtp_obj.quit()
 
         except Exception as e:
             logger.error("Failed to send email.")
             logger.exception(e)
 
-    def win32comSend(self):
+    def win32com_send(self):
         logger.info('Sending email with subject "{}" ...'.format(self.subject))
 
         try:
@@ -108,14 +123,14 @@ class EmailClient:
             outlook = win32com.client.Dispatch('outlook.application')
 
             mail = outlook.CreateItem(0)
-            mail.To = self.receiverTo
-            mail.CC = self.receiverCc
+            mail.To = self.receiver_to
+            mail.CC = self.receiver_cc
             mail.Subject = self.subject
 
-            if self.emailBodyHtml:
-                mail.HTMLBody = self.emailBodyHtml
-            if self.emailBodyText:
-                mail.Body = self.emailBodyText
+            if self.email_body_html:
+                mail.HTMLBody = self.email_body_html
+            if self.email_body_text:
+                mail.Body = self.email_body_text
 
             for attachment in self.attachments:
                 mail.Attachments.Add(attachment)
@@ -125,3 +140,14 @@ class EmailClient:
         except Exception as e:
             logger.error("Failed to send email.")
             logger.exception(e)
+
+    def send(self):
+
+        platform = self.get_platform()
+
+        if platform == 'Linux':
+            self.smtp_send()
+        elif platform == 'Windows':
+            self.win32com_send()
+        else:
+            raise Exception(f"OS {platform} not supported.")

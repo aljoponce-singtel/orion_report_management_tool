@@ -27,12 +27,10 @@ There should be a main() fucntion defined inside file from sys.argv[2].
 Any exception errors when running the script will inform admin through email.
 """
 
-import os
 import sys
 import importlib
 import traceback
 import configparser
-from datetime import datetime
 from scripts.helpers import EmailClient
 from scripts.helpers import utils
 
@@ -118,22 +116,22 @@ def sendEmail(report, fileName):
     try:
         emailClient = EmailClient()
         subject = 'ERROR for Orion Report - {}'.format(report)
-        emailClient.subject = emailClient.addTimestamp2(subject)
-        emailClient.receiverTo = emailConfig["receiver_to"]
-        emailClient.receiverCc = emailConfig["receiver_cc"]
-        emailClient.emailBodyText = emailBodyText
-        emailClient.emailBodyHtml = emailBodyhtml
-        emailClient.attachFile(fileName)
+        emailClient.subject = emailClient.add_timestamp(subject)
+        emailClient.receiver_to = emailConfig["receiver_to"]
+        emailClient.receiver_cc = emailConfig["receiver_cc"]
+        emailClient.email_body_text = emailBodyText
+        emailClient.email_body_html = emailBodyhtml
+        emailClient.attach_file(fileName)
 
         if defaultConfig.getboolean('SendEmail'):
             if utils.get_platform() == 'Windows':
-                emailClient.win32comSend()
+                emailClient.win32com_send()
             else:
                 emailClient.server = emailConfig['server']
                 emailClient.port = emailConfig['port']
                 emailClient.sender = emailConfig['sender']
-                emailClient.emailFrom = emailConfig["from"]
-                emailClient.smtpSend()
+                emailClient.email_from = emailConfig["from"]
+                emailClient.smtp_send()
 
     except Exception as e:
         print("Failed to send email.")

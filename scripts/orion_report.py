@@ -155,7 +155,7 @@ class OrionReport(EmailClient):
     def addFileToZip(self, filesToZip, zipFile):
         if self.debugConfig.getboolean('createReport') == True:
             utils.compress_files(filesToZip, zipFile,
-                           self.defaultConfig['zipPassword'])
+                                 self.defaultConfig['zipPassword'])
 
     def addReceiverTo(self, email):
         self.__receiverToList.append(email)
@@ -171,29 +171,33 @@ class OrionReport(EmailClient):
 
         return emailsStr
 
-    def attachFile(self, attachment):
+    def attach_file(self, attachment):
         if self.debugConfig.getboolean('createReport') == True:
-            super().attachFile(attachment)
+            super().attach_file(attachment)
 
     def sendEmail(self):
         # Enable/Disable email
         if self.debugConfig.getboolean('sendEmail') == True:
             try:
+                self.server = self.emailConfig['server']
+                self.port = self.emailConfig['port']
+                self.sender = self.emailConfig['sender']
+                self.emailFrom = self.emailConfig["from"]
 
                 if self.defaultConfig['emailInfo'] == 'Email':
-                    self.receiverTo = self.emailConfig["receiverTo"] + \
+                    self.receiver_to = self.emailConfig["receiverTo"] + \
                         self.__emailListToStr(self.__receiverToList)
-                    self.receiverCc = self.emailConfig["receiverCc"] + \
+                    self.receiver_cc = self.emailConfig["receiverCc"] + \
                         self.__emailListToStr(self.__receiverCcList)
                 else:
-                    self.receiverTo = self.emailConfig["receiverTo"]
-                    self.receiverCc = self.emailConfig["receiverCc"]
+                    self.receiver_to = self.emailConfig["receiverTo"]
+                    self.receiver_cc = self.emailConfig["receiverCc"]
 
                 if self.subject == None:
-                    self.subject = self.addTimestamp("Orion Report")
+                    self.subject = self.add_timestamp("Orion Report")
 
-                if self.emailBodyText == None:
-                    self.emailBodyText = """
+                if self.email_body_text == None:
+                    self.email_body_text = """
                         Hello,
 
                         Please see attached ORION report.
@@ -203,8 +207,8 @@ class OrionReport(EmailClient):
                         Orion Team
                     """
 
-                if self.emailBodyHtml == None:
-                    self.emailBodyhtml = """\
+                if self.email_body_html == None:
+                    self.email_body_html = """\
                         <html>
                         <p>Hello,</p>
                         <p>Please see attached ORION report.</p>
@@ -214,14 +218,7 @@ class OrionReport(EmailClient):
                         </html>
                         """
 
-                if utils.get_platform() == 'Windows':
-                    self.win32comSend()
-                else:
-                    self.server = self.emailConfig['server']
-                    self.port = self.emailConfig['port']
-                    self.sender = self.emailConfig['sender']
-                    self.emailFrom = self.emailConfig["from"]
-                    self.smtpSend()
+                self.send()
 
             except Exception as e:
                 logger.error("Failed to send email.")
