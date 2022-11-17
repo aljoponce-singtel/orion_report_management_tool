@@ -14,23 +14,23 @@ logger = logging.getLogger(__name__)
 
 # Converts a list to a string without the brackets
 # E.g. ['GSDT7', 'GSDT8'] => -'GSDT7', 'GSDT8'
-def listToString(list):
-    strList = str(list)
-    strListNoBrackets = str(strList).replace('[', '').replace(']', '')
+def list_to_string(list):
+    str_list = str(list)
+    str_list_no_brackets = str(str_list).replace('[', '').replace(']', '')
 
-    return strListNoBrackets
+    return str_list_no_brackets
 
 
-def dataframeToCsv(df, filePath):
-    logger.info("Creating file " + os.path.basename(filePath) + " ...")
+def df_to_csv(df, file_path):
+    logger.info("Creating file " + os.path.basename(file_path) + " ...")
     df = pd.DataFrame(df)
-    df.to_csv(filePath, index=False)
+    df.to_csv(file_path, index=False)
 
 
-def write_to_csv(csvfile, dataset, headers, folderPath):
+def write_to_csv(csv_file_path, dataset, headers, folder_path):
 
     try:
-        csvfilePath = os.path.join(folderPath, csvfile)
+        csvfilePath = os.path.join(folder_path, csv_file_path)
 
         with open(csvfilePath, 'w', newline='') as csv_file:
             spamwriter = csv.writer(
@@ -45,54 +45,58 @@ def write_to_csv(csvfile, dataset, headers, folderPath):
         raise Exception(e)
 
 
-def zipFiles(filesToZip, zipFile, password=None):
+def compress_files(files_to_zip, zip_file_path, password=None, remove_file=True):
 
     files = []
 
-    if type(filesToZip) is not list:
-        files.append(filesToZip)
+    if type(files_to_zip) is not list:
+        files.append(files_to_zip)
     else:
-        files = filesToZip
+        files = files_to_zip
 
-    if getPlatform() == "Linux":
-        os_zip_file(files, zipFile, password)
-    elif getPlatform() == "Windows":
-        zip_file(files, zipFile)
+    platform = get_platform()
+
+    if platform == "Linux":
+        os_zip_file(files, zip_file_path, password, remove_file)
+    elif platform == "Windows":
+        zip_file(files, zip_file_path, remove_file)
     else:
-        errorMsg = "OS " + os + " not supported."
-        logger.error(errorMsg)
-        raise Exception(errorMsg)
+        raise Exception(f"OS {platform} not supported.")
 
 
-def zip_file(filesToZip, zipfile, password=None):
-    # logger.info("Creating zip file " + os.path.basename(zipfile) + ' ...')
+def zip_file(files_to_zip, zip_file, remove_file=True):
+    logger.info(f"Creating {os.path.basename(zip_file)} ...")
 
-    with ZipFile(zipfile, 'a') as zipObj:
-        for file in filesToZip:
+    with ZipFile(zip_file, 'a') as zip_obj:
+        for file in files_to_zip:
             logger.info("Adding " + os.path.basename(file) +
-                        ' to ' + os.path.basename(zipfile) + ' ...')
-            zipObj.write(filename=file, arcname=os.path.basename(file))
-            os.remove(file)
+                        ' to ' + os.path.basename(zip_file) + ' ...')
+            zip_obj.write(filename=file, arcname=os.path.basename(file))
+
+            if remove_file:
+                os.remove(file)
 
 
-# Linux
-def os_zip_file(filesToZip, zipfile, password=None):
-    files = ' '.join(filesToZip)
+# Only works with Linux
+def os_zip_file(files_to_zip, zip_file, password=None, remove_file=True):
+    files = ' '.join(files_to_zip)
+    logger.info(f"Creating {os.path.basename(zip_file)} ...")
 
     # -j: junk (don't record) directory names
     # -e: encrypt
     # -P: password
     if password:
         os.system("zip -j -e %s %s -P %s" %
-                  (zipfile, files, password))
+                  (zip_file, files, password))
     else:
-        os.system("zip -j %s %s" % (zipfile, files))
+        os.system("zip -j %s %s" % (zip_file, files))
 
-    for file in filesToZip:
-        os.remove(file)
+    if remove_file:
+        for file in files_to_zip:
+            os.remove(file)
 
 
-def getPlatform():
+def get_platform():
     platforms = {
         'linux': 'Linux',
         'linux1': 'Linux',
@@ -107,7 +111,7 @@ def getPlatform():
     return platforms[sys.platform]
 
 
-def getCurrentDateTime(format=None):
+def get_current_datetime(format=None):
     if format:
         return datetime.now().strftime(format)
     else:
@@ -116,66 +120,77 @@ def getCurrentDateTime(format=None):
 
 
 # Legacy/deprecated function
-def getCurrentDateTime2():
+def get_current_datetime_2():
     # sample format - '050622_1845'
     return datetime.now().strftime("%d%m%y_%H%M")
 
 
-def getPrevMonthFirstDayDate(date):
-    previousMonthDate = date.replace(day=1) - timedelta(days=1)
-    return previousMonthDate.replace(day=1)
+def get_first_day_from_prev_month(date):
+    # Example:
+    # 2022-11-15 = Current date
+    # 2022-10-01 = First day from previous month
+    prev_month_date = date.replace(day=1) - timedelta(days=1)
+    return prev_month_date.replace(day=1)
 
 
-def getPrevMonthLastDayDate(date):
-    previousMonthDate = (date.replace(day=1) - timedelta(days=1)
-                         ).replace(day=date.day)
-    lastDay = calendar.monthrange(
-        previousMonthDate.year, previousMonthDate.month)[1]
-    return previousMonthDate.replace(day=lastDay)
+def get_last_day_from_prev_month(date):
+    # Example:
+    # 2022-11-15 = Current date
+    # 2022-10-31 = Last day from previous month
+    prev_month_date = (date.replace(day=1) - timedelta(days=1)
+                       ).replace(day=date.day)
+    last_day = calendar.monthrange(
+        prev_month_date.year, prev_month_date.month)[1]
+    return prev_month_date.replace(day=last_day)
 
 
-def getPrevMonthStartDate(date):
+def get_start_date_from_prev_month(date):
+    # Example:
+    # 2022-11-26 = Current date
+    # 2022-10-26 = First day from previous month
     return (date.replace(day=1) - timedelta(days=1)).replace(day=date.day)
 
 
-def getPrevMonthEndDate(date):
+def get_end_date_from_prev_month(date):
+    # Example:
+    # 2022-11-26 = Current date
+    # 2022-11-25 = First day from previous month
     return date - timedelta(days=1)
 
 
-def createFolder(folderPath, overwrite=False):
+def create_folder(folder_path, overwrite=False):
     # Check if the specified path exists
-    isExist = os.path.exists(folderPath)
+    is_exist = os.path.exists(folder_path)
 
-    if not isExist:
+    if not is_exist:
         # Create a new directory because it does not exist
-        logger.info("Creating directory " + folderPath + ' ...')
-        os.makedirs(folderPath)
+        logger.info("Creating directory " + folder_path + ' ...')
+        os.makedirs(folder_path)
 
 
-def scanFiles(dir_path, regex=None):
+def scan_files(dir_path, regex=None):
 
     logger.info(f'Scanning files in {dir_path} ...')
 
     # to store file names
-    res = []
-
+    filenames = []
     # construct path object
-    d = pathlib.Path(dir_path)
+    directory = pathlib.Path(dir_path)
 
     # iterate directory
-    for entry in d.iterdir():
+    for entry in directory.iterdir():
         # check if it a file
         if entry.is_file():
-            res.append(entry)
+            filenames.append(entry)
             logger.debug(f'Scanned file = {entry}')
 
-    return res
+    return filenames
 
 
-def readYamlFile(filePath):
+def read_yaml_file(file_path):
     parsed_yaml = None
 
-    with open(filePath, 'r') as stream:
+    with open(file_path, 'r') as stream:
         parsed_yaml = yaml.safe_load(stream)
 
     return parsed_yaml

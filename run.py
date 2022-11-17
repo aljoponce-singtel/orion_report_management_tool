@@ -76,7 +76,7 @@ def main():
 
     except Exception as error:
 
-        timeStamp = utils.getCurrentDateTime()
+        timeStamp = utils.get_current_datetime()
         fileName = '{}.{}.error.log'.format(__file__, timeStamp)
 
         if defaultConfig.getboolean('create_error_log'):
@@ -126,7 +126,7 @@ def sendEmail(report, fileName):
         emailClient.attachFile(fileName)
 
         if defaultConfig.getboolean('SendEmail'):
-            if utils.getPlatform() == 'Windows':
+            if utils.get_platform() == 'Windows':
                 emailClient.win32comSend()
             else:
                 emailClient.server = emailConfig['server']

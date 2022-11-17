@@ -53,10 +53,10 @@ class OrionReport(EmailClient):
             logger.info("==========================================")
             logger.info("START of script - " +
                         datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
-            logger.info("Running script in " + utils.getPlatform())
+            logger.info("Running script in " + utils.get_platform())
 
             self.__setupReportsFolder()
-            utils.createFolder(self.reportsFolderPath)
+            utils.create_folder(self.reportsFolderPath)
 
             logger.info(f'Log path: {str(self.logFilePath)}')
             logger.info(f'Reports folder: {str(self.reportsFolderPath)}')
@@ -74,11 +74,11 @@ class OrionReport(EmailClient):
             os.path.dirname(__file__), "logging.yml")
         logsFolder = None
 
-        parsed_yaml = utils.readYamlFile(mainLoggerConfig)
+        parsed_yaml = utils.read_yaml_file(mainLoggerConfig)
 
         # If there is a separate logging.yml file in the reports script folder, load this instead.
         if os.path.exists(scriptLoggerConfig):
-            parsed_yaml = utils.readYamlFile(scriptLoggerConfig)
+            parsed_yaml = utils.read_yaml_file(scriptLoggerConfig)
             logging.config.dictConfig(parsed_yaml)
         # Load the default logging.yml file
         else:
@@ -87,7 +87,7 @@ class OrionReport(EmailClient):
 
             if config.has_option('DEFAULT', 'logFile') == False:
                 logsFolder = os.path.join('logs', scriptFolderName)
-                utils.createFolder(logsFolder)
+                utils.create_folder(logsFolder)
                 parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
                     logsFolder, f"{scriptFolderName}.log")
             else:
@@ -114,7 +114,7 @@ class OrionReport(EmailClient):
             self.reportsFolderPath = self.defaultConfig['reportsFolder']
 
         self.reportsFolderPath = os.path.realpath(self.reportsFolderPath)
-        utils.createFolder(self.reportsFolderPath)
+        utils.create_folder(self.reportsFolderPath)
 
     def getLogLevel(self):
 
@@ -150,11 +150,11 @@ class OrionReport(EmailClient):
         if self.debugConfig.getboolean('createReport') == True:
             logger.info("Generating report " +
                         os.path.basename(csvFilePath) + " ...")
-            utils.dataframeToCsv(df, csvFilePath)
+            utils.df_to_csv(df, csvFilePath)
 
     def addFileToZip(self, filesToZip, zipFile):
         if self.debugConfig.getboolean('createReport') == True:
-            utils.zipFiles(filesToZip, zipFile,
+            utils.compress_files(filesToZip, zipFile,
                            self.defaultConfig['zipPassword'])
 
     def addReceiverTo(self, email):
@@ -214,7 +214,7 @@ class OrionReport(EmailClient):
                         </html>
                         """
 
-                if utils.getPlatform() == 'Windows':
+                if utils.get_platform() == 'Windows':
                     self.win32comSend()
                 else:
                     self.server = self.emailConfig['server']
