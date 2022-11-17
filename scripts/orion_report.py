@@ -3,7 +3,7 @@ from datetime import datetime
 import logging
 import logging.config
 import configparser
-from scripts.helpers import DBConnection
+from scripts.helpers import DbConnection
 from scripts.helpers import EmailClient
 from scripts.helpers import utils
 
@@ -28,12 +28,12 @@ class OrionReport(EmailClient):
         self.logFilePath = None
         self.__initialize()
 
-        self.orionDb = DBConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
+        self.orionDb = DbConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
                                     self.dbConfig['orion_db'], self.dbConfig['orion_user'], self.dbConfig['orion_pwd'])
         self.orionDb.connect()
 
         if self.dbConfig['tableau_db']:
-            self.tableauDb = DBConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
+            self.tableauDb = DbConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
                                           self.dbConfig['tableau_db'], self.dbConfig['tableau_user'], self.dbConfig['tableau_pwd'])
             self.tableauDb.connect()
 

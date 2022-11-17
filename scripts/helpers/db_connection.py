@@ -1,13 +1,12 @@
 import logging
 import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import text
 
 logger = logging.getLogger(__name__)
 
 
-class DBConnection:
+class DbConnection:
     def __init__(self, dbapi, host, port, database, user, password):
         self.dbapi = dbapi
         self.host = host
@@ -15,24 +14,20 @@ class DBConnection:
         self.database = database
         self.user = user
         self.password = password
-        self.__conn = None
-        self.__engine = None
-        self.__metadata = None
-        self.__sqlSession = None
+        self.conn = None
+        self.engine = None
+        self.metadata = None
 
     def connect(self):
         try:
-            self.__engine = create_engine(
+            self.engine = create_engine(
                 '{}://{}:{}@{}:{}/{}'.format(self.dbapi, self.user, self.password, self.host, self.port, self.database), echo=False)
-            self.__conn = self.__engine.connect()
+            self.conn = self.engine.connect()
 
             logger.info("Connected to DB " + self.database + ' at ' +
                         self.user + '@' + self.host + ':' + self.port)
 
-            self.__metadata = MetaData(self.__engine)
-
-            Session = sessionmaker(self.__engine, future=True)
-            self.__sqlSession = Session()
+            self.metadata = MetaData(self.engine)
 
         except Exception as err:
             logger.error("Failed to connect to DB " + self.database + ' at ' +
@@ -40,67 +35,61 @@ class DBConnection:
             logger.exception(err)
             raise Exception(err)
 
-    def getSqlSession(self):
-        return self.__sqlSession
-
-    def getTableMetadata(self, tableName, alias=None):
+    def get_table_metadata(self, table_name, alias=None):
 
         table = None
 
         if alias:
-            table = Table(tableName, self.__metadata,
+            table = Table(table_name, self.metadata,
                           autoload=True).alias(alias)
         else:
-            table = Table(tableName, self.__metadata, autoload=True)
+            table = Table(table_name, self.metadata, autoload=True)
 
         return table
 
-    def logFullQuery(self, query):
-        logger.debug(query.compile(self.__engine,
+    def log_full_query(self, query):
+        logger.debug(query.compile(self.engine,
                                    compile_kwargs={"literal_binds": True}))
 
-    def createTablesFromMetadata(self, table):
-        return table.metadata.create_all(self.__engine)
+    def create_table_from_metadata(self, table):
+        return table.metadata.create_all(self.engine)
 
-    def truncateTable(self, tableName):
-        table = self.getTableMetadata(tableName)
-        self.__conn.execute(table.delete())
+    def truncate_table(self, tableName):
+        table = self.get_table_metadata(tableName)
+        self.conn.execute(table.delete())
 
-    def dropTable(self, table):
+    def drop_table(self, table):
         table_to_drop = table
 
         if type(table) is str:
-            table_to_drop = self.getTableMetadata(table)
+            table_to_drop = self.get_table_metadata(table)
 
         logger.info(f"Dropping table {table_to_drop.name} ...")
 
-        return table_to_drop.metadata.drop_all(self.__engine)
+        return table_to_drop.metadata.drop_all(self.engine)
 
-    def queryToList(self, query, data=None):
-        queryType = type(query)
+    def query_to_list(self, query, data=None):
+        query_type = type(query)
 
         # query has data
         if data:
-            return self.__conn.execute(query, data).fetchall()
+            return self.conn.execute(query, data).fetchall()
         # query is a an SQL text
-        elif queryType is str:
-            return self.__conn.execute(text(query)).fetchall()
+        elif query_type is str:
+            return self.conn.execute(text(query)).fetchall()
         # query is a constructed SQL expression
-        elif queryType.__name__ == 'Select':
-            return self.__conn.execute(query).fetchall()
+        elif query_type.__name__ == 'Select':
+            return self.conn.execute(query).fetchall()
         else:
             raise Exception("INVALID QUERY")
 
-    def insertIntoTable(self, statement):
-        return self.__conn.execute(statement)
-
-    def insertDataframeToTable(self, dataframe, table, if_exist=None):
+    def insert_df_to_table(self, dataframe, table, if_exist=None):
         logger.info(f'Inserting records to {table} table ...')
 
         df = pd.DataFrame(dataframe)
         df.to_sql(table,
-                  #   con=self.__engine,
-                  con=self.__engine,
+                  #   con=self.engine,
+                  con=self.engine,
                   #   indexbool, default True
                   #         Write DataFrame index as a column. Uses index_label as the column name in the table.
                   index=False,
