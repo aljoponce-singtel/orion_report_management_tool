@@ -223,6 +223,6 @@ def generate_warroom_report():
     return
 
 
-def generate_warroom_nongov_report(filename, start_date, end_date, email_subject):
+def generate_warroom_nongov_report():
 
     return
