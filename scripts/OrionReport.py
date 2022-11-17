@@ -3,9 +3,9 @@ from datetime import datetime
 import logging
 import logging.config
 import configparser
-from .DBConnection import DBConnection
-from .EmailClient import EmailClient
-from . import utils as utils
+from scripts.helpers import DBConnection
+from scripts.helpers import EmailClient
+from scripts.helpers import utils
 
 logger = logging.getLogger()
 config = configparser.ConfigParser()

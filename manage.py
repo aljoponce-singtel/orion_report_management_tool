@@ -33,8 +33,8 @@ import importlib
 import traceback
 import configparser
 from datetime import datetime
-from scripts._helper.EmailClient import EmailClient
-from scripts._helper import utils
+from scripts.helpers import EmailClient
+from scripts.helpers import utils
 
 config = configparser.ConfigParser()
 configFile = 'manage.ini'
@@ -50,7 +50,7 @@ def main():
         print(sys.argv)
 
         # Add script folder path to python system path
-        sys.path.insert(0, './scripts/' + sys.argv[1])
+        sys.path.append('./scripts/reports/' + sys.argv[1])
 
         # If the main script and/or main function is provided
         if len(sys.argv) > 2:
