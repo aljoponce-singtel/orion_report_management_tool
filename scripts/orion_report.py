@@ -1,8 +1,11 @@
-import os
+# Import built-in packages
+import configparser
 from datetime import datetime
 import logging
 import logging.config
-import configparser
+import os
+
+# Import local packages
 from scripts.helpers import DbConnection
 from scripts.helpers import EmailClient
 from scripts.helpers import utils
@@ -12,111 +15,115 @@ config = configparser.ConfigParser()
 
 
 class OrionReport(EmailClient):
-    def __init__(self, configFile):
-        config.read(configFile)
 
-        self.configFile = configFile
-        self.defaultConfig = config['DEFAULT']
-        self.emailConfig = config[self.defaultConfig['emailInfo']]
-        self.dbConfig = config[self.defaultConfig['databaseEnv']]
-        self.debugConfig = config['DEBUG']
+    receiver_to_list = []
+    receiver_cc_list = []
 
-        self.__receiverToList = []
-        self.__receiverCcList = []
+    def __init__(self, config_file):
+        config.read(config_file)
 
-        self.reportsFolderPath = None
-        self.logFilePath = None
+        self.config_file = config_file
+        self.default_config = config['DEFAULT']
+        self.email_config = config[self.default_config['emailInfo']]
+        self.db_config = config[self.default_config['databaseEnv']]
+        self.debug_config = config['DEBUG']
+
+        self.reports_folder_path = None
+        self.log_file_path = None
         self.__initialize()
 
-        self.orionDb = DbConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
-                                    self.dbConfig['orion_db'], self.dbConfig['orion_user'], self.dbConfig['orion_pwd'])
+        self.orionDb = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
+                                    self.db_config['orion_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
         self.orionDb.connect()
 
-        if self.dbConfig['tableau_db']:
-            self.tableauDb = DbConnection(self.dbConfig['dbapi'], self.dbConfig['host'], self.dbConfig['port'],
-                                          self.dbConfig['tableau_db'], self.dbConfig['tableau_user'], self.dbConfig['tableau_pwd'])
-            self.tableauDb.connect()
+        if self.db_config['tableau_db']:
+            self.tableau_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
+                                           self.db_config['tableau_db'], self.db_config['tableau_user'], self.db_config['tableau_pwd'])
+            self.tableau_db.connect()
 
         super().__init__()
 
     # Calling destructor
     def __del__(self):
         logger.info("END of script - " +
-                    datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                    utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
 
+    # private method
     def __initialize(self):
 
         try:
-            self.__setupLogging()
+            self.__setup_logging()
 
             # START LOGGING OF SCRIPT
             logger.info("==========================================")
             logger.info("START of script - " +
-                        datetime.now().strftime("%a %m/%d/%Y, %H:%M:%S"))
+                        utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
             logger.info("Running script in " + utils.get_platform())
 
-            self.__setupReportsFolder()
-            utils.create_folder(self.reportsFolderPath)
+            self.__setup_reports_folder()
+            utils.create_folder(self.reports_folder_path)
 
-            logger.info(f'Log path: {str(self.logFilePath)}')
-            logger.info(f'Reports folder: {str(self.reportsFolderPath)}')
+            logger.info(f'Log path: {str(self.log_file_path)}')
+            logger.info(f'Reports folder: {str(self.reports_folder_path)}')
 
         except Exception as err:
             raise Exception(err)
 
-    def __setupLogging(self):
-        scriptFolderPath = os.path.dirname(self.configFile)
-        scriptFolderName = os.path.basename(scriptFolderPath)
-        scriptLoggerConfig = os.path.join(scriptFolderPath, "logging.yml")
-        # mainLoggerConfig = os.path.join(os.path.dirname(
-        #     scriptFolderPath), "logging.yml")
-        mainLoggerConfig = os.path.join(
+    # private method
+    def __setup_logging(self):
+        script_folder_path = os.path.dirname(self.config_file)
+        script_folder_name = os.path.basename(script_folder_path)
+        script_logger_config = os.path.join(script_folder_path, "logging.yml")
+        # main_logger_config = os.path.join(os.path.dirname(
+        #     script_folder_path), "logging.yml")
+        main_logger_config = os.path.join(
             os.path.dirname(__file__), "logging.yml")
-        logsFolder = None
+        logs_folder = None
 
-        parsed_yaml = utils.read_yaml_file(mainLoggerConfig)
+        parsed_yaml = utils.read_yaml_file(main_logger_config)
 
         # If there is a separate logging.yml file in the reports script folder, load this instead.
-        if os.path.exists(scriptLoggerConfig):
-            parsed_yaml = utils.read_yaml_file(scriptLoggerConfig)
+        if os.path.exists(script_logger_config):
+            parsed_yaml = utils.read_yaml_file(script_logger_config)
             logging.config.dictConfig(parsed_yaml)
         # Load the default logging.yml file
         else:
-            if config.has_option('DEBUG', 'logToFile') == True and self.debugConfig.getboolean('logToFile') == False:
+            if config.has_option('DEBUG', 'logToFile') == True and self.debug_config.getboolean('logToFile') == False:
                 parsed_yaml['root']['handlers'] = ['console']
 
             if config.has_option('DEFAULT', 'logFile') == False:
-                logsFolder = os.path.join('logs', scriptFolderName)
-                utils.create_folder(logsFolder)
+                logs_folder = os.path.join('logs', script_folder_name)
+                utils.create_folder(logs_folder)
                 parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
-                    logsFolder, f"{scriptFolderName}.log")
+                    logs_folder, f"{script_folder_name}.log")
             else:
-                parsed_yaml['handlers']['timedRotatingFile']['filename'] = self.defaultConfig['logFile']
+                parsed_yaml['handlers']['timedRotatingFile']['filename'] = self.default_config['logFile']
 
             logging.config.dictConfig(parsed_yaml)
 
-        self.logFilePath = os.path.realpath(
+        self.log_file_path = os.path.realpath(
             parsed_yaml['handlers']['timedRotatingFile']['filename'])
 
         # Set log level
         if config.has_option('DEBUG', 'logLevel') == True:
-            logger.setLevel(self.getLevelNumValue(
-                self.debugConfig['logLevel']))
+            logger.setLevel(self.get_level_num_value(
+                self.debug_config['logLevel']))
 
-    def __setupReportsFolder(self):
-        scriptFolderPath = os.path.dirname(self.configFile)
-        scriptFolderName = os.path.basename(scriptFolderPath)
+    # private method
+    def __setup_reports_folder(self):
+        script_folder_path = os.path.dirname(self.config_file)
+        script_folder_name = os.path.basename(script_folder_path)
 
         if config.has_option('DEFAULT', 'reportsFolder') == False:
-            self.reportsFolderPath = os.path.join(
-                'reports', scriptFolderName)
+            self.reports_folder_path = os.path.join(
+                'reports', script_folder_name)
         else:
-            self.reportsFolderPath = self.defaultConfig['reportsFolder']
+            self.reports_folder_path = self.default_config['reportsFolder']
 
-        self.reportsFolderPath = os.path.realpath(self.reportsFolderPath)
-        utils.create_folder(self.reportsFolderPath)
+        self.reports_folder_path = os.path.realpath(self.reports_folder_path)
+        utils.create_folder(self.reports_folder_path)
 
-    def getLogLevel(self):
+    def get_log_level(self):
 
         if logger.level == 10:
             return 'DEBUG'
@@ -131,7 +138,7 @@ class OrionReport(EmailClient):
         else:  # 0
             return 'NOTSET'
 
-    def getLevelNumValue(self, level):
+    def get_level_num_value(self, level: str):
 
         if level.casefold() == 'debug':
             return 10
@@ -146,52 +153,51 @@ class OrionReport(EmailClient):
         else:  # 'NOTSET'
             return 0
 
-    def createCsvFromDataframe(self, df, csvFilePath):
-        if self.debugConfig.getboolean('createReport') == True:
-            logger.info("Generating report " +
-                        os.path.basename(csvFilePath) + " ...")
-            utils.df_to_csv(df, csvFilePath)
+    def create_csv_from_df(self, df, csv_file_path):
+        if self.debug_config.getboolean('createReport') == True:
+            utils.df_to_csv(df, csv_file_path)
 
-    def addFileToZip(self, filesToZip, zipFile):
-        if self.debugConfig.getboolean('createReport') == True:
-            utils.compress_files(filesToZip, zipFile,
-                                 self.defaultConfig['zipPassword'])
+    def add_to_zip_file(self, files_to_zip, zip_file):
+        if self.debug_config.getboolean('createReport') == True:
+            utils.compress_files(files_to_zip, zip_file,
+                                 self.default_config['zipPassword'])
 
-    def addReceiverTo(self, email):
-        self.__receiverToList.append(email)
+    def add_email_receiver_to(self, email):
+        self.receiver_to_list.append(email)
 
-    def addReceiverCc(self, email):
-        self.__receiverCcList.append(email)
+    def add_email_receiver_cc(self, email):
+        self.receiver_cc_list.append(email)
 
-    def __emailListToStr(self, emailList):
-        emailsStr = ''
+    # private method
+    def __email_list_to_str(self, email_list):
+        email_str = ''
 
-        for email in emailList:
-            emailsStr = emailsStr + ';' + email
+        for email in email_list:
+            email_str = email_str + ';' + email
 
-        return emailsStr
+        return email_str
 
-    def attach_file(self, attachment):
-        if self.debugConfig.getboolean('createReport') == True:
+    def attach_file_to_email(self, attachment):
+        if self.debug_config.getboolean('createReport') == True:
             super().attach_file(attachment)
 
-    def sendEmail(self):
+    def send_email(self):
         # Enable/Disable email
-        if self.debugConfig.getboolean('sendEmail') == True:
+        if self.debug_config.getboolean('sendEmail') == True:
             try:
-                self.server = self.emailConfig['server']
-                self.port = self.emailConfig['port']
-                self.sender = self.emailConfig['sender']
-                self.emailFrom = self.emailConfig["from"]
+                self.server = self.email_config['server']
+                self.port = self.email_config['port']
+                self.sender = self.email_config['sender']
+                self.email_from = self.email_config["from"]
 
-                if self.defaultConfig['emailInfo'] == 'Email':
-                    self.receiver_to = self.emailConfig["receiverTo"] + \
-                        self.__emailListToStr(self.__receiverToList)
-                    self.receiver_cc = self.emailConfig["receiverCc"] + \
-                        self.__emailListToStr(self.__receiverCcList)
+                if self.default_config['emailInfo'] == 'Email':
+                    self.receiver_to = self.email_config["receiverTo"] + \
+                        self.__email_list_to_str(self.receiver_to_list)
+                    self.receiver_cc = self.email_config["receiverCc"] + \
+                        self.__email_list_to_str(self.receiver_cc_list)
                 else:
-                    self.receiver_to = self.emailConfig["receiverTo"]
-                    self.receiver_cc = self.emailConfig["receiverCc"]
+                    self.receiver_to = self.email_config["receiverTo"]
+                    self.receiver_cc = self.email_config["receiverCc"]
 
                 if self.subject == None:
                     self.subject = self.add_timestamp("Orion Report")

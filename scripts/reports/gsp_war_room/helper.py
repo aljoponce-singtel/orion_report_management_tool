@@ -23,15 +23,16 @@ def generateWarRoomReport():
     startDate = None
     endDate = None
 
-    if orionReport.debugConfig.getboolean('genReportManually'):
+    if orionReport.debug_config.getboolean('genReportManually'):
         logger.info('\\* MANUAL RUN *\\')
-        startDate = orionReport.debugConfig['reportStartDate']
-        endDate = orionReport.debugConfig['reportEndDate']
+        startDate = orionReport.debug_config['reportStartDate']
+        endDate = orionReport.debug_config['reportEndDate']
 
     else:
         startDate = str(utils.get_first_day_from_prev_month(
             datetime.now().date()))
-        endDate = str(utils.get_last_day_from_prev_month(datetime.now().date()))
+        endDate = str(utils.get_last_day_from_prev_month(
+            datetime.now().date()))
 
     logger.info("start date: " + str(startDate))
     logger.info("end date: " + str(endDate))
@@ -189,8 +190,8 @@ def generateWarRoomReport():
     df_main = df_main.sort_values(
         by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
     csvFile = ("{}_{}.csv").format(fileName, utils.get_current_datetime())
-    csvMainFilePath = os.path.join(orionReport.reportsFolderPath, csvFile)
-    orionReport.createCsvFromDataframe(df_main, csvMainFilePath)
+    csvMainFilePath = os.path.join(orionReport.reports_folder_path, csvFile)
+    orionReport.create_csv_from_df(df_main, csvMainFilePath)
 
     df_crd_amendment = df_final[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
         subset=['crd_amendment_date'])
@@ -198,23 +199,23 @@ def generateWarRoomReport():
         by=['order_code', 'crd_amendment_date'], ascending=[True, False])
     csvFile = ("{}_crd_amendments_{}.csv").format(
         fileName, utils.get_current_datetime())
-    csvAmdFilePath = os.path.join(orionReport.reportsFolderPath, csvFile)
-    orionReport.createCsvFromDataframe(df_crd_amendment, csvAmdFilePath)
+    csvAmdFilePath = os.path.join(orionReport.reports_folder_path, csvFile)
+    orionReport.create_csv_from_df(df_crd_amendment, csvAmdFilePath)
 
     # Compress files
     zipFile = ("{}_{}.zip").format(fileName, utils.get_current_datetime())
-    zipFilePath = os.path.join(orionReport.reportsFolderPath, zipFile)
-    orionReport.addFileToZip(csvMainFilePath, zipFilePath)
-    orionReport.addFileToZip(csvAmdFilePath, zipFilePath)
+    zipFilePath = os.path.join(orionReport.reports_folder_path, zipFile)
+    orionReport.add_to_zip_file(csvMainFilePath, zipFilePath)
+    orionReport.add_to_zip_file(csvAmdFilePath, zipFilePath)
 
     # Send Email
     orionReport.set_email_subject(orionReport.add_timestamp(emailSubject))
-    orionReport.attach_file(zipFilePath)
+    orionReport.attach_file_to_email(zipFilePath)
     # orionReport.attachFile(csvMainFilePath)
     # orionReport.attachFile(csvAmdFilePath)
     # orionReport.addReceiverTo('test1@singtel.com')
     # orionReport.addReceiverCc('test2@singtel.com')
-    orionReport.sendEmail()
+    orionReport.send_email()
 
     return
 
