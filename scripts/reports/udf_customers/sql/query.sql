@@ -1,32 +1,35 @@
-SELECT DISTINCT
-    cus.name           AS 'Customer Name'
-  , brn.brn            AS 'BRN'
-  , ord.order_code     AS 'Work Order Number'
-  , ord.service_number AS 'Service Number'
-  , ord.taken_date     AS 'Order Creation Date'
-  , ord.current_crd    AS 'CRD'
-  , ckt.circuit_code   AS 'Circuit Tie'
+SELECT
+    CUS.name             AS 'CustomerName'
+  , BRN.brn              AS 'BRN'
+  , ORD.order_code       AS 'OrderCode'
+  , ORD.service_number   AS 'ServiceNumber'
+  , ORD.taken_date       AS 'OrderCreationDate'
+  , ORD.current_crd      AS 'CRD'
+  , CKT.circuit_code     AS 'CircuitCode'
+  , DATE(ORD.created_at) AS 'DateAddedToOrion'
 FROM
-    RestInterface_order ord
-    LEFT JOIN
-        RestInterface_customerbrnmapping brn
+    RestInterface_order ORD
+    JOIN
+        RestInterface_customerbrnmapping BRN
         ON
-            brn.id = ord.customer_brn_id
+            BRN.id = ORD.customer_brn_id
     LEFT JOIN
-        RestInterface_customer cus
+        RestInterface_customer CUS
         ON
-            cus.id = brn.customer_id
+            CUS.id = BRN.customer_id
     LEFT JOIN
-        RestInterface_circuit ckt
+        RestInterface_circuit CKT
         ON
-            ckt.id = ord.circuit_id
+            CKT.id = ORD.circuit_id
 WHERE
-    brn.brn IN ('199405882Z'         , '197600379E', '201924026H', '198401908G'
+    BRN.brn IN ( '199405882Z'        , '197600379E', '201924026H', '198401908G'
               , '0107-01-019678-0001', '199001413D', '8980140', 'S73FC2287H'
               , '200104750M'         , '10384803110', '199701117H', '214-86-18758'
               , '200208943K'         , '08980140', 'F   02287Z' )
-    AND YEAR(ord.taken_date) >= '2022'
+    AND DATE(ORD.created_at) BETWEEN DATE_SUB(DATE(NOW()), INTERVAL 1 DAY) AND DATE(NOW())
 ORDER BY
-    cus.name
-  , ord.order_code
+    'DateAddedToOrion'
+  , 'CustomerName'
+  , 'BRN'
+  , 'OrderCode'
 ;
