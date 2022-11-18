@@ -231,8 +231,8 @@ class OrionReport(EmailClient):
                         Please see attached ORION report.
 
 
-                        Thanks you and best regards,
-                        Orion Team
+                        Best regards,
+                        The Orion Team
                     """
 
                 if self.email_body_html == None:
@@ -241,8 +241,8 @@ class OrionReport(EmailClient):
                         <p>Hello,</p>
                         <p>Please see attached ORION report.</p>
                         <p>&nbsp;</p>
-                        <p>Thank you and best regards,</p>
-                        <p>Orion Team</p>
+                        <p>Best regards,</p>
+                        <p>The Orion Team</p>
                         </html>
                         """
 
