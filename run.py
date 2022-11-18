@@ -35,10 +35,10 @@ from scripts.helpers import EmailClient
 from scripts.helpers import utils
 
 config = configparser.ConfigParser()
-configFile = 'run.ini'
-config.read(configFile)
-defaultConfig = config['DEFAULT']
-emailConfig = config['Email']
+config_file = 'run.ini'
+config.read(config_file)
+default_config = config['DEFAULT']
+email_config = config['Email']
 
 
 def main():
@@ -53,23 +53,23 @@ def main():
         # If the main script and/or main function is provided
         if len(sys.argv) > 2:
             # Import module (call script file)
-            importModule = importlib.import_module(sys.argv[2])
+            import_module = importlib.import_module(sys.argv[2])
 
             if len(sys.argv) > 3:
                 # Call the main function from the imported module
-                func = getattr(importModule, sys.argv[3])
+                func = getattr(import_module, sys.argv[3])
                 func()
             else:
                 # Call main() function from the imported module by default
-                func = getattr(importModule, 'main')
+                func = getattr(import_module, 'main')
                 func()
 
         # If only the script folder provided
         else:
             # Import/call main.py script/module by default
-            importModule = importlib.import_module('main')
+            import_module = importlib.import_module('main')
             # Call main() function from the imported module by default
-            func = getattr(importModule, 'main')
+            func = getattr(import_module, 'main')
             func()
 
     except Exception as error:
@@ -77,17 +77,17 @@ def main():
         timeStamp = utils.get_current_datetime()
         fileName = '{}.{}.error.log'.format(__file__, timeStamp)
 
-        if defaultConfig.getboolean('create_error_log'):
+        if default_config.getboolean('create_error_log'):
             # Output error to file
             with open(fileName, 'a') as f:
                 f.write(str(error))
                 f.write(traceback.format_exc())
 
-        if defaultConfig.getboolean('send_email'):
-            sendEmail(sys.argv[1], fileName)
+        if default_config.getboolean('send_email'):
+            send_email(sys.argv[1], fileName)
 
 
-def sendEmail(report, fileName):
+def send_email(report, fileName):
 
     emailBodyText = ("""
         Hello,
@@ -97,8 +97,8 @@ def sendEmail(report, fileName):
         Please see report logs for more information.
 
 
-        Thanks you and best regards,
-        Orion Team
+        Best regards,
+        The Orion Team
     """).format(report)
 
     emailBodyhtml = ("""\
@@ -108,30 +108,27 @@ def sendEmail(report, fileName):
         <p>Please see attached error logs.</p>
         <p>Please see report logs for more information.</p>
         <p>&nbsp;</p>
-        <p>Thank you and best regards,</p>
-        <p>Orion Team</p>
+        <p>Best regards,</p>
+        <p>The Orion Team</p>
         </html>
         """).format(report)
 
     try:
-        emailClient = EmailClient()
+        email_client = EmailClient()
         subject = 'ERROR for Orion Report - {}'.format(report)
-        emailClient.subject = emailClient.add_timestamp(subject)
-        emailClient.receiver_to = emailConfig["receiver_to"]
-        emailClient.receiver_cc = emailConfig["receiver_cc"]
-        emailClient.email_body_text = emailBodyText
-        emailClient.email_body_html = emailBodyhtml
-        emailClient.attach_file(fileName)
+        email_client.subject = email_client.add_timestamp(subject)
+        email_client.receiver_to = email_config["receiver_to"]
+        email_client.receiver_cc = email_config["receiver_cc"]
+        email_client.email_body_text = emailBodyText
+        email_client.email_body_html = emailBodyhtml
+        email_client.attach_file(fileName)
 
-        if defaultConfig.getboolean('SendEmail'):
-            if utils.get_platform() == 'Windows':
-                emailClient.win32com_send()
-            else:
-                emailClient.server = emailConfig['server']
-                emailClient.port = emailConfig['port']
-                emailClient.sender = emailConfig['sender']
-                emailClient.email_from = emailConfig["from"]
-                emailClient.smtp_send()
+        email_client.server = email_config['server']
+        email_client.port = email_config['port']
+        email_client.sender = email_config['sender']
+        email_client.email_from = email_config["from"]
+
+        email_client.send()
 
     except Exception as e:
         print("Failed to send email.")
