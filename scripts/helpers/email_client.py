@@ -129,8 +129,8 @@ class EmailClient:
 
             if self.email_body_html:
                 mail.HTMLBody = self.email_body_html
-            if self.email_body_text:
-                mail.Body = self.email_body_text
+            # if self.email_body_text:
+            #     mail.Body = self.email_body_text
 
             for attachment in self.attachments:
                 mail.Attachments.Add(attachment)
