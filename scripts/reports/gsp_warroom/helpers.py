@@ -59,7 +59,7 @@ def generate_warroom_report():
                    gsp_q_own_table.c.department).select_from(gsp_q_own_table)
     report.orion_db.log_full_query(query)
     result = report.orion_db.query_to_list(query)
-    df_gsp_q_own = pd.DataFrame(data=result)
+    df_gsp_q_own = pd.DataFrame(data=result, columns=['group_id', 'department'])
     # print(df_gsp_q_own[['group_id', 'department']])
     # print(df_gsp_q_own)
 
@@ -143,7 +143,7 @@ def generate_warroom_report():
             """)
 
     result = report.orion_db.query_to_list(query)
-    df_raw = pd.DataFrame(data=result)
+    df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
     # # logger.info(df_raw['crd_amendment_details'])
     # # logger.info(df_raw['old_crd'])
