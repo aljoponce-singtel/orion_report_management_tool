@@ -70,7 +70,7 @@ def generate_report():
 
         # Send email
 
-        email_subject = 'UDF (Selected) Customers Report'
+        email_subject = 'New Work Orders created for UDF R1 Customers'
 
         # Change starting index from 0 to 1 for proper table presentation
         df.index += 1
