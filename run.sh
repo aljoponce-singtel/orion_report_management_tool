@@ -7,11 +7,12 @@ os=$(uname -a)
 if echo "$os" | grep -q "MINGW64"; then
     # DEV
     source 'c:/Users/p1319639/Development/pythonenv/Scripts/activate'
+    cd 'c:/Users/p1319639/Development/orion_report_management_tool'
 # Linux OS
 else
     # Production
-    source '/app/o2p/ossadmin/python3-env/bin/activate'
-    cd /app/o2p/ossadmin/orion_report_management_tool
+    source '/app/o2p/ossadmin/python368-env/bin/activate'
+    cd /app/o2p/ossadmin/ormt
 fi
 
 python run.py $@
