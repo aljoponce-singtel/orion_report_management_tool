@@ -417,12 +417,12 @@ def createNewReportDf(df_Workorders):
                 FROM
                     RestInterface_order ORD
                     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
-                    AND NPP.level = 'Mainline'
-                    AND NPP.status <> 'Cancel'
                     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
                     LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
                 WHERE
                     ORD.order_code IN ({})
+                    AND NPP.level = 'Mainline'
+                    AND NPP.status <> 'Cancel'
                     AND ORD.order_type = 'Provide'; 
             """).format(utils.listToString(df_Workorders.to_list()))
 
@@ -475,12 +475,12 @@ def getParametersInfo(df_serviceNo, parameter_names):
             FROM
                 RestInterface_order ORD
                 LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
-                AND NPP.level = 'Mainline'
-                AND NPP.status <> 'Cancel'
                 LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
                 AND PAR.parameter_name IN ({})
             WHERE
                 ORD.order_type = 'Provide'
+                AND NPP.level = 'Mainline'
+                AND NPP.status <> 'Cancel'
                 AND ORD.service_number IN ({});
         """).format(parameterNamesList, serviceNoList)
 
