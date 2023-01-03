@@ -72,8 +72,8 @@ def main():
 
                 reports.generateSingnetReport(
                     'singnet_report_apnic', startDate, endDate, 'gsdt7', "Singnet Report - GSP APNIC", 'teckchye@singtel.com;tao.taskrequest@singtel.com')
-                reports.generateSingnetReport(
-                    'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report - Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
+                # reports.generateSingnetReport(
+                #     'singnet_report_connectportal', startDate, endDate, 'gsdt7', "Singnet Report - Connect Portal updating", 'kirti.vaish@singtel.com;tao.taskrequest@singtel.com')
 
             #-- END --#
 
