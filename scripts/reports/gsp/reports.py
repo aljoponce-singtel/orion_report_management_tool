@@ -484,13 +484,13 @@ def generateCPlusIpReportGrp(zipFileName, startDate, endDate, groupId, emailSubj
 
     csvFiles.clear()
 
-    groupIdList_1 = ['CNP8', 'CNP10', 'CNP12', 'CNP30', 'CNP31', 'CNP32', 'CNP33',
+    groupIdList_1 = ['CNP8', 'CNP9', 'CNP10', 'CNP12', 'CNP30', 'CNP31', 'CNP32', 'CNP33',
                      'CNP34', 'CNP35', 'CNP36', 'CNP37', 'CNP38', 'CNP39', 'CNP40',
                      'CNP41', 'CNP42', 'CNP43', 'CNP44', 'CNP45']
     groupIdStr_1 = ', '.join([("'" + groupIdList_1 + "'")
                              for groupIdList_1 in groupIdList_1])
 
-    groupIdList_2 = ['GSDT68', 'GSDT610', 'GSDT612', 'GSDT630', 'GSDT631', 'GSDT632',
+    groupIdList_2 = ['GSDT68', 'GSDT69', 'GSDT610', 'GSDT612', 'GSDT630', 'GSDT631', 'GSDT632',
                      'GSDT633', 'GSDT634', 'GSDT635', 'GSDT636', 'GSDT637', 'GSDT638',
                      'GSDT639', 'GSDT640', 'GSDT641', 'GSDT642', 'GSDT643', 'GSDT644', 'GSDT645']
     groupIdStr_2 = ', '.join([("'" + groupIdList_2 + "'")
