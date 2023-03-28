@@ -10,7 +10,10 @@ SELECT
     SINOTE.date_created AS crd_amendment_date,
     SINOTE.details AS crd_amendment_details,
     REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
-    REGEXP_SUBSTR(SINOTE.details, '(?<=New CRD:)(.*)(?= Category Code:)') AS new_crd,
+    REGEXP_SUBSTR(
+        SINOTE.details,
+        '(?<=New CRD:)(.*)(?= Category Code:)'
+    ) AS new_crd,
     NOTEDLY.reason AS crd_amendment_reason,
     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
     ORD.assignee,
@@ -27,8 +30,8 @@ SELECT
     ORD.service_type,
     ORD.order_priority,
     PAR.parameter_value AS ed_pd_diversity,
-    GRP.department,
-    PER.role AS group_id,
+    GSP.department,
+    GSP.group_id,
     CAST(ACT.activity_code AS SIGNED INTEGER) AS step_no,
     ACT.name AS activity_name,
     ACT.due_date,
@@ -40,10 +43,10 @@ SELECT
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-    LEFT JOIN RestInterface_person PER ON PER.id = ACT.person_id
+    JOIN RestInterface_person PER ON PER.id = ACT.person_id
+    JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
     LEFT JOIN auto_escalation_remarks RMK ON RMK.activity_id = ACT.id
     LEFT JOIN auto_escalation_queueownerdelayreasons ACTDLY ON RMK.delay_reason_id = ACTDLY.id
-    LEFT JOIN auto_escalation_escalationgroup GRP ON GRP.person_id = PER.id
     LEFT JOIN RestInterface_ordersinote SINOTE ON SINOTE.order_id = ORD.id
     AND SINOTE.categoty = 'CRD'
     AND SINOTE.sub_categoty = 'CRD Change History'
@@ -70,4 +73,5 @@ WHERE
         'Pending Cancellation',
         'Completed'
     )
+    AND GSP.department LIKE "GD_%"
     AND ORD.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH);
