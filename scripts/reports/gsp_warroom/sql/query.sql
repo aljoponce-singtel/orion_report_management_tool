@@ -7,6 +7,7 @@ SELECT
     ORD.taken_date,
     ORD.current_crd,
     ORD.initial_crd,
+    SINOT.note_code,
     SINOTE.date_created AS crd_amendment_date,
     SINOTE.details AS crd_amendment_details,
     REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
@@ -51,7 +52,7 @@ FROM
     AND SINOTE.categoty = 'CRD'
     AND SINOTE.sub_categoty = 'CRD Change History'
     AND SINOTE.reason_code IS NOT NULL
-    AND DATE_FORMAT(SINOTE.date_created, '%y-%m') = DATE_FORMAT(NOW(), '%y-%m')
+    -- AND DATE_FORMAT(SINOTE.date_created, '%y-%m') = DATE_FORMAT(NOW(), '%y-%m')
     LEFT JOIN RestInterface_delayreason NOTEDLY ON NOTEDLY.code = SINOTE.reason_code
     LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
     LEFT JOIN RestInterface_circuit CKT ON ORD.circuit_id = CKT.id
