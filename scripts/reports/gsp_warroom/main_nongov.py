@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helper import generate_warroom_nongov_report
+from helpers import generate_warroom_nongov_report
 
 logger = logging.getLogger(__name__)
 

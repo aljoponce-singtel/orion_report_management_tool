@@ -7,7 +7,7 @@ SELECT
     ORD.taken_date,
     ORD.current_crd,
     ORD.initial_crd,
-    SINOT.note_code,
+    SINOTE.note_code,
     SINOTE.date_created AS crd_amendment_date,
     SINOTE.details AS crd_amendment_details,
     REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
@@ -43,6 +43,24 @@ SELECT
     ACTDLY.reason AS act_delay_reason
 FROM
     RestInterface_order ORD
+    JOIN (
+        SELECT
+            DISTINCT ORD2.id
+        FROM
+            RestInterface_order ORD2
+            JOIN RestInterface_activity ACT2 ON ACT2.order_id = ORD2.id
+            JOIN RestInterface_person PER2 ON PER2.id = ACT2.person_id
+            JOIN GSP_Q_ownership GSP2 ON GSP2.group_id = PER2.role
+        WHERE
+            GSP2.department LIKE "GD_%"
+            AND ORD2.order_status IN (
+                'Submitted',
+                'PONR',
+                'Pending Cancellation',
+                'Completed'
+            )
+            AND ORD2.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH)
+    ) ORDGD ON ORDGD.id = ORD.id
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
     JOIN RestInterface_person PER ON PER.id = ACT.person_id
     JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
@@ -52,7 +70,6 @@ FROM
     AND SINOTE.categoty = 'CRD'
     AND SINOTE.sub_categoty = 'CRD Change History'
     AND SINOTE.reason_code IS NOT NULL
-    -- AND DATE_FORMAT(SINOTE.date_created, '%y-%m') = DATE_FORMAT(NOW(), '%y-%m')
     LEFT JOIN RestInterface_delayreason NOTEDLY ON NOTEDLY.code = SINOTE.reason_code
     LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
     LEFT JOIN RestInterface_circuit CKT ON ORD.circuit_id = CKT.id
@@ -67,12 +84,4 @@ FROM
     AND PAR.parameter_name = 'Type'
     AND PAR.parameter_value IN ('1', '2', '010', '020')
 WHERE
-    ACT.tag_name = 'Pegasus'
-    AND ORD.order_status IN (
-        'Submitted',
-        'PONR',
-        'Pending Cancellation',
-        'Completed'
-    )
-    AND GSP.department LIKE "GD_%"
-    AND ORD.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH);
+    ACT.tag_name = 'Pegasus';

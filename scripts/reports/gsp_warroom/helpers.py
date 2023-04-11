@@ -34,6 +34,8 @@ def generate_warroom_report():
 
     logger.info("report date: " + str(report_date))
 
+    logger.info("Generating report ...")
+
     query = ("""
                 SELECT
                     DISTINCT ORD.order_code,
@@ -44,6 +46,7 @@ def generate_warroom_report():
                     ORD.taken_date,
                     ORD.current_crd,
                     ORD.initial_crd,
+                    SINOTE.note_code,
                     SINOTE.date_created AS crd_amendment_date,
                     SINOTE.details AS crd_amendment_details,
                     REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
@@ -79,6 +82,24 @@ def generate_warroom_report():
                     ACTDLY.reason AS act_delay_reason
                 FROM
                     RestInterface_order ORD
+                    JOIN (
+                        SELECT
+                            DISTINCT ORD2.id
+                        FROM
+                            RestInterface_order ORD2
+                            JOIN RestInterface_activity ACT2 ON ACT2.order_id = ORD2.id
+                            JOIN RestInterface_person PER2 ON PER2.id = ACT2.person_id
+                            JOIN GSP_Q_ownership GSP2 ON GSP2.group_id = PER2.role
+                        WHERE
+                            GSP2.department LIKE "GD_%"
+                            AND ORD2.order_status IN (
+                                'Submitted',
+                                'PONR',
+                                'Pending Cancellation',
+                                'Completed'
+                            )
+                            AND ORD2.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH)
+                    ) ORDGD ON ORDGD.id = ORD.id
                     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
                     JOIN RestInterface_person PER ON PER.id = ACT.person_id
                     JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
@@ -88,7 +109,6 @@ def generate_warroom_report():
                     AND SINOTE.categoty = 'CRD'
                     AND SINOTE.sub_categoty = 'CRD Change History'
                     AND SINOTE.reason_code IS NOT NULL
-                    AND DATE_FORMAT(SINOTE.date_created, '%y-%m') = DATE_FORMAT(NOW(), '%y-%m')
                     LEFT JOIN RestInterface_delayreason NOTEDLY ON NOTEDLY.code = SINOTE.reason_code
                     LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
                     LEFT JOIN RestInterface_circuit CKT ON ORD.circuit_id = CKT.id
@@ -103,15 +123,7 @@ def generate_warroom_report():
                     AND PAR.parameter_name = 'Type'
                     AND PAR.parameter_value IN ('1', '2', '010', '020')
                 WHERE
-                    ACT.tag_name = 'Pegasus'
-                    AND ORD.order_status IN (
-                        'Submitted',
-                        'PONR',
-                        'Pending Cancellation',
-                        'Completed'
-                    )
-                    AND GSP.department LIKE "GD_%"
-                    AND ORD.current_crd <= DATE_ADD('{}', INTERVAL 3 MONTH);
+                    ACT.tag_name = 'Pegasus';
             """).format(report_date)
 
     result = report.orion_db.query_to_list(query)
@@ -126,22 +138,49 @@ def generate_warroom_report():
         df_raw['act_dly_reason_date']).dt.date
 
     # Write to CSV for Warroom Report
-    df_main = df_raw[const.MAIN_COLUMNS]
-    df_main = df_main.sort_values(
-        by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df_main, csv_main_file_path)
+    # df_main = df_raw[const.MAIN_COLUMNS]
+    # df_main = df_main.sort_values(
+    #     by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
+    # csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    # csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    # report.create_csv_from_df(df_main, csv_main_file_path)
 
     # Write to CSV for CRD Amendments Report
+    # Create new dataframe based from CRD_AMENDMENT_COLUMNS
     df_crd_amendment = df_raw[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
         subset=['crd_amendment_date'])
+    # df_crd_amendment = df_crd_amendment.sort_values(
+    #     by=['order_code', 'crd_amendment_date'], ascending=[True, False])
+
+    # Sort records in ascending order by order_code and note_code
     df_crd_amendment = df_crd_amendment.sort_values(
-        by=['order_code', 'crd_amendment_date'], ascending=[True, False])
-    csv_file = ("{}_crd_amendments_{}.csv").format(
-        filename, utils.get_current_datetime())
-    csv_amd_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df_crd_amendment, csv_amd_file_path)
+        by=['order_code', 'note_code'], ascending=[True, False])
+
+    # Keep the latest CRD amendment reason
+    df_crd_amendment = df_crd_amendment.drop_duplicates(
+        ['order_code'], keep='last')
+
+    # csv_file = ("{}_crd_amendments_{}.csv").format(
+    #     filename, utils.get_current_datetime())
+    # csv_amd_file_path = os.path.join(report.reports_folder_path, csv_file)
+    # report.create_csv_from_df(df_crd_amendment, csv_amd_file_path)
+
+    # Write to CSV for Warroom Report
+    df_main = df_raw[const.MAIN_COLUMNS].drop_duplicates()
+    df_main = df_main.sort_values(
+        by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
+
+    df_merged = pd.merge(df_main, df_crd_amendment.drop(columns=['note_code']),
+                         how='left', on=['order_code'])
+
+    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(df_merged, csv_main_file_path)
+    # zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    # zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    # report.add_to_zip_file(csv_main_file_path, zip_file_path)
+
+    return
 
     # Compress files
     zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
