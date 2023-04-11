@@ -89,24 +89,6 @@ MAIN_COLUMNS = [
     'act_delay_reason'
 ]
 
-# CRD_AMENDMENT_COLUMNS = [
-#     'order_code',
-#     'service_number',
-#     'customer',
-#     'order_type',
-#     'order_status',
-#     'taken_date',
-#     'current_crd',
-#     'initial_crd',
-#     'note_code',
-#     'crd_amendment_date',
-#     'old_crd',
-#     'new_crd',
-#     'crd_amendment_reason',
-#     'crd_amendment_reason_gsp'
-#     # 'crd_amendment_details'
-# ]
-
 CRD_AMENDMENT_COLUMNS = [
     'order_code',
     'note_code',

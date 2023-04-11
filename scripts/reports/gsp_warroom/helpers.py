@@ -137,20 +137,9 @@ def generate_warroom_report():
     df_raw['act_dly_reason_date'] = pd.to_datetime(
         df_raw['act_dly_reason_date']).dt.date
 
-    # Write to CSV for Warroom Report
-    # df_main = df_raw[const.MAIN_COLUMNS]
-    # df_main = df_main.sort_values(
-    #     by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
-    # csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    # csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    # report.create_csv_from_df(df_main, csv_main_file_path)
-
-    # Write to CSV for CRD Amendments Report
     # Create new dataframe based from CRD_AMENDMENT_COLUMNS
     df_crd_amendment = df_raw[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
         subset=['crd_amendment_date'])
-    # df_crd_amendment = df_crd_amendment.sort_values(
-    #     by=['order_code', 'crd_amendment_date'], ascending=[True, False])
 
     # Sort records in ascending order by order_code and note_code
     df_crd_amendment = df_crd_amendment.sort_values(
@@ -160,41 +149,28 @@ def generate_warroom_report():
     df_crd_amendment = df_crd_amendment.drop_duplicates(
         ['order_code'], keep='last')
 
-    # csv_file = ("{}_crd_amendments_{}.csv").format(
-    #     filename, utils.get_current_datetime())
-    # csv_amd_file_path = os.path.join(report.reports_folder_path, csv_file)
-    # report.create_csv_from_df(df_crd_amendment, csv_amd_file_path)
-
-    # Write to CSV for Warroom Report
     df_main = df_raw[const.MAIN_COLUMNS].drop_duplicates()
+    # Sort records in ascending order by current_crd, order_code and step_no
     df_main = df_main.sort_values(
         by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
 
+    # (left) Join the df_main and df_crd_amendment dataframe through their order_code
     df_merged = pd.merge(df_main, df_crd_amendment.drop(columns=['note_code']),
                          how='left', on=['order_code'])
 
+    # Write to CSV for Warroom Report
     csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
     csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
     report.create_csv_from_df(df_merged, csv_main_file_path)
-    # zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    # zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    # report.add_to_zip_file(csv_main_file_path, zip_file_path)
 
-    return
-
-    # Compress files
+    # Add CSV to zip file
     zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
     zip_file_path = os.path.join(report.reports_folder_path, zip_file)
     report.add_to_zip_file(csv_main_file_path, zip_file_path)
-    report.add_to_zip_file(csv_amd_file_path, zip_file_path)
 
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
     report.attach_file_to_email(zip_file_path)
-    # report.attach_file_to_email(csv_main_file_path)
-    # report.attach_file_to_email(csv_amd_file_path)
-    # report.add_email_receiver_to('test1@singtel.com')
-    # report.add_email_receiver_cc('test2@singtel.com')
     report.send_email()
 
     return
