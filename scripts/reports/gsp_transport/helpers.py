@@ -1,65 +1,29 @@
+# Import built-in packages
 import os
-import sys
-import logging.config
+from datetime import datetime
 import logging
-import pandas as pd
+
+# Import third-party packages
 import numpy as np
+import pandas as pd
+from sqlalchemy import select, case, and_, or_, null, func, Integer
+
+# Import local packages
 import constants as const
-from sqlalchemy import select, case, and_, or_, null
-from sqlalchemy.types import Integer
-from scripts import utils
-from scripts.DBConnection import DBConnection
-from scripts.EmailClient import EmailClient
+from scripts.helpers import utils
+from scripts.orion_report import OrionReport
 from models import TransportBase
 
-# # getting the name of the directory
-# # where this file is present.
-# current = os.path.dirname(os.path.realpath(__file__))
-# # Getting the parent directory name
-# # where the current directory is present.
-# parent = os.path.dirname(current)
-# # adding the parent directory to
-# # the sys.path.
-# sys.path.append(parent)
-
-# import utils
-# from DBConnection import DBConnection
-# from EmailClient import EmailClient
-
 logger = logging.getLogger(__name__)
-defaultConfig = None
-emailConfig = None
-dbConfig = None
-csvFiles = []
-reportsFolderPath = None
-orionDb = None
-tableauDb = None
+configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
-def initialize(config):
-    global defaultConfig, emailConfig, dbConfig, reportsFolderPath, orionDb, tableauDb
-    defaultConfig = config['DEFAULT']
-    emailConfig = config[defaultConfig['EmailInfo']]
-    dbConfig = config[defaultConfig['DatabaseEnv']]
-    reportsFolderPath = os.path.join(
-        os.getcwd(), defaultConfig['ReportsFolder'])
-
-    orionDb = DBConnection(dbConfig['dbapi'], dbConfig['host'], dbConfig['port'],
-                           dbConfig['orion_db'], dbConfig['orion_user'], dbConfig['orion_pwd'])
-    orionDb.connect()
-
-    tableauDb = DBConnection(dbConfig['dbapi'], dbConfig['host'], dbConfig['port'],
-                             dbConfig['tableau_db'], dbConfig['tableau_user'], dbConfig['tableau_pwd'])
-    tableauDb.connect()
-    # tableauDb.createTablesFromMetadata(TransportBase)
-
-
-def updateTableauDB(dataframe):
+def updateTableauDB(report, dataframe):
     # Allow Tableaue DB update
-    if defaultConfig.getboolean('UpdateTableauDB'):
+    if report.debug_config.getboolean('update_tableau_db'):
         try:
             logger.info(
-                'Inserting records to ' + dbConfig['tableau_db'] + '.' + defaultConfig['TableauTable'] + ' ...')
+                'Inserting records to ' + report.db_config['tableau_db'] + '.' + report.default_config['tableau_table'] + ' ...')
 
             df = pd.DataFrame(dataframe)
 
@@ -73,70 +37,52 @@ def updateTableauDB(dataframe):
             # set empty values to null
             df.replace('', None)
             # insert records to DB
-            tableauDb.insertDataframeToTable(df, defaultConfig['TableauTable'])
+            report.tableau_db.insert_df_to_table(
+                df, report.default_config['tableau_table'])
 
             # logger.info("TableauDB Updated for " + report_id.lower())
 
         except Exception as err:
-            logger.info("Failed processing DB " + dbConfig['tableau_db'] + ' at ' +
-                        dbConfig['tableau_user'] + '@' + dbConfig['host'] + ':' + dbConfig['port'] + '.')
+            logger.info("Failed processing DB " + report.db_config['tableau_db'] + ' at ' +
+                        report.db_config['tableau_user'] + '@' + report.db_config['host'] + ':' + report.db_config['port'] + '.')
             logger.exception(err)
 
             raise Exception(err)
 
 
-def sendEmail(subject, attachment):
+def generate_transport_report():
 
-    emailBodyText = """
-        Hello,
+    report = OrionReport(configFile)
 
-        Please see attached ORION report.
+    email_subject = 'Transport Report'
+    filename = 'transport_report'
+    start_date = None
+    end_date = None
 
+    if report.debug_config.getboolean('generate_manual_report'):
+        logger.info('\\* MANUAL RUN *\\')
 
-        Thanks you and best regards,
-        Orion Team
-    """
+        start_date = report.debug_config['report_start_date']
+        end_date = report.debug_config['report_end_date']
 
-    emailBodyhtml = """\
-        <html>
-        <p>Hello,</p>
-        <p>Please see attached ORION report.</p>
-        <p>&nbsp;</p>
-        <p>Thank you and best regards,</p>
-        <p>Orion Team</p>
-        </html>
-        """
+        report.debug_config['update_tableau_db'] = 'false'
 
-    # Enable/Disable email
-    if defaultConfig.getboolean('SendEmail'):
-        try:
-            emailClient = EmailClient()
-            emailClient.subject = emailClient.addTimestamp2(subject)
-            emailClient.receiverTo = emailConfig["receiverTo"]
-            emailClient.receiverCc = emailConfig["receiverCc"]
-            emailClient.emailBodyText = emailBodyText
-            emailClient.emailBodyHtml = emailBodyhtml
-            emailClient.attachFile(os.path.join(reportsFolderPath, attachment))
+    else:
+        start_date = utils.get_first_day_from_prev_month(
+            datetime.now().date())
+        end_date = utils.get_last_day_from_prev_month(datetime.now().date())
 
-            if utils.getPlatform() == 'Windows':
-                emailClient.win32comSend()
-            else:
-                emailClient.server = emailConfig['server']
-                emailClient.port = emailConfig['port']
-                emailClient.sender = emailConfig['sender']
-                emailClient.emailFrom = emailConfig["from"]
-                emailClient.smtpSend()
+    logger.info("report start date: " + str(start_date))
+    logger.info("report end date: " + str(end_date))
 
-        except Exception as e:
-            logger.error("Failed to send email.")
-            raise Exception(e)
+    logger.info('update_tableau_db = ' +
+                str(report.debug_config.getboolean('update_tableau_db')))
 
+    logger.info("Generating report ...")
 
-def generateTransportReport(fileName, startDate, endDate, emailSubject):
-
-    df_order_id = getTransportOrders(startDate, endDate)
+    df_order_id = getTransportOrders(report, start_date, end_date)
     df = pd.DataFrame(getTransportRecords(
-        df_order_id['order_id'].to_list(), startDate, endDate))
+        report, df_order_id['order_id'].to_list(), start_date, end_date))
     df_finalReport = pd.DataFrame(columns=const.FINAL_COLUMNS)
     df_orders = df[['Service', 'OrderCode', 'CRD',
                    'ServiceNumber', 'OrderStatus', 'OrderType', 'ProductCode']]
@@ -229,33 +175,24 @@ def generateTransportReport(fileName, startDate, endDate, emailSubject):
             data=[reportData], columns=const.FINAL_COLUMNS)
         df_finalReport = pd.concat([df_finalReport, df_toAdd])
 
-    # Write to CSV
-    csvFiles = []
-    csvFile = ("{}_{}.csv").format(fileName, utils.getCurrentDateTime2())
+    # Insert records to tableau db
+    updateTableauDB(report, df_finalReport)
 
-    if defaultConfig.getboolean('CreateReport') != False:
-        logger.info("Generating report " + csvFile + " ...")
-        csvFiles.append(csvFile)
-        csvfilePath = os.path.join(reportsFolderPath, csvFile)
-        utils.dataframeToCsv(df_finalReport, csvfilePath)
+    # Write to CSV for Warroom Report
+    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(
+        df_finalReport[const.FINAL_COLUMNS], csv_main_file_path)
 
-        # Insert records to tableau db
-        updateTableauDB(df_finalReport)
+    # Add CSV to zip file
+    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    report.add_to_zip_file(csv_main_file_path, zip_file_path)
 
-        # Compress files and send email
-        if csvFiles:
-            attachement = None
-            if defaultConfig.getboolean('CompressFiles'):
-                zipFile = ("{}_{}.zip").format(
-                    fileName, utils.getCurrentDateTime2())
-                utils.zipFile(csvFiles, zipFile, reportsFolderPath,
-                              defaultConfig['ZipPassword'])
-                attachement = zipFile
-            else:
-                attachement = csvFile
-            sendEmail(emailSubject, attachement)
-
-    logger.info("Processing [" + emailSubject + "] complete")
+    # Send Email
+    report.set_email_subject(report.add_timestamp(email_subject))
+    report.attach_file_to_email(zip_file_path)
+    report.send_email()
 
 
 def getActRecord(df, activities):
@@ -298,17 +235,21 @@ def getActRecord(df, activities):
     return actGroupId, actName, actStatus, actDueDate, actComDate
 
 
-def getTransportOrders(startDate, endDate):
+def getTransportOrders(report, startDate, endDate):
 
     # store variables to upper_case variables for better readability in the query
     START_DATE = startDate
     END_DATE = endDate
 
-    order_table = orionDb.getTableMetadata('RestInterface_order', 'ord')
-    activity_table = orionDb.getTableMetadata('RestInterface_activity', 'act')
-    person_table = orionDb.getTableMetadata('RestInterface_person', 'per')
-    npp_table = orionDb.getTableMetadata('RestInterface_npp', 'npp')
-    product_table = orionDb.getTableMetadata('RestInterface_product', 'prd')
+    order_table = report.orion_db.get_table_metadata(
+        'RestInterface_order', 'ord')
+    activity_table = report.orion_db.get_table_metadata(
+        'RestInterface_activity', 'act')
+    person_table = report.orion_db.get_table_metadata(
+        'RestInterface_person', 'per')
+    npp_table = report.orion_db.get_table_metadata('RestInterface_npp', 'npp')
+    product_table = report.orion_db.get_table_metadata(
+        'RestInterface_product', 'prd')
 
     # see gsp_transport/sql/getTransportOrders.sql for the raw MySQL query
     query = (
@@ -402,24 +343,28 @@ def getTransportOrders(startDate, endDate):
         )
     )
 
-    orionDb.logFullQuery(query)
+    # report.orion_db.log_full_query(query)
 
-    result = orionDb.queryToList(query)
+    result = report.orion_db.query_to_list(query)
     return pd.DataFrame(data=result, columns=['order_id'])
 
 
-def getTransportRecords(order_id_list, startDate, endDate):
+def getTransportRecords(report, order_id_list, startDate, endDate):
 
     # store variables to upper_case variables for better readability in the query
     ORDER_ID_LIST = order_id_list
     START_DATE = startDate
     END_DATE = endDate
 
-    order_table = orionDb.getTableMetadata('RestInterface_order', 'ord')
-    activity_table = orionDb.getTableMetadata('RestInterface_activity', 'act')
-    person_table = orionDb.getTableMetadata('RestInterface_person', 'per')
-    npp_table = orionDb.getTableMetadata('RestInterface_npp', 'npp')
-    product_table = orionDb.getTableMetadata('RestInterface_product', 'prd')
+    order_table = report.orion_db.get_table_metadata(
+        'RestInterface_order', 'ord')
+    activity_table = report.orion_db.get_table_metadata(
+        'RestInterface_activity', 'act')
+    person_table = report.orion_db.get_table_metadata(
+        'RestInterface_person', 'per')
+    npp_table = report.orion_db.get_table_metadata('RestInterface_npp', 'npp')
+    product_table = report.orion_db.get_table_metadata(
+        'RestInterface_product', 'prd')
 
     # see gsp_transport/sql/getTransportRecords.sql for the raw MySQL query
     query = (
@@ -659,7 +604,7 @@ def getTransportRecords(order_id_list, startDate, endDate):
         )
     )
 
-    orionDb.logFullQuery(query)
+    # report.orion_db.log_full_query(query)
 
-    result = orionDb.queryToList(query)
+    result = report.orion_db.query_to_list(query)
     return pd.DataFrame(data=result, columns=const.DRAFT_COLUMNS)
