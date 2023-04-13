@@ -21,7 +21,7 @@ def generate_warroom_report():
 
     report = OrionReport(configFile)
 
-    email_subject = 'GSP War Room Report'
+    email_subject = 'GSP (NEW) War Room Report'
     filename = 'gsp_warroom_report'
     report_date = datetime.now().date()
 
