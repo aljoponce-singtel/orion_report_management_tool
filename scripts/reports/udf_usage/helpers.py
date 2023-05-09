@@ -90,18 +90,12 @@ def generate_report():
     # convert to datetime
     df_raw['login_date'] = pd.to_datetime(df_raw['login_date'])
 
-    # Change the date format to '%Y-%m-01 00:00:00'
-    # df_raw['login_date'] = df_raw['login_date'].dt.strftime(
-    #     '%Y-%m-%d 00:00:00')
-
     # Sort records in ascending order by login_date, and username
     df_raw = df_raw.sort_values(
         by=['login_date', 'username'], ascending=[True, True])
 
     df_main = pd.DataFrame(columns=const.MAIN_COLUMNS)
 
-    # Copy the index from df_raw but start from 1
-    # df_main['#'] = df_raw.reset_index(drop=False)['index'] + 1
     # Get the email address
     df_main['Name'] = df_raw['username']
     # output: e.g., "May '22"
@@ -125,6 +119,7 @@ def generate_report():
         day, month = formatted_date.split()
         day = int(day)
 
+        # Check which suffix to append to the day value
         if 1 == day or 21 == day or 31 == day:
             day_suffix = 'st'
         elif 2 == day or 22 == day:
