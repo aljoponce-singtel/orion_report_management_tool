@@ -4,9 +4,7 @@ from datetime import datetime, timedelta
 import logging
 
 # Import third-party packages
-import numpy as np
 import pandas as pd
-from sqlalchemy import select, case, and_, or_, null, func
 
 # Import local packages
 import constants as const
@@ -162,6 +160,20 @@ def generate_report():
     report.create_csv_from_df(df_main[const.FINAL_COLUMNS], csv_main_file_path)
 
     # Send Email
+    # Change starting index from 0 to 1 for proper table presentation
+    df_main.index += 1
+    # Show the dataframe as a table in the email body
+    email_body_html = ("""\
+        <html>
+        <p>Hello,</p>
+        <p>Please see the attached ORION report.</p>
+        <p>{}</p>
+        <p>&nbsp;</p>
+        <p>Best regards,</p>
+        <p>The Orion Team</p>
+        </html>
+        """).format(df_main[['Week of', 'Month', 'Name']].to_html())
+    report.set_email_body_html(email_body_html)
     report.set_email_subject(report.add_timestamp(email_subject))
     report.attach_file_to_email(csv_main_file_path)
     report.send_email()
