@@ -46,33 +46,52 @@ SELECT
     ACTDLY.reason AS act_delay_reason
 FROM
     RestInterface_order ORD
-    JOIN (
-        SELECT
-            DISTINCT ORD2.id
-        FROM
-            RestInterface_order ORD2
-            JOIN RestInterface_activity ACT2 ON ACT2.order_id = ORD2.id
-            JOIN RestInterface_person PER2 ON PER2.id = ACT2.person_id
-            JOIN GSP_Q_ownership GSP2 ON GSP2.group_id = PER2.role
-        WHERE
-            GSP2.department LIKE "GD_%"
-            AND ORD2.order_status IN (
-                'Submitted',
-                'PONR',
-                'Pending Cancellation',
-                'Completed'
-            )
-            AND ORD2.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH)
-    ) ORDGD ON ORDGD.id = ORD.id
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+    AND ACT.name IN (
+        'OLLC Order Ack',
+        'OLLC Site Survey',
+        'FOC Date Received',
+        'LLC Accepted by Singtel'
+    )
     JOIN RestInterface_person PER ON PER.id = ACT.person_id
     JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
-    LEFT JOIN auto_escalation_remarks RMK ON RMK.activity_id = ACT.id
+    LEFT JOIN (
+        SELECT
+            RMKINNER.*
+        FROM
+            o2pprod.auto_escalation_remarks RMKINNER
+            JOIN (
+                SELECT
+                    activity_id,
+                    MAX(id) AS id
+                FROM
+                    o2pprod.auto_escalation_remarks
+                GROUP BY
+                    activity_id
+            ) RMKMAX ON RMKMAX.activity_id = RMKINNER.activity_id
+            AND RMKMAX.id = RMKINNER.id
+    ) RMK ON RMK.activity_id = ACT.id
     LEFT JOIN auto_escalation_queueownerdelayreasons ACTDLY ON RMK.delay_reason_id = ACTDLY.id
-    LEFT JOIN RestInterface_ordersinote SINOTE ON SINOTE.order_id = ORD.id
-    AND SINOTE.categoty = 'CRD'
-    AND SINOTE.sub_categoty = 'CRD Change History'
-    AND SINOTE.reason_code IS NOT NULL
+    LEFT JOIN (
+        SELECT
+            SINOTEINNER.*
+        FROM
+            o2pprod.RestInterface_ordersinote SINOTEINNER
+            JOIN (
+                SELECT
+                    order_id,
+                    MAX(note_code) AS note_code
+                FROM
+                    o2pprod.RestInterface_ordersinote
+                WHERE
+                    categoty = 'CRD'
+                    AND sub_categoty = 'CRD Change History'
+                    AND reason_code IS NOT NULL
+                GROUP BY
+                    order_id
+            ) SINOTEMAX ON SINOTEMAX.order_id = SINOTEINNER.order_id
+            AND SINOTEMAX.note_code = SINOTEINNER.note_code
+    ) SINOTE ON SINOTE.order_id = ORD.id
     LEFT JOIN RestInterface_delayreason NOTEDLY ON NOTEDLY.code = SINOTE.reason_code
     LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
     LEFT JOIN RestInterface_circuit CKT ON ORD.circuit_id = CKT.id
@@ -81,10 +100,23 @@ FROM
     LEFT JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
     AND NPP.level = 'Mainline'
-    AND NPP.status != 'Cancel'
     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
     LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
-    AND PAR.parameter_name = 'Type'
-    AND PAR.parameter_value IN ('1', '2', '010', '020')
+    AND PAR.parameter_name IN (
+        'PartnerNm',
+        'OLLCAPartnerContractStartDt',
+        'OLLCBPartnerContractStartDt',
+        'OLLCAPartnerContractTerm',
+        'OLLCATax',
+        'LLC_Partner_Name',
+        'LLC_Partner_Ref',
+        'PartnerCctRef',
+        'STPoNo',
+        'STIntSvcNo',
+        'IMPGcode',
+        'Model'
+    )
 WHERE
-    ACT.tag_name = 'Pegasus';
+    GSP.department LIKE "GD_%"
+    AND ORD.order_status IN ('Submitted', 'Closed')
+    AND ORD.current_crd >= DATE_SUB(NOW(), INTERVAL 3 MONTH);
