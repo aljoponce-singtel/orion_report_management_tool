@@ -1,0 +1,234 @@
+SET @sql = NULL;
+SELECT
+  GROUP_CONCAT(DISTINCT
+    CONCAT(
+      'case when u_para_nm = ''',
+      u_para_nm,
+      ''' then u_para_val end ',
+      u_para_nm
+    )
+  ) INTO @sql
+FROM
+  tmp_cnp0213;
+
+
+
+SET @sql = CONCAT('SELECT u_work_order_no, ', @sql, ' 
+                  FROM tmp_cnp0213 
+                   GROUP BY u_work_order_no');
+
+ 
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+
+
+SELECT
+    npp_id
+  , GROUP_CONCAT(parameter_name,'|', parameter_value SEPARATOR ', ')
+FROM
+    RestInterface_parameter
+WHERE
+    npp_id = 19293798
+    AND parameter_name IN ( 'PartnerNm', 'OLLCAPartnerContractStartDt', 'OLLCBPartnerContractStartDt', 'OLLCAPartnerContractTerm'
+                         , 'OLLCATax'  , 'LLC_Partner_Name', 'LLC_Partner_Ref', 'PartnerCctRef'
+                         , 'STPoNo'    , 'STIntSvcNo', 'IMPGcode', 'Model' )
+GROUP BY
+    npp_id
+;
+
+
+
+
+
+SET @sql = NULL;
+SELECT
+  GROUP_CONCAT(DISTINCT
+    CONCAT(
+      'max(case when parameter_name=''', para_name,
+      ''' then parameter_value end)',  para_name
+    )
+  ) INTO @sql
+FROM
+  tmp_parameter;
+
+
+
+SET @sql = CONCAT('SELECT order_code, level, action, network_product_code, ', @sql, ' 
+                  FROM tmp_ord_para
+                   GROUP BY order_code, level, action, network_product_code');
+
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+
+
+
+create temporary table tmp_parameter (npp_id int, para_name varchar(128), para_value varchar(2000));
+
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'PartnerNm', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'OLLCAPartnerContractStartDt', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'OLLCBPartnerContractStartDt', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'OLLCAPartnerContractTerm', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'OLLCATax', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'LLC_Partner_Name', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'LLC_Partner_Ref', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'PartnerCctRef', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'STPoNo', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'STIntSvcNo', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'IMPGcode', '');
+insert into tmp_parameter (npp_id, para_name, para_value) values (100000, 'Model', '');
+
+
+
+'OLLCAPartnerContractStartDt', 
+'OLLCBPartnerContractStartDt', 
+'OLLCAPartnerContractTerm', 
+'OLLCATax', 
+'LLC_Partner_Name', 
+'LLC_Partner_Ref', 
+'PartnerCctRef', 
+'STPoNo',
+'STIntSvcNo', 
+'IMPGcode', 
+'Model'
+
+
+===================================
+
+
+create temporary table tmp_ord_para
+SELECT
+    ORD.id
+  , ORD.order_code
+  , NPP.level
+  , NPP.action
+  , PRD.network_product_code
+  , PAR.parameter_name
+  , PAR.parameter_value
+FROM
+    RestInterface_order ORD
+    JOIN
+        RestInterface_npp NPP
+        ON
+            NPP.order_id = ORD.id
+    JOIN
+        RestInterface_product PRD
+        ON
+            PRD.id = NPP.product_id
+    JOIN
+        RestInterface_parameter PAR
+        ON
+            PAR.npp_id = NPP.id
+WHERE
+    -- ORD.order_code IN ('ZBD8839002')
+    ORD.order_status IN ('Submitted', 'Closed')
+    AND ORD.current_crd >= DATE_SUB(NOW(), INTERVAL 3 MONTH)
+    AND PAR.parameter_name IN ( 'PartnerNm', 'OLLCAPartnerContractStartDt', 'OLLCBPartnerContractStartDt', 'OLLCAPartnerContractTerm'
+                             , 'OLLCATax')
+;
+
+
+=============================================================
+
+
+SELECT
+    order_code
+  , level
+  , action
+  , network_product_code
+  , max(
+            case
+                when parameter_name = 'IMPGcode'
+                    then parameter_value
+            end
+        )
+    IMPGcode
+  , max(
+            case
+                when parameter_name = 'LLC_Partner_Name'
+                    then parameter_value
+            end
+        )
+    LLC_Partner_Name
+  , max(
+            case
+                when parameter_name = 'LLC_Partner_Ref'
+                    then parameter_value
+            end
+        )
+    LLC_Partner_Ref
+  , max(
+            case
+                when parameter_name = 'Model'
+                    then parameter_value
+            end
+        )
+    Model
+  , max(
+            case
+                when parameter_name = 'OLLCAPartnerContractStartDt'
+                    then parameter_value
+            end
+        )
+    OLLCAPartnerContractStartDt
+  , max(
+            case
+                when parameter_name = 'OLLCAPartnerContractTerm'
+                    then parameter_value
+            end
+        )
+    OLLCAPartnerContractTerm
+  , max(
+            case
+                when parameter_name = 'OLLCATax'
+                    then parameter_value
+            end
+        )
+    OLLCATax
+  , max(
+            case
+                when parameter_name = 'OLLCBPartnerContractStartDt'
+                    then parameter_value
+            end
+        )
+    OLLCBPartnerContractStartDt
+  , max(
+            case
+                when parameter_name = 'PartnerCctRef'
+                    then parameter_value
+            end
+        )
+    PartnerCctRef
+  , max(
+            case
+                when parameter_name = 'PartnerNm'
+                    then parameter_value
+            end
+        )
+    PartnerNm
+  , max(
+            case
+                when parameter_name = 'STIntSvcNo'
+                    then parameter_value
+            end
+        )
+    STIntSvcNo
+  , max(
+            case
+                when parameter_name = 'STPoNo'
+                    THEN parameter_value
+            END
+        )
+    STPoNo
+FROM
+    tmp_ord_para
+GROUP BY
+    order_code
+  , level
+  , action
+  , network_product_code

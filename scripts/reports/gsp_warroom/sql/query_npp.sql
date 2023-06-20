@@ -11,10 +11,13 @@ SELECT
     SINOTE.note_code,
     SINOTE.date_created AS crd_amendment_date,
     SINOTE.details AS crd_amendment_details,
-    REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
     REGEXP_SUBSTR(
         SINOTE.details,
-        '(?<=New CRD:)(.*)(?= Category Code:)'
+        BINARY '(?<=Old CRD:)(.*)(?= New CRD:)'
+    ) AS old_crd,
+    REGEXP_SUBSTR(
+        SINOTE.details,
+        BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
     ) AS new_crd,
     NOTEDLY.reason AS crd_amendment_reason,
     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
@@ -46,15 +49,15 @@ SELECT
     ACTDLY.reason AS act_delay_reason
 FROM
     RestInterface_order ORD
-    JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+    LEFT JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
     AND ACT.name IN (
         'OLLC Order Ack',
         'OLLC Site Survey',
         'FOC Date Received',
         'LLC Accepted by Singtel'
     )
-    JOIN RestInterface_person PER ON PER.id = ACT.person_id
-    JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
+    LEFT JOIN RestInterface_person PER ON PER.id = ACT.person_id
+    LEFT JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
     LEFT JOIN (
         SELECT
             RMKINNER.*
@@ -117,6 +120,5 @@ FROM
         'Model'
     )
 WHERE
-    GSP.department LIKE "GD_%"
-    AND ORD.order_status IN ('Submitted', 'Closed')
+    ORD.order_status IN ('Submitted', 'Closed')
     AND ORD.current_crd >= DATE_SUB(NOW(), INTERVAL 3 MONTH);

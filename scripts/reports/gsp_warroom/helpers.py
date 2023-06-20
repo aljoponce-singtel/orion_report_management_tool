@@ -48,10 +48,10 @@ def generate_warroom_report():
                     SINOTE.note_code,
                     SINOTE.date_created AS crd_amendment_date,
                     SINOTE.details AS crd_amendment_details,
-                    REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
+                    REGEXP_SUBSTR(SINOTE.details, BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})') AS old_crd,
                     REGEXP_SUBSTR(
                         SINOTE.details,
-                        '(?<=New CRD:)(.*)(?= Category Code:)'
+                        BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
                     ) AS new_crd,
                     NOTEDLY.reason AS crd_amendment_reason,
                     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
@@ -187,6 +187,245 @@ def generate_warroom_npp_report():
 
     email_subject = 'GSP War Room NPP Report'
     filename = 'gsp_warroom_npp_report'
+    start_date = None
+    end_date = None
+
+    if report.debug_config.getboolean('generate_manual_report'):
+        logger.info('\\* MANUAL RUN *\\')
+
+        start_date = report.debug_config['report_start_date']
+        end_date = report.debug_config['report_end_date']
+
+    else:
+        start_date = utils.get_first_day_from_prev_month(
+            datetime.now().date())
+        end_date = utils.get_last_day_from_prev_month(datetime.now().date())
+
+    logger.info("report start date: " + str(start_date))
+    logger.info("report end date: " + str(end_date))
+
+    logger.info("Generating report ...")
+
+    query = ("""
+                SELECT
+                    DISTINCT ORD.order_code,
+                    ORD.service_number,
+                    CUS.name AS customer,
+                    ORD.order_type,
+                    ORD.order_status,
+                    ORD.taken_date,
+                    ORD.current_crd,
+                    ORD.initial_crd,
+                    ORD.close_date,
+                    ORD.assignee,
+                    PRJ.project_code,
+                    CKT.circuit_code,
+                    NPP.level AS npp_level,
+                    PRD.network_product_code AS product_code,
+                    PRD.network_product_desc AS product_description,
+                    PAR.PartnerNm,
+                    PAR.OLLCAPartnerContractStartDt,
+                    PAR.OLLCBPartnerContractStartDt,
+                    PAR.OLLCAPartnerContractTerm,
+                    PAR.OLLCATax,
+                    PAR.LLC_Partner_Name,
+                    PAR.LLC_Partner_Ref,
+                    PAR.PartnerCctRef,
+                    PAR.STPoNo,
+                    PAR.STIntSvcNo,
+                    PAR.IMPGcode,
+                    PAR.Model,
+                    ORD.business_sector,
+                    SITE.site_code AS exchange_code_a,
+                    SITE.site_code_second AS exchange_code_b,
+                    BRN.brn,
+                    ORD.am_id,
+                    ORD.sde_received_date,
+                    ORD.arbor_disp AS arbor_service,
+                    ORD.service_type,
+                    ORD.order_priority,
+                    SINOTE.date_created AS crd_amendment_date,
+                    REGEXP_SUBSTR(
+                        SINOTE.details,
+                        BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})'
+                    ) AS old_crd,
+                    REGEXP_SUBSTR(
+                        SINOTE.details,
+                        BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
+                    ) AS new_crd,
+                    NOTEDLY.reason AS crd_amendment_reason,
+                    NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
+                    ACT.ollc_order_ack AS 'OLLC Order Ack',
+                    ACT.ollc_site_survey AS 'OLLC Site Survey',
+                    ACT.foc_date_received AS 'FOC Date Received',
+                    ACT.llc_accepted_by_singtel AS 'LLC Accepted by Singtel'
+                FROM
+                    RestInterface_order ORD
+                    LEFT JOIN (
+                        SELECT
+                            order_id,
+                            MAX(
+                                CASE
+                                    WHEN name = 'OLLC Order Ack' THEN completed_date
+                                END
+                            ) ollc_order_ack,
+                            MAX(
+                                CASE
+                                    WHEN name = 'OLLC Site Survey' THEN completed_date
+                                END
+                            ) ollc_site_survey,
+                            MAX(
+                                CASE
+                                    WHEN name = 'FOC Date Received' THEN completed_date
+                                END
+                            ) foc_date_received,
+                            MAX(
+                                CASE
+                                    WHEN name = 'LLC Accepted by Singtel' THEN completed_date
+                                END
+                            ) llc_accepted_by_singtel
+                        FROM
+                            RestInterface_activity
+                        GROUP BY
+                            order_id
+                    ) ACT ON ACT.order_id = ORD.id
+                    LEFT JOIN (
+                        SELECT
+                            SINOTEINNER.*
+                        FROM
+                            o2pprod.RestInterface_ordersinote SINOTEINNER
+                            JOIN (
+                                SELECT
+                                    order_id,
+                                    MAX(note_code) AS note_code
+                                FROM
+                                    o2pprod.RestInterface_ordersinote
+                                WHERE
+                                    categoty = 'CRD'
+                                    AND sub_categoty = 'CRD Change History'
+                                    AND reason_code IS NOT NULL
+                                GROUP BY
+                                    order_id
+                            ) SINOTEMAX ON SINOTEMAX.order_id = SINOTEINNER.order_id
+                            AND SINOTEMAX.note_code = SINOTEINNER.note_code
+                    ) SINOTE ON SINOTE.order_id = ORD.id
+                    LEFT JOIN RestInterface_delayreason NOTEDLY ON NOTEDLY.code = SINOTE.reason_code
+                    LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
+                    LEFT JOIN RestInterface_circuit CKT ON ORD.circuit_id = CKT.id
+                    LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                    LEFT JOIN RestInterface_site SITE ON SITE.id = ORD.site_id
+                    LEFT JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
+                    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
+                    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+                    LEFT JOIN (
+                        SELECT
+                            npp_id,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'IMPGcode' THEN parameter_value
+                                END
+                            ) IMPGcode,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'LLC_Partner_Name' THEN parameter_value
+                                END
+                            ) LLC_Partner_Name,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'LLC_Partner_Ref' THEN parameter_value
+                                END
+                            ) LLC_Partner_Ref,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'Model' THEN parameter_value
+                                END
+                            ) Model,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCAPartnerContractStartDt' THEN parameter_value
+                                END
+                            ) OLLCAPartnerContractStartDt,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCAPartnerContractTerm' THEN parameter_value
+                                END
+                            ) OLLCAPartnerContractTerm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCATax' THEN parameter_value
+                                END
+                            ) OLLCATax,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCBPartnerContractStartDt' THEN parameter_value
+                                END
+                            ) OLLCBPartnerContractStartDt,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'PartnerCctRef' THEN parameter_value
+                                END
+                            ) PartnerCctRef,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'PartnerNm' THEN parameter_value
+                                END
+                            ) PartnerNm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'STIntSvcNo' THEN parameter_value
+                                END
+                            ) STIntSvcNo,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'STPoNo' THEN parameter_value
+                                END
+                            ) STPoNo
+                        FROM
+                            RestInterface_parameter
+                        GROUP BY
+                            npp_id
+                    ) PAR ON PAR.npp_id = NPP.id
+                WHERE
+                    ORD.order_status IN ('Submitted', 'Closed')
+                    AND ORD.current_crd BETWEEN '{}' AND '{}';
+            """).format(start_date, end_date)
+
+    result = report.orion_db.query_to_list(query)
+    logger.info("Processing report ...")
+    df_raw = pd.DataFrame(data=result, columns=const.MAIN_NPP_COLUMNS)
+
+    # Convert columns to date
+    for column in const.DATE_NPP_COLUMNS:
+        df_raw[column] = pd.to_datetime(df_raw[column]).dt.date
+
+    # Sort records in ascending order by order_code, parameter_name and step_no
+    df_raw = df_raw.sort_values(
+        by=['order_code', 'npp_level'], ascending=[True, True])
+
+    # Write to CSV for Warroom Report
+    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(df_raw, csv_main_file_path)
+
+    # Add CSV to zip file
+    # zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    # zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    # report.add_to_zip_file(csv_main_file_path, zip_file_path)
+
+    # Send Email
+    report.set_email_subject(report.add_timestamp(email_subject))
+    report.attach_file_to_email(csv_main_file_path)
+    report.send_email()
+
+    return
+
+
+def generate_warroom_npp_report_temp():
+
+    report = OrionReport(configFile)
+
+    email_subject = 'GSP War Room NPP Report'
+    filename = 'gsp_warroom_npp_report'
     report_date = datetime.now().date()
 
     if report.debug_config.getboolean('generate_manual_report'):
@@ -214,10 +453,13 @@ def generate_warroom_npp_report():
                     SINOTE.note_code,
                     SINOTE.date_created AS crd_amendment_date,
                     SINOTE.details AS crd_amendment_details,
-                    REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
                     REGEXP_SUBSTR(
                         SINOTE.details,
-                        '(?<=New CRD:)(.*)(?= Category Code:)'
+                        BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})'
+                    ) AS old_crd,
+                    REGEXP_SUBSTR(
+                        SINOTE.details,
+                        BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
                     ) AS new_crd,
                     NOTEDLY.reason AS crd_amendment_reason,
                     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
@@ -249,15 +491,15 @@ def generate_warroom_npp_report():
                     ACTDLY.reason AS act_delay_reason
                 FROM
                     RestInterface_order ORD
-                    JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+                    LEFT JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
                     AND ACT.name IN (
                         'OLLC Order Ack',
                         'OLLC Site Survey',
                         'FOC Date Received',
                         'LLC Accepted by Singtel'
                     )
-                    JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                    JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
+                    LEFT JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                    LEFT JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
                     LEFT JOIN (
                         SELECT
                             RMKINNER.*
@@ -273,7 +515,6 @@ def generate_warroom_npp_report():
                                     activity_id
                             ) RMKMAX ON RMKMAX.activity_id = RMKINNER.activity_id
                             AND RMKMAX.id = RMKINNER.id
-                            -- AND RMKINNER.updated_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
                     ) RMK ON RMK.activity_id = ACT.id
                     LEFT JOIN auto_escalation_queueownerdelayreasons ACTDLY ON RMK.delay_reason_id = ACTDLY.id
                     LEFT JOIN (
@@ -295,7 +536,6 @@ def generate_warroom_npp_report():
                                     order_id
                             ) SINOTEMAX ON SINOTEMAX.order_id = SINOTEINNER.order_id
                             AND SINOTEMAX.note_code = SINOTEINNER.note_code
-                            -- AND SINOTEINNER.updated_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
                     ) SINOTE ON SINOTE.order_id = ORD.id
                     LEFT JOIN RestInterface_delayreason NOTEDLY ON NOTEDLY.code = SINOTE.reason_code
                     LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
@@ -322,13 +562,14 @@ def generate_warroom_npp_report():
                         'Model'
                     )
                 WHERE
-                    GSP.department LIKE "GD_%"
-                    AND ORD.order_status IN ('Submitted', 'Closed')
+                    ORD.order_status IN ('Submitted', 'Closed')
                     AND ORD.current_crd >= DATE_SUB('{}', INTERVAL 3 MONTH);
             """).format(report_date)
 
     result = report.orion_db.query_to_list(query)
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
+
+    logger.info(len(df_raw))
 
     # Convert columns to date
     for column in const.DATE_COLUMNS:
@@ -338,9 +579,16 @@ def generate_warroom_npp_report():
     df_raw = df_raw.sort_values(
         by=['order_code', 'parameter_name', 'step_no'], ascending=[True, True, True])
 
+    # Write to CSV for Warroom Report
+    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(df_raw, csv_main_file_path)
+
     # Create df_main dataframe for report generation
     df_main = pd.DataFrame(columns=[const.MAIN_NPP_COLUMNS])
     df_main['order_code'] = df_raw['order_code'].drop_duplicates()
+
+    logger.info("Processing data ...")
 
     # Iterate over the unique df_main workorders
     for idx, row in df_main.iterrows():
