@@ -1,6 +1,5 @@
 RAW_COLUMNS = [
     'user_id',
-    'o2p_ord_id',
     'qty',
     'group_code',
     'arbor_service_type',
@@ -66,9 +65,8 @@ RAW_COLUMNS = [
 ]
 
 RAW_COLUMNS_NO_CONTACTS = [
-    'user_id',
-    'o2p_ord_id',
     'qty',
+    'user_id',
     'group_code',
     'arbor_service_type',
     'cust_id',
@@ -138,4 +136,33 @@ DATE_COLUMNS = [
     'operation_received_date',
     'submitted_date',
     'initial_crd'
+]
+
+RAW_BILLING_DATA = [
+    'order_code',
+    'id',
+    'product_trx_id',
+    'action',
+    'nrc',
+    'rc',
+    'rc_active_date',
+    'rc_inactive_date',
+    'rc_deactive_date',
+    'rc_billing_frequency',
+    'rate_currency',
+    'contract_duration_unit',
+    'contract_duration_type',
+    'package_id',
+    'package_description',
+    'component_id',
+    'component_description',
+    'dependency_id',
+    'created_at',
+    'updated_at',
+    'order_id',
+    'bill_delay_value',
+    'bill_value',
+    'no_of_overlapping_days',
+    'single_day_bill_value',
+    'last_active_date'
 ]
