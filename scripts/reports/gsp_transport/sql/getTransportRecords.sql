@@ -9,12 +9,13 @@ SELECT
         END
     ) AS service,
     ord.order_code,
+    cus.name,
     ord.current_crd,
     ord.service_number,
     ord.order_status,
     ord.order_type,
     prd.network_product_code,
-    per.role, 
+    per.role,
     CAST(act.activity_code AS SIGNED INTEGER) AS step_no,
     act.name,
     act.status,
@@ -24,12 +25,13 @@ FROM
     RestInterface_order ord
     JOIN RestInterface_activity act ON act.order_id = ord.id
     LEFT JOIN RestInterface_person per ON per.id = act.person_id
+    LEFT JOIN RestInterface_customer cus ON cus.id = ord.customer_id
     LEFT JOIN RestInterface_npp npp ON npp.order_id = ord.ID
     AND npp.level = 'Mainline'
     AND npp.status <> 'Cancel'
     LEFT JOIN RestInterface_product prd ON prd.id = npp.product_id
 WHERE
-    ord.id IN ({})
+    ord.id IN ({ })
     AND (
         (
             prd.network_product_code LIKE 'DGN%'

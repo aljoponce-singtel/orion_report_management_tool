@@ -68,9 +68,18 @@ def generate_transport_report():
         report.debug_config['update_tableau_db'] = 'false'
 
     else:
-        start_date = utils.get_first_day_from_prev_month(
-            datetime.now().date())
-        end_date = utils.get_last_day_from_prev_month(datetime.now().date())
+        if datetime.now().date().day == 26:  # 26th of the month
+            start_date = utils.get_start_date_from_prev_month(
+                datetime.now().date())
+            end_date = utils.get_end_date_from_prev_month(
+                datetime.now().date())
+            report.debug_config['update_tableau_db'] = 'false'
+        else:  # 1st of the month
+            start_date = utils.get_first_day_from_prev_month(
+                datetime.now().date())
+            end_date = utils.get_last_day_from_prev_month(
+                datetime.now().date())
+            report.debug_config['update_tableau_db'] = 'true'
 
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
@@ -84,7 +93,7 @@ def generate_transport_report():
     df = pd.DataFrame(getTransportRecords(
         report, df_order_id['order_id'].to_list(), start_date, end_date))
     df_finalReport = pd.DataFrame(columns=const.FINAL_COLUMNS)
-    df_orders = df[['Service', 'OrderCode', 'CRD',
+    df_orders = df[['Service', 'OrderCode', 'CustomerName', 'CRD',
                    'ServiceNumber', 'OrderStatus', 'OrderType', 'ProductCode']]
 
     for index, row in df_orders.drop_duplicates().iterrows():
@@ -92,6 +101,7 @@ def generate_transport_report():
 
         service = row['Service']
         orderCode = row['OrderCode']
+        customer = row['CustomerName']
         crd = row['CRD']
         serviceNumber = row['ServiceNumber']
         orderStatus = row['OrderStatus']
@@ -99,71 +109,74 @@ def generate_transport_report():
         productCode = row['ProductCode']
 
         if df_orders.at[index, 'Service'] == 'Diginet':
-            coordGroupId, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Wrk-BQ'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'])
 
         if df_orders.at[index, 'Service'] == 'MetroE':
-            coordGroupId, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Wrk-BQ'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Circuit Creation', 'Change Speed Configure'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Node & Circuit Deletion'])
 
         if df_orders.at[index, 'Service'] == 'MegaPop (CE)':
-            coordGroupId, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
                 df_activities, [])
 
             if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Node & Circuit Deletion'])
 
         if df_orders.at[index, 'Service'] == 'Gigawave':
-            coordGroupId, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Work'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Circuit Removal from NMS'])
 
         reportData = [
             service,
             orderCode,
+            customer,
             crd,
             serviceNumber,
             orderStatus,
             orderType,
             productCode,
             preConfigGroupId,
+            preConfigTeam,
             preConfigActName,
             preConfigStatus,
             preConfigDueDate,
             preConfigCOMDate,
             coordGroupId,
+            coordTeam,
             coordActName,
             coordActStatus,
             coordActDueDate,
@@ -221,8 +234,19 @@ def getActRecord(df, activities):
         df_activity = df_actPrioritySorted.head(1)
         df_activities = df_activity
 
-    actGroupId = df_activities['GroupID'].values[0] if np.size(
-        df_activities['GroupID'].values) else None
+    if np.size(df_activities['GroupID'].values):
+        actGroupId = df_activities['GroupID'].values[0]
+
+        if str(actGroupId).startswith('ODC_'):
+            actTeam = 'ODC'
+        elif str(actGroupId).startswith('RDC_'):
+            actTeam = 'RDC'
+        else:
+            actTeam = 'SGP'
+    else:
+        actGroupId = None
+        actTeam = None
+
     actName = df_activities['ActName'].values[0] if np.size(
         df_activities['ActName'].values) else None
     actStatus = df_activities['ActStatus'].values[0] if np.size(
@@ -232,7 +256,7 @@ def getActRecord(df, activities):
     actComDate = df_activities['ActComDate'].values[0] if np.size(
         df_activities['ActComDate'].values) else None
 
-    return actGroupId, actName, actStatus, actDueDate, actComDate
+    return actGroupId, actTeam, actName, actStatus, actDueDate, actComDate
 
 
 def getTransportOrders(report, startDate, endDate):
@@ -362,6 +386,8 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
         'RestInterface_activity', 'act')
     person_table = report.orion_db.get_table_metadata(
         'RestInterface_person', 'per')
+    customer_table = report.orion_db.get_table_metadata(
+        'RestInterface_customer', 'cus')
     npp_table = report.orion_db.get_table_metadata('RestInterface_npp', 'npp')
     product_table = report.orion_db.get_table_metadata(
         'RestInterface_product', 'prd')
@@ -377,6 +403,7 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                 else_=null()
             ).label('service'),
             order_table.c.order_code,
+            customer_table.c.name,
             order_table.c.current_crd,
             order_table.c.service_number,
             order_table.c.order_status,
@@ -395,6 +422,8 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
               activity_table.c.order_id == order_table.c.id)
         .outerjoin(person_table,
                    person_table.c.id == activity_table.c.person_id)
+        .outerjoin(customer_table,
+                   customer_table.c.id == order_table.c.customer_id)
         .outerjoin(npp_table,
                    and_(
                        npp_table.c.order_id == order_table.c.id,
