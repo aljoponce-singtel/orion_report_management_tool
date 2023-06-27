@@ -68,18 +68,12 @@ def generate_transport_report():
         report.debug_config['update_tableau_db'] = 'false'
 
     else:
-        if datetime.now().date().day == 26:  # 26th of the month
-            start_date = utils.get_start_date_from_prev_month(
-                datetime.now().date())
-            end_date = utils.get_end_date_from_prev_month(
-                datetime.now().date())
-            report.debug_config['update_tableau_db'] = 'false'
-        else:  # 1st of the month
-            start_date = utils.get_first_day_from_prev_month(
-                datetime.now().date())
-            end_date = utils.get_last_day_from_prev_month(
-                datetime.now().date())
-            report.debug_config['update_tableau_db'] = 'true'
+        # 1st of the month
+        start_date = utils.get_first_day_from_prev_month(
+            datetime.now().date())
+        end_date = utils.get_last_day_from_prev_month(
+            datetime.now().date())
+        report.debug_config['update_tableau_db'] = 'true'
 
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
@@ -87,7 +81,91 @@ def generate_transport_report():
     logger.info('update_tableau_db = ' +
                 str(report.debug_config.getboolean('update_tableau_db')))
 
-    logger.info("Generating report ...")
+    logger.info("Generating transport report ...")
+
+    df_finalReport = createFinalReport(report, start_date, end_date)
+
+    # Insert records to tableau db
+    updateTableauDB(report, df_finalReport)
+
+    # Write to CSV for Warroom Report
+    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(
+        df_finalReport[const.FINAL_COLUMNS], csv_main_file_path)
+
+    # Add CSV to zip file
+    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    report.add_to_zip_file(csv_main_file_path, zip_file_path)
+
+    # Send Email
+    report.set_email_subject(report.add_timestamp(email_subject))
+    report.attach_file_to_email(zip_file_path)
+    report.send_email()
+
+
+def generate_transport_billing_report():
+
+    report = OrionReport(configFile)
+
+    email_subject = 'Transport (Billing) Report'
+    filename = 'transport_billing_report'
+    start_date = None
+    end_date = None
+
+    if report.debug_config.getboolean('generate_manual_report'):
+        logger.info('\\* MANUAL RUN *\\')
+
+        start_date = report.debug_config['report_start_date']
+        end_date = report.debug_config['report_end_date']
+
+        report.debug_config['update_tableau_db'] = 'false'
+
+    else:
+        # 26th of the month
+        start_date = utils.get_start_date_from_prev_month(
+            datetime.now().date())
+        end_date = utils.get_end_date_from_prev_month(
+            datetime.now().date())
+        report.debug_config['update_tableau_db'] = 'false'
+
+    logger.info("report start date: " + str(start_date))
+    logger.info("report end date: " + str(end_date))
+
+    logger.info('update_tableau_db = ' +
+                str(report.debug_config.getboolean('update_tableau_db')))
+
+    logger.info("Generating transport billing report ...")
+
+    df_finalReport = createFinalReport(report, start_date, end_date)
+
+    # Removing SGP from teams
+    # Dropping rows where the PreConfig_Team or Coordination_Team column matches xthe string value 'SGP'
+    df_finalReport = df_finalReport.drop(
+        (df_finalReport.loc[df_finalReport['PreConfig_Team'] == 'SGP'].index) | (df_finalReport.loc[df_finalReport['Coordination_Team'] == 'SGP'].index))
+
+    # Insert records to tableau db
+    # updateTableauDB(report, df_finalReport)
+
+    # Write to CSV for Warroom Report
+    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
+    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
+    report.create_csv_from_df(
+        df_finalReport[const.FINAL_COLUMNS], csv_main_file_path)
+
+    # Add CSV to zip file
+    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    report.add_to_zip_file(csv_main_file_path, zip_file_path)
+
+    # Send Email
+    report.set_email_subject(report.add_timestamp(email_subject))
+    report.attach_file_to_email(zip_file_path)
+    report.send_email()
+
+
+def createFinalReport(report, start_date, end_date):
 
     df_order_id = getTransportOrders(report, start_date, end_date)
     df = pd.DataFrame(getTransportRecords(
@@ -188,24 +266,9 @@ def generate_transport_report():
             data=[reportData], columns=const.FINAL_COLUMNS)
         df_finalReport = pd.concat([df_finalReport, df_toAdd])
 
-    # Insert records to tableau db
-    updateTableauDB(report, df_finalReport)
+    df_finalReport = df_finalReport.reset_index(drop=True)
 
-    # Write to CSV for Warroom Report
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(
-        df_finalReport[const.FINAL_COLUMNS], csv_main_file_path)
-
-    # Add CSV to zip file
-    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    report.add_to_zip_file(csv_main_file_path, zip_file_path)
-
-    # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(zip_file_path)
-    report.send_email()
+    return df_finalReport
 
 
 def getActRecord(df, activities):
