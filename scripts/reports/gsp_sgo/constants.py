@@ -7,6 +7,7 @@ RAW_COLUMNS = [
     'CRD',
     'Order type',
     'PO No',
+    'NPP Level',
     'NPC',
     'Order creation date',
     'Comm date',

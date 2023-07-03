@@ -82,6 +82,7 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                     ORD.current_crd AS 'CRD',
                     ORD.order_type AS 'Order type',
                     PAR.STPoNo AS 'PO No',
+                    NPP.level AS 'NPP Level',
                     PRD.network_product_code AS 'NPC',
                     ORD.taken_date AS 'Order creation date',
                     ACT.completed_date AS 'Comm date',
@@ -97,46 +98,48 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                     LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
                     LEFT JOIN RestInterface_user USR ON PER.user_id = USR.id
                     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
-                    AND NPP.level = 'Mainline'
                     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
                     LEFT JOIN (
                         SELECT
-                            npp_id,
+                            NPP_INNER.id,
                             MAX(
                                 CASE
-                                    WHEN parameter_name = 'STPoNo' THEN parameter_value
+                                    WHEN PAR_INNER.parameter_name = 'STPoNo' THEN PAR_INNER.parameter_value
                                 END
                             ) STPoNo,
                             MAX(
                                 CASE
-                                    WHEN parameter_name = 'OriginCtry' THEN parameter_value
+                                    WHEN PAR_INNER.parameter_name = 'OriginCtry' THEN PAR_INNER.parameter_value
                                 END
                             ) OriginCtry,
                             MAX(
                                 CASE
-                                    WHEN parameter_name = 'OriginCarr' THEN parameter_value
+                                    WHEN PAR_INNER.parameter_name = 'OriginCarr' THEN PAR_INNER.parameter_value
                                 END
                             ) OriginCarr,
                             MAX(
                                 CASE
-                                    WHEN parameter_name = 'MainSvcType' THEN parameter_value
+                                    WHEN PAR_INNER.parameter_name = 'MainSvcType' THEN PAR_INNER.parameter_value
                                 END
                             ) MainSvcType,
                             MAX(
                                 CASE
-                                    WHEN parameter_name = 'MainSvcNo' THEN parameter_value
+                                    WHEN PAR_INNER.parameter_name = 'MainSvcNo' THEN PAR_INNER.parameter_value
                                 END
                             ) MainSvcNo,
                             MAX(
                                 CASE
-                                    WHEN parameter_name = 'LLC_Partner_Ref' THEN parameter_value
+                                    WHEN PAR_INNER.parameter_name = 'LLC_Partner_Ref' THEN PAR_INNER.parameter_value
                                 END
                             ) LLC_Partner_Ref
                         FROM
-                            RestInterface_parameter
+                            RestInterface_npp NPP_INNER
+                            JOIN RestInterface_parameter PAR_INNER ON PAR_INNER.npp_id = NPP_INNER.id
+                        WHERE
+                            NPP_INNER.status != 'Cancel'
                         GROUP BY
-                            npp_id
-                    ) PAR ON PAR.npp_id = NPP.id
+                            NPP_INNER.id
+                    ) PAR ON PAR.id = NPP.id
                 WHERE
                     ACT.name IN (
                         'Cease Resale SGO',
@@ -196,6 +199,7 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                         'GIP_BGD',
                         'RESALE_BGD'
                     )
+                    AND NPP.status != 'Cancel'
                     AND ACT.completed_date BETWEEN '{}'
                     AND '{}'
                 ORDER BY
@@ -208,6 +212,32 @@ def generate_report(report, email_subject, filename, start_date, end_date):
 
     logger.info("Creating SGO report ...")
     df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
+
+    # /* START */
+    # There is no value in 'PO No' for 'NPP Level' == 'Mainline'.
+    # It is only available when 'NPP Level' == 'VAS'
+    # Since 'PO No' is required in the report, the value from VAS will be copied to the Mainline record,
+    # even if it doesn't belong to this record.
+
+    # Find the rows where NPPLevel is "VAS"
+    vas_rows = df[df['NPP Level'] == 'VAS']
+
+    # Iterate over the rows
+    for index, row in vas_rows.iterrows():
+        # Get the WorkorderNo and PoNo values
+        workorder = row['Workorder']
+        po_number = row['PO No']
+
+        # Update the corresponding row where NPP Level is "Mainline" and Workorder is the same
+        df.loc[(df['NPP Level'] == 'Mainline') & (
+            df['Workorder'] == workorder), 'PO No'] = po_number
+
+    # /* END */
+
+    # Remove the row where 'NPP Level' is 'VAS'
+    df = df[df['NPP Level'] != 'VAS']
+    # Remove the 'NPP Level' column
+    df = df.drop('NPP Level', axis=1)
 
     # Convert columns to date
     for column in const.DATE_COLUMNS:
