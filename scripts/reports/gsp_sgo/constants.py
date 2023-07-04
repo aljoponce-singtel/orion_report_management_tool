@@ -15,7 +15,9 @@ RAW_COLUMNS = [
     'Originating Carrier',
     'Main Svc Type',
     'Main Svc No',
-    'LLC Partner reference'
+    'LLC Partner reference',
+    'Group Owner',
+    'Performer ID'
 ]
 
 DATE_COLUMNS = [

@@ -90,7 +90,9 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                     PAR.OriginCarr AS 'Originating Carrier',
                     PAR.MainSvcType AS 'Main Svc Type',
                     PAR.MainSvcNo AS 'Main Svc No',
-                    PAR.LLC_Partner_Ref AS 'LLC Partner reference'
+                    PAR.LLC_Partner_Ref AS 'LLC Partner reference',
+                    PER.email AS 'Group Owner',
+                    '' AS 'Performer ID'
                 FROM
                     RestInterface_order ORD
                     JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id
