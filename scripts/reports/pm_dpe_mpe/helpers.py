@@ -200,33 +200,25 @@ def generate_report():
     df_raw['category'] = df_raw['category'].astype(str)
 
     # /****** START ******/
-
     # There are records where the category is included in the delay reason
     # E.g.
     # category = Others
     # delay reason = Others Deployed on 15 Jan 2023
-    # The script below will remove the category as a substring in the delay reason
+    #
+    # The code blow below will remove the category as a substring in the delay reason
     # output: delay reason = Deployed on 15 Jan 2023
 
-    # remove the substring 'cd' from the strings in col1
-    # df_raw['delay_reason'] = df_raw['delay_reason'].str.replace(
-    #     df_raw['category'], '')
-
-    # remove the substring 'cd' from the strings in col1
-    # df_raw['delay_reason'] = df_raw['delay_reason'].str.replace(
-    #     'Others', '').str.strip()
-
-    # define a custom function to remove a substring in column a from column b
+    # define a custom function to remove a substring in column 'delay_reason'
+    # using the string in column 'category'
     def remove_substring(row):
         return row['delay_reason'].replace(row['category'], '')
     # apply the custom function to each row in the DataFrame
     df_raw['delay_reason'] = df_raw.apply(remove_substring, axis=1)
     # trim the string
     df_raw['delay_reason'] = df_raw['delay_reason'].str.strip()
-
     # /****** END ******/
 
-    # remove leading '-' character from strings in the column
+    # remove leading '-' character from strings in the requestor column
     df_raw['requestor'] = df_raw['requestor'].str.lstrip('-')
 
     # Sort records in ascending order by order_code and note_code
