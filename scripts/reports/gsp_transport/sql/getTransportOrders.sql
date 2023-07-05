@@ -36,7 +36,13 @@ WHERE
             AND act.status = 'COM'
         )
         OR (
-            prd.network_product_code IN ('ELK0052', 'ELK0091')
+            prd.network_product_code IN (
+                'ELK0052',
+                'ELK0053',
+                'ELK0089',
+                'ELK0091',
+                'ELK0092'
+            )
             AND (
                 (
                     ord.order_type IN ('Provide', 'Change')

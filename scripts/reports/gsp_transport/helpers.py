@@ -200,7 +200,7 @@ def createFinalReport(report, start_date, end_date):
 
         if df_orders.at[index, 'Service'] == 'MetroE':
             coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
-                df_activities, ['GSDT Co-ordination Wrk-BQ'])
+                df_activities, ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide':
                 preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
@@ -227,8 +227,9 @@ def createFinalReport(report, start_date, end_date):
                     df_activities, ['Node & Circuit Deletion'])
 
         if df_orders.at[index, 'Service'] == 'Gigawave':
-            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
-                df_activities, ['GSDT Co-ordination Work'])
+            if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Cease':
+                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                    df_activities, ['GSDT Co-ordination Work'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide':
                 preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
@@ -385,7 +386,7 @@ def getTransportOrders(report, startDate, endDate):
                     ).self_group(),
                     and_(
                         product_table.c.network_product_code.in_(
-                            ['ELK0052', 'ELK0091']),
+                            ['ELK0052', 'ELK0053', 'ELK0089', 'ELK0091', 'ELK0092']),
                         or_(
                             and_(
                                 order_table.c.order_type.in_(
@@ -464,7 +465,7 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                 (product_table.c.network_product_code.like('DGN%'), 'Diginet'),
                 (product_table.c.network_product_code.like('DME%'), 'MetroE'),
                 (product_table.c.network_product_code.in_(
-                    ['ELK0052', 'ELK0091']), 'MegaPop (CE)'),
+                    ['ELK0052', 'ELK0053', 'ELK0089', 'ELK0091', 'ELK0092']), 'MegaPop (CE)'),
                 (product_table.c.network_product_code.like('GGW%'), 'Gigawave'),
                 else_=null()
             ).label('service'),
@@ -619,7 +620,8 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                         )
                     ).self_group(),
                     and_(
-                        product_table.c.network_product_code.in_(['ELK0052', 'ELK0091']),
+                        product_table.c.network_product_code.in_(
+                            ['ELK0052', 'ELK0053', 'ELK0089', 'ELK0091', 'ELK0092']),
                         or_(
                             and_(
                                 order_table.c.order_type.in_(

@@ -3,7 +3,13 @@ SELECT
         CASE
             WHEN prd.network_product_code LIKE 'DGN%' THEN 'Diginet'
             WHEN prd.network_product_code LIKE 'DME%' THEN 'MetroE'
-            WHEN prd.network_product_code = 'ELK0052' THEN 'MegaPop (CE)'
+            WHEN prd.network_product_code IN (
+                'ELK0052',
+                'ELK0053',
+                'ELK0089',
+                'ELK0091',
+                'ELK0092'
+            ) THEN 'MegaPop (CE)'
             WHEN prd.network_product_code LIKE 'GGW%' THEN 'Gigawave'
             ELSE NULL
         END
@@ -148,7 +154,13 @@ WHERE
             )
         )
         OR (
-            prd.network_product_code IN ('ELK0052', 'ELK0091')
+            prd.network_product_code IN (
+                'ELK0052',
+                'ELK0053',
+                'ELK0089',
+                'ELK0091',
+                'ELK0092'
+            )
             AND (
                 (
                     ord.order_type IN ('Provide', 'Change')
