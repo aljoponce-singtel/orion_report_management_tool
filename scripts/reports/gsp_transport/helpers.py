@@ -141,7 +141,7 @@ def generate_transport_billing_report():
     df_finalReport = createFinalReport(report, start_date, end_date)
 
     # Removing SGP from teams
-    # Dropping rows where the PreConfig_Team or Coordination_Team column matches xthe string value 'SGP'
+    # Dropping rows where the PreConfig_Team or Coordination_Team column matches the string value 'SGP'
     df_finalReport = df_finalReport.drop(
         (df_finalReport.loc[df_finalReport['PreConfig_Team'] == 'SGP'].index) | (df_finalReport.loc[df_finalReport['Coordination_Team'] == 'SGP'].index))
 
@@ -379,11 +379,13 @@ def getTransportOrders(report, startDate, endDate):
                             person_table.c.role.like('RDC_%'),
                             person_table.c.role.like('GSPSG_%')
                         ),
-                        activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                        activity_table.c.name.in_(
+                            ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work']),
                         activity_table.c.status == 'COM'
                     ).self_group(),
                     and_(
-                        product_table.c.network_product_code == 'ELK0052',
+                        product_table.c.network_product_code.in_(
+                            ['ELK0052', 'ELK0091']),
                         or_(
                             and_(
                                 order_table.c.order_type.in_(
@@ -430,7 +432,7 @@ def getTransportOrders(report, startDate, endDate):
         )
     )
 
-    # report.orion_db.log_full_query(query)
+    report.orion_db.log_full_query(query)
 
     result = report.orion_db.query_to_list(query)
     return pd.DataFrame(data=result, columns=['order_id'])
@@ -461,7 +463,8 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
             case(
                 (product_table.c.network_product_code.like('DGN%'), 'Diginet'),
                 (product_table.c.network_product_code.like('DME%'), 'MetroE'),
-                (product_table.c.network_product_code == 'ELK0052', 'MegaPop (CE)'),
+                (product_table.c.network_product_code.in_(
+                    ['ELK0052', 'ELK0091']), 'MegaPop (CE)'),
                 (product_table.c.network_product_code.like('GGW%'), 'Gigawave'),
                 else_=null()
             ).label('service'),
@@ -557,7 +560,8 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                 and_(
                                     or_(
                                         and_(
-                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work']),
                                             activity_table.c.status == 'COM',
                                             activity_table.c.completed_date.between(
                                                 START_DATE, END_DATE)
@@ -575,7 +579,8 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                             person_table.c.role.like('RDC_%'),
                                             person_table.c.role.like('GSPSG_%')
                                         ),
-                                        activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                        activity_table.c.name.in_(
+                                            ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work']),
                                         activity_table.c.status == 'COM',
                                         activity_table.c.completed_date.between(
                                             START_DATE, END_DATE),
@@ -601,7 +606,8 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                 and_(
                                     or_(
                                         and_(
-                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work']),
                                             activity_table.c.status == 'COM',
                                             activity_table.c.completed_date.between(
                                                 START_DATE, END_DATE)
@@ -613,7 +619,7 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                         )
                     ).self_group(),
                     and_(
-                        product_table.c.network_product_code == 'ELK0052',
+                        product_table.c.network_product_code.in_(['ELK0052', 'ELK0091']),
                         or_(
                             and_(
                                 order_table.c.order_type.in_(
@@ -696,7 +702,7 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
         )
     )
 
-    # report.orion_db.log_full_query(query)
+    report.orion_db.log_full_query(query)
 
     result = report.orion_db.query_to_list(query)
     return pd.DataFrame(data=result, columns=const.DRAFT_COLUMNS)

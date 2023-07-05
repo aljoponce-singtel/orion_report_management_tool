@@ -87,7 +87,10 @@ WHERE
                     )
                     AND (
                         (
-                            act.name = 'GSDT Co-ordination Wrk-BQ'
+                            act.name IN (
+                                'GSDT Co-ordination Wrk-BQ',
+                                'GSDT Co-ordination Work'
+                            )
                             AND act.status = 'COM'
                             AND act.completed_date BETWEEN '{}'
                             AND '{}'
@@ -104,7 +107,10 @@ WHERE
                                 OR per.role LIKE 'RDC_%'
                                 OR per.role LIKE 'GSPSG_%'
                             )
-                            AND act.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND act.name IN (
+                                'GSDT Co-ordination Wrk-BQ',
+                                'GSDT Co-ordination Work'
+                            )
                             AND act.status = 'COM'
                             AND act.completed_date BETWEEN '{}'
                             AND '{}'
@@ -128,7 +134,10 @@ WHERE
                     )
                     AND (
                         (
-                            act.name = 'GSDT Co-ordination Wrk-BQ'
+                            act.name IN (
+                                'GSDT Co-ordination Wrk-BQ',
+                                'GSDT Co-ordination Work'
+                            )
                             AND act.status = 'COM'
                             AND act.completed_date BETWEEN '{}'
                             AND '{}'
@@ -139,7 +148,7 @@ WHERE
             )
         )
         OR (
-            prd.network_product_code = 'ELK0052'
+            prd.network_product_code IN ('ELK0052', 'ELK0091')
             AND (
                 (
                     ord.order_type IN ('Provide', 'Change')
