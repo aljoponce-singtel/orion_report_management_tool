@@ -1,14 +1,22 @@
 SELECT
     DISTINCT (
         CASE
-            WHEN prd.network_product_code LIKE 'DGN%' THEN 'Diginet'
+            WHEN (
+                prd.network_product_code LIKE 'DGN%'
+                OR prd.network_product_code LIKE 'DEK%'
+                OR prd.network_product_code LIKE 'DLC%'
+            ) THEN 'Diginet'
             WHEN prd.network_product_code LIKE 'DME%' THEN 'MetroE'
             WHEN prd.network_product_code IN (
+                'ELK0031',
                 'ELK0052',
                 'ELK0053',
+                'ELK0055',
                 'ELK0089',
                 'ELK0091',
-                'ELK0092'
+                'ELK0092',
+                'ELK0093',
+                'ELK0094'
             ) THEN 'MegaPop (CE)'
             WHEN prd.network_product_code LIKE 'GGW%' THEN 'Gigawave'
             ELSE NULL
@@ -40,7 +48,11 @@ WHERE
     ord.id IN ({ })
     AND (
         (
-            prd.network_product_code LIKE 'DGN%'
+            (
+                prd.network_product_code LIKE 'DGN%'
+                OR prd.network_product_code LIKE 'DEK%'
+                OR prd.network_product_code LIKE 'DLC%'
+            )
             AND (
                 (
                     ord.order_type IN ('Provide', 'Change')
@@ -155,21 +167,37 @@ WHERE
         )
         OR (
             prd.network_product_code IN (
+                'ELK0031',
                 'ELK0052',
                 'ELK0053',
+                'ELK0055',
                 'ELK0089',
                 'ELK0091',
-                'ELK0092'
+                'ELK0092',
+                'ELK0093',
+                'ELK0094'
             )
             AND (
                 (
-                    ord.order_type IN ('Provide', 'Change')
+                    ord.order_type = 'Provide'
                     AND (
                         per.role LIKE 'ODC_%'
                         OR per.role LIKE 'RDC_%'
                         OR per.role LIKE 'GSPSG_%'
                     )
                     AND act.name = 'Circuit Creation'
+                    AND act.status = 'COM'
+                    AND act.completed_date BETWEEN '{}'
+                    AND '{}'
+                )
+                OR (
+                    ord.order_type = 'Change'
+                    AND (
+                        per.role LIKE 'ODC_%'
+                        OR per.role LIKE 'RDC_%'
+                        OR per.role LIKE 'GSPSG_%'
+                    )
+                    AND act.name IN ('Circuit Creation', 'Reconfiguration')
                     AND act.status = 'COM'
                     AND act.completed_date BETWEEN '{}'
                     AND '{}'
@@ -195,8 +223,15 @@ WHERE
                     ord.order_type = 'Provide'
                     AND (
                         (
-                            per.role = 'GSP_LTC_GW'
-                            AND act.name = 'GSDT Co-ordination Work'
+                            (
+                                per.role = 'GSP_LTC_GW'
+                                OR per.role LIKE 'ODC_%'
+                                OR per.role LIKE 'RDC_%'
+                            )
+                            AND act.name IN (
+                                'GSDT Co-ordination Work',
+                                'GSDT Co-ordination Work'
+                            )
                             AND act.status = 'COM'
                             AND act.completed_date BETWEEN '{}'
                             AND '{}'
@@ -216,7 +251,10 @@ WHERE
                     AND (
                         (
                             per.role = 'GSDT31'
-                            AND act.name = 'GSDT Co-ordination Work'
+                            AND act.name IN (
+                                'GSDT Co-ordination Work',
+                                'GSDT Co-ordination Work'
+                            )
                             AND act.status = 'COM'
                             AND act.completed_date BETWEEN '{}'
                             AND '{}'
