@@ -1,5 +1,5 @@
 SELECT
-    DISTINCT ord.id
+    DISTINCT ord.order_code
 FROM
     RestInterface_order ord
     JOIN RestInterface_activity act ON act.order_id = ord.id
@@ -115,5 +115,6 @@ WHERE
         )
     )
     AND act.status = 'COM'
-    AND act.completed_date BETWEEN '{}'
-    AND '{}';
+    AND act.completed_date BETWEEN '2023-05-26'
+    AND '2023-06-25'
+    AND ord.order_code IN ('ZEP9265003');

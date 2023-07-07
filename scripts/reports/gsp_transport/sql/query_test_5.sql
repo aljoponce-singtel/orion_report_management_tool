@@ -46,7 +46,7 @@ FROM
     AND npp.status <> 'Cancel'
     LEFT JOIN RestInterface_product prd ON prd.id = npp.product_id
 WHERE
-    ord.id IN ({ })
+    ord.order_code IN ('ZEP9265003')
     AND (
         (
             (
@@ -66,8 +66,8 @@ WHERE
                         (
                             act.name = 'GSDT Co-ordination Wrk-BQ'
                             AND act.status = 'COM'
-                            AND act.completed_date BETWEEN '{}'
-                            AND '{}'
+                            AND act.completed_date BETWEEN '2023-05-26'
+                            AND '2023-06-25'
                         )
                         OR act.name = 'Circuit Creation'
                     )
@@ -83,8 +83,8 @@ WHERE
                         (
                             act.name = 'GSDT Co-ordination Wrk-BQ'
                             AND act.status = 'COM'
-                            AND act.completed_date BETWEEN '{}'
-                            AND '{}'
+                            AND act.completed_date BETWEEN '2023-05-26'
+                            AND '2023-06-25'
                         )
                         OR act.name IN (
                             'Node & Cct Del (DN-ISDN)',
@@ -111,8 +111,8 @@ WHERE
                                 'GSDT Co-ordination Work'
                             )
                             AND act.status = 'COM'
-                            AND act.completed_date BETWEEN '{}'
-                            AND '{}'
+                            AND act.completed_date BETWEEN '2023-05-26'
+                            AND '2023-06-25'
                         )
                         OR act.name = 'Circuit Creation'
                     )
@@ -131,8 +131,8 @@ WHERE
                                 'GSDT Co-ordination Work'
                             )
                             AND act.status = 'COM'
-                            AND act.completed_date BETWEEN '{}'
-                            AND '{}'
+                            AND act.completed_date BETWEEN '2023-05-26'
+                            AND '2023-06-25'
                         )
                         OR (
                             (
@@ -158,8 +158,8 @@ WHERE
                                 'GSDT Co-ordination Work'
                             )
                             AND act.status = 'COM'
-                            AND act.completed_date BETWEEN '{}'
-                            AND '{}'
+                            AND act.completed_date BETWEEN '2023-05-26'
+                            AND '2023-06-25'
                         )
                         OR act.name = 'Node & Circuit Deletion'
                     )
@@ -197,8 +197,8 @@ WHERE
                         )
                     )
                     AND act.status = 'COM'
-                    AND act.completed_date BETWEEN '{}'
-                    AND '{}'
+                    AND act.completed_date BETWEEN '2023-05-26'
+                    AND '2023-06-25'
                 )
                 OR (
                     ord.order_type = 'Change'
@@ -209,8 +209,8 @@ WHERE
                     )
                     AND act.name IN ('Circuit Creation', 'Reconfiguration')
                     AND act.status = 'COM'
-                    AND act.completed_date BETWEEN '{}'
-                    AND '{}'
+                    AND act.completed_date BETWEEN '2023-05-26'
+                    AND '2023-06-25'
                 )
                 OR (
                     ord.order_type = 'Cease'
@@ -221,8 +221,8 @@ WHERE
                     )
                     AND act.name = 'Node & Circuit Deletion'
                     AND act.status = 'COM'
-                    AND act.completed_date BETWEEN '{}'
-                    AND '{}'
+                    AND act.completed_date BETWEEN '2023-05-26'
+                    AND '2023-06-25'
                 )
             )
         )
@@ -240,12 +240,12 @@ WHERE
                             )
                             AND act.name IN (
                                 'GSDT Co-ordination Wrk-BQ',
-                                'GSDT Co-ordination WK-BQ',
+                                'GDST Co-ordination WK-BQ',
                                 'GSDT Co-ordination Work'
                             )
                             AND act.status = 'COM'
-                            AND act.completed_date BETWEEN '{}'
-                            AND '{}'
+                            AND act.completed_date BETWEEN '2023-05-26'
+                            AND '2023-06-25'
                         )
                         OR (
                             (
@@ -268,12 +268,12 @@ WHERE
                             )
                             AND act.name IN (
                                 'GSDT Co-ordination Wrk-BQ',
-                                'GSDT Co-ordination WK-BQ',
+                                'GDST Co-ordination WK-BQ',
                                 'GSDT Co-ordination Work'
                             )
                             AND act.status = 'COM'
-                            AND act.completed_date BETWEEN '{}'
-                            AND '{}'
+                            AND act.completed_date BETWEEN '2023-05-26'
+                            AND '2023-06-25'
                         )
                         OR (
                             per.role = 'GSP_LTC_GW'
