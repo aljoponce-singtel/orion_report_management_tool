@@ -11,10 +11,13 @@ SELECT
     SINOTE.note_code,
     SINOTE.date_created AS crd_amendment_date,
     SINOTE.details AS crd_amendment_details,
-    REGEXP_SUBSTR(SINOTE.details, '(?<=Old CRD:)(.*)(?= New CRD:)') AS old_crd,
     REGEXP_SUBSTR(
         SINOTE.details,
-        '(?<=New CRD:)(.*)(?= Category Code:)'
+        BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{8})'
+    ) AS old_crd,
+    REGEXP_SUBSTR(
+        SINOTE.details,
+        BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
     ) AS new_crd,
     NOTEDLY.reason AS crd_amendment_reason,
     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
