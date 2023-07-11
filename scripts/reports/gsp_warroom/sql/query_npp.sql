@@ -14,18 +14,58 @@ SELECT
     NPP.level AS npp_level,
     PRD.network_product_code AS product_code,
     PRD.network_product_desc AS product_description,
-    PAR.PartnerNm,
-    PAR.OLLCAPartnerContractStartDt,
-    PAR.OLLCBPartnerContractStartDt,
-    PAR.OLLCAPartnerContractTerm,
-    PAR.OLLCATax,
+    PAR.AELineCeaseDt,
+    PAR.AELineCurrencyCd,
+    PAR.AELineMRC,
+    PAR.AELineOTC,
+    PAR.AELinePartnerContractStartDt,
+    PAR.AELinePartnerContractTerm,
+    PAR.AELinePartnerNm,
+    PAR.AELineSTPO,
+    PAR.AELineTax,
+    PAR.AELineTPTy,
+    PAR.APartnerCctRef,
+    PAR.BOLLCBCurrencyCd,
+    PAR.BOLLCBMRC,
+    PAR.BOLLCBPartnerNm,
+    PAR.BOLLCBStateIndia,
+    PAR.BOLLCBTax,
+    PAR.IMPGcode,
+    PAR.InternetCurrencyCd,
+    PAR.InternetMRC,
+    PAR.InternetOTC,
+    PAR.InternetPartnerContractStartDt,
+    PAR.InternetPartnerContractTerm,
     PAR.LLC_Partner_Name,
     PAR.LLC_Partner_Ref,
-    PAR.PartnerCctRef,
-    PAR.STPoNo,
-    PAR.STIntSvcNo,
-    PAR.IMPGcode,
     PAR.Model,
+    PAR.OLLCAdminFee,
+    PAR.OLLCAPartnerContractStartDt,
+    PAR.OLLCAPartnerContractTerm,
+    PAR.OLLCAStateIndia,
+    PAR.OLLCATax,
+    PAR.OLLCBPartnerContractStartDt,
+    PAR.OLLCCurrencyCd,
+    PAR.OLLCMRC,
+    PAR.OLLCOTC,
+    PAR.OLLCPartnerContractStartDt,
+    PAR.OLLCPartnerContractTerm,
+    PAR.OLLCPartnerNm,
+    PAR.OLLCPPNo,
+    PAR.OLLCTax,
+    PAR.OriginState,
+    PAR.PartnerCctRef,
+    PAR.PartnerNm,
+    PAR.PortCurrencyCd,
+    PAR.PortMRC,
+    PAR.PortOTC,
+    PAR.PortPartnerContractStartDt,
+    PAR.PortPartnerContractTerm,
+    PAR.PortTax,
+    PAR.STIntSvcNo,
+    PAR.STPoNo,
+    PAR.SvcNo,
+    PAR.TermCarr,
     ORD.business_sector,
     SITE.site_code AS exchange_code_a,
     SITE.site_code_second AS exchange_code_b,
@@ -108,14 +148,120 @@ FROM
     LEFT JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+    AND NPP.status != 'Cancel'
     LEFT JOIN (
         SELECT
             npp_id,
             MAX(
                 CASE
+                    WHEN parameter_name = 'AELineCeaseDt' THEN parameter_value
+                END
+            ) AELineCeaseDt,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELineCurrencyCd' THEN parameter_value
+                END
+            ) AELineCurrencyCd,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELineMRC' THEN parameter_value
+                END
+            ) AELineMRC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELineOTC' THEN parameter_value
+                END
+            ) AELineOTC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELinePartnerContractStartDt' THEN parameter_value
+                END
+            ) AELinePartnerContractStartDt,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELinePartnerContractTerm' THEN parameter_value
+                END
+            ) AELinePartnerContractTerm,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELinePartnerNm' THEN parameter_value
+                END
+            ) AELinePartnerNm,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELineSTPO' THEN parameter_value
+                END
+            ) AELineSTPO,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELineTax' THEN parameter_value
+                END
+            ) AELineTax,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'AELineTPTy' THEN parameter_value
+                END
+            ) AELineTPTy,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'APartnerCctRef' THEN parameter_value
+                END
+            ) APartnerCctRef,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'BOLLCBCurrencyCd' THEN parameter_value
+                END
+            ) BOLLCBCurrencyCd,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'BOLLCBMRC' THEN parameter_value
+                END
+            ) BOLLCBMRC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'BOLLCBPartnerNm' THEN parameter_value
+                END
+            ) BOLLCBPartnerNm,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'BOLLCBStateIndia' THEN parameter_value
+                END
+            ) BOLLCBStateIndia,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'BOLLCBTax' THEN parameter_value
+                END
+            ) BOLLCBTax,
+            MAX(
+                CASE
                     WHEN parameter_name = 'IMPGcode' THEN parameter_value
                 END
             ) IMPGcode,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'InternetCurrencyCd' THEN parameter_value
+                END
+            ) InternetCurrencyCd,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'InternetMRC' THEN parameter_value
+                END
+            ) InternetMRC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'InternetOTC' THEN parameter_value
+                END
+            ) InternetOTC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'InternetPartnerContractStartDt' THEN parameter_value
+                END
+            ) InternetPartnerContractStartDt,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'InternetPartnerContractTerm' THEN parameter_value
+                END
+            ) InternetPartnerContractTerm,
             MAX(
                 CASE
                     WHEN parameter_name = 'LLC_Partner_Name' THEN parameter_value
@@ -133,6 +279,11 @@ FROM
             ) Model,
             MAX(
                 CASE
+                    WHEN parameter_name = 'OLLCAdminFee' THEN parameter_value
+                END
+            ) OLLCAdminFee,
+            MAX(
+                CASE
                     WHEN parameter_name = 'OLLCAPartnerContractStartDt' THEN parameter_value
                 END
             ) OLLCAPartnerContractStartDt,
@@ -141,6 +292,11 @@ FROM
                     WHEN parameter_name = 'OLLCAPartnerContractTerm' THEN parameter_value
                 END
             ) OLLCAPartnerContractTerm,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCAStateIndia' THEN parameter_value
+                END
+            ) OLLCAStateIndia,
             MAX(
                 CASE
                     WHEN parameter_name = 'OLLCATax' THEN parameter_value
@@ -153,6 +309,51 @@ FROM
             ) OLLCBPartnerContractStartDt,
             MAX(
                 CASE
+                    WHEN parameter_name = 'OLLCCurrencyCd' THEN parameter_value
+                END
+            ) OLLCCurrencyCd,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCMRC' THEN parameter_value
+                END
+            ) OLLCMRC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCOTC' THEN parameter_value
+                END
+            ) OLLCOTC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCPartnerContractStartDt' THEN parameter_value
+                END
+            ) OLLCPartnerContractStartDt,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCPartnerContractTerm' THEN parameter_value
+                END
+            ) OLLCPartnerContractTerm,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCPartnerNm' THEN parameter_value
+                END
+            ) OLLCPartnerNm,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCPPNo' THEN parameter_value
+                END
+            ) OLLCPPNo,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OLLCTax' THEN parameter_value
+                END
+            ) OLLCTax,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'OriginState' THEN parameter_value
+                END
+            ) OriginState,
+            MAX(
+                CASE
                     WHEN parameter_name = 'PartnerCctRef' THEN parameter_value
                 END
             ) PartnerCctRef,
@@ -163,6 +364,36 @@ FROM
             ) PartnerNm,
             MAX(
                 CASE
+                    WHEN parameter_name = 'PortCurrencyCd' THEN parameter_value
+                END
+            ) PortCurrencyCd,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'PortMRC' THEN parameter_value
+                END
+            ) PortMRC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'PortOTC' THEN parameter_value
+                END
+            ) PortOTC,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'PortPartnerContractStartDt' THEN parameter_value
+                END
+            ) PortPartnerContractStartDt,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'PortPartnerContractTerm' THEN parameter_value
+                END
+            ) PortPartnerContractTerm,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'PortTax' THEN parameter_value
+                END
+            ) PortTax,
+            MAX(
+                CASE
                     WHEN parameter_name = 'STIntSvcNo' THEN parameter_value
                 END
             ) STIntSvcNo,
@@ -170,7 +401,17 @@ FROM
                 CASE
                     WHEN parameter_name = 'STPoNo' THEN parameter_value
                 END
-            ) STPoNo
+            ) STPoNo,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'SvcNo' THEN parameter_value
+                END
+            ) SvcNo,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'TermCarr' THEN parameter_value
+                END
+            ) TermCarr
         FROM
             RestInterface_parameter
         GROUP BY
@@ -178,4 +419,5 @@ FROM
     ) PAR ON PAR.npp_id = NPP.id
 WHERE
     ORD.order_status IN ('Submitted', 'Closed')
-    AND ORD.current_crd BETWEEN '2023-03-15' AND '2023-09-15';
+    AND ORD.current_crd BETWEEN '2023-03-15'
+    AND '2023-09-15';

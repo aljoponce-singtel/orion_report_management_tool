@@ -1,6 +1,7 @@
 # Import built-in packages
 import os
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import logging
 
 # Import third-party packages
@@ -31,8 +32,7 @@ def generate_warroom_report():
         report_date = datetime.now().date()
 
     logger.info("report date: " + str(report_date))
-
-    logger.info("Generating report ...")
+    logger.info("Generating warroom report ...")
 
     query = ("""
                 SELECT
@@ -127,7 +127,9 @@ def generate_warroom_report():
                     ACT.tag_name = 'Pegasus';
             """).format(report_date)
 
+    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
+    logger.info("Creating warroom npp report ...")
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
     # set columns to datetime type
@@ -189,22 +191,32 @@ def generate_warroom_npp_report():
     filename = 'gsp_warroom_npp_report'
     start_date = None
     end_date = None
+    report_date = datetime.now().date()
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
-
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
-
+        # Convert the provided date string to a datetime object
+        report_date = datetime.strptime(
+            report.debug_config['report_date'], "%Y-%m-%d")
+        # Subtract 3 months using relativedelta
+        start_date = report_date - relativedelta(months=3)
+        # Add 3 months using relativedelta
+        end_date = report_date + relativedelta(months=3)
+        # FOR TESTING
+        # start_date = report.debug_config['report_start_date']
+        # end_date = report.debug_config['report_end_date']
     else:
-        start_date = utils.get_first_day_from_prev_month(
-            datetime.now().date())
-        end_date = utils.get_last_day_from_prev_month(datetime.now().date())
+        report_date = datetime.now().date()
+        # Subtract 3 months using relativedelta
+        start_date = report_date - relativedelta(months=3)
+        # Add 3 months using relativedelta
+        end_date = report_date + relativedelta(months=3)
 
+    logger.info("report date: " + str(report_date))
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
 
-    logger.info("Generating report ...")
+    logger.info("Generating warroom npp report ...")
 
     query = ("""
                 SELECT
@@ -223,18 +235,58 @@ def generate_warroom_npp_report():
                     NPP.level AS npp_level,
                     PRD.network_product_code AS product_code,
                     PRD.network_product_desc AS product_description,
-                    PAR.PartnerNm,
-                    PAR.OLLCAPartnerContractStartDt,
-                    PAR.OLLCBPartnerContractStartDt,
-                    PAR.OLLCAPartnerContractTerm,
-                    PAR.OLLCATax,
+                    PAR.AELineCeaseDt,
+                    PAR.AELineCurrencyCd,
+                    PAR.AELineMRC,
+                    PAR.AELineOTC,
+                    PAR.AELinePartnerContractStartDt,
+                    PAR.AELinePartnerContractTerm,
+                    PAR.AELinePartnerNm,
+                    PAR.AELineSTPO,
+                    PAR.AELineTax,
+                    PAR.AELineTPTy,
+                    PAR.APartnerCctRef,
+                    PAR.BOLLCBCurrencyCd,
+                    PAR.BOLLCBMRC,
+                    PAR.BOLLCBPartnerNm,
+                    PAR.BOLLCBStateIndia,
+                    PAR.BOLLCBTax,
+                    PAR.IMPGcode,
+                    PAR.InternetCurrencyCd,
+                    PAR.InternetMRC,
+                    PAR.InternetOTC,
+                    PAR.InternetPartnerContractStartDt,
+                    PAR.InternetPartnerContractTerm,
                     PAR.LLC_Partner_Name,
                     PAR.LLC_Partner_Ref,
-                    PAR.PartnerCctRef,
-                    PAR.STPoNo,
-                    PAR.STIntSvcNo,
-                    PAR.IMPGcode,
                     PAR.Model,
+                    PAR.OLLCAdminFee,
+                    PAR.OLLCAPartnerContractStartDt,
+                    PAR.OLLCAPartnerContractTerm,
+                    PAR.OLLCAStateIndia,
+                    PAR.OLLCATax,
+                    PAR.OLLCBPartnerContractStartDt,
+                    PAR.OLLCCurrencyCd,
+                    PAR.OLLCMRC,
+                    PAR.OLLCOTC,
+                    PAR.OLLCPartnerContractStartDt,
+                    PAR.OLLCPartnerContractTerm,
+                    PAR.OLLCPartnerNm,
+                    PAR.OLLCPPNo,
+                    PAR.OLLCTax,
+                    PAR.OriginState,
+                    PAR.PartnerCctRef,
+                    PAR.PartnerNm,
+                    PAR.PortCurrencyCd,
+                    PAR.PortMRC,
+                    PAR.PortOTC,
+                    PAR.PortPartnerContractStartDt,
+                    PAR.PortPartnerContractTerm,
+                    PAR.PortTax,
+                    PAR.STIntSvcNo,
+                    PAR.STPoNo,
+                    PAR.SvcNo,
+                    PAR.TermCarr,
                     ORD.business_sector,
                     SITE.site_code AS exchange_code_a,
                     SITE.site_code_second AS exchange_code_b,
@@ -245,10 +297,7 @@ def generate_warroom_npp_report():
                     ORD.service_type,
                     ORD.order_priority,
                     SINOTE.date_created AS crd_amendment_date,
-                    REGEXP_SUBSTR(
-                        SINOTE.details,
-                        BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})'
-                    ) AS old_crd,
+                    REGEXP_SUBSTR(SINOTE.details, BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})') AS old_crd,
                     REGEXP_SUBSTR(
                         SINOTE.details,
                         BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
@@ -317,14 +366,120 @@ def generate_warroom_npp_report():
                     LEFT JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
                     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
                     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+                    AND NPP.status != 'Cancel'
                     LEFT JOIN (
                         SELECT
                             npp_id,
                             MAX(
                                 CASE
+                                    WHEN parameter_name = 'AELineCeaseDt' THEN parameter_value
+                                END
+                            ) AELineCeaseDt,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELineCurrencyCd' THEN parameter_value
+                                END
+                            ) AELineCurrencyCd,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELineMRC' THEN parameter_value
+                                END
+                            ) AELineMRC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELineOTC' THEN parameter_value
+                                END
+                            ) AELineOTC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELinePartnerContractStartDt' THEN parameter_value
+                                END
+                            ) AELinePartnerContractStartDt,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELinePartnerContractTerm' THEN parameter_value
+                                END
+                            ) AELinePartnerContractTerm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELinePartnerNm' THEN parameter_value
+                                END
+                            ) AELinePartnerNm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELineSTPO' THEN parameter_value
+                                END
+                            ) AELineSTPO,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELineTax' THEN parameter_value
+                                END
+                            ) AELineTax,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'AELineTPTy' THEN parameter_value
+                                END
+                            ) AELineTPTy,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'APartnerCctRef' THEN parameter_value
+                                END
+                            ) APartnerCctRef,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'BOLLCBCurrencyCd' THEN parameter_value
+                                END
+                            ) BOLLCBCurrencyCd,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'BOLLCBMRC' THEN parameter_value
+                                END
+                            ) BOLLCBMRC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'BOLLCBPartnerNm' THEN parameter_value
+                                END
+                            ) BOLLCBPartnerNm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'BOLLCBStateIndia' THEN parameter_value
+                                END
+                            ) BOLLCBStateIndia,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'BOLLCBTax' THEN parameter_value
+                                END
+                            ) BOLLCBTax,
+                            MAX(
+                                CASE
                                     WHEN parameter_name = 'IMPGcode' THEN parameter_value
                                 END
                             ) IMPGcode,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'InternetCurrencyCd' THEN parameter_value
+                                END
+                            ) InternetCurrencyCd,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'InternetMRC' THEN parameter_value
+                                END
+                            ) InternetMRC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'InternetOTC' THEN parameter_value
+                                END
+                            ) InternetOTC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'InternetPartnerContractStartDt' THEN parameter_value
+                                END
+                            ) InternetPartnerContractStartDt,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'InternetPartnerContractTerm' THEN parameter_value
+                                END
+                            ) InternetPartnerContractTerm,
                             MAX(
                                 CASE
                                     WHEN parameter_name = 'LLC_Partner_Name' THEN parameter_value
@@ -342,6 +497,11 @@ def generate_warroom_npp_report():
                             ) Model,
                             MAX(
                                 CASE
+                                    WHEN parameter_name = 'OLLCAdminFee' THEN parameter_value
+                                END
+                            ) OLLCAdminFee,
+                            MAX(
+                                CASE
                                     WHEN parameter_name = 'OLLCAPartnerContractStartDt' THEN parameter_value
                                 END
                             ) OLLCAPartnerContractStartDt,
@@ -350,6 +510,11 @@ def generate_warroom_npp_report():
                                     WHEN parameter_name = 'OLLCAPartnerContractTerm' THEN parameter_value
                                 END
                             ) OLLCAPartnerContractTerm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCAStateIndia' THEN parameter_value
+                                END
+                            ) OLLCAStateIndia,
                             MAX(
                                 CASE
                                     WHEN parameter_name = 'OLLCATax' THEN parameter_value
@@ -362,6 +527,51 @@ def generate_warroom_npp_report():
                             ) OLLCBPartnerContractStartDt,
                             MAX(
                                 CASE
+                                    WHEN parameter_name = 'OLLCCurrencyCd' THEN parameter_value
+                                END
+                            ) OLLCCurrencyCd,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCMRC' THEN parameter_value
+                                END
+                            ) OLLCMRC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCOTC' THEN parameter_value
+                                END
+                            ) OLLCOTC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCPartnerContractStartDt' THEN parameter_value
+                                END
+                            ) OLLCPartnerContractStartDt,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCPartnerContractTerm' THEN parameter_value
+                                END
+                            ) OLLCPartnerContractTerm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCPartnerNm' THEN parameter_value
+                                END
+                            ) OLLCPartnerNm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCPPNo' THEN parameter_value
+                                END
+                            ) OLLCPPNo,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OLLCTax' THEN parameter_value
+                                END
+                            ) OLLCTax,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'OriginState' THEN parameter_value
+                                END
+                            ) OriginState,
+                            MAX(
+                                CASE
                                     WHEN parameter_name = 'PartnerCctRef' THEN parameter_value
                                 END
                             ) PartnerCctRef,
@@ -372,6 +582,36 @@ def generate_warroom_npp_report():
                             ) PartnerNm,
                             MAX(
                                 CASE
+                                    WHEN parameter_name = 'PortCurrencyCd' THEN parameter_value
+                                END
+                            ) PortCurrencyCd,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'PortMRC' THEN parameter_value
+                                END
+                            ) PortMRC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'PortOTC' THEN parameter_value
+                                END
+                            ) PortOTC,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'PortPartnerContractStartDt' THEN parameter_value
+                                END
+                            ) PortPartnerContractStartDt,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'PortPartnerContractTerm' THEN parameter_value
+                                END
+                            ) PortPartnerContractTerm,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'PortTax' THEN parameter_value
+                                END
+                            ) PortTax,
+                            MAX(
+                                CASE
                                     WHEN parameter_name = 'STIntSvcNo' THEN parameter_value
                                 END
                             ) STIntSvcNo,
@@ -379,7 +619,17 @@ def generate_warroom_npp_report():
                                 CASE
                                     WHEN parameter_name = 'STPoNo' THEN parameter_value
                                 END
-                            ) STPoNo
+                            ) STPoNo,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'SvcNo' THEN parameter_value
+                                END
+                            ) SvcNo,
+                            MAX(
+                                CASE
+                                    WHEN parameter_name = 'TermCarr' THEN parameter_value
+                                END
+                            ) TermCarr
                         FROM
                             RestInterface_parameter
                         GROUP BY
@@ -387,11 +637,13 @@ def generate_warroom_npp_report():
                     ) PAR ON PAR.npp_id = NPP.id
                 WHERE
                     ORD.order_status IN ('Submitted', 'Closed')
-                    AND ORD.current_crd BETWEEN '{}' AND '{}';
+                    AND ORD.current_crd BETWEEN '{}'
+                    AND '{}';
             """).format(start_date, end_date)
 
+    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
-    logger.info("Processing report ...")
+    logger.info("Creating warroom npp report ...")
     df_raw = pd.DataFrame(data=result, columns=const.MAIN_NPP_COLUMNS)
 
     # Convert columns to date
@@ -415,6 +667,7 @@ def generate_warroom_npp_report():
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
     report.attach_file_to_email(csv_main_file_path)
+    # report.attach_file_to_email(zip_file_path)
     report.send_email()
 
     return
