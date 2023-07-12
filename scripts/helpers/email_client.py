@@ -120,6 +120,7 @@ class EmailClient:
 
         try:
             import win32com.client
+            # Requires the Outlook applicaition to be installed in the system
             outlook = win32com.client.Dispatch('outlook.application')
 
             mail = outlook.CreateItem(0)

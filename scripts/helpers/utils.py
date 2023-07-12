@@ -8,6 +8,9 @@ import calendar
 from datetime import datetime, timedelta
 from zipfile import ZipFile
 import pandas as pd
+import shutil
+from openpyxl import load_workbook
+from openpyxl.workbook.protection import WorkbookProtection
 
 logger = logging.getLogger(__name__)
 
@@ -198,3 +201,64 @@ def read_yaml_file(file_path):
         parsed_yaml = yaml.safe_load(stream)
 
     return parsed_yaml
+
+
+def copy_file(source_path, destination_path):
+    shutil.copy2(source_path, destination_path)
+
+
+def set_excel_password_linux(file_path, password):
+    logger.info('Setting excel password ...')
+
+    try:
+        # Open the original Excel file
+        workbook = load_workbook(filename=file_path)
+        # Set a password for the workbook
+        workbook.security = WorkbookProtection(workbookPassword=password)
+        # Save and close the workbook
+        workbook.save(filename=file_path)
+        workbook.close()
+
+    except Exception as e:
+        logger.error("Failed to set excel password.")
+        raise Exception(e)
+
+
+def set_excel_password_windows(file_path, password):
+    logger.info('Setting excel password ...')
+
+    try:
+        import win32com.client as win32
+        excel = win32.gencache.EnsureDispatch('Excel.Application')
+
+        # Open the the workbook
+        workbook = excel.Workbooks.Open(file_path)
+        # Set the password for the workbook
+        workbook.Password = password
+        # Save the copy of the workbook with a password
+        workbook.Save()
+        workbook.Close()
+        # Quit Excel application
+        excel.Quit()
+
+    except Exception as e:
+        logger.error("Failed to set excel password.")
+        raise Exception(e)
+
+
+def set_excel_password(file_path, password, replace=True, append_string='_protected'):
+
+    if replace == False:
+        protected_file_path = file_path.split(
+            '.xlsx')[0] + ('{}.xlsx').format(append_string)
+        copy_file(file_path, protected_file_path)
+        file_path = protected_file_path
+
+    platform = get_platform()
+
+    if platform == 'Linux':
+        set_excel_password_linux(file_path, password)
+    elif platform == 'Windows':
+        set_excel_password_windows(file_path, password)
+    else:
+        raise Exception(f"OS {platform} not supported.")
