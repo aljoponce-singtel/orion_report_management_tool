@@ -177,6 +177,7 @@ def generate_warroom_report():
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
     report.add_email_receiver_to('teokokwee@singtel.com')
+    report.add_email_receiver_to('kinex.yeoh@singtel.com')
     report.attach_file_to_email(zip_file_path)
     report.send_email()
 
@@ -660,14 +661,14 @@ def generate_warroom_npp_report():
     report.create_csv_from_df(df_raw, csv_main_file_path)
 
     # Add CSV to zip file
-    # zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    # zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    # report.add_to_zip_file(csv_main_file_path, zip_file_path)
+    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    report.add_to_zip_file(csv_main_file_path, zip_file_path)
 
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(csv_main_file_path)
-    # report.attach_file_to_email(zip_file_path)
+    # report.attach_file_to_email(csv_main_file_path)
+    report.attach_file_to_email(zip_file_path)
     report.send_email()
 
     return
