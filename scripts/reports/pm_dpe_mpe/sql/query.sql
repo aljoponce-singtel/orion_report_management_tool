@@ -67,12 +67,30 @@ SELECT
     ACT.name AS activity,
     ACT.status AS act_status,
     ACT.ready_date AS act_rdy_date,
-    ACT.completed_date AS act_com_date
+    ACT.completed_date AS act_com_date,
+    ACTDLY.reason AS act_dly_reason
 FROM
     o2pprod.RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
     JOIN RestInterface_person PER ON PER.id = ACT.person_id
     JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
+    LEFT JOIN (
+        SELECT
+            RMKINNER.*
+        FROM
+            auto_escalation_remarks RMKINNER
+            JOIN (
+                SELECT
+                    activity_id,
+                    MAX(id) AS id
+                FROM
+                    auto_escalation_remarks
+                GROUP BY
+                    activity_id
+            ) RMKMAX ON RMKMAX.id = RMKINNER.id
+            AND RMKMAX.activity_id = RMKINNER.activity_id
+    ) RMK ON RMK.activity_id = ACT.id
+    LEFT JOIN auto_escalation_queueownerdelayreasons ACTDLY ON ACTDLY.id = RMK.delay_reason_id
     LEFT JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id
     LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id

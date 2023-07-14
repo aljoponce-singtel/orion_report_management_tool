@@ -28,7 +28,8 @@ RAW_COLUMNS = [
     'activity',
     'act_status',
     'act_rdy_date',
-    'act_com_date'
+    'act_com_date',
+    'act_dly_reason'
 ]
 
 DATE_COLUMNS = [
