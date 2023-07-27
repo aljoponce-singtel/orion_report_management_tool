@@ -102,6 +102,7 @@ def generate_transport_report():
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
     report.attach_file_to_email(zip_file_path)
+    report.add_email_receiver_to('teokokwee@singtel.com')
     report.send_email()
 
 
@@ -162,6 +163,7 @@ def generate_transport_billing_report():
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
     report.attach_file_to_email(zip_file_path)
+    report.add_email_receiver_to('xv.hema.pawar@singtel.com')
     report.send_email()
 
 
