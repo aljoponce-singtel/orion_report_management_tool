@@ -27,6 +27,7 @@ RAW_COLUMNS = [
     'act_stepno',
     'activity',
     'act_status',
+    'act_due_date',
     'act_rdy_date',
     'act_com_date',
     'act_dly_reason'
@@ -38,6 +39,7 @@ DATE_COLUMNS = [
     'job_effective_date',
     'close_date',
     'completed_date',
+    'act_due_date',
     'act_rdy_date',
     'act_com_date',
 ]

@@ -66,6 +66,7 @@ SELECT
     CAST(ACT.activity_code AS SIGNED INTEGER) AS act_stepno,
     ACT.name AS activity,
     ACT.status AS act_status,
+    ACT.due_date AS act_due_date,
     ACT.ready_date AS act_rdy_date,
     ACT.completed_date AS act_com_date,
     ACTDLY.reason AS act_dly_reason
