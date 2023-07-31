@@ -38,6 +38,10 @@ class OrionReport(EmailClient):
                                      self.db_config['orion_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
         self.orion_db.connect()
 
+        self.staging_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
+                                       self.db_config['staging_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
+        self.staging_db.connect()
+
         if self.db_config['tableau_db']:
             self.tableau_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
                                            self.db_config['tableau_db'], self.db_config['tableau_user'], self.db_config['tableau_pwd'])
