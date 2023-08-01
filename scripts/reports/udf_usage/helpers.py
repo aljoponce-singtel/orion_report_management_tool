@@ -179,21 +179,21 @@ def generate_report():
     report.send_email()
 
 
-def get_all_mondays(start_date_str, end_date_str):
+def get_all_mondays(start_date, end_date):
     """
     Returns a list of all the Mondays between the start_date and end_date (inclusive).
     """
     # Monday has weekday number 0
     all_mondays = []
 
-    start_date_obj = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-    end_date_obj = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+    start_date_obj = datetime.strptime(str(start_date), '%Y-%m-%d').date()
+    end_date_obj = datetime.strptime(str(end_date), '%Y-%m-%d').date()
     current_date_obj = start_date_obj
 
     # If the start date does not fall on a Monday,
     # get the Monday's date of the previous month
     if start_date_obj.weekday() != 0:
-        all_mondays.append(get_previous_monday_date(start_date_str))
+        all_mondays.append(get_previous_monday_date(start_date))
 
     while current_date_obj <= end_date_obj:
         if current_date_obj.weekday() == 0:
@@ -202,8 +202,8 @@ def get_all_mondays(start_date_str, end_date_str):
     return all_mondays
 
 
-def get_previous_monday_date(date_str):
-    date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+def get_previous_monday_date(date):
+    date_obj = datetime.strptime(str(date), '%Y-%m-%d').date()
     days_since_monday = (date_obj.weekday()) % 7
     previous_monday_date = date_obj - timedelta(days=days_since_monday)
 
