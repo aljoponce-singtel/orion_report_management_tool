@@ -222,10 +222,10 @@ def generate_report(report, email_subject, filename, start_date, end_date):
     # even if it doesn't belong to this record.
 
     # Find the rows where NPPLevel is "VAS"
-    vas_rows = df[df['NPP Level'] == 'VAS']
+    df_vas = df[df['NPP Level'] == 'VAS']
 
     # Iterate over the rows
-    for index, row in vas_rows.iterrows():
+    for index, row in df_vas.iterrows():
         # Get the WorkorderNo and PoNo values
         workorder = row['Workorder']
         po_number = row['PO No']
@@ -233,13 +233,28 @@ def generate_report(report, email_subject, filename, start_date, end_date):
         # Update the corresponding row where NPP Level is "Mainline" and Workorder is the same
         df.loc[(df['NPP Level'] == 'Mainline') & (
             df['Workorder'] == workorder), 'PO No'] = po_number
-
     # /* END */
 
-    # Remove the row where 'NPP Level' is 'VAS'
-    df = df[df['NPP Level'] != 'VAS']
+    # Get the unique orders with VAS product
+    vas_orders = df_vas['Workorder'].unique().tolist()
+    # Get the unique orders with Mainline product
+    mainline_orders = df[df['NPP Level']
+                         == 'Mainline']['Workorder'].unique().tolist()
+    # Compare vas_orders and mainline_orders to get the orders without a Mainline product
+    orders_wo_mainline = [
+        element for element in vas_orders if element not in mainline_orders]
+
+    # /* START */
+    # Remove the row where 'NPP Level' is 'VAS' but only for workorders than have a Mainline product
+    # Check for VAS records
+    condition1 = df['NPP Level'] != 'VAS'
+    # Check if the orders in df do not have a Mainline product
+    condition2 = df['Workorder'].isin(orders_wo_mainline)
+    # Use 'loc' to filter and extract records that satisfy both conditions
+    df = df.loc[condition1 | condition2]
     # Remove the 'NPP Level' column
     df = df.drop('NPP Level', axis=1)
+    # /* END */
 
     # Convert columns to date
     for column in const.DATE_COLUMNS:
