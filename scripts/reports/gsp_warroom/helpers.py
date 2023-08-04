@@ -666,6 +666,13 @@ def generate_warroom_npp_report():
     report.add_to_zip_file(csv_main_file_path, zip_file_path)
 
     # Send Email
+    report.add_email_receiver_cc('sulo@singtel.com')
+    report.add_email_receiver_cc('ksha@singtel.com')
+    report.add_email_receiver_cc('annesha@singtel.com')
+    report.add_email_receiver_cc('kkchan@singtel.com')
+    report.add_email_receiver_cc('sheila@singtel.com')
+    report.add_email_receiver_cc('xv.abhijeet.navale@singtel.com')
+    report.add_email_receiver_cc('xv.santoshbiradar.biradar@singtel.com')
     report.set_email_subject(report.add_timestamp(email_subject))
     # report.attach_file_to_email(csv_main_file_path)
     report.attach_file_to_email(zip_file_path)
