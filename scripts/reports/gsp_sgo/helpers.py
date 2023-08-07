@@ -77,7 +77,7 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                     DISTINCT ORD.order_code AS 'Workorder',
                     ORD.service_number AS 'Service No',
                     CUS.name AS 'Customer Name',
-                    ACT.name AS 'ACT.name',
+                    ACT.name AS 'Activity name',
                     PER.role AS 'Group ID',
                     ORD.current_crd AS 'CRD',
                     ORD.order_type AS 'Order type',
@@ -85,6 +85,7 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                     NPP.level AS 'NPP Level',
                     PRD.network_product_code AS 'NPC',
                     ORD.taken_date AS 'Order creation date',
+                    ACT.status AS 'Act Status',
                     ACT.completed_date AS 'Comm date',
                     PAR.OriginCtry AS 'Originating Country',
                     PAR.OriginCarr AS 'Originating Carrier',
@@ -92,7 +93,7 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                     PAR.MainSvcNo AS 'Main Svc No',
                     PAR.LLC_Partner_Ref AS 'LLC Partner reference',
                     PER.email AS 'Group Owner',
-                    '' AS 'Performer ID'
+                    ACT.performer_id AS 'Performer ID'
                 FROM
                     RestInterface_order ORD
                     JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id

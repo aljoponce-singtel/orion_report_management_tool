@@ -10,6 +10,7 @@ RAW_COLUMNS = [
     'NPP Level',
     'NPC',
     'Order creation date',
+    'Act status',
     'Comm date',
     'Originating Country',
     'Originating Carrier',
