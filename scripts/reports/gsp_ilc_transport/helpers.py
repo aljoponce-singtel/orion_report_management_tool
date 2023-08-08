@@ -198,6 +198,14 @@ def generate_report(report, email_subject, filename, start_date, end_date):
                     AND NPP.level = 'Mainline'
                     AND NPP.status != 'Cancel'
                     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+                WHERE
+                    PRD.network_product_code IN (
+                        'BIC0003',
+                        'CIC0001',
+                        'CIC0006',
+                        'CIC0010',
+                        'ILC0008'
+                    )
                 ORDER BY
                     ORD.order_code;
             """).format(start_date, end_date)
