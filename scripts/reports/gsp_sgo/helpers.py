@@ -61,7 +61,6 @@ def generate_sgo_billing_report():
             datetime.now().date())
         end_date = utils.get_end_date_from_prev_month(
             datetime.now().date())
-        report.debug_config['update_tableau_db'] = 'false'
 
     logger.info("Generating SGO (billing) report ...")
     generate_report(report, email_subject, filename, start_date, end_date)
