@@ -1,19 +1,54 @@
 RAW_COLUMNS = [
-    'login_date',
-    'day_name',
-    'username'
+    'OrderNo',
+    'CustomerName',
+    'BRN',
+    'ProductDescription',
+    'OrderType',
+    'OrderStatus',
+    'ServiceActionType',
+    'ServiceType',
+    'Sector',
+    'InitialCRD',
+    'CloseDate',
+    'CommissionDate',
+    'OrdCreationDate',
+    'ProjectID',
+    'ContactType',
+    'FirstName',
+    'LastName',
+    'WorkPhoneNo',
+    'MobileNo',
+    'Email',
+    'Address',
+    'Assignee'
 ]
 
 MAIN_COLUMNS = [
-    'Monday',
-    'Week of',
-    'Month',
-    'Name'
+    'OrderNo',
+    'CustomerName',
+    'BRN',
+    'ProductDescription',
+    'OrderType',
+    'OrderStatus',
+    'ServiceActionType',
+    'ServiceType',
+    'Sector',
+    'InitialCRD',
+    'CloseDate',
+    'CommissionDate',
+    'OrdCreationDate',
+    'ProjectID',
+    'FirstName',
+    'LastName',
+    'WorkPhoneNo',
+    'MobileNo',
+    'Address',
+    'Assignee'
 ]
 
-FINAL_COLUMNS = [
-    '#',
-    'Week of',
-    'Month',
-    'Name'
+DATE_COLUMNS = [
+    'InitialCRD',
+    'CloseDate',
+    'CommissionDate',
+    'OrdCreationDate',
 ]

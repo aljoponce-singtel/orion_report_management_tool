@@ -13,52 +13,22 @@ SELECT
     ORD.current_crd AS 'CommissionDate',
     ORD.taken_date AS 'OrdCreationDate',
     PRJ.project_code AS 'ProjectID',
+    CON.contact_type AS 'ContactType',
     CON.family_name AS 'FirstName',
     CON.given_name AS 'LastName',
     CON.work_phone_no AS 'WorkPhoneNo',
     CON.mobile_no AS 'MobileNo',
+    CON.email_address AS 'Email',
     SITE.location AS 'Address',
     ORD.assignee AS 'Assignee'
 FROM
-    (
-        SELECT
-            *
-        FROM
-            RestInterface_order
-        WHERE
-            id NOT IN (
-                SELECT
-                    DISTINCT order_id
-                FROM
-                    RestInterface_contactdetails
-                WHERE
-                    contact_type IN (
-                        'A-end-Cust',
-                        'Clarification-Cust',
-                        'Maintenance-Cust',
-                        'Technical-Cust'
-                    )
-                    AND email_address REGEXP '.*@singtel.com$'
-            )
-    ) ORD
-    JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
+    RestInterface_order ORD
+    LEFT JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
     AND CON.contact_type IN (
         'A-end-Cust',
         'Clarification-Cust',
         'Maintenance-Cust',
         'Technical-Cust'
-    )
-    AND (
-        (
-            CON.work_phone_no REGEXP '^[0-9]{8}$'
-            OR CON.work_phone_no REGEXP '^65[0-9]{8}$'
-            OR CON.work_phone_no REGEXP '^\\+65[0-9]{8}$'
-        )
-        OR (
-            CON.mobile_no REGEXP '^[0-9]{8}$'
-            OR CON.mobile_no REGEXP '^65[0-9]{8}$'
-            OR CON.mobile_no REGEXP '^\\+65[0-9]{8}$'
-        )
     )
     LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
     LEFT JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
@@ -93,4 +63,5 @@ WHERE
     AND ORD.close_date BETWEEN '2023-07-31'
     AND '2023-08-06'
 ORDER BY
-    ORD.order_code;
+    ORD.order_code,
+    CON.contact_type;
