@@ -157,17 +157,15 @@ def generate_report():
     # Remove the 'Assignee' column
     df_bizseg = df_bizseg.drop('Assignee', axis=1)
     # Export to excel file
-    excel_bizseg_filename = ("BSOFB_{}.xlsx").format(
+    excel_bizseg_filename = ("BSOFB_{}_TEST.xlsx").format(
         utils.get_current_datetime(format="%d%m%y"))
     excel_bizseg_file_path = os.path.join(
         report.reports_folder_path, excel_bizseg_filename)
     # Set index=False if you don't want to export the index column
     df_bizseg.to_excel(excel_bizseg_file_path, index=False)
     # Add excel file to zip file and attach to email
-    zip_bizseg_file = ("BSOFB_{}.zip").format(
-        utils.get_current_datetime(format="%d%m%y"))
     zip_bizseg_file_path = os.path.join(
-        report.reports_folder_path, zip_bizseg_file)
+        report.reports_folder_path, utils.replace_extension(excel_bizseg_filename, 'zip'))
     report.add_to_zip_file(excel_bizseg_file_path, zip_bizseg_file_path,
                            ("BSOFB{}").format(get_date_password()))
     report.attach_file_to_email(zip_bizseg_file_path)
@@ -182,17 +180,15 @@ def generate_report():
 
     # With 'Assignee' column
     # Export to excel file
-    excel_eag_gb_assignee_filename = ("GLEOFD_{}_PM.xlsx").format(
+    excel_eag_gb_assignee_filename = ("GLEOFD_{}_PM_TEST.xlsx").format(
         utils.get_current_datetime(format="%d%m%y"))
     excel_eag_gb_assignee_file_path = os.path.join(
         report.reports_folder_path, excel_eag_gb_assignee_filename)
     # Set index=False if you don't want to export the index column
     df_eag_gb_assignee.to_excel(excel_eag_gb_assignee_file_path, index=False)
     # Add excel file to zip file and attach to email
-    zip_eag_gb_assignee_file = ("GLEOFD_{}_PM.zip").format(
-        utils.get_current_datetime(format="%d%m%y"))
     zip_eag_gb_assignee_file_path = os.path.join(
-        report.reports_folder_path, zip_eag_gb_assignee_file)
+        report.reports_folder_path, utils.replace_extension(excel_eag_gb_assignee_filename, 'zip'))
     report.add_to_zip_file(excel_eag_gb_assignee_file_path,
                            zip_eag_gb_assignee_file_path, ("GLEOFD{}").format(get_date_password()))
     report.attach_file_to_email(zip_eag_gb_assignee_file_path)
@@ -201,17 +197,15 @@ def generate_report():
     # Remove the 'Assignee' column
     df_eag_gb = df_eag_gb_assignee.drop('Assignee', axis=1)
     # Export to excel file
-    excel_eag_gb_filename = ("GLEOFD_{}.xlsx").format(
+    excel_eag_gb_filename = ("GLEOFD_{}_TEST.xlsx").format(
         utils.get_current_datetime(format="%d%m%y"))
     excel_eag_gb_file_path = os.path.join(
         report.reports_folder_path, excel_eag_gb_filename)
     # Set index=False if you don't want to export the index column
     df_eag_gb.to_excel(excel_eag_gb_file_path, index=False)
     # Add excel file to zip file and attach to email
-    zip_eag_gb_file = ("GLEOFD_{}.zip").format(
-        utils.get_current_datetime(format="%d%m%y"))
     zip_eag_gb_file_path = os.path.join(
-        report.reports_folder_path, zip_eag_gb_file)
+        report.reports_folder_path, utils.replace_extension(excel_eag_gb_filename, 'zip'))
     report.add_to_zip_file(excel_eag_gb_file_path, zip_eag_gb_file_path,
                            ("GLEOFD{}").format(get_date_password()))
     report.attach_file_to_email(zip_eag_gb_file_path)
