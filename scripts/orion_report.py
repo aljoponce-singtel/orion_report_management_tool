@@ -183,10 +183,13 @@ class OrionReport(EmailClient):
         if self.debug_config.getboolean('create_report') == True:
             utils.df_to_csv(df, csv_file_path)
 
-    def add_to_zip_file(self, files_to_zip, zip_file):
+    def add_to_zip_file(self, files_to_zip, zip_file, password=None):
         if self.debug_config.getboolean('create_report') == True:
-            utils.compress_files(files_to_zip, zip_file,
-                                 self.default_config['zip_password'])
+            if password == None:
+                utils.compress_files(files_to_zip, zip_file,
+                                     self.default_config['zip_password'])
+            else:
+                utils.compress_files(files_to_zip, zip_file, password)
 
     def add_email_receiver_to(self, email):
         self.receiver_to_list.append(email)
