@@ -1,6 +1,6 @@
 # Import built-in packages
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 
 # Import third-party packages
@@ -21,7 +21,6 @@ def generate_report():
 
     email_subject = 'GSP OFData OFBiz'
     filename = 'gsp_ofdata_ofbiz'
-    report_date = None
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
@@ -30,9 +29,9 @@ def generate_report():
 
     else:
         # 1st of the month
-        start_date = utils.get_first_day_from_prev_month(
+        start_date = utils.get_monday_date_from_prev_week(
             datetime.now().date())
-        end_date = utils.get_last_day_from_prev_month(datetime.now().date())
+        end_date = utils.get_sunday_date_from_prev_week(datetime.now().date())
 
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
