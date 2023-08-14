@@ -217,26 +217,16 @@ def createFinalReport(report, start_date, end_date):
                     df_activities, ['Node & Circuit Deletion'])
 
         if df_orders.at[index, 'Service'] == 'MegaPop (CE)':
-            if df_orders.at[index, 'OrderType'] == 'Provide':
-                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
-                    df_activities, ['Circuit Configuration-STM', 'Circuit Creation'])
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                df_activities, [])
 
-            if df_orders.at[index, 'OrderType'] == 'Change':
-                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
-                    df_activities, ['Reconfiguration', 'Circuit Creation'])
-
-            if df_orders.at[index, 'OrderType'] == 'Cease':
-                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
-                    df_activities, ['Node & Circuit Deletion'])
-
-            # COPY pre-config values to coordination values
             if df_orders.at[index, 'OrderType'] == 'Provide':
                 preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
-                    df_activities, ['Circuit Configuration-STM', 'Circuit Creation'])
+                    df_activities, ['Circuit Creation', 'Circuit Configuration-STM'])
 
             if df_orders.at[index, 'OrderType'] == 'Change':
                 preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
-                    df_activities, ['Reconfiguration', 'Circuit Creation'])
+                    df_activities, ['Circuit Creation', 'Reconfiguration'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
                 preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
@@ -354,8 +344,6 @@ def getTransportOrders(report, startDate, endDate):
     npp_table = report.orion_db.get_table_metadata('RestInterface_npp', 'npp')
     product_table = report.orion_db.get_table_metadata(
         'RestInterface_product', 'prd')
-    customer_table = report.orion_db.get_table_metadata(
-        'RestInterface_customer', 'cus')
 
     # see gsp_transport/sql/getTransportOrders.sql for the raw MySQL query
     query = (
@@ -374,8 +362,6 @@ def getTransportOrders(report, startDate, endDate):
                    ))
         .outerjoin(product_table,
                    product_table.c.id == npp_table.c.product_id)
-        .outerjoin(customer_table,
-                   customer_table.c.id == order_table.c.customer_id)
         .where(
             and_(
                 or_(
@@ -409,22 +395,8 @@ def getTransportOrders(report, startDate, endDate):
                                     ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work'])
                             ).self_group(),
                             and_(
-                                or_(
-                                    and_(
-                                        order_table.c.order_type == 'Provide',
-                                        activity_table.c.name == 'Circuit creation'
-                                    ).self_group(),
-                                    and_(
-                                        order_table.c.order_type == 'Change',
-                                        activity_table.c.name.in_(
-                                            ['Circuit creation', 'Change Speed Configure'])
-                                    ).self_group(),
-                                    and_(
-                                        order_table.c.order_type == 'Cease',
-                                        activity_table.c.name == 'Node & Circuit Deletion'
-                                    ).self_group()
-                                ),
-                                customer_table.c.name.like('SINGNET%')
+                                order_table.c.order_type == 'Provide',
+                                activity_table.c.name == 'Circuit creation'
                             ).self_group()
                         )
                     ).self_group(),
@@ -494,6 +466,7 @@ def getTransportOrders(report, startDate, endDate):
                         )
                     ).self_group()
                 ),
+                activity_table.c.status == 'COM',
                 activity_table.c.completed_date.between(
                     START_DATE, END_DATE)
             )
@@ -590,56 +563,116 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                             product_table.c.network_product_code.like('DLC%')
                         ),
                         or_(
-                            person_table.c.role.like('ODC_%'),
-                            person_table.c.role.like('RDC_%'),
-                            person_table.c.role.like('GSPSG_%')
-                        ),
-                        or_(
                             and_(
                                 order_table.c.order_type.in_(
                                     ['Provide', 'Change']),
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'Circuit Creation'])
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name == 'Circuit Creation'
+                                    )
+                                )
                             ).self_group(),
                             and_(
                                 order_table.c.order_type == 'Cease',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'Node & Cct Del (DN-ISDN)',
-                                     'Node & Cct Deletion (DN)'])
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name == 'GSDT Co-ordination Wrk-BQ',
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name.in_(
+                                            ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'])
+                                    )
+                                )
                             ).self_group()
                         )
                     ).self_group(),
                     and_(
                         product_table.c.network_product_code.like('DME%'),
                         or_(
-                            person_table.c.role.like('ODC_%'),
-                            person_table.c.role.like('RDC_%'),
-                            person_table.c.role.like('GSPSG_%')
-                        ),
-                        or_(
                             and_(
                                 order_table.c.order_type == 'Provide',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'GSDT Co-ordination Work',
-                                     'Circuit Creation']),
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work']),
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name == 'Circuit Creation'
+                                    )
+                                )
                             ).self_group(),
                             and_(
                                 order_table.c.order_type == 'Change',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'GSDT Co-ordination Work',
-                                     'Circuit Creation',
-                                     'Change Speed Configure']),
+                                or_(
+                                    and_(
+                                        or_(
+                                            person_table.c.role.like('ODC_%'),
+                                            person_table.c.role.like('RDC_%'),
+                                            person_table.c.role.like('GSPSG_%')
+                                        ),
+                                        activity_table.c.name.in_(
+                                            ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work']),
+                                        activity_table.c.status == 'COM',
+                                        activity_table.c.completed_date.between(
+                                            START_DATE, END_DATE),
+                                    ).self_group(),
+                                    and_(
+                                        or_(
+                                            person_table.c.role.like('ODC_%'),
+                                            person_table.c.role.like('RDC_%'),
+                                            person_table.c.role.like('GSP_%')
+                                        ),
+                                        activity_table.c.name.in_(
+                                            ['Circuit Creation', 'Change Speed Configure'])
+                                    ).self_group()
+                                )
                             ).self_group(),
                             and_(
                                 order_table.c.order_type == 'Cease',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'GSDT Co-ordination Work',
-                                     'Node & Circuit Deletion']),
+                                or_(
+                                    person_table.c.role.like('ODC_%'),
+                                    person_table.c.role.like('RDC_%'),
+                                    person_table.c.role.like('GSPSG_%')
+                                ),
+                                and_(
+                                    or_(
+                                        and_(
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work']),
+                                            activity_table.c.status == 'COM',
+                                            activity_table.c.completed_date.between(
+                                                START_DATE, END_DATE)
+                                        ).self_group(),
+                                        activity_table.c.name == 'Node & Circuit Deletion'
+                                    )
+                                )
                             ).self_group()
                         )
                     ).self_group(),
@@ -671,7 +704,10 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                         person_table.c.role == 'GSPSG_ME',
                                         activity_table.c.name == 'Circuit Configuration-STM'
                                     ).self_group()
-                                ).self_group()
+                                ).self_group(),
+                                activity_table.c.status == 'COM',
+                                activity_table.c.completed_date.between(
+                                    START_DATE, END_DATE)
                             ).self_group(),
                             and_(
                                 order_table.c.order_type == 'Change',
@@ -681,7 +717,10 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                     person_table.c.role.like('GSPSG_%')
                                 ),
                                 activity_table.c.name.in_(
-                                    ['Circuit Creation', 'Reconfiguration'])
+                                    ['Circuit Creation', 'Reconfiguration']),
+                                activity_table.c.status == 'COM',
+                                activity_table.c.completed_date.between(
+                                    START_DATE, END_DATE)
                             ).self_group(),
                             and_(
                                 order_table.c.order_type == 'Cease',
@@ -690,7 +729,10 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                     person_table.c.role.like('RDC_%'),
                                     person_table.c.role.like('GSPSG_%')
                                 ),
-                                activity_table.c.name == 'Node & Circuit Deletion'
+                                activity_table.c.name == 'Node & Circuit Deletion',
+                                activity_table.c.status == 'COM',
+                                activity_table.c.completed_date.between(
+                                    START_DATE, END_DATE)
                             ).self_group()
                         )
                     ).self_group(),
@@ -707,9 +749,10 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                             person_table.c.role.like('RDC_%')
                                         ),
                                         activity_table.c.name.in_(
-                                            ['GSDT Co-ordination Wrk-BQ',
-                                             'GSDT Co-ordination WK-BQ',
-                                             'GSDT Co-ordination Work'])
+                                            ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination WK-BQ', 'GSDT Co-ordination Work']),
+                                        activity_table.c.status == 'COM',
+                                        activity_table.c.completed_date.between(
+                                            START_DATE, END_DATE)
                                     ).self_group(),
                                     and_(
                                         or_(
@@ -731,9 +774,10 @@ def getTransportRecords(report, order_id_list, startDate, endDate):
                                             person_table.c.role.like('RDC_%')
                                         ),
                                         activity_table.c.name.in_(
-                                            ['GSDT Co-ordination Wrk-BQ',
-                                             'GSDT Co-ordination WK-BQ',
-                                             'GSDT Co-ordination Work'])
+                                            ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination WK-BQ', 'GSDT Co-ordination Work']),
+                                        activity_table.c.status == 'COM',
+                                        activity_table.c.completed_date.between(
+                                            START_DATE, END_DATE)
                                     ).self_group(),
                                     and_(
                                         person_table.c.role == 'GSP_LTC_GW',

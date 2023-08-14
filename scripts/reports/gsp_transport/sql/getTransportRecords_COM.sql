@@ -55,21 +55,41 @@ WHERE
                 OR prd.network_product_code LIKE 'DLC%'
             )
             AND (
-                per.role LIKE 'ODC_%'
-                OR per.role LIKE 'RDC_%'
-                OR per.role LIKE 'GSPSG_%'
-            )
-            AND (
                 (
                     ord.order_type IN ('Provide', 'Change')
-                    AND act.name IN ('GSDT Co-ordination Wrk-BQ', 'Circuit Creation')
+                    AND (
+                        per.role LIKE 'ODC_%'
+                        OR per.role LIKE 'RDC_%'
+                        OR per.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            act.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND act.status = 'COM'
+                            AND act.completed_date BETWEEN '{}'
+                            AND '{}'
+                        )
+                        OR act.name = 'Circuit Creation'
+                    )
                 )
                 OR (
                     ord.order_type = 'Cease'
-                    AND act.name IN (
-                        'GSDT Co-ordination Wrk-BQ',
-                        'Node & Cct Del (DN-ISDN)',
-                        'Node & Cct Deletion (DN)'
+                    AND (
+                        per.role LIKE 'ODC_%'
+                        OR per.role LIKE 'RDC_%'
+                        OR per.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            act.name = 'GSDT Co-ordination Wrk-BQ'
+                            AND act.status = 'COM'
+                            AND act.completed_date BETWEEN '{}'
+                            AND '{}'
+                        )
+                        OR act.name IN (
+                            'Node & Cct Del (DN-ISDN)',
+                            'Node & Cct Deletion (DN)'
+                        )
                     )
                 )
             )
@@ -77,34 +97,71 @@ WHERE
         OR (
             prd.network_product_code LIKE 'DME%'
             AND (
-                per.role LIKE 'ODC_%'
-                OR per.role LIKE 'RDC_%'
-                OR per.role LIKE 'GSPSG_%'
-            )
-            AND (
                 (
                     ord.order_type IN ('Provide')
-                    AND act.name IN (
-                        'GSDT Co-ordination Wrk-BQ',
-                        'GSDT Co-ordination Work',
-                        'Circuit Creation'
+                    AND (
+                        per.role LIKE 'ODC_%'
+                        OR per.role LIKE 'RDC_%'
+                        OR per.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            act.name IN (
+                                'GSDT Co-ordination Wrk-BQ',
+                                'GSDT Co-ordination Work'
+                            )
+                            AND act.status = 'COM'
+                            AND act.completed_date BETWEEN '{}'
+                            AND '{}'
+                        )
+                        OR act.name = 'Circuit Creation'
                     )
                 )
                 OR (
                     ord.order_type IN ('Change')
-                    AND act.name IN (
-                        'GSDT Co-ordination Wrk-BQ',
-                        'GSDT Co-ordination Work',
-                        'Circuit Creation',
-                        'Change Speed Configure'
+                    AND (
+                        (
+                            (
+                                per.role LIKE 'ODC_%'
+                                OR per.role LIKE 'RDC_%'
+                                OR per.role LIKE 'GSPSG_%'
+                            )
+                            AND act.name IN (
+                                'GSDT Co-ordination Wrk-BQ',
+                                'GSDT Co-ordination Work'
+                            )
+                            AND act.status = 'COM'
+                            AND act.completed_date BETWEEN '{}'
+                            AND '{}'
+                        )
+                        OR (
+                            (
+                                per.role LIKE 'ODC_%'
+                                OR per.role LIKE 'RDC_%'
+                                OR per.role LIKE 'GSP%'
+                            )
+                            AND act.name IN ('Circuit Creation', 'Change Speed Configure')
+                        )
                     )
                 )
                 OR (
                     ord.order_type = 'Cease'
-                    AND act.name IN (
-                        'GSDT Co-ordination Wrk-BQ',
-                        'GSDT Co-ordination Work',
-                        'Node & Circuit Deletion'
+                    AND (
+                        per.role LIKE 'ODC_%'
+                        OR per.role LIKE 'RDC_%'
+                        OR per.role LIKE 'GSPSG_%'
+                    )
+                    AND (
+                        (
+                            act.name IN (
+                                'GSDT Co-ordination Wrk-BQ',
+                                'GSDT Co-ordination Work'
+                            )
+                            AND act.status = 'COM'
+                            AND act.completed_date BETWEEN '{}'
+                            AND '{}'
+                        )
+                        OR act.name = 'Node & Circuit Deletion'
                     )
                 )
             )
@@ -139,6 +196,9 @@ WHERE
                             AND act.name = 'Circuit Configuration-STM'
                         )
                     )
+                    AND act.status = 'COM'
+                    AND act.completed_date BETWEEN '{}'
+                    AND '{}'
                 )
                 OR (
                     ord.order_type = 'Change'
@@ -148,6 +208,9 @@ WHERE
                         OR per.role LIKE 'GSPSG_%'
                     )
                     AND act.name IN ('Circuit Creation', 'Reconfiguration')
+                    AND act.status = 'COM'
+                    AND act.completed_date BETWEEN '{}'
+                    AND '{}'
                 )
                 OR (
                     ord.order_type = 'Cease'
@@ -157,6 +220,9 @@ WHERE
                         OR per.role LIKE 'GSPSG_%'
                     )
                     AND act.name = 'Node & Circuit Deletion'
+                    AND act.status = 'COM'
+                    AND act.completed_date BETWEEN '{}'
+                    AND '{}'
                 )
             )
         )
@@ -177,6 +243,9 @@ WHERE
                                 'GSDT Co-ordination WK-BQ',
                                 'GSDT Co-ordination Work'
                             )
+                            AND act.status = 'COM'
+                            AND act.completed_date BETWEEN '{}'
+                            AND '{}'
                         )
                         OR (
                             (
@@ -202,6 +271,9 @@ WHERE
                                 'GSDT Co-ordination WK-BQ',
                                 'GSDT Co-ordination Work'
                             )
+                            AND act.status = 'COM'
+                            AND act.completed_date BETWEEN '{}'
+                            AND '{}'
                         )
                         OR (
                             per.role = 'GSP_LTC_GW'

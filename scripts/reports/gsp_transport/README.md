@@ -30,3 +30,9 @@ No Mainline Product - DME0011
 
 ZFC1506005
 No Mainline Product- DME0010
+
+
+20230808
+
+MetroE - Copy PreConfig to Coordination
+Yes only on SINGNET if Coord is empty

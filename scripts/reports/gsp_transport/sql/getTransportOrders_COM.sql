@@ -128,5 +128,6 @@ WHERE
             )
         )
     )
+    AND act.status = 'COM'
     AND act.completed_date BETWEEN '{}'
     AND '{}';
