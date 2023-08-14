@@ -233,6 +233,12 @@ def copy_file(source_path, destination_path):
     shutil.copy2(source_path, destination_path)
 
 
+def replace_extension(filename, new_extension):
+    base_name = os.path.splitext(filename)[0]  # Get the base name of the file
+    new_filename = f"{base_name}.{new_extension}"  # Create the new filename
+    return new_filename
+
+
 def set_excel_password_linux(file_path, password):
     logger.info('Setting excel password ...')
 
