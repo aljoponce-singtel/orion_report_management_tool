@@ -178,6 +178,8 @@ def generate_warroom_report():
     report.set_email_subject(report.add_timestamp(email_subject))
     report.add_email_receiver_to('teokokwee@singtel.com')
     report.add_email_receiver_to('kinex.yeoh@singtel.com')
+    report.add_email_receiver_to('ml-cssosdpe@singtel.com')
+    report.add_email_receiver_to('ml-cssosmpeteam@singtel.com')
     report.attach_file_to_email(zip_file_path)
     report.send_email()
 
