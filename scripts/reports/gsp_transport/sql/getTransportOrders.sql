@@ -17,13 +17,34 @@ WHERE
                 OR prd.network_product_code LIKE 'DEK%'
                 OR prd.network_product_code LIKE 'DLC%'
             )
-            AND ord.order_type IN ('Provide', 'Change', 'Cease')
             AND (
                 per.role LIKE 'ODC_%'
                 OR per.role LIKE 'RDC_%'
                 OR per.role LIKE 'GSPSG_%'
             )
-            AND act.name = 'GSDT Co-ordination Wrk-BQ'
+            AND (
+                (
+                    ord.order_type IN ('Provide', 'Change', 'Cease')
+                    AND act.name = 'GSDT Co-ordination Wrk-BQ'
+                )
+                OR (
+                    (
+                        (
+                            ord.order_type IN ('Provide', 'Change')
+                            AND act.name = 'Circuit creation'
+                        )
+                        OR (
+                            ord.order_type = 'Cease'
+                            AND act.name IN (
+                                'GSDT Co-ordination Wrk-BQ',
+                                'Node & Cct Del (DN-ISDN)',
+                                'Node & Cct Deletion (DN)'
+                            )
+                        )
+                    )
+                    AND cus.name LIKE 'SINGNET%'
+                )
+            )
         )
         OR (
             prd.network_product_code LIKE 'DME%'

@@ -385,14 +385,32 @@ def getTransportOrders(report, startDate, endDate):
                             product_table.c.network_product_code.like('DEK%'),
                             product_table.c.network_product_code.like('DLC%')
                         ),
-                        order_table.c.order_type.in_(
-                            ['Provide', 'Change', 'Cease']),
                         or_(
                             person_table.c.role.like('ODC_%'),
                             person_table.c.role.like('RDC_%'),
                             person_table.c.role.like('GSPSG_%')
                         ),
-                        activity_table.c.name == 'GSDT Co-ordination Wrk-BQ'
+                        or_(
+                            and_(
+                                order_table.c.order_type.in_(
+                                    ['Provide', 'Change', 'Cease']),
+                                activity_table.c.name == 'GSDT Co-ordination Wrk-BQ'
+                            ).self_group(),
+                            and_(
+                                or_(
+                                    and_(
+                                        order_table.c.order_type.in_(
+                                            ['Provide', 'Change']),
+                                        activity_table.c.name == 'Circuit creation'
+                                    ).self_group(),
+                                    and_(
+                                        order_table.c.order_type == 'Cease',
+                                        activity_table.c.name.in_(['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'])
+                                    ).self_group()
+                                ),
+                                customer_table.c.name.like('SINGNET%')
+                            ).self_group()
+                        )
                     ).self_group(),
                     and_(
                         product_table.c.network_product_code.like('DME%'),
