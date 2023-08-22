@@ -5,7 +5,8 @@ import logging
 import csv
 import yaml
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
 from zipfile import ZipFile
 import pandas as pd
 import shutil
@@ -189,6 +190,113 @@ def get_sunday_date_from_prev_week(date):
     last_week_sunday = date - timedelta(days=days_since_last_monday + 1)
 
     return last_week_sunday
+
+
+def get_prev_week_start_end_date(date):
+    # Example:
+    # 2023-08-15 = Current date
+    # 2023-08-07 = Monday's date from previous week
+    # 2023-08-13 = Sunday's date from previous week
+
+    # Convert date input to a date object
+    date_obj = to_date_obj(date)
+    # Calculate the number of days since the last Monday (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
+    days_since_last_monday = (date_obj.weekday() - 0) % 7
+    # Calculate the date of the last week's Monday
+    last_week_monday = date_obj - timedelta(days=days_since_last_monday + 7)
+    # Calculate the date of the last week's Sunday
+    last_week_sunday = date_obj - timedelta(days=days_since_last_monday + 1)
+
+    return last_week_monday, last_week_sunday
+
+
+def get_prev_month_start_end_date(date):
+    # Example:
+    # 2023-01-25 = Current date
+    # 2022-12-01 = First day from previous month
+    # 2022-12-31 = Last day from previous month
+
+    # Convert date input to a date object
+    date_obj = to_date_obj(date)
+    year = date_obj.year
+    month = date_obj.month
+    day = date_obj.day
+    start_date = None
+    end_date = None
+
+    # start date
+    start_date = subtract_months(date_obj, 1).replace(day=1)
+
+    # end date
+    prev_month_date = subtract_months(date_obj, 1)
+    end_date = get_last_day_of_month(prev_month_date)
+
+    return start_date, end_date
+
+
+def get_billing_month_start_end_date(date):
+    # Example:
+    # /* Current date = 2023-01-26 */
+    # If day of current date > 25
+    # 2022-12-26 = First day of billing month
+    # 2023-01-25 = Last day of billing month
+    # /* Current date = 2023-01-25 */
+    # If day of current date < 26
+    # 2022-11-26 = First day of billing month
+    # 2022-12-25 = Last day of billing month
+
+    # Convert date input to a date object
+    date_obj = to_date_obj(date)
+    year = date_obj.year
+    month = date_obj.month
+    day = date_obj.day
+    start_date = None
+    end_date = None
+
+    if day > 25:
+        start_date = subtract_months(date_obj, 1).replace(day=26)
+        end_date = date_obj.replace(day=25)
+    else:
+        start_date = subtract_months(date_obj, 2).replace(day=26)
+        end_date = subtract_months(date_obj, 1).replace(day=25)
+
+    return start_date, end_date
+
+
+def subtract_months(date, no_of_months):
+
+    # Convert date input to a date object
+    date_obj = to_date_obj(date)
+    # Create a relativedelta to subtract the specified number of months
+    delta = relativedelta(months=no_of_months)
+    # Subtract the delta from the date
+    new_date_obj = date_obj - delta
+    # Convert the new date object back to a string in the format 'YYYY-MM-DD'
+    new_date_str = new_date_obj.strftime('%Y-%m-%d')
+
+    return new_date_obj
+
+
+def get_last_day_of_month(date):
+    # Example:
+    # Current date = 2023-01-26 */
+    # 2023-01-31 = Date with last day of the month
+
+    date_obj = to_date_obj(date)
+    last_day_of_the_month = calendar.monthrange(
+        date_obj.year, date_obj.month)[1]
+
+    return date_obj.replace(day=last_day_of_the_month)
+
+
+def to_date_obj(date_input):
+    # Convert date input to a date object
+    if (type(date_input) is datetime) or (type(date_input) is date):
+        return date_input
+    elif type(date_input) is str:
+        return datetime.strptime(date_input, '%Y-%m-%d')
+    else:
+        raise Exception("Invalid date")
 
 
 def create_folder(folder_path, overwrite=False):
