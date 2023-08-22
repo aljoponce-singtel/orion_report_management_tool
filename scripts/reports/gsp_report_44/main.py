@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import generate_report_44, generate_report_44_no_contacts
+from helpers import generate_report
 
 logger = logging.getLogger(__name__)
 
@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 def main():
 
     try:
-        # generate_report_44()
-        generate_report_44_no_contacts()
+        generate_report()
 
     except Exception as err:
         logger.exception(err)
