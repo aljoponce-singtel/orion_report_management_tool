@@ -32,9 +32,8 @@ def generate_ilc_transport_report():
 
     else:
         # 1st of the month
-        start_date = utils.get_first_day_from_prev_month(
+        start_date, end_date = utils.get_prev_month_start_end_date(
             datetime.now().date())
-        end_date = utils.get_last_day_from_prev_month(datetime.now().date())
 
     logger.info("Generating ILC Transport report ...")
     generate_report(report, email_subject, filename, start_date, end_date)
@@ -57,16 +56,14 @@ def generate_ilc_transport_billing_report():
 
     else:
         # 26th of the month
-        start_date = utils.get_start_date_from_prev_month(
-            datetime.now().date())
-        end_date = utils.get_end_date_from_prev_month(
+        start_date, end_date = utils.get_billing_month_start_end_date(
             datetime.now().date())
 
     logger.info("Generating ILC Transport (billing) report ...")
     generate_report(report, email_subject, filename, start_date, end_date)
 
 
-def generate_report(report, email_subject, filename, start_date, end_date):
+def generate_report(report: OrionReport, email_subject, filename, start_date, end_date):
 
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
