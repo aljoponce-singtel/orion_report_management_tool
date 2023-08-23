@@ -133,32 +133,6 @@ def get_current_datetime_2():
     return datetime.now().strftime("%d%m%y_%H%M")
 
 
-def get_monday_date_from_prev_week(date):
-    # Example:
-    # 2023-08-15 = Current date
-    # 2023-08-07 = Monday's date from previous week
-
-    # Calculate the number of days since the last Monday (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
-    days_since_last_monday = (date.weekday() - 0) % 7
-    # Calculate the date of the last week's Monday
-    last_week_monday = date - timedelta(days=days_since_last_monday + 7)
-
-    return last_week_monday
-
-
-def get_sunday_date_from_prev_week(date):
-    # Example:
-    # 2023-08-15 = Current date
-    # 2023-08-13 = Sunday's date from previous week
-
-    # Calculate the number of days since the last Monday (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
-    days_since_last_monday = (date.weekday() - 0) % 7
-    # Calculate the date of the last week's Sunday
-    last_week_sunday = date - timedelta(days=days_since_last_monday + 1)
-
-    return last_week_sunday
-
-
 def get_prev_week_start_end_date(date):
     # Example:
     # 2023-08-15 = Current date
