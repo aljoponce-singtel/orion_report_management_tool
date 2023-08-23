@@ -31,9 +31,8 @@ def generate_report():
         end_date = report.debug_config['report_end_date']
 
     else:
-        start_date = utils.get_first_day_from_prev_month(
+        start_date, end_date = utils.get_prev_month_start_end_date(
             datetime.now().date())
-        end_date = utils.get_last_day_from_prev_month(datetime.now().date())
 
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
