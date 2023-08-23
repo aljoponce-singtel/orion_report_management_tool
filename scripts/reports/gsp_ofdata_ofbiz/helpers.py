@@ -29,7 +29,7 @@ def generate_report():
 
     else:
         # Monday and Sunday date of previous week
-        start_date, end_date = utils.get_prev_week_start_end_date(
+        start_date, end_date = utils.get_prev_week_monday_sunday_date(
             datetime.now().date())
 
     logger.info("report start date: " + str(start_date))

@@ -133,7 +133,7 @@ def get_current_datetime_2():
     return datetime.now().strftime("%d%m%y_%H%M")
 
 
-def get_prev_week_start_end_date(date):
+def get_prev_week_monday_sunday_date(date):
     # Example:
     # 2023-08-15 = Current date
     # 2023-08-07 = Monday's date from previous week
