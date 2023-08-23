@@ -28,10 +28,9 @@ def generate_report():
         end_date = report.debug_config['report_end_date']
 
     else:
-        # 1st of the month
-        start_date = utils.get_monday_date_from_prev_week(
+        # Monday and Sunday date of previous week
+        start_date, end_date = utils.get_prev_week_start_end_date(
             datetime.now().date())
-        end_date = utils.get_sunday_date_from_prev_week(datetime.now().date())
 
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
