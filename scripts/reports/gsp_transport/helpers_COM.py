@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
-def updateTableauDB(report, dataframe):
+def updateTableauDB(report: OrionReport, dataframe):
     # Allow Tableaue DB update
     if report.debug_config.getboolean('update_tableau_db'):
         try:
@@ -69,9 +69,7 @@ def generate_transport_report():
 
     else:
         # 1st of the month
-        start_date = utils.get_first_day_from_prev_month(
-            datetime.now().date())
-        end_date = utils.get_last_day_from_prev_month(
+        start_date, end_date = utils.get_prev_month_start_end_date(
             datetime.now().date())
         report.debug_config['update_tableau_db'] = 'true'
 
@@ -125,9 +123,7 @@ def generate_transport_billing_report():
 
     else:
         # 26th of the month
-        start_date = utils.get_start_date_from_prev_month(
-            datetime.now().date())
-        end_date = utils.get_end_date_from_prev_month(
+        start_date, end_date = utils.get_billing_month_start_end_date(
             datetime.now().date())
         report.debug_config['update_tableau_db'] = 'false'
 
@@ -145,9 +141,6 @@ def generate_transport_billing_report():
     # Dropping rows where the PreConfig_Team or Coordination_Team column matches the string value 'SGP'
     df_finalReport = df_finalReport.drop(
         (df_finalReport.loc[df_finalReport['PreConfig_Team'] == 'SGP'].index) | (df_finalReport.loc[df_finalReport['Coordination_Team'] == 'SGP'].index))
-
-    # Insert records to tableau db
-    # updateTableauDB(report, df_finalReport)
 
     # Write to CSV for Warroom Report
     csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
@@ -167,7 +160,7 @@ def generate_transport_billing_report():
     report.send_email()
 
 
-def createFinalReport(report, start_date, end_date):
+def createFinalReport(report: OrionReport, start_date, end_date):
 
     df_order_id = getTransportOrders(report, start_date, end_date)
     df = pd.DataFrame(getTransportRecords(
@@ -329,11 +322,11 @@ def getActRecord(df, activities):
     return actGroupId, actTeam, actName, actStatus, actDueDate, actComDate
 
 
-def getTransportOrders(report, startDate, endDate):
+def getTransportOrders(report: OrionReport, startDate, endDate):
 
-    # store variables to upper_case variables for better readability in the query
-    START_DATE = startDate
-    END_DATE = endDate
+    # store variables to upper_case (string) variables for better readability in the query
+    START_DATE = str(startDate)
+    END_DATE = str(endDate)
 
     order_table = report.orion_db.get_table_metadata(
         'RestInterface_order', 'ord')
@@ -479,7 +472,7 @@ def getTransportOrders(report, startDate, endDate):
     return pd.DataFrame(data=result, columns=['order_id'])
 
 
-def getTransportRecords(report, order_id_list, startDate, endDate):
+def getTransportRecords(report: OrionReport, order_id_list, startDate, endDate):
 
     # store variables to upper_case variables for better readability in the query
     ORDER_ID_LIST = order_id_list
