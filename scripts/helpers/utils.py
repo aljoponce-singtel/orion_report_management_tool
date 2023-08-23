@@ -133,25 +133,6 @@ def get_current_datetime_2():
     return datetime.now().strftime("%d%m%y_%H%M")
 
 
-def get_first_day_from_prev_month(date):
-    # Example:
-    # 2022-11-15 = Current date
-    # 2022-10-01 = First day from previous month
-    prev_month_date = date.replace(day=1) - timedelta(days=1)
-    return prev_month_date.replace(day=1)
-
-
-def get_last_day_from_prev_month(date):
-    # Example:
-    # 2022-11-15 = Current date
-    # 2022-10-31 = Last day from previous month
-    prev_month_date = (date.replace(day=1) - timedelta(days=1)
-                       ).replace(day=date.day)
-    last_day = calendar.monthrange(
-        prev_month_date.year, prev_month_date.month)[1]
-    return prev_month_date.replace(day=last_day)
-
-
 def get_start_date_from_prev_month(date):
     # Example:
     # 2022-11-26 = Current date
