@@ -32,7 +32,7 @@ def generate_ilc_transport_report():
 
     else:
         # 1st of the month
-        start_date, end_date = utils.get_prev_month_start_end_date(
+        start_date, end_date = utils.get_prev_month_first_last_day_date(
             datetime.now().date())
 
     logger.info("Generating ILC Transport report ...")

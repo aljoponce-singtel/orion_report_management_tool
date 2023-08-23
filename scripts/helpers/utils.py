@@ -151,7 +151,7 @@ def get_prev_week_monday_sunday_date(date):
     return last_week_monday, last_week_sunday
 
 
-def get_prev_month_start_end_date(date):
+def get_prev_month_first_last_day_date(date):
     # Example:
     # 2023-01-25 = Current date
     # 2022-12-01 = First day from previous month
