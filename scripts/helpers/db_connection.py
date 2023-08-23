@@ -48,8 +48,11 @@ class DbConnection:
         return table
 
     def log_full_query(self, query):
-        logger.debug(query.compile(self.engine,
-                                   compile_kwargs={"literal_binds": True}))
+        if type(query) is str:
+            logger.debug(query)
+        else:
+            logger.debug(query.compile(self.engine,
+                                       compile_kwargs={"literal_binds": True}))
 
     def create_table_from_metadata(self, table):
         return table.metadata.create_all(self.engine)
