@@ -175,7 +175,7 @@ def get_prev_month_first_last_day_date(date):
     return start_date, end_date
 
 
-def get_billing_month_start_end_date(date):
+def get_gsp_billing_month_start_end_date(date):
     # Example:
     # /* Current date = 2023-01-26 */
     # If day of current date > 25

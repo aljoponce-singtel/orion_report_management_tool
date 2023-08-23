@@ -51,7 +51,7 @@ def generate_billing_report():
         end_date = report.debug_config['report_end_date']
 
     else:
-        start_date, end_date = utils.get_billing_month_start_end_date(
+        start_date, end_date = utils.get_gsp_billing_month_start_end_date(
             datetime.now().date())
 
     generate_report(report, filename, email_subject, start_date, end_date)

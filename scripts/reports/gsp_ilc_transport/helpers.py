@@ -56,7 +56,7 @@ def generate_ilc_transport_billing_report():
 
     else:
         # 26th of the month
-        start_date, end_date = utils.get_billing_month_start_end_date(
+        start_date, end_date = utils.get_gsp_billing_month_start_end_date(
             datetime.now().date())
 
     logger.info("Generating ILC Transport (billing) report ...")
