@@ -35,7 +35,7 @@ def generate_report():
 
     query = ("""
                 SELECT
-                    ORD.arbor_disp,
+                    DISTINCT ORD.arbor_disp,
                     ORD.current_crd AS crd_changed_to,
                     ORD.order_type,
                     ORD.order_status,
