@@ -40,7 +40,63 @@ def generate_cplus_ip_report():
     logger.info("report start date: " + str(start_date))
     logger.info("report end date: " + str(end_date))
 
-    query = ("""
+    cnp_act_list = [
+        'Change C+ IP',
+        'De-Activate C+ IP',
+        'DeActivate Video Exch Svc',
+        'LLC Received from Partner',
+        'LLC Accepted by Singtel',
+        'Activate C+ IP',
+        'Cease Resale SGO',
+        'OLLC Site Survey',
+        'De-Activate TOPSAA on PE',
+        'De-Activate RAS',
+        'De-Activate RLAN on PE',
+        'Pre-Configuration on PE',
+        'De-Activate RMS on PE',
+        'GSDT Co-ordination Work',
+        'Change Resale SGO',
+        'Pre-Configuration',
+        'Cease MSS VPN',
+        'Recovery - PNOC Work',
+        'De-Activate RMS for IP/EV',
+        'GSDT Co-ordination OS LLC',
+        'Change RAS',
+        'Extranet Config',
+        'Cease Resale SGO JP',
+        'm2m EVC Provisioning',
+        'Activate RMS/TOPS IP/EV',
+        'Config MSS VPN',
+        'De-Activate RMS on CE-BQ',
+        'OLLC Order Ack',
+        'Cease Resale SGO CHN'
+    ]
+
+    gsdt6_act_list = [
+        'GSDT Co-ordination Work',
+        'De-Activate C+ IP',
+        'Cease Monitoring of IPPBX',
+        'GSDT Co-ordination OS LLC',
+        'GSDT Partner Cloud Access',
+        'Cease In-Ctry Data Pro',
+        'Change Resale SGO',
+        'Ch/Modify In-Country Data',
+        'De-Activate RMS on PE',
+        'Disconnect RMS for FR',
+        'Change C+ IP',
+        'Activate C+ IP',
+        'LLC Accepted by Singtel',
+        'GSDT Co-ordination - BQ',
+        'LLC Received from Partner',
+        'In-Country Data Product',
+        'OLLC Site Survey',
+        'GSDT Co-ordination-RMS',
+        'Pre-Configuration on PE',
+        'Cease Resale SGO',
+        'Disconnect RMS for ATM'
+    ]
+
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code,
                     ORD.service_number,
@@ -77,110 +133,35 @@ def generate_cplus_ip_report():
                             JOIN RestInterface_person PER ON PER.id = ACT.person_id
                         WHERE
                             PER.role LIKE 'CNP%'
-                            AND ACT.completed_date BETWEEN '2023-07-01'
-                            AND '2023-07-31'
+                            AND ACT.completed_date BETWEEN '{start_date}'
+                            AND '{end_date}'
                             AND ACT.name IN (
-                                'Change C+ IP',
-                                'De-Activate C+ IP',
-                                'DeActivate Video Exch Svc',
-                                'LLC Received from Partner',
-                                'LLC Accepted by Singtel',
-                                'Activate C+ IP',
-                                'Cease Resale SGO',
-                                'OLLC Site Survey',
-                                'De-Activate TOPSAA on PE',
-                                'De-Activate RAS',
-                                'De-Activate RLAN on PE',
-                                'Pre-Configuration on PE',
-                                'De-Activate RMS on PE',
-                                'GSDT Co-ordination Work',
-                                'Change Resale SGO',
-                                'Pre-Configuration',
-                                'Cease MSS VPN',
-                                'Recovery - PNOC Work',
-                                'De-Activate RMS for IP/EV',
-                                'GSDT Co-ordination OS LLC',
-                                'Change RAS',
-                                'Extranet Config',
-                                'Cease Resale SGO JP',
-                                'm2m EVC Provisioning',
-                                'Activate RMS/TOPS IP/EV',
-                                'Config MSS VPN',
-                                'De-Activate RMS on CE-BQ',
-                                'OLLC Order Ack',
-                                'Cease Resale SGO CHN'
+                                {utils.list_to_string(cnp_act_list)}
                             )
                     )
                     AND (
                         (
                             PER.role LIKE 'CNP%'
-                            AND ACT.completed_date BETWEEN '2023-07-01'
-                            AND '2023-07-31'
+                            AND ACT.completed_date BETWEEN '{start_date}'
+                            AND '{end_date}'
                             AND ACT.name IN (
-                                'Change C+ IP',
-                                'De-Activate C+ IP',
-                                'DeActivate Video Exch Svc',
-                                'LLC Received from Partner',
-                                'LLC Accepted by Singtel',
-                                'Activate C+ IP',
-                                'Cease Resale SGO',
-                                'OLLC Site Survey',
-                                'De-Activate TOPSAA on PE',
-                                'De-Activate RAS',
-                                'De-Activate RLAN on PE',
-                                'Pre-Configuration on PE',
-                                'De-Activate RMS on PE',
-                                'GSDT Co-ordination Work',
-                                'Change Resale SGO',
-                                'Pre-Configuration',
-                                'Cease MSS VPN',
-                                'Recovery - PNOC Work',
-                                'De-Activate RMS for IP/EV',
-                                'GSDT Co-ordination OS LLC',
-                                'Change RAS',
-                                'Extranet Config',
-                                'Cease Resale SGO JP',
-                                'm2m EVC Provisioning',
-                                'Activate RMS/TOPS IP/EV',
-                                'Config MSS VPN',
-                                'De-Activate RMS on CE-BQ',
-                                'OLLC Order Ack',
-                                'Cease Resale SGO CHN'
+                                {utils.list_to_string(cnp_act_list)}
                             )
                         )
                         OR (
                             PER.role LIKE 'GSDT6%'
                             AND ACT.name IN (
-                                'GSDT Co-ordination Work',
-                                'De-Activate C+ IP',
-                                'Cease Monitoring of IPPBX',
-                                'GSDT Co-ordination OS LLC',
-                                'GSDT Partner Cloud Access',
-                                'Cease In-Ctry Data Pro',
-                                'Change Resale SGO',
-                                'Ch/Modify In-Country Data',
-                                'De-Activate RMS on PE',
-                                'Disconnect RMS for FR',
-                                'Change C+ IP',
-                                'Activate C+ IP',
-                                'LLC Accepted by Singtel',
-                                'GSDT Co-ordination - BQ',
-                                'LLC Received from Partner',
-                                'In-Country Data Product',
-                                'OLLC Site Survey',
-                                'GSDT Co-ordination-RMS',
-                                'Pre-Configuration on PE',
-                                'Cease Resale SGO',
-                                'Disconnect RMS for ATM'
+                                {utils.list_to_string(gsdt6_act_list)}
                             )
                         )
                     )
                 ORDER BY
                     ORD.order_code,
                     act_step_no;
-            """).format(start_date, end_date)
+            """
 
     logger.info("Querying db ...")
+    logger.info(report.orion_db.log_full_query(query))
     result = report.orion_db.query_to_list(query)
 
     logger.info("Creating report ...")
@@ -198,9 +179,14 @@ def generate_cplus_ip_report():
     # Add CSV to zip file
     zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
     zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    report.add_to_zip_file(csv_main_file_path, zip_file_path)
+
+    # Attach files to email
+    if report.debug_config.getboolean('compress_files'):
+        report.add_to_zip_file(csv_main_file_path, zip_file_path)
+        report.attach_file_to_email(zip_file_path)
+    else:
+        report.attach_file_to_email(csv_main_file_path)
 
     # Send Email
     report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(zip_file_path)
     report.send_email()
