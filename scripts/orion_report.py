@@ -1,9 +1,8 @@
 # Import built-in packages
-import configparser
-from datetime import datetime
 import logging
 import logging.config
 import os
+from configparser import ConfigParser, SectionProxy
 from os.path import abspath, basename, dirname
 
 # Import local packages
@@ -16,7 +15,7 @@ logger = logging.getLogger()
 
 class OrionReport(EmailClient):
 
-    config = configparser.ConfigParser()
+    config = ConfigParser()
     receiver_to_list = []
     receiver_cc_list = []
 
@@ -24,6 +23,10 @@ class OrionReport(EmailClient):
 
         self.config_file = config_file
         self.config = self.__load_config()
+        self.default_config: SectionProxy
+        self.email_config: SectionProxy
+        self.db_config: SectionProxy
+        self.debug_config: SectionProxy
         self.default_config = self.config['DEFAULT']
         self.email_config = self.config[self.default_config['email_info']]
         self.db_config = self.config[self.default_config['database_env']]
@@ -59,11 +62,11 @@ class OrionReport(EmailClient):
         # Load the parent (orion_report.ini) config file
         parent_config_file = abspath(os.path.join(
             dirname(__file__), "./orion_report.ini"))
-        parent_config = configparser.ConfigParser()
+        parent_config = ConfigParser()
         parent_config.read(parent_config_file)
 
         # Load the current report (config.ini) config file
-        report_config = configparser.ConfigParser()
+        report_config = ConfigParser()
         report_config.read(self.config_file)
 
         # Create new config
