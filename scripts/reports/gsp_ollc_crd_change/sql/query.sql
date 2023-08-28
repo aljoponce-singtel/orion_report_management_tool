@@ -5,6 +5,8 @@ SELECT
     ORD.order_status,
     ORD.taken_date,
     AAA.workorderno,
+    PRJ.project_code,
+    ORD.assignee,
     BBB.last_crd AS crd_changed_from,
     CCC.customerrequired AS today_crd,
     CCC.updated_at AS crd_updated_in_orion
@@ -41,7 +43,8 @@ FROM
         WHERE
             DATE_FORMAT(HIST.updated_at, '%y-%m-%d') = DATE_FORMAT(NOW(), '%y-%m-%d')
     ) CCC,
-    RestInterface_order ORD,
+    RestInterface_order ORD
+    LEFT JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id,
     RestInterface_npp NPP,
     RestInterface_product PROD
 WHERE

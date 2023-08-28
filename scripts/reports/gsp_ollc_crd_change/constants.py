@@ -5,6 +5,8 @@ RAW_COLUMNS = [
     'order_status',
     'taken_date',
     'workorderno',
+    'project_code',
+    'assignee',
     'crd_changed_from',
     'today_crd',
     'crd_updated_in_orion'
@@ -26,5 +28,7 @@ MAIN_COLUMNS = [
     'order_status',
     'taken_date',
     'workorderno',
+    'project_code',
+    'assignee',
     'crd_updated_in_orion'
 ]
