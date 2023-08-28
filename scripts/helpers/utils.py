@@ -5,11 +5,12 @@ import logging
 import csv
 import yaml
 import calendar
+import pandas as pd
+import shutil
+import subprocess
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from zipfile import ZipFile
-import pandas as pd
-import shutil
 from openpyxl import load_workbook
 from openpyxl.workbook.protection import WorkbookProtection
 
@@ -343,3 +344,8 @@ def set_excel_password(file_path, password, replace=True, append_string='_protec
         set_excel_password_windows(file_path, password)
     else:
         raise Exception(f"OS {platform} not supported.")
+
+
+def open_file_using_default_program(file_path):
+    # Open the file using the default program
+    subprocess.run(["start", "", file_path], shell=True)
