@@ -73,6 +73,11 @@ class EmailClient:
     def set_email_body_html(self, email_body):
         self.email_body_html = email_body
 
+    def export_to_html_file(self, html_str, file_path):
+        # Write the HTML string to the file
+        with open(file_path, "w") as file:
+            file.write(html_str)
+
     def attach_file(self, attachment):
         logger.info('Attaching file {} ...'.format(
             os.path.basename(attachment)))
