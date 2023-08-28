@@ -213,7 +213,25 @@ class OrionReport(EmailClient):
         if self.debug_config.getboolean('create_report') == True:
             super().attach_file(attachment)
 
+    def preview_email_body_html(self, email_body_html, filename, file_path=None):
+        html_file_path = None
+
+        if self.debug_config.getboolean('preview_email') == True:
+            if file_path is None:
+                html_file_path = os.path.join(
+                    self.reports_folder_path, filename)
+            else:
+                html_file_path = os.path.join(file_path, filename)
+
+            self.export_to_html_file(email_body_html, html_file_path)
+            utils.open_file_using_default_program(html_file_path)
+
+        return html_file_path
+
     def send_email(self):
+        # Preview email before sending
+        self.preview_email_body_html(self.email_body_html, 'email_body.html')
+
         # Enable/Disable email
         if self.debug_config.getboolean('send_email') == True:
             try:
