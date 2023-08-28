@@ -47,6 +47,7 @@ class DbConnection:
 
         return table
 
+    # Only works when log_level=debug
     def log_full_query(self, query):
         if type(query) is str:
             logger.debug(query)
@@ -72,6 +73,10 @@ class DbConnection:
         return table_to_drop.metadata.drop_all(self.engine)
 
     def query_to_list(self, query, data=None):
+
+        # Only works when log_level=debug
+        self.log_full_query(query)
+
         query_type = type(query)
 
         # query has data
