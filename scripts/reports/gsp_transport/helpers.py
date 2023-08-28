@@ -18,38 +18,6 @@ logger = logging.getLogger(__name__)
 configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
-def updateTableauDB(report: OrionReport, dataframe):
-    # Allow Tableaue DB update
-    if report.debug_config.getboolean('update_tableau_db'):
-        try:
-            logger.info(
-                'Inserting records to ' + report.db_config['tableau_db'] + '.' + report.default_config['tableau_table'] + ' ...')
-
-            df = pd.DataFrame(dataframe)
-
-            # add new column
-            df["update_time"] = pd.Timestamp.now()
-
-            # set columns to datetime type
-            df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
-                pd.to_datetime)
-
-            # set empty values to null
-            df.replace('', None)
-            # insert records to DB
-            report.tableau_db.insert_df_to_table(
-                df, report.default_config['tableau_table'])
-
-            # logger.info("TableauDB Updated for " + report_id.lower())
-
-        except Exception as err:
-            logger.info("Failed processing DB " + report.db_config['tableau_db'] + ' at ' +
-                        report.db_config['tableau_user'] + '@' + report.db_config['host'] + ':' + report.db_config['port'] + '.')
-            logger.exception(err)
-
-            raise Exception(err)
-
-
 def generate_transport_report():
 
     report = OrionReport(configFile)
@@ -102,6 +70,38 @@ def generate_transport_report():
     report.attach_file_to_email(zip_file_path)
     report.add_email_receiver_to('teokokwee@singtel.com')
     report.send_email()
+
+
+def updateTableauDB(report: OrionReport, dataframe):
+    # Allow Tableaue DB update
+    if report.debug_config.getboolean('update_tableau_db'):
+        try:
+            logger.info(
+                'Inserting records to ' + report.db_config['tableau_db'] + '.' + report.default_config['tableau_table'] + ' ...')
+
+            df = pd.DataFrame(dataframe)
+
+            # add new column
+            df["update_time"] = pd.Timestamp.now()
+
+            # set columns to datetime type
+            df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
+                pd.to_datetime)
+
+            # set empty values to null
+            df.replace('', None)
+            # insert records to DB
+            report.tableau_db.insert_df_to_table(
+                df, report.default_config['tableau_table'])
+
+            # logger.info("TableauDB Updated for " + report_id.lower())
+
+        except Exception as err:
+            logger.info("Failed processing DB " + report.db_config['tableau_db'] + ' at ' +
+                        report.db_config['tableau_user'] + '@' + report.db_config['host'] + ':' + report.db_config['port'] + '.')
+            logger.exception(err)
+
+            raise Exception(err)
 
 
 def generate_transport_billing_report():
@@ -512,8 +512,6 @@ def getTransportOrders(report: OrionReport, startDate, endDate):
         )
     )
 
-    report.orion_db.log_full_query(query)
-
     result = report.orion_db.query_to_list(query)
     return pd.DataFrame(data=result, columns=['order_id'])
 
@@ -767,8 +765,6 @@ def getTransportRecords(report: OrionReport, order_id_list, startDate, endDate):
             order_table.c.order_code
         )
     )
-
-    report.orion_db.log_full_query(query)
 
     result = report.orion_db.query_to_list(query)
     return pd.DataFrame(data=result, columns=const.DRAFT_COLUMNS)

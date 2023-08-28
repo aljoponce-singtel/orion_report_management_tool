@@ -101,7 +101,6 @@ def generate_report():
             """
 
     logger.info("Querying db ...")
-    report.orion_db.log_full_query(query)
     result = report.orion_db.query_to_list(query)
 
     if result:

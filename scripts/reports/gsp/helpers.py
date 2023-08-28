@@ -161,7 +161,6 @@ def generate_cplus_ip_report():
             """
 
     logger.info("Querying db ...")
-    logger.info(report.orion_db.log_full_query(query))
     result = report.orion_db.query_to_list(query)
 
     logger.info("Creating report ...")
