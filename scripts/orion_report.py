@@ -21,6 +21,7 @@ class OrionReport(EmailClient):
 
     def __init__(self, config_file):
 
+        # Config
         self.config_file = config_file
         self.config = self.__load_config()
         self.default_config: SectionProxy
@@ -32,6 +33,10 @@ class OrionReport(EmailClient):
         self.db_config = self.config[self.default_config['database_env']]
         self.debug_config = self.config['Debug']
 
+        self.filename = None
+        self.report_date = None
+        self.start_date = None
+        self.end_date = None
         self.reports_folder_path = None
         self.log_file_path = None
         # setup logging and reports folder
