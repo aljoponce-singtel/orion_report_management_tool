@@ -19,26 +19,24 @@ def generate_cplus_ip_report():
 
     report = OrionReport(configFile)
 
-    email_subject = 'CPlusIP Report'
-    filename = 'cplusip_report'
-    start_date = None
-    end_date = None
+    report.subject = 'CPlusIP Report'
+    report.filename = 'cplusip_report'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
 
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
         # 1st of the month
-        start_date, end_date = utils.get_prev_month_first_last_day_date(
+        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
             datetime.now().date())
 
     logger.info("Generating CPlusIP Report ...")
 
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
 
     cnp_act_list = [
         'Change C+ IP',
@@ -133,8 +131,8 @@ def generate_cplus_ip_report():
                             JOIN RestInterface_person PER ON PER.id = ACT.person_id
                         WHERE
                             PER.role LIKE 'CNP%'
-                            AND ACT.completed_date BETWEEN '{start_date}'
-                            AND '{end_date}'
+                            AND ACT.completed_date BETWEEN '{report.start_date}'
+                            AND '{report.end_date}'
                             AND ACT.name IN (
                                 {utils.list_to_string(cnp_act_list)}
                             )
@@ -142,8 +140,8 @@ def generate_cplus_ip_report():
                     AND (
                         (
                             PER.role LIKE 'CNP%'
-                            AND ACT.completed_date BETWEEN '{start_date}'
-                            AND '{end_date}'
+                            AND ACT.completed_date BETWEEN '{report.start_date}'
+                            AND '{report.end_date}'
                             AND ACT.name IN (
                                 {utils.list_to_string(cnp_act_list)}
                             )
@@ -170,22 +168,17 @@ def generate_cplus_ip_report():
     for column in const.DATE_COLUMNS:
         df[column] = pd.to_datetime(df[column]).dt.date
 
-    # Write to CSV for Warroom Report
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df, csv_main_file_path)
-
-    # Add CSV to zip file
-    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
+    # Write to CSV
+    csv_file = report.create_csv_from_df(df)
 
     # Attach files to email
     if report.debug_config.getboolean('compress_files'):
-        report.add_to_zip_file(csv_main_file_path, zip_file_path)
-        report.attach_file_to_email(zip_file_path)
+        # Add CSV to zip file
+        zip_file = report.add_to_zip_file(csv_file)
+        report.attach_file_to_email(zip_file)
     else:
-        report.attach_file_to_email(csv_main_file_path)
+        report.attach_file_to_email(csv_file)
 
     # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
+    report.set_email_subject(report.add_timestamp(report.subject))
     report.send_email()
