@@ -47,6 +47,7 @@ def generate_ilc_transport_billing_report():
     filename = 'ilc_transport_billing_report'
     start_date = None
     end_date = None
+    report.add_email_receiver_to('xv.hema.pawar@singtel.com')
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
