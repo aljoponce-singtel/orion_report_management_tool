@@ -13,34 +13,32 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
-    email_subject = 'GSP Report 44'
-    filename = 'gsp_report_44'
-    start_date = None
-    end_date = None
+    report.subject = 'GSP Report 44'
+    report.filename = 'gsp_report_44'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
 
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
-        start_date, end_date = utils.get_prev_month_first_last_day_date(
+        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
             datetime.now().date())
 
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
 
     logger.info("Generating report ...")
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT 1 AS qty,
                     ORD.order_taken_by AS user_id,
@@ -158,8 +156,8 @@ def generate_report():
                             AND SINOTEMAX.note_code = SINOTEINNER.note_code
                     ) SINOTE ON SINOTE.order_id = ORD.id
                 WHERE
-                    ORD.taken_date BETWEEN '{}' AND '{}'
-            """).format(start_date, end_date)
+                    ORD.taken_date BETWEEN '{report.start_date}' AND '{report.end_date}'
+            """
 
     logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
@@ -215,18 +213,13 @@ def generate_report():
     )
 
     # Write to CSV
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df_raw, csv_main_file_path)
-
+    csv_file = report.create_csv_from_df(df_raw)
     # Add CSV to zip file
-    # zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    # zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    # report.add_to_zip_file(csv_main_file_path, zip_file_path)
+    # zip_file = report.add_to_zip_file(csv_file)
 
     # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(csv_main_file_path)
+    report.set_email_subject(report.add_timestamp(report.subject))
+    report.attach_file_to_email(csv_file)
     report.send_email()
 
 
@@ -242,14 +235,11 @@ def get_holidays(report: OrionReport):
             """)
 
     result = report.tableau_db.query_to_list(query)
-    # df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS_NO_CONTACTS)
     df = pd.DataFrame(data=result, columns=['Holiday', 'Date'])
 
     # set columns to datetime type
     df[['Date']] = df[['Date']].apply(
         pd.to_datetime)
-
-    # logger.info(df)
 
     # Exclude weekend holidays
     df['Weekday'] = df['Date'].dt.dayofweek
@@ -260,7 +250,7 @@ def get_holidays(report: OrionReport):
     return filtered_dates
 
 
-def count_weekdays(start_date: datetime, end_date: datetime, df_holidays):
+def count_weekdays(start_date: datetime, end_date: datetime, df_holidays: pd.DataFrame):
     num_weekdays = np.nan
 
     if pd.notnull(start_date) and pd.notnull(end_date):
