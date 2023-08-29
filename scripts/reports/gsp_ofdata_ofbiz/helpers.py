@@ -19,24 +19,24 @@ def generate_report():
 
     report = OrionReport(configFile)
 
-    email_subject = 'GSP OFData OFBiz'
-    filename = 'gsp_ofdata_ofbiz'
+    report.subject = 'GSP OFData OFBiz'
+    report.filename = 'gsp_ofdata_ofbiz'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
         # Monday and Sunday date of previous week
-        start_date, end_date = utils.get_prev_week_monday_sunday_date(
+        report.start_date, report.end_date = utils.get_prev_week_monday_sunday_date(
             datetime.now().date())
 
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
     logger.info("Generating OFData OFBiz report ...")
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code AS 'OrderNo',
                     CUS.name AS 'CustomerName',
@@ -129,11 +129,11 @@ def generate_report():
                     AND ORD.order_status = 'Closed'
                     AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
                     AND ORD.current_crd < ORD.close_date
-                    AND ORD.close_date BETWEEN '{}'
-                    AND '{}'
+                    AND ORD.close_date BETWEEN '{report.start_date}'
+                    AND '{report.end_date}'
                 ORDER BY
                     ORD.order_code;
-            """).format(start_date, end_date)
+            """
 
     logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
@@ -155,19 +155,11 @@ def generate_report():
         ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'ISDN'])]
     # Remove the 'Assignee' column
     df_bizseg = df_bizseg.drop('Assignee', axis=1)
-    # Export to excel file
-    excel_bizseg_filename = ("BSOFB_{}_TEST.xlsx").format(
-        utils.get_current_datetime(format="%d%m%y"))
-    excel_bizseg_file_path = os.path.join(
-        report.reports_folder_path, excel_bizseg_filename)
-    # Set index=False if you don't want to export the index column
-    df_bizseg.to_excel(excel_bizseg_file_path, index=False)
-    # Add excel file to zip file and attach to email
-    zip_bizseg_file_path = os.path.join(
-        report.reports_folder_path, utils.replace_extension(excel_bizseg_filename, 'zip'))
-    report.add_to_zip_file(excel_bizseg_file_path, zip_bizseg_file_path,
-                           ("BSOFB{}").format(get_date_password()))
-    report.attach_file_to_email(zip_bizseg_file_path)
+    excel_bizseg_file = report.create_excel_from_df(
+        df_bizseg, filename=("BSOFB_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
+    zip_bizseg_file = report.add_to_zip_file(excel_bizseg_file, zip_file_path=utils.replace_extension(
+        excel_bizseg_file, 'zip'), password=("BSOFB{}").format(get_date_password()))
+    report.attach_file_to_email(zip_bizseg_file)
     # /* END - BizSeg */
 
     # /* START - EAG_GB */
@@ -178,72 +170,37 @@ def generate_report():
          'CN - ConnectPlus IP VPN', 'ConnectPlus E-Line', 'ILC', 'Software Defined Networking'])]
 
     # With 'Assignee' column
-    # Export to excel file
-    excel_eag_gb_assignee_filename = ("GLEOFD_{}_PM_TEST.xlsx").format(
-        utils.get_current_datetime(format="%d%m%y"))
-    excel_eag_gb_assignee_file_path = os.path.join(
-        report.reports_folder_path, excel_eag_gb_assignee_filename)
-    # Set index=False if you don't want to export the index column
-    df_eag_gb_assignee.to_excel(excel_eag_gb_assignee_file_path, index=False)
-    # Add excel file to zip file and attach to email
-    zip_eag_gb_assignee_file_path = os.path.join(
-        report.reports_folder_path, utils.replace_extension(excel_eag_gb_assignee_filename, 'zip'))
-    report.add_to_zip_file(excel_eag_gb_assignee_file_path,
-                           zip_eag_gb_assignee_file_path, ("GLEOFD{}").format(get_date_password()))
-    report.attach_file_to_email(zip_eag_gb_assignee_file_path)
+    excel_eag_gb_assignee_file = report.create_excel_from_df(
+        df_eag_gb_assignee, filename=("GLEOFD_{}_PM_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
+    zip_eag_gb_assignee_file = report.add_to_zip_file(excel_eag_gb_assignee_file, zip_file_path=utils.replace_extension(
+        excel_eag_gb_assignee_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
+    report.attach_file_to_email(zip_eag_gb_assignee_file)
 
     # Without 'Assignee' column
     # Remove the 'Assignee' column
     df_eag_gb = df_eag_gb_assignee.drop('Assignee', axis=1)
-    # Export to excel file
-    excel_eag_gb_filename = ("GLEOFD_{}_TEST.xlsx").format(
-        utils.get_current_datetime(format="%d%m%y"))
-    excel_eag_gb_file_path = os.path.join(
-        report.reports_folder_path, excel_eag_gb_filename)
-    # Set index=False if you don't want to export the index column
-    df_eag_gb.to_excel(excel_eag_gb_file_path, index=False)
-    # Add excel file to zip file and attach to email
-    zip_eag_gb_file_path = os.path.join(
-        report.reports_folder_path, utils.replace_extension(excel_eag_gb_filename, 'zip'))
-    report.add_to_zip_file(excel_eag_gb_file_path, zip_eag_gb_file_path,
-                           ("GLEOFD{}").format(get_date_password()))
-    report.attach_file_to_email(zip_eag_gb_file_path)
+    excel_eag_gb_file = report.create_excel_from_df(
+        df_eag_gb, filename=("GLEOFD_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
+    zip_eag_gb_file = report.add_to_zip_file(excel_eag_gb_file, zip_file_path=utils.replace_extension(
+        excel_eag_gb_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
+    report.attach_file_to_email(zip_eag_gb_file)
     # /* END - EAG_GB */
 
     # Option to generate raw file
     if report.debug_config.getboolean('include_raw_report'):
-        excel_raw_file_path = generate_report_raw(
-            report, filename, start_date, end_date)
-        report.attach_file_to_email(excel_raw_file_path)
-
-        # /* START */
-        # Export to excel file
-        excel_filename = ("{}_{}.xlsx").format(
-            filename, utils.get_current_datetime())
-        excel_main_file_path = os.path.join(
-            report.reports_folder_path, excel_filename)
-        # Set index=False if you don't want to export the index column
-        # df.to_excel(excel_main_file_path, index=False)
-        # report.attach_file_to_email(excel_main_file_path)
-        # /* END */
+        excel_raw_file = generate_report_raw(report)
+        report.attach_file_to_email(excel_raw_file)
 
     # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
+    report.set_email_subject(report.add_timestamp(report.subject))
     report.send_email()
-
-    # Set a password to the excel file
-    # excel_file = ("{}.xlsx").format(filename)
-    # excel_file_path = os.path.join(report.reports_folder_path, excel_file)
-    # password = report.debug_config['password']
-    # utils.set_excel_password(
-    #     excel_file_path, password, replace=False)
 
     return
 
 
-def generate_report_raw(report, filename, start_date, end_date):
+def generate_report_raw(report: OrionReport):
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code AS 'OrderNo',
                     CUS.name AS 'CustomerName',
@@ -306,12 +263,12 @@ def generate_report_raw(report, filename, start_date, end_date):
                     AND ORD.order_status = 'Closed'
                     AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
                     AND ORD.current_crd < ORD.close_date
-                    AND ORD.close_date BETWEEN '{}'
-                    AND '{}'
+                    AND ORD.close_date BETWEEN '{report.start_date}'
+                    AND '{report.end_date}'
                 ORDER BY
                     ORD.order_code,
                     CON.contact_type;
-            """).format(start_date, end_date)
+            """
 
     logger.info("Querying db for raw report ...")
     result = report.orion_db.query_to_list(query)
@@ -324,14 +281,9 @@ def generate_report_raw(report, filename, start_date, end_date):
         df[column] = pd.to_datetime(df[column]).dt.date
 
     # Export the DataFrame to an Excel file
-    excel_filename = ("{}_raw_{}.xlsx").format(
-        filename, utils.get_current_datetime())
-    excel_main_file_path = os.path.join(
-        report.reports_folder_path, excel_filename)
-    # Set index=False if you don't want to export the index column
-    df.to_excel(excel_main_file_path, index=False)
+    excel_file = report.create_excel_from_df(df)
 
-    return excel_main_file_path
+    return excel_file
 
 
 def get_date_password():
