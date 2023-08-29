@@ -202,7 +202,6 @@ def generate_report(report: OrionReport):
                     ACT.name;
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
 
     logger.info("Creating SGO report ...")

@@ -204,7 +204,6 @@ def generate_report(report: OrionReport):
                     ORD.order_code;
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
 
     logger.info("Creating report ...")

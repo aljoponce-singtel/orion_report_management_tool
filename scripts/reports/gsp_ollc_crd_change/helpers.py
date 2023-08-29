@@ -99,7 +99,6 @@ def generate_report():
                     AND PROD.product_type_id = 1082;
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
 
     if result:

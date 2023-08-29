@@ -159,7 +159,6 @@ def generate_report():
                     ORD.taken_date BETWEEN '{report.start_date}' AND '{report.end_date}'
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
     logger.info("Creating report 44 report ...")
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)

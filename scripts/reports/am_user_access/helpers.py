@@ -64,7 +64,6 @@ def generate_report():
                     USR.username;
             """).format(start_date, end_date)
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
     logger.info("Creating report ...")
     df = None

@@ -77,6 +77,7 @@ class DbConnection:
         # Only works when log_level=debug
         self.log_full_query(query)
 
+        logger.info("Querying db ...")
         query_type = type(query)
 
         # query has data

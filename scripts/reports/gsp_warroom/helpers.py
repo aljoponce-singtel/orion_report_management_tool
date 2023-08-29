@@ -126,7 +126,6 @@ def generate_warroom_report():
                     ACT.tag_name = 'Pegasus';
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
     logger.info("Creating warroom report ...")
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
@@ -634,7 +633,6 @@ def generate_warroom_npp_report():
                     AND '{report.end_date}';
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
     logger.info("Creating warroom npp report ...")
     df_raw = pd.DataFrame(data=result, columns=const.MAIN_NPP_COLUMNS)

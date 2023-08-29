@@ -135,7 +135,6 @@ def generate_report():
                     ORD.order_code;
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
 
     logger.info("Creating report ...")
@@ -270,7 +269,6 @@ def generate_report_raw(report: OrionReport):
                     CON.contact_type;
             """
 
-    logger.info("Querying db for raw report ...")
     result = report.orion_db.query_to_list(query)
 
     logger.info("Creating raw report ...")

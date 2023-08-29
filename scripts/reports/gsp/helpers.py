@@ -158,7 +158,6 @@ def generate_cplus_ip_report():
                     act_step_no;
             """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
 
     logger.info("Creating report ...")
