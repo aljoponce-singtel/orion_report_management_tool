@@ -213,6 +213,7 @@ def generate_report():
             """
 
     result = report.orion_db.query_to_list(query)
+    logger.info(("Generating {} ...").format(report.subject))
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
     # set columns to datetime type
