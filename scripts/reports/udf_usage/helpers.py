@@ -1,7 +1,8 @@
 # Import built-in packages
 import os
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+from typing import List
 
 # Import third-party packages
 import pandas as pd
@@ -12,41 +13,39 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
-    email_subject = 'UDF Usage Report'
-    filename = 'udf_usage_report'
-    start_date = None
-    end_date = None
+    report.subject = 'UDF Usage Report'
+    report.filename = 'udf_usage_report'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
 
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
-        start_date, end_date = utils.get_prev_month_first_last_day_date(
+        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
             datetime.now().date())
 
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
 
     logger.info("Generating report ...")
 
-    mondays = get_all_mondays(start_date, end_date)
+    mondays = get_all_mondays(report.start_date, report.end_date)
 
     logger.info("Monday dates:")
 
     for monday in mondays:
         logger.info("  " + str(monday))
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT CAST(created_at AS DATE) AS login_date,
                     DAYNAME(created_at) AS day_name,
@@ -72,13 +71,13 @@ def generate_report():
                         OR username = 'weiwang.thang@singtel.com'
                     )
                     AND user_type = 'Account Manager'
-                    AND created_at BETWEEN '{}'
-                    AND '{}'
+                    AND created_at BETWEEN '{report.start_date}'
+                    AND '{report.end_date}'
                     AND status = 1
                 ORDER BY
                     login_date,
                     username;
-            """).format(start_date, end_date)
+            """
 
     result = report.orion_db.query_to_list(query)
 
@@ -154,31 +153,29 @@ def generate_report():
     df_main.rename(columns={'index': '#'}, inplace=True)
 
     # Write to CSV for Warroom Report
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df_main[const.FINAL_COLUMNS], csv_main_file_path)
+    csv_file = report.create_csv_from_df(df_main[const.FINAL_COLUMNS])
 
     # Send Email
     # Change starting index from 0 to 1 for proper table presentation
     df_main.index += 1
     # Show the dataframe as a table in the email body
-    email_body_html = ("""\
+    email_body_html = f"""\
         <html>
         <p>Hello,</p>
         <p>Please see the attached ORION report.</p>
-        <p>{}</p>
+        <p>{df_main[['Week of', 'Month', 'Name']].to_html()}</p>
         <p>&nbsp;</p>
         <p>Best regards,</p>
         <p>The Orion Team</p>
         </html>
-        """).format(df_main[['Week of', 'Month', 'Name']].to_html())
+        """
     report.set_email_body_html(email_body_html)
-    report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(csv_main_file_path)
+    report.set_email_subject(report.add_timestamp(report.subject))
+    report.attach_file_to_email(csv_file)
     report.send_email()
 
 
-def get_all_mondays(start_date, end_date):
+def get_all_mondays(start_date, end_date) -> List[datetime]:
     """
     Returns a list of all the Mondays between the start_date and end_date (inclusive).
     """
