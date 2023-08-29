@@ -208,7 +208,7 @@ class OrionReport(EmailClient):
     def create_excel_from_df(self, df: pd.DataFrame, file_path=None, filename=None, index=False):
         if self.debug_config.getboolean('create_report') == True:
             if filename is None:
-                filename = ("{}_{}.csv").format(
+                filename = ("{}_{}.xlsx").format(
                     self.filename, utils.get_current_datetime())
             if file_path is None:
                 file_path = os.path.join(
