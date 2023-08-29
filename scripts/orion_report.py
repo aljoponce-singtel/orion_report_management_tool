@@ -224,7 +224,7 @@ class OrionReport(EmailClient):
 
         return file_path
 
-    def add_to_zip_file(self, files_to_zip, zip_file_path=None, zip_filename=None, password=None):
+    def add_to_zip_file(self, files_to_zip, zip_file_path=None, zip_filename=None, password=None, remove_file=True):
         if self.debug_config.getboolean('create_report') == True:
             if zip_filename is None:
                 zip_filename = ("{}_{}.zip").format(
@@ -235,7 +235,8 @@ class OrionReport(EmailClient):
             if password == None:
                 password = self.default_config['zip_password']
 
-            utils.compress_files(files_to_zip, zip_file_path, password)
+            utils.compress_files(
+                files_to_zip, zip_file_path, password, remove_file)
             logger.debug("ZIP file path: " +
                          os.path.dirname(zip_file_path) + " ...")
 
