@@ -12,64 +12,63 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_main_report():
 
-    report = OrionReport(configFile)
-    email_subject = 'DPE MPE Report'
-    filename = 'dpe_mpe_report'
-    start_date = None
-    end_date = None
+    report = OrionReport(config_file)
+    report.subject = 'DPE MPE Report'
+    report.filename = 'dpe_mpe_report'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
 
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
-        start_date, end_date = utils.get_prev_month_first_last_day_date(
+        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
             datetime.now().date())
 
-    generate_report(report, filename, email_subject, start_date, end_date)
+    generate_report(report)
 
 
 def generate_billing_report():
 
-    report = OrionReport(configFile)
-    email_subject = 'DPE MPE (Billing) Report'
-    filename = 'dpe_mpe_billing_report'
-    start_date = None
-    end_date = None
+    report = OrionReport(config_file)
+    report.subject = 'DPE MPE (Billing) Report'
+    report.filename = 'dpe_mpe_billing_report'
+    report.start_date = None
+    report.end_date = None
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
 
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
-        start_date, end_date = utils.get_gsp_billing_month_start_end_date(
+        report.start_date, report.end_date = utils.get_gsp_billing_month_start_end_date(
             datetime.now().date())
 
-    generate_report(report, filename, email_subject, start_date, end_date)
+    generate_report(report)
 
 
-def generate_report(report: OrionReport, filename, email_subject, start_date, end_date):
+def generate_report(report: OrionReport):
 
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
-    logger.info(("Generating {} ...").format(email_subject))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
+    logger.info(("Generating {} ...").format(report.subject))
 
-    df_raw = get_raw_records(report, start_date, end_date)
+    df_raw = get_raw_records(report)
     df_dpe = get_dpe_records(df_raw)
     df_mpe = get_mpe_records(df_raw)
     df_mse = get_mse_records(df_raw)
 
     # Create Excel writer object
-    excel_file = ("{}_{}.xlsx").format(filename, utils.get_current_datetime())
+    excel_file = ("{}_{}.xlsx").format(
+        report.filename, utils.get_current_datetime())
     excel_file_path = os.path.join(report.reports_folder_path, excel_file)
     excel_writer = pd.ExcelWriter(excel_file_path, engine='xlsxwriter')
 
@@ -87,7 +86,8 @@ def generate_report(report: OrionReport, filename, email_subject, start_date, en
     excel_writer.close()
 
     # Add Excel file to zip file
-    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
+    zip_file = ("{}_{}.zip").format(
+        report.filename, utils.get_current_datetime())
     zip_file_path = os.path.join(report.reports_folder_path, zip_file)
 
     # Attach files to email
@@ -98,11 +98,11 @@ def generate_report(report: OrionReport, filename, email_subject, start_date, en
         report.attach_file_to_email(excel_file_path)
 
     # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
+    report.set_email_subject(report.add_timestamp(report.subject))
     report.send_email()
 
 
-def get_dpe_records(df):
+def get_dpe_records(df: pd.DataFrame):
 
     logger.info("Getting DPE records ...")
 
@@ -119,7 +119,7 @@ def get_dpe_records(df):
     return df_dpe
 
 
-def get_mpe_records(df):
+def get_mpe_records(df: pd.DataFrame):
     logger.info("Getting MPE records ...")
     # Define the conditions
     condition1 = df['Group ID'] == 'IMPACT'
@@ -130,7 +130,7 @@ def get_mpe_records(df):
     return df_mpe
 
 
-def get_mse_records(df):
+def get_mse_records(df: pd.DataFrame):
     logger.info("Getting MSE records ...")
     # Define the conditions
     condition1 = df['Group ID'].isin(['CPE', 'CPE_CSE', 'EWO', 'EWO_CSE', 'IMPACT_CSE', 'LAN_CPE', 'LAN_CPE_TR', 'RLAN',
@@ -141,9 +141,9 @@ def get_mse_records(df):
     return df_dpe
 
 
-def get_raw_records(report, start_date, end_date):
+def get_raw_records(report: OrionReport):
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code AS 'Workorder',
                     ORD.service_number AS 'Service No',
@@ -281,14 +281,13 @@ def get_raw_records(report, start_date, end_date):
                         )
                     )
                     AND NPP.status != 'Cancel'
-                    AND ACT.completed_date BETWEEN '{}'
-                    AND '{}'
+                    AND ACT.completed_date BETWEEN '{report.start_date}'
+                    AND '{report.end_date}'
                 ORDER BY
                     ORD.order_code,
                     ACT.name;
-            """).format(start_date, end_date)
+            """
 
-    logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
 
     df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
