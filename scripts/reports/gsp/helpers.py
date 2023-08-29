@@ -12,12 +12,12 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_cplus_ip_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
     report.subject = 'CPlusIP Report'
     report.filename = 'cplusip_report'
