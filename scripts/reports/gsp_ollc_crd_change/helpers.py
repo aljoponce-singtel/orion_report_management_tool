@@ -122,12 +122,14 @@ def generate_report():
         df_pm = df_raw[df_raw['assignee'] == 'PM']
         df_pm = df_pm[const.MAIN_COLUMNS]
         df_pm = df_pm.drop(['assignee'], axis=1)
-        # Change starting index from 0 to 1 for proper table presentation
+        # Reset and change starting index from 0 to 1 for proper table presentation
+        df_pm.reset_index(drop=True, inplace=True)
         df_pm.index += 1
         df_non_pm = df_raw[df_raw['assignee'] == 'Non-PM']
         df_non_pm = df_non_pm[const.MAIN_COLUMNS]
         df_non_pm = df_non_pm.drop(['project_code', 'assignee'], axis=1)
-        # Change starting index from 0 to 1 for proper table presentation
+        # Reset and change starting index from 0 to 1 for proper table presentation
+        df_non_pm.reset_index(drop=True, inplace=True)
         df_non_pm.index += 1
 
         email_body_text = f"""
