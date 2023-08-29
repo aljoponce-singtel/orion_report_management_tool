@@ -13,28 +13,27 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_warroom_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
-    email_subject = 'GSP (NEW) War Room Report'
-    filename = 'gsp_warroom_report'
-    report_date = datetime.now().date()
+    report.subject = 'GSP (NEW) War Room Report'
+    report.filename = 'gsp_warroom_report'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
-        report_date = report.debug_config['report_date']
+        report.report_date = report.debug_config['report_date']
 
     else:
-        report_date = datetime.now().date()
+        report.report_date = datetime.now().date()
 
-    logger.info("report date: " + str(report_date))
+    logger.info("report date: " + str(report.report_date))
     logger.info("Generating warroom report ...")
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code,
                     ORD.service_number,
@@ -99,7 +98,7 @@ def generate_warroom_report():
                                 'Pending Cancellation',
                                 'Completed'
                             )
-                            AND ORD2.current_crd <= DATE_ADD('{}', INTERVAL 3 MONTH)
+                            AND ORD2.current_crd <= DATE_ADD('{report.report_date}', INTERVAL 3 MONTH)
                     ) ORDGD ON ORDGD.id = ORD.id
                     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
                     JOIN RestInterface_person PER ON PER.id = ACT.person_id
@@ -125,11 +124,11 @@ def generate_warroom_report():
                     AND PAR.parameter_value IN ('1', '2', '010', '020')
                 WHERE
                     ACT.tag_name = 'Pegasus';
-            """).format(report_date)
+            """
 
     logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
-    logger.info("Creating warroom npp report ...")
+    logger.info("Creating warroom report ...")
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
     # set columns to datetime type
@@ -164,23 +163,17 @@ def generate_warroom_report():
     df_merged = pd.merge(df_main, df_crd_amendment.drop(columns=['note_code']),
                          how='left', on=['order_code'])
 
-    # Write to CSV for Warroom Report
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df_merged, csv_main_file_path)
-
+    # Write to CSV
+    csv_file = report.create_csv_from_df(df_merged)
     # Add CSV to zip file
-    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    report.add_to_zip_file(csv_main_file_path, zip_file_path)
-
+    zip_file = report.add_to_zip_file(csv_file)
     # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
+    report.set_email_subject(report.add_timestamp(report.subject))
     report.add_email_receiver_to('teokokwee@singtel.com')
     report.add_email_receiver_to('kinex.yeoh@singtel.com')
     report.add_email_receiver_to('ml-cssosdpe@singtel.com')
     report.add_email_receiver_to('ml-cssosmpeteam@singtel.com')
-    report.attach_file_to_email(zip_file_path)
+    report.attach_file_to_email(zip_file)
     report.send_email()
 
     return
@@ -188,40 +181,37 @@ def generate_warroom_report():
 
 def generate_warroom_npp_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
-    email_subject = 'GSP War Room NPP Report'
-    filename = 'gsp_warroom_npp_report'
-    start_date = None
-    end_date = None
-    report_date = datetime.now().date()
+    report.subject = 'GSP War Room NPP Report'
+    report.filename = 'gsp_warroom_npp_report'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
         # Convert the provided date string to a datetime object
-        report_date = datetime.strptime(
+        report.report_date = datetime.strptime(
             report.debug_config['report_date'], "%Y-%m-%d")
         # Subtract 3 months using relativedelta
-        start_date = report_date - relativedelta(months=3)
+        report.start_date = report.report_date - relativedelta(months=3)
         # Add 3 months using relativedelta
-        end_date = report_date + relativedelta(months=3)
+        report.end_date = report.report_date + relativedelta(months=3)
         # FOR TESTING
-        # start_date = report.debug_config['report_start_date']
-        # end_date = report.debug_config['report_end_date']
+        # report.start_date = report.debug_config['report_start_date']
+        # report.end_date = report.debug_config['report_end_date']
     else:
-        report_date = datetime.now().date()
+        report.report_date = datetime.now().date()
         # Subtract 3 months using relativedelta
-        start_date = report_date - relativedelta(months=3)
+        report.start_date = report.report_date - relativedelta(months=3)
         # Add 3 months using relativedelta
-        end_date = report_date + relativedelta(months=3)
+        report.end_date = report.report_date + relativedelta(months=3)
 
-    logger.info("report date: " + str(report_date))
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
+    logger.info("report date: " + str(report.report_date))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
 
     logger.info("Generating warroom npp report ...")
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code,
                     ORD.service_number,
@@ -640,9 +630,9 @@ def generate_warroom_npp_report():
                     ) PAR ON PAR.npp_id = NPP.id
                 WHERE
                     ORD.order_status IN ('Submitted', 'Closed')
-                    AND ORD.current_crd BETWEEN '{}'
-                    AND '{}';
-            """).format(start_date, end_date)
+                    AND ORD.current_crd BETWEEN '{report.start_date}'
+                    AND '{report.end_date}';
+            """
 
     logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
@@ -657,16 +647,10 @@ def generate_warroom_npp_report():
     df_raw = df_raw.sort_values(
         by=['order_code', 'npp_level'], ascending=[True, True])
 
-    # Write to CSV for Warroom Report
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df_raw, csv_main_file_path)
-
+    # Write to CSV
+    csv_file = report.create_csv_from_df(df_raw)
     # Add CSV to zip file
-    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    report.add_to_zip_file(csv_main_file_path, zip_file_path)
-
+    zip_file = report.add_to_zip_file(csv_file)
     # Send Email
     report.add_email_receiver_cc('sulo@singtel.com')
     report.add_email_receiver_cc('ksha@singtel.com')
@@ -675,9 +659,9 @@ def generate_warroom_npp_report():
     report.add_email_receiver_cc('sheila@singtel.com')
     report.add_email_receiver_cc('xv.abhijeet.navale@singtel.com')
     report.add_email_receiver_cc('xv.santoshbiradar.biradar@singtel.com')
-    report.set_email_subject(report.add_timestamp(email_subject))
+    report.set_email_subject(report.add_timestamp(report.subject))
     # report.attach_file_to_email(csv_main_file_path)
-    report.attach_file_to_email(zip_file_path)
+    report.attach_file_to_email(zip_file)
     report.send_email()
 
     return
