@@ -12,63 +12,59 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_sgo_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
-    email_subject = 'SGO Report'
-    filename = 'sgo_report'
-    start_date = None
-    end_date = None
+    report.subject = 'SGO Report'
+    report.filename = 'sgo_report'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
 
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
         # 1st of the month
-        start_date, end_date = utils.get_prev_month_first_last_day_date(
+        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
             datetime.now().date())
 
     logger.info("Generating SGO report ...")
-    generate_report(report, email_subject, filename, start_date, end_date)
+    generate_report(report)
 
 
 def generate_sgo_billing_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
-    email_subject = 'SGO (Billing) Report'
-    filename = 'sgo_billing_report'
-    start_date = None
-    end_date = None
+    report.subject = 'SGO (Billing) Report'
+    report.filename = 'sgo_billing_report'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
 
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
         # 26th of the month
-        start_date, end_date = utils.get_gsp_billing_month_start_end_date(
+        report.start_date, report.end_date = utils.get_gsp_billing_month_start_end_date(
             datetime.now().date())
 
     logger.info("Generating SGO (billing) report ...")
-    generate_report(report, email_subject, filename, start_date, end_date)
+    generate_report(report)
 
 
-def generate_report(report: OrionReport, email_subject, filename, start_date, end_date):
+def generate_report(report: OrionReport):
 
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code AS 'Workorder',
                     ORD.service_number AS 'Service No',
@@ -199,12 +195,12 @@ def generate_report(report: OrionReport, email_subject, filename, start_date, en
                         'RESALE_BGD'
                     )
                     AND NPP.status != 'Cancel'
-                    AND ACT.completed_date BETWEEN '{}'
-                    AND '{}'
+                    AND ACT.completed_date BETWEEN '{report.start_date}'
+                    AND '{report.end_date}'
                 ORDER BY
                     ORD.order_code,
                     ACT.name;
-            """).format(start_date, end_date)
+            """
 
     logger.info("Querying db ...")
     result = report.orion_db.query_to_list(query)
@@ -257,17 +253,11 @@ def generate_report(report: OrionReport, email_subject, filename, start_date, en
     for column in const.DATE_COLUMNS:
         df[column] = pd.to_datetime(df[column]).dt.date
 
-    # Write to CSV for Warroom Report
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df, csv_main_file_path)
-
+    # Write to CSV
+    csv_file = report.create_csv_from_df(df)
     # Add CSV to zip file
-    zip_file = ("{}_{}.zip").format(filename, utils.get_current_datetime())
-    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-    report.add_to_zip_file(csv_main_file_path, zip_file_path)
-
+    zip_file = report.add_to_zip_file(csv_file)
     # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(zip_file_path)
+    report.set_email_subject(report.add_timestamp(report.subject))
+    report.attach_file_to_email(zip_file)
     report.send_email()
