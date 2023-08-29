@@ -5,6 +5,9 @@ import os
 from configparser import ConfigParser, SectionProxy
 from os.path import abspath, basename, dirname
 
+# Import third-party packages
+import pandas as pd
+
 # Import local packages
 from scripts.helpers import DbConnection
 from scripts.helpers import EmailClient
@@ -187,17 +190,56 @@ class OrionReport(EmailClient):
         else:  # 'NOTSET'
             return 0
 
-    def create_csv_from_df(self, df, csv_file_path):
+    def create_csv_from_df(self, df: pd.DataFrame, file_path=None, filename=None):
         if self.debug_config.getboolean('create_report') == True:
-            utils.df_to_csv(df, csv_file_path)
+            if filename is None:
+                filename = ("{}_{}.csv").format(
+                    self.filename, utils.get_current_datetime())
+            if file_path is None:
+                file_path = os.path.join(
+                    self.reports_folder_path, filename)
 
-    def add_to_zip_file(self, files_to_zip, zip_file, password=None):
+            utils.df_to_csv(df, file_path)
+            logger.debug("CSV file path: " +
+                         os.path.dirname(file_path) + " ...")
+
+        return file_path
+
+    def create_excel_from_df(self, df: pd.DataFrame, file_path=None, filename=None, index=False):
         if self.debug_config.getboolean('create_report') == True:
+            if filename is None:
+                filename = ("{}_{}.csv").format(
+                    self.filename, utils.get_current_datetime())
+            if file_path is None:
+                file_path = os.path.join(
+                    self.reports_folder_path, filename)
+
+            # Set index=False if you don't want to export the index column
+            df.to_excel(file_path, index=index)
+
+            logger.info("Creating file " +
+                        os.path.basename(file_path) + " ...")
+            logger.debug("Excel file path: " +
+                         os.path.dirname(file_path) + " ...")
+
+        return file_path
+
+    def add_to_zip_file(self, files_to_zip, zip_file_path=None, zip_filename=None, password=None):
+        if self.debug_config.getboolean('create_report') == True:
+            if zip_filename is None:
+                zip_filename = ("{}_{}.zip").format(
+                    self.filename, utils.get_current_datetime())
+            if zip_file_path is None:
+                zip_file_path = os.path.join(
+                    self.reports_folder_path, zip_filename)
             if password == None:
-                utils.compress_files(files_to_zip, zip_file,
-                                     self.default_config['zip_password'])
-            else:
-                utils.compress_files(files_to_zip, zip_file, password)
+                password = self.default_config['zip_password']
+
+            utils.compress_files(files_to_zip, zip_file_path, password)
+            logger.debug("ZIP file path: " +
+                         os.path.dirname(zip_file_path) + " ...")
+
+        return zip_file_path
 
     def add_email_receiver_to(self, email):
         self.receiver_to_list.append(email)
