@@ -4,9 +4,7 @@ from datetime import datetime
 import logging
 
 # Import third-party packages
-import numpy as np
 import pandas as pd
-from sqlalchemy import select, case, and_, or_, null, func
 
 # Import local packages
 import constants as const
@@ -14,27 +12,31 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
+config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(configFile)
+    report = OrionReport(config_file)
 
-    email_subject = 'Operation War room - DPE/MPE'
-    filename = 'pm_dpe_mpe'
+    report.subject = 'Operation War room - DPE/MPE'
+    report.filename = 'pm_dpe_mpe'
 
     if report.debug_config.getboolean('generate_manual_report'):
         logger.info('\\* MANUAL RUN *\\')
-        report_date = report.debug_config['report_date']
+        report.start_date = report.debug_config['report_start_date']
+        report.end_date = report.debug_config['report_end_date']
 
     else:
-        report_date = datetime.now().date()
+        # Monday and Sunday date from previous week
+        report.start_date, report.end_date = utils.get_prev_week_monday_sunday_date(
+            datetime.now().date())
 
-    logger.info("report date: " + str(report_date))
+    logger.info("report start date: " + str(report.start_date))
+    logger.info("report end date: " + str(report.end_date))
     logger.info("Generating report ...")
 
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT ORD.order_code,
                     CUS.name AS customer_name,
@@ -187,7 +189,8 @@ def generate_report():
                             "Raise Impact Vendor Order"
                         )
                         AND ACT.status = "COM"
-                        AND ACT.completed_date >= DATE_SUB('{}', INTERVAL 1 WEEK)
+                        AND ACT.completed_date BETWEEN '{report.start_date}'
+                        AND '{report.end_date}'
                     )
                     OR (
                         ACT.order_id IN (
@@ -201,12 +204,13 @@ def generate_report():
                                 GSPSUB.department = "GD_OMS"
                                 AND ACTSUB.name IN ("FOC Date Received")
                                 AND ACTSUB.status = "COM"
-                                AND ACTSUB.completed_date >= DATE_SUB('{}', INTERVAL 1 WEEK)
+                                AND ACT.completed_date BETWEEN '{report.start_date}'
+                                AND '{report.end_date}'
                         )
                         AND ACT.name LIKE ("%OLLC%")
                         AND ACT.status = "COM"
                     );
-            """).format(report_date, report_date)
+            """
 
     result = report.orion_db.query_to_list(query)
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
@@ -229,7 +233,7 @@ def generate_report():
 
     # define a custom function to remove a substring in column 'delay_reason'
     # using the string in column 'category'
-    def remove_substring(row):
+    def remove_substring(row: pd.DataFrame):
         return row['delay_reason'].replace(row['category'], '')
     # apply the custom function to each row in the DataFrame
     df_raw['delay_reason'] = df_raw.apply(remove_substring, axis=1)
@@ -245,13 +249,10 @@ def generate_report():
         by=['order_code', 'act_stepno'], ascending=[True, True])
 
     # Write to CSV
-    csv_file = ("{}_{}.csv").format(filename, utils.get_current_datetime())
-    csv_main_file_path = os.path.join(report.reports_folder_path, csv_file)
-    report.create_csv_from_df(df_raw, csv_main_file_path)
-
+    csv_file = report.create_csv_from_df(df_raw)
     # Send Email
-    report.set_email_subject(report.add_timestamp(email_subject))
-    report.attach_file_to_email(csv_main_file_path)
+    report.set_email_subject(report.add_timestamp(report.subject))
+    report.attach_file_to_email(csv_file)
     report.send_email()
 
     return
