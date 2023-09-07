@@ -22,6 +22,12 @@ SELECT
     NOTEDLY.reason AS crd_amendment_reason,
     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
     ORD.assignee,
+    (
+        CASE
+            WHEN CON.order_id IS NOT NULL THEN 'PM'
+            ELSE 'Non-PM'
+        END
+    ) AS 'pm_nonpm',
     PRJ.project_code,
     CKT.circuit_code,
     PRD.network_product_code AS product_code,
@@ -89,5 +95,7 @@ FROM
     LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
     AND PAR.parameter_name = 'Type'
     AND PAR.parameter_value IN ('1', '2', '010', '020')
+    LEFT JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
+    AND CON.contact_type = "Project Manager"
 WHERE
     ACT.tag_name = 'Pegasus';

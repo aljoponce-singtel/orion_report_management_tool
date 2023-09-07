@@ -1,6 +1,5 @@
 # Import built-in packages
 import os
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import logging
 
@@ -9,7 +8,6 @@ import pandas as pd
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -19,19 +17,13 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_warroom_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'GSP (NEW) War Room Report'
-    report.filename = 'gsp_warroom_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-        report.report_date = report.debug_config['report_date']
-
-    else:
-        report.report_date = datetime.now().date()
-
-    logger.info("report date: " + str(report.report_date))
-    logger.info("Generating warroom report ...")
+    report.set_email_subject('GSP (NEW) War Room Report', add_timestamp=True)
+    report.add_email_receiver_to('teokokwee@singtel.com')
+    report.add_email_receiver_to('kinex.yeoh@singtel.com')
+    report.add_email_receiver_to('ml-cssosdpe@singtel.com')
+    report.add_email_receiver_to('ml-cssosmpeteam@singtel.com')
+    report.set_filename('gsp_warroom_report')
+    report.set_reporting_date()
 
     query = f"""
                 SELECT
@@ -55,6 +47,12 @@ def generate_warroom_report():
                     NOTEDLY.reason AS crd_amendment_reason,
                     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
                     ORD.assignee,
+                    (
+                        CASE
+                            WHEN CON.order_id IS NOT NULL THEN 'PM'
+                            ELSE 'Non-PM'
+                        END
+                    ) AS 'pm_nonpm',
                     PRJ.project_code,
                     CKT.circuit_code,
                     PRD.network_product_code AS product_code,
@@ -122,6 +120,8 @@ def generate_warroom_report():
                     LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
                     AND PAR.parameter_name = 'Type'
                     AND PAR.parameter_value IN ('1', '2', '010', '020')
+                    LEFT JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
+                    AND CON.contact_type = "Project Manager"
                 WHERE
                     ACT.tag_name = 'Pegasus';
             """
@@ -167,11 +167,6 @@ def generate_warroom_report():
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file)
     # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
-    report.add_email_receiver_to('teokokwee@singtel.com')
-    report.add_email_receiver_to('kinex.yeoh@singtel.com')
-    report.add_email_receiver_to('ml-cssosdpe@singtel.com')
-    report.add_email_receiver_to('ml-cssosmpeteam@singtel.com')
     report.attach_file_to_email(zip_file)
     report.send_email()
 
@@ -181,34 +176,23 @@ def generate_warroom_report():
 def generate_warroom_npp_report():
 
     report = OrionReport(config_file)
+    report.set_email_subject('GSP War Room NPP Report', add_timestamp=True)
+    report.add_email_receiver_cc('sulo@singtel.com')
+    report.add_email_receiver_cc('ksha@singtel.com')
+    report.add_email_receiver_cc('annesha@singtel.com')
+    report.add_email_receiver_cc('kkchan@singtel.com')
+    report.add_email_receiver_cc('sheila@singtel.com')
+    report.add_email_receiver_cc('xv.abhijeet.navale@singtel.com')
+    report.add_email_receiver_cc('xv.santoshbiradar.biradar@singtel.com')
+    report.set_filename('gsp_warroom_npp_report')
+    report.set_reporting_date()
+    # Subtract 3 months
+    report.set_start_date(report.report_date - relativedelta(months=3))
+    # Add 3 months
+    report.set_end_date(report.report_date + relativedelta(months=3))
 
-    report.subject = 'GSP War Room NPP Report'
-    report.filename = 'gsp_warroom_npp_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-        # Convert the provided date string to a datetime object
-        report.report_date = datetime.strptime(
-            report.debug_config['report_date'], "%Y-%m-%d")
-        # Subtract 3 months using relativedelta
-        report.start_date = report.report_date - relativedelta(months=3)
-        # Add 3 months using relativedelta
-        report.end_date = report.report_date + relativedelta(months=3)
-        # FOR TESTING
-        # report.start_date = report.debug_config['report_start_date']
-        # report.end_date = report.debug_config['report_end_date']
-    else:
-        report.report_date = datetime.now().date()
-        # Subtract 3 months using relativedelta
-        report.start_date = report.report_date - relativedelta(months=3)
-        # Add 3 months using relativedelta
-        report.end_date = report.report_date + relativedelta(months=3)
-
-    logger.info("report date: " + str(report.report_date))
     logger.info("report start date: " + str(report.start_date))
     logger.info("report end date: " + str(report.end_date))
-
-    logger.info("Generating warroom npp report ...")
 
     query = f"""
                 SELECT
@@ -650,15 +634,7 @@ def generate_warroom_npp_report():
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file)
     # Send Email
-    report.add_email_receiver_cc('sulo@singtel.com')
-    report.add_email_receiver_cc('ksha@singtel.com')
-    report.add_email_receiver_cc('annesha@singtel.com')
-    report.add_email_receiver_cc('kkchan@singtel.com')
-    report.add_email_receiver_cc('sheila@singtel.com')
-    report.add_email_receiver_cc('xv.abhijeet.navale@singtel.com')
-    report.add_email_receiver_cc('xv.santoshbiradar.biradar@singtel.com')
-    report.set_email_subject(report.add_timestamp(report.subject))
-    # report.attach_file_to_email(csv_main_file_path)
+    # report.attach_file_to_email(csv_file)
     report.attach_file_to_email(zip_file)
     report.send_email()
 
