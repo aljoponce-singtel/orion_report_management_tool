@@ -19,24 +19,9 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'UDF Usage Report'
-    report.filename = 'udf_usage_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
-            datetime.now().date())
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
-
-    logger.info("Generating report ...")
+    report.set_email_subject('UDF Usage Report', add_timestamp=True)
+    report.set_filename('udf_usage_report')
+    report.set_prev_month_first_last_day_date()
 
     mondays = get_all_mondays(report.start_date, report.end_date)
 
@@ -170,7 +155,6 @@ def generate_report():
         </html>
         """
     report.set_email_body_html(email_body_html)
-    report.set_email_subject(report.add_timestamp(report.subject))
     report.attach_file_to_email(csv_file)
     report.send_email()
 
