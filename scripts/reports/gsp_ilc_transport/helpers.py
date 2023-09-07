@@ -1,6 +1,5 @@
 # Import built-in packages
 import os
-from datetime import datetime
 import logging
 
 # Import third-party packages
@@ -8,7 +7,6 @@ import pandas as pd
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -18,52 +16,24 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_ilc_transport_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'ILC Transport Report'
-    report.filename = 'ilc_transport_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        # 1st of the month
-        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
-            datetime.now().date())
-
-    logger.info("Generating ILC Transport report ...")
+    report.set_email_subject('ILC Transport Report', add_timestamp=True)
+    report.set_filename('ilc_transport_report')
+    report.set_prev_month_first_last_day_date()
     generate_report(report)
 
 
 def generate_ilc_transport_billing_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'ILC Transport (Billing) Report'
-    report.filename = 'ilc_transport_billing_report'
+    report.set_email_subject(
+        'ILC Transport (Billing) Report', add_timestamp=True)
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        # 26th of the month
-        report.start_date, report.end_date = utils.get_gsp_billing_month_start_end_date(
-            datetime.now().date())
-
-    logger.info("Generating ILC Transport (billing) report ...")
+    report.set_filename('ilc_transport_billing_report')
+    report.set_gsp_billing_month_start_end_date()
     generate_report(report)
 
 
 def generate_report(report: OrionReport):
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
 
     query = f"""
                 SELECT
@@ -205,8 +175,6 @@ def generate_report(report: OrionReport):
             """
 
     result = report.orion_db.query_to_list(query)
-
-    logger.info("Creating report ...")
     df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
     # Convert columns to date
@@ -217,7 +185,6 @@ def generate_report(report: OrionReport):
     csv_file = report.create_csv_from_df(df)
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file)
-
     # Send Email
     report.set_email_subject(report.add_timestamp(report.subject))
     report.attach_file_to_email(zip_file)
