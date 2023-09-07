@@ -1,6 +1,5 @@
 # Import built-in packages
 import os
-from datetime import datetime
 import logging
 
 # Import third-party packages
@@ -18,48 +17,22 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_main_report():
 
     report = OrionReport(config_file)
-    report.subject = 'DPE MPE Report'
-    report.filename = 'dpe_mpe_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
-            datetime.now().date())
-
+    report.set_email_subject('DPE MPE Report', add_timestamp=True)
+    report.set_filename('dpe_mpe_report')
+    report.set_prev_month_first_last_day_date()
     generate_report(report)
 
 
 def generate_billing_report():
 
     report = OrionReport(config_file)
-    report.subject = 'DPE MPE (Billing) Report'
-    report.filename = 'dpe_mpe_billing_report'
-    report.start_date = None
-    report.end_date = None
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        report.start_date, report.end_date = utils.get_gsp_billing_month_start_end_date(
-            datetime.now().date())
-
+    report.set_email_subject('DPE MPE (Billing) Report', add_timestamp=True)
+    report.set_filename('dpe_mpe_billing_report')
+    report.set_gsp_billing_month_start_end_date()
     generate_report(report)
 
 
 def generate_report(report: OrionReport):
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
-    logger.info(("Generating {} ...").format(report.subject))
 
     df_raw = get_raw_records(report)
     df_dpe = get_dpe_records(df_raw)
@@ -75,7 +48,7 @@ def generate_report(report: OrionReport):
     # Write dataframes to separate sheets
     # Option to generate raw file
     if report.debug_config.getboolean('include_raw_report'):
-        logger.info("Including raw report ...")
+        logger.info("Including raw records in the report ...")
         df_raw.to_excel(excel_writer, sheet_name='RAW', index=False)
 
     df_dpe.to_excel(excel_writer, sheet_name='DPE', index=False)
@@ -105,13 +78,11 @@ def generate_report(report: OrionReport):
 def get_dpe_records(df: pd.DataFrame):
 
     logger.info("Getting DPE records ...")
-
     # Define the conditions
     condition1 = (df['Group ID'] == 'SDE_TP') & (
         df['Activity name'] == 'Updating of TP Info')
     condition2 = (df['Group ID'].isin(['OLLC_AUS', 'OLLC_CHN', 'OLLC_HKG', 'OLLC_IND', 'OLLC_INS', 'OLLC_JPN', 'OLLC_KR', 'OLLC_MLA', 'OLLC_PHL',
                                        'OLLC_ROW', 'OLLC_SNG', 'OLLC_THA', 'OLLC_TWN', 'OLLC_UK', 'OLLC_USA', 'OLLC_VTM'])) & (df['Activity name'] == 'OLLC Order Ack')
-
     # Apply the conditions to filter the dataframe
     df_dpe = df[condition1 | condition2]
     df_dpe = df_dpe[const.DPE_COLUMNS]
@@ -120,6 +91,7 @@ def get_dpe_records(df: pd.DataFrame):
 
 
 def get_mpe_records(df: pd.DataFrame):
+
     logger.info("Getting MPE records ...")
     # Define the conditions
     condition1 = df['Group ID'] == 'IMPACT'
@@ -131,6 +103,7 @@ def get_mpe_records(df: pd.DataFrame):
 
 
 def get_mse_records(df: pd.DataFrame):
+
     logger.info("Getting MSE records ...")
     # Define the conditions
     condition1 = df['Group ID'].isin(['CPE', 'CPE_CSE', 'EWO', 'EWO_CSE', 'IMPACT_CSE', 'LAN_CPE', 'LAN_CPE_TR', 'RLAN',
@@ -288,7 +261,8 @@ def get_raw_records(report: OrionReport):
                     ACT.name;
             """
 
-    result = report.orion_db.query_to_list(query)
+    result = report.orion_db.query_to_list(
+        query, query_description='raw records')
 
     df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
