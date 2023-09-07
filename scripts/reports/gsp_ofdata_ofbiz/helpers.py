@@ -18,23 +18,9 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(configFile)
-
-    report.subject = 'GSP OFData OFBiz'
-    report.filename = 'gsp_ofdata_ofbiz'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        # Monday and Sunday date of previous week
-        report.start_date, report.end_date = utils.get_prev_week_monday_sunday_date(
-            datetime.now().date())
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
-    logger.info("Generating OFData OFBiz report ...")
+    report.set_email_subject('GSP OFData OFBiz', add_timestamp=True)
+    report.set_filename('gsp_ofdata_ofbiz')
+    report.set_prev_week_monday_sunday_date()
 
     query = f"""
                 SELECT
@@ -136,14 +122,10 @@ def generate_report():
             """
 
     result = report.orion_db.query_to_list(query)
-
-    logger.info("Creating report ...")
     df = pd.DataFrame(data=result, columns=const.MAIN_COLUMNS)
-
     # Convert columns to date
     for column in const.DATE_COLUMNS:
         df[column] = pd.to_datetime(df[column]).dt.date
-
     # Export the DataFrame to an Excel file
     # Keep the first row for duplicate records with the same 'OrderNo'
     df = df.drop_duplicates(subset=['OrderNo'], keep='first')
@@ -189,15 +171,15 @@ def generate_report():
     if report.debug_config.getboolean('include_raw_report'):
         excel_raw_file = generate_report_raw(report)
         report.attach_file_to_email(excel_raw_file)
-
     # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
     report.send_email()
 
     return
 
 
 def generate_report_raw(report: OrionReport):
+
+    logger.info("Including raw report ...")
 
     query = f"""
                 SELECT
@@ -269,15 +251,12 @@ def generate_report_raw(report: OrionReport):
                     CON.contact_type;
             """
 
-    result = report.orion_db.query_to_list(query)
-
-    logger.info("Creating raw report ...")
+    result = report.orion_db.query_to_list(
+        query, query_description='raw records')
     df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
     # Convert columns to date
     for column in const.DATE_COLUMNS:
         df[column] = pd.to_datetime(df[column]).dt.date
-
     # Export the DataFrame to an Excel file
     excel_file = report.create_excel_from_df(df)
 
@@ -287,10 +266,8 @@ def generate_report_raw(report: OrionReport):
 def get_date_password():
     # Get the current date
     current_date = datetime.now()
-
     # Format the current date as "MMYYYY"
     formatted_date = current_date.strftime('%m%Y')
-
     # Replace the 4th character with '@'
     modified_date = formatted_date[:3] + '\@' + formatted_date[4:]
 
