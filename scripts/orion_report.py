@@ -3,6 +3,7 @@ import logging
 import logging.config
 import os
 from configparser import ConfigParser, SectionProxy
+from datetime import datetime
 from os.path import abspath, basename, dirname
 
 # Import third-party packages
@@ -29,14 +30,17 @@ class OrionReport(EmailClient):
         self.config = self.__load_config()
         self.default_config: SectionProxy
         self.email_config: SectionProxy
+        self.email_preview_config: SectionProxy
         self.db_config: SectionProxy
         self.debug_config: SectionProxy
         self.default_config = self.config['DEFAULT']
         self.email_config = self.config[self.default_config['email_info']]
+        self.email_preview_config = self.config['Email']
         self.db_config = self.config[self.default_config['database_env']]
         self.debug_config = self.config['Debug']
 
-        self.filename = None
+        self.filename = 'orion_report'
+        self.report_name = 'Orion Report'
         self.report_date = None
         self.start_date = None
         self.end_date = None
@@ -157,8 +161,29 @@ class OrionReport(EmailClient):
         else:
             self.reports_folder_path = self.default_config['reports_folder']
 
-        self.reports_folder_path = abspath(self.reports_folder_path)
+        self.set_reports_folder_path(abspath(self.reports_folder_path))
         utils.create_folder(self.reports_folder_path)
+
+    def set_reports_folder_path(self, path):
+        self.reports_folder_path = abspath(path)
+
+    def set_filename(self, filename):
+        self.filename = filename
+
+    def set_report_date(self, date):
+        # Convert date input to a date object
+        date_obj = utils.to_date_obj(date)
+        self.report_date = date_obj
+
+    def set_start_date(self, date):
+        # Convert date input to a date object
+        date_obj = utils.to_date_obj(date)
+        self.start_date = date_obj
+
+    def set_end_date(self, date):
+        # Convert date input to a date object
+        date_obj = utils.to_date_obj(date)
+        self.end_date = date_obj
 
     def get_log_level(self):
 
@@ -189,6 +214,23 @@ class OrionReport(EmailClient):
             return 50
         else:  # 'NOTSET'
             return 0
+
+    def insert_df_to_tableau_db(self, df: pd.DataFrame):
+        # Allow Tableaue DB update
+        if self.debug_config.getboolean('update_tableau_db'):
+            try:
+                logger.info(
+                    'Inserting records to ' + self.db_config['tableau_db'] + '.' + self.default_config['tableau_table'] + ' ...')
+                # insert records to DB
+                self.tableau_db.insert_df_to_table(
+                    df, self.default_config['tableau_table'])
+
+            except Exception as err:
+                logger.info("Failed processing DB " + self.db_config['tableau_db'] + ' at ' +
+                            self.db_config['tableau_user'] + '@' + self.db_config['host'] + ':' + self.db_config['port'] + '.')
+                logger.exception(err)
+
+                raise Exception(err)
 
     def create_csv_from_df(self, df: pd.DataFrame, file_path=None, filename=None):
         if self.debug_config.getboolean('create_report') == True:
@@ -257,73 +299,208 @@ class OrionReport(EmailClient):
 
         return email_str
 
+    def set_email_subject(self, subject, add_timestamp=False):
+        self.report_name = subject
+
+        if add_timestamp:
+            super().set_email_subject(super().add_timestamp(subject))
+        else:
+            super().set_email_subject(subject)
+
     def attach_file_to_email(self, attachment):
         if self.debug_config.getboolean('create_report') == True:
             super().attach_file(attachment)
 
-    def preview_email_body_html(self, email_body_html, filename, file_path=None):
+    def preview_email(self, filename=None, file_path=None, open_file=True):
+
+        preview_html = f"""\
+                        <html>
+                        <p>Subject: {self.subject}</p>
+                        <p>To: {self.email_preview_config["receiver_to"] + self.__email_list_to_str(self.receiver_to_list)}</p>
+                        <p>Cc: {self.email_preview_config["receiver_cc"] + self.__email_list_to_str(self.receiver_cc_list)}</p>
+                        <p>Attachments: {self.get_file_attachments(include_path=False)}</p>
+                        <p>&nbsp;</p>
+                        </html>
+                        """
+        preview_html = preview_html + "\n" + self.email_body_html
         html_file_path = None
 
+        if self.default_config['email_info'] != 'Email':
+            self.set_email_subject('TEST ' + self.get_email_subject())
+            self.set_email_body_html(preview_html)
+
         if self.debug_config.getboolean('preview_email') == True:
+            if filename is None:
+                filename = ('{}.html').format(self.filename)
+
             if file_path is None:
                 html_file_path = os.path.join(
                     self.reports_folder_path, filename)
             else:
                 html_file_path = os.path.join(file_path, filename)
 
-            self.export_to_html_file(email_body_html, html_file_path)
-            utils.open_file_using_default_program(html_file_path)
+            self.export_to_html_file(preview_html, html_file_path)
+
+            if open_file:
+                utils.open_file_using_default_program(html_file_path)
 
         return html_file_path
 
     def send_email(self):
-        # Preview email before sending
-        self.preview_email_body_html(self.email_body_html, 'email_body.html')
 
-        # Enable/Disable email
-        if self.debug_config.getboolean('send_email') == True:
-            try:
-                self.server = self.email_config['server']
-                self.port = self.email_config['port']
-                self.sender = self.email_config['sender']
-                self.email_from = self.email_config["from"]
+        try:
+            self.server = self.email_config['server']
+            self.port = self.email_config['port']
+            self.sender = self.email_config['sender']
+            self.email_from = self.email_config["from"]
 
-                if self.default_config['email_info'] == 'Email':
-                    self.receiver_to = self.email_config["receiver_to"] + \
-                        self.__email_list_to_str(self.receiver_to_list)
-                    self.receiver_cc = self.email_config["receiver_cc"] + \
-                        self.__email_list_to_str(self.receiver_cc_list)
-                else:
-                    self.receiver_to = self.email_config["receiver_to"]
-                    self.receiver_cc = self.email_config["receiver_cc"]
+            if self.default_config['email_info'] == 'Email':
+                self.receiver_to = self.email_config["receiver_to"] + \
+                    self.__email_list_to_str(self.receiver_to_list)
+                self.receiver_cc = self.email_config["receiver_cc"] + \
+                    self.__email_list_to_str(self.receiver_cc_list)
+            else:
+                self.receiver_to = self.email_config["receiver_to"]
+                self.receiver_cc = self.email_config["receiver_cc"]
 
-                if self.subject == None:
-                    self.subject = self.add_timestamp("Orion Report")
+            if self.subject == None:
+                self.subject = self.add_timestamp("Orion Report")
 
-                if self.email_body_text == None:
-                    self.email_body_text = """
-                        Hello,
+            if self.email_body_text == None:
+                self.email_body_text = """
+                    Hello,
 
-                        Please see attached ORION report.
+                    Please see attached ORION report.
 
 
-                        Best regards,
-                        The Orion Team
+                    Best regards,
+                    The Orion Team
+                """
+
+            if self.email_body_html == None:
+                self.email_body_html = """\
+                    <html>
+                    <p>Hello,</p>
+                    <p>Please see attached ORION report.</p>
+                    <p>&nbsp;</p>
+                    <p>Best regards,</p>
+                    <p>The Orion Team</p>
+                    </html>
                     """
 
-                if self.email_body_html == None:
-                    self.email_body_html = """\
-                        <html>
-                        <p>Hello,</p>
-                        <p>Please see attached ORION report.</p>
-                        <p>&nbsp;</p>
-                        <p>Best regards,</p>
-                        <p>The Orion Team</p>
-                        </html>
-                        """
+            # Preview email before sending
+            self.preview_email()
 
+            # Enable/Disable sending email
+            if self.debug_config.getboolean('send_email') == True:
                 self.send()
 
-            except Exception as e:
-                logger.error("Failed to send email.")
-                raise Exception(e)
+        except Exception as e:
+            logger.error("Failed to send email.")
+            raise Exception(e)
+
+    def set_reporting_date(self):
+        if self.debug_config.getboolean('generate_manual_report'):
+            logger.info('\\* MANUAL RUN *\\')
+            self.set_report_date(self.debug_config['report_date'])
+
+        else:
+            self.set_report_date(datetime.now().date())
+
+        logger.info(f"Generating {self.report_name} ...")
+        logger.info("report date: " + str(self.report_date))
+
+        if self.config.has_option('Debug', 'update_tableau_db'):
+            logger.info('update_tableau_db = ' +
+                        str(self.debug_config.getboolean('update_tableau_db')))
+
+    def set_prev_week_monday_sunday_date(self):
+        if self.debug_config.getboolean('generate_manual_report'):
+            logger.info('\\* MANUAL RUN *\\')
+            self.set_start_date(self.debug_config['report_start_date'])
+            self.set_end_date(self.debug_config['report_end_date'])
+
+        else:
+            # Monday date of the week
+            start_date, end_date = utils.get_prev_week_monday_sunday_date(
+                datetime.now().date())
+            self.set_start_date(start_date)
+            self.set_end_date(end_date)
+
+        logger.info(f"Generating {self.report_name} ...")
+        logger.info("report start date: " + str(self.start_date))
+        logger.info("report end date: " + str(self.end_date))
+
+        if self.config.has_option('Debug', 'update_tableau_db'):
+            logger.info('update_tableau_db = ' +
+                        str(self.debug_config.getboolean('update_tableau_db')))
+
+    def set_prev_month_first_last_day_date(self):
+        if self.debug_config.getboolean('generate_manual_report'):
+            logger.info('\\* MANUAL RUN *\\')
+            self.set_start_date(self.debug_config['report_start_date'])
+            self.set_end_date(self.debug_config['report_end_date'])
+
+        else:
+            # 1st day of the month
+            start_date, end_date = utils.get_prev_month_first_last_day_date(
+                datetime.now().date())
+            self.set_start_date(start_date)
+            self.set_end_date(end_date)
+
+        logger.info(f"Generating {self.report_name} ...")
+        logger.info("report start date: " + str(self.start_date))
+        logger.info("report end date: " + str(self.end_date))
+
+        if self.config.has_option('Debug', 'update_tableau_db'):
+            logger.info('update_tableau_db = ' +
+                        str(self.debug_config.getboolean('update_tableau_db')))
+
+    def set_gsp_billing_month_start_end_date(self):
+        if self.debug_config.getboolean('generate_manual_report'):
+            logger.info('\\* MANUAL RUN *\\')
+            self.set_start_date(self.debug_config['report_start_date'])
+            self.set_end_date(self.debug_config['report_end_date'])
+
+        else:
+            # 26th day of the month
+            start_date, end_date = self.get_gsp_billing_month_start_end_date(
+                datetime.now().date())
+            self.set_start_date(start_date)
+            self.set_end_date(end_date)
+
+        logger.info(f"Generating {self.report_name} ...")
+        logger.info("report start date: " + str(self.start_date))
+        logger.info("report end date: " + str(self.end_date))
+
+        if self.config.has_option('Debug', 'update_tableau_db'):
+            logger.info('update_tableau_db = ' +
+                        str(self.debug_config.getboolean('update_tableau_db')))
+
+    def get_gsp_billing_month_start_end_date(self, date):
+        # Example:
+        # /* Current date = 2023-01-26 */
+        # If day of current date > 25
+        # 2022-12-26 = First day of billing month
+        # 2023-01-25 = Last day of billing month
+        # /* Current date = 2023-01-25 */
+        # If day of current date < 26
+        # 2022-11-26 = First day of billing month
+        # 2022-12-25 = Last day of billing month
+
+        # Convert date input to a date object
+        date_obj = utils.to_date_obj(date)
+        year = date_obj.year
+        month = date_obj.month
+        day = date_obj.day
+        start_date = None
+        end_date = None
+
+        if day > 25:
+            start_date = utils.subtract_months(date_obj, 1).replace(day=26)
+            end_date = date_obj.replace(day=25)
+        else:
+            start_date = utils.subtract_months(date_obj, 2).replace(day=26)
+            end_date = utils.subtract_months(date_obj, 1).replace(day=25)
+
+        return start_date, end_date
