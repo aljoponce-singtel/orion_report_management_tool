@@ -21,125 +21,55 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_transport_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'Transport Report'
-    report.filename = 'transport_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-        report.debug_config['update_tableau_db'] = 'false'
-
-    else:
-        # 1st of the month
-        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
-            datetime.now().date())
-        report.debug_config['update_tableau_db'] = 'true'
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
-
-    logger.info('update_tableau_db = ' +
-                str(report.debug_config.getboolean('update_tableau_db')))
-
-    logger.info("Generating transport report ...")
-
+    report.set_email_subject('Transport Report', add_timestamp=True)
+    report.set_filename('transport_report')
+    report.set_prev_month_first_last_day_date()
+    # Create Report
     df_finalReport = createFinalReport(report)
-
     # Insert records to tableau db
-    updateTableauDB(report, df_finalReport)
-
-    # Write to CSV for Warroom Report
-    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS])
-    # Add CSV to zip file
-    zip_file = report.add_to_zip_file(csv_file)
-    # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
-    report.attach_file_to_email(zip_file)
-    report.add_email_receiver_to('teokokwee@singtel.com')
-    report.send_email()
-
-
-def updateTableauDB(report: OrionReport, dataframe: pd.DataFrame):
-    # Allow Tableaue DB update
-    if report.debug_config.getboolean('update_tableau_db'):
-        try:
-            logger.info(
-                'Inserting records to ' + report.db_config['tableau_db'] + '.' + report.default_config['tableau_table'] + ' ...')
-
-            df = pd.DataFrame(dataframe)
-
-            # add new column
-            df["update_time"] = pd.Timestamp.now()
-
-            # set columns to datetime type
-            df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
-                pd.to_datetime)
-
-            # set empty values to null
-            df.replace('', None)
-            # insert records to DB
-            report.tableau_db.insert_df_to_table(
-                df, report.default_config['tableau_table'])
-
-            # logger.info("TableauDB Updated for " + report_id.lower())
-
-        except Exception as err:
-            logger.info("Failed processing DB " + report.db_config['tableau_db'] + ' at ' +
-                        report.db_config['tableau_user'] + '@' + report.db_config['host'] + ':' + report.db_config['port'] + '.')
-            logger.exception(err)
-
-            raise Exception(err)
-
-
-def generate_transport_billing_report():
-
-    report = OrionReport(config_file)
-
-    report.subject = 'Transport (Billing) Report'
-    report.filename = 'transport_billing_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-        report.debug_config['update_tableau_db'] = 'false'
-
-    else:
-        # 26th of the month
-        report.start_date, report.end_date = utils.get_gsp_billing_month_start_end_date(
-            datetime.now().date())
-        report.debug_config['update_tableau_db'] = 'false'
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
-
-    logger.info('update_tableau_db = ' +
-                str(report.debug_config.getboolean('update_tableau_db')))
-
-    logger.info("Generating transport billing report ...")
-
-    df_finalReport = createFinalReport(report)
-
-    # Removing SGP from teams
-    # Dropping rows where the PreConfig_Team or Coordination_Team column matches the string value 'SGP'
-    df_finalReport = df_finalReport.drop(
-        (df_finalReport.loc[df_finalReport['PreConfig_Team'] == 'SGP'].index) | (df_finalReport.loc[df_finalReport['Coordination_Team'] == 'SGP'].index))
-
+    update_tableau_db(report, df_finalReport)
     # Write to CSV
     csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS])
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file)
     # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
+    report.attach_file_to_email(zip_file)
+    report.add_email_receiver_to('teokokwee@singtel.com')
+    report.send_email()
+
+
+def generate_transport_billing_report():
+
+    report = OrionReport(config_file)
+    report.set_email_subject('Transport Report', add_timestamp=True)
+    report.set_filename('transport_report')
+    report.set_gsp_billing_month_start_end_date()
+    # Create Report
+    df_finalReport = createFinalReport(report)
+    # Removing SGP from teams
+    # Dropping rows where the PreConfig_Team or Coordination_Team column matches the string value 'SGP'
+    df_finalReport = df_finalReport.drop(
+        (df_finalReport.loc[df_finalReport['PreConfig_Team'] == 'SGP'].index) | (df_finalReport.loc[df_finalReport['Coordination_Team'] == 'SGP'].index))
+    # Write to CSV
+    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS])
+    # Add CSV to zip file
+    zip_file = report.add_to_zip_file(csv_file)
+    # Send Email
     report.attach_file_to_email(zip_file)
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')
     report.send_email()
+
+
+def update_tableau_db(report: OrionReport, df: pd.DataFrame):
+    # add new column
+    df["update_time"] = pd.Timestamp.now()
+    # set columns to datetime type
+    df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
+        pd.to_datetime)
+    # set empty values to null
+    df.replace('', None)
+    # insert records to DB
+    report.insert_df_to_tableau_db(df)
 
 
 def createFinalReport(report: OrionReport):
@@ -493,7 +423,7 @@ def getTransportOrders(report: OrionReport):
         )
     )
 
-    result = report.orion_db.query_to_list(query)
+    result = report.orion_db.query_to_list(query, query_description='orders')
     return pd.DataFrame(data=result, columns=['order_id'])
 
 
