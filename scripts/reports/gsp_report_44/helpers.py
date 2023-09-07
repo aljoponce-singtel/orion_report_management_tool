@@ -19,24 +19,9 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'GSP Report 44'
-    report.filename = 'gsp_report_44'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
-            datetime.now().date())
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
-
-    logger.info("Generating report ...")
+    report.set_email_subject('GSP Report 44', add_timestamp=True)
+    report.set_filename('gsp_report_44')
+    report.set_prev_month_first_last_day_date()
 
     query = f"""
                 SELECT
@@ -160,7 +145,6 @@ def generate_report():
             """
 
     result = report.orion_db.query_to_list(query)
-    logger.info("Creating report 44 report ...")
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
     # set columns to datetime type
@@ -215,9 +199,7 @@ def generate_report():
     csv_file = report.create_csv_from_df(df_raw)
     # Add CSV to zip file
     # zip_file = report.add_to_zip_file(csv_file)
-
     # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
     report.attach_file_to_email(csv_file)
     report.send_email()
 
@@ -233,7 +215,7 @@ def get_holidays(report: OrionReport):
                 ;
             """)
 
-    result = report.tableau_db.query_to_list(query)
+    result = report.tableau_db.query_to_list(query, query_description='holidays')
     df = pd.DataFrame(data=result, columns=['Holiday', 'Date'])
 
     # set columns to datetime type
