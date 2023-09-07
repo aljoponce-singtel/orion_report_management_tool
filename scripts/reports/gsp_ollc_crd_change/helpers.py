@@ -1,6 +1,5 @@
 # Import built-in packages
 import os
-from datetime import datetime
 import logging
 
 # Import third-party packages
@@ -8,7 +7,6 @@ import pandas as pd
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -18,19 +16,9 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'GSP OLLC CRD Change Report'
-    report.filename = 'gsp_ollc_crd_change_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-        report.report_date = report.debug_config['report_date']
-
-    else:
-        report.report_date = datetime.now().date()
-
-    logger.info("report date: " + str(report.report_date))
-    logger.info("Generating gsp ollc crd change report ...")
+    report.set_email_subject('GSP OLLC CRD Change Report', add_timestamp=True)
+    report.set_filename('gsp_ollc_crd_change_report')
+    report.set_reporting_date()
 
     query = f"""
                 SELECT
@@ -102,7 +90,6 @@ def generate_report():
     result = report.orion_db.query_to_list(query)
 
     if result:
-        logger.info("Creating gsp ollc crd change report ...")
         df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
         # set columns to datetime type
@@ -155,7 +142,6 @@ def generate_report():
 
         report.set_email_body_text(email_body_text)
         report.set_email_body_html(email_body_html)
-        report.set_email_subject(report.add_timestamp(report.subject))
         report.attach_file_to_email(csv_file)
         report.send_email()
     else:
