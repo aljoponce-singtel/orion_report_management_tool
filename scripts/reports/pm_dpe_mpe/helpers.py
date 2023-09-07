@@ -1,6 +1,5 @@
 # Import built-in packages
 import os
-from datetime import datetime
 import logging
 
 # Import third-party packages
@@ -8,7 +7,6 @@ import pandas as pd
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -18,23 +16,10 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'Operation War room - DPE/MPE'
-    report.filename = 'pm_dpe_mpe'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        # Monday and Sunday date from previous week
-        report.start_date, report.end_date = utils.get_prev_week_monday_sunday_date(
-            datetime.now().date())
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
-    logger.info("Generating report ...")
+    report.set_email_subject(
+        'Operation War room - DPE/MPE', add_timestamp=True)
+    report.set_filename('pm_dpe_mpe')
+    report.set_prev_week_monday_sunday_date()
 
     query = f"""
                 SELECT
@@ -213,13 +198,10 @@ def generate_report():
             """
 
     result = report.orion_db.query_to_list(query)
-    logger.info(("Generating {} ...").format(report.subject))
     df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
     # set columns to datetime type
     df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
         pd.to_datetime)
-
     df_raw['delay_reason'] = df_raw['delay_reason'].astype(str)
     df_raw['category'] = df_raw['category'].astype(str)
 
@@ -244,7 +226,6 @@ def generate_report():
 
     # remove leading '-' character from strings in the requestor column
     df_raw['requestor'] = df_raw['requestor'].str.lstrip('-')
-
     # Sort records in ascending order by order_code and note_code
     df_raw = df_raw.sort_values(
         by=['order_code', 'act_stepno'], ascending=[True, True])
@@ -252,7 +233,6 @@ def generate_report():
     # Write to CSV
     csv_file = report.create_csv_from_df(df_raw)
     # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
     report.attach_file_to_email(csv_file)
     report.send_email()
 
