@@ -64,6 +64,9 @@ class EmailClient:
 
         return platforms[sys.platform]
 
+    def get_email_subject(self) -> str:
+        return self.subject
+
     def set_email_subject(self, subject):
         self.subject = subject
 
@@ -82,6 +85,15 @@ class EmailClient:
         logger.info('Attaching file {} ...'.format(
             os.path.basename(attachment)))
         self.attachments.append(attachment)
+
+    def get_file_attachments(self, include_path=True):
+        if include_path:
+            return self.attachments
+        else:
+            new_attachments = []
+            for attachment in self.attachments:
+                new_attachments.append(os.path.basename(attachment))
+            return new_attachments
 
     def smtp_send(self):
         logger.info('Sending email with subject "{}" ...'.format(self.subject))
