@@ -1,5 +1,6 @@
 import logging
 import pandas as pd
+import time
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.sql import text
 
@@ -72,25 +73,34 @@ class DbConnection:
 
         return table_to_drop.metadata.drop_all(self.engine)
 
-    def query_to_list(self, query, data=None):
+    def query_to_list(self, query, data=None, query_description='records'):
 
         # Only works when log_level=debug
         self.log_full_query(query)
-
-        logger.info("Querying db ...")
+        logger.info(f"Querying {query_description} ...")
+        result = []
         query_type = type(query)
+        start_time = time.time()
 
         # query has data
         if data:
-            return self.conn.execute(query, data).fetchall()
+            result = self.conn.execute(query, data).fetchall()
         # query is a an SQL text
         elif query_type is str:
-            return self.conn.execute(text(query)).fetchall()
+            result = self.conn.execute(text(query)).fetchall()
         # query is a constructed SQL expression
         elif query_type.__name__ == 'Select':
-            return self.conn.execute(query).fetchall()
+            result = self.conn.execute(query).fetchall()
         else:
             raise Exception("INVALID QUERY")
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+
+        logger.info(
+            f"Query completion time: {self.__format_seconds(elapsed_time)}")
+
+        return result
 
     def insert_df_to_table(self, dataframe, table, if_exist=None):
         logger.info(f'Inserting records to {table} table ...')
@@ -114,3 +124,15 @@ class DbConnection:
                   #     ‘multi’: Pass multiple values in a single INSERT clause.
                   #     callable with signature (pd_table, conn, keys, data_iter).
                   method='multi')
+
+    # private method
+    def __format_seconds(self, seconds):
+        # Calculate hours, minutes, and seconds
+        hours, seconds = divmod(seconds, 3600)
+        minutes, seconds = divmod(seconds, 60)
+        # Round seconds to two decimal places
+        seconds = round(seconds, 2)
+        # Create a formatted string
+        formatted_duration = f"{int(hours)}:{int(minutes):02}:{seconds:05.2f}"
+
+        return formatted_duration
