@@ -1,6 +1,5 @@
 # Import built-in packages
 import os
-from datetime import datetime
 import logging
 
 # Import third-party packages
@@ -18,25 +17,9 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_cplus_ip_report():
 
     report = OrionReport(config_file)
-
-    report.subject = 'CPlusIP Report'
-    report.filename = 'cplusip_report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-
-        report.start_date = report.debug_config['report_start_date']
-        report.end_date = report.debug_config['report_end_date']
-
-    else:
-        # 1st of the month
-        report.start_date, report.end_date = utils.get_prev_month_first_last_day_date(
-            datetime.now().date())
-
-    logger.info("Generating CPlusIP Report ...")
-
-    logger.info("report start date: " + str(report.start_date))
-    logger.info("report end date: " + str(report.end_date))
+    report.set_email_subject('CPlusIP Report', add_timestamp=True)
+    report.set_filename('cplusip_report')
+    report.set_prev_month_first_last_day_date()
 
     cnp_act_list = [
         'Change C+ IP',
@@ -160,24 +143,13 @@ def generate_cplus_ip_report():
 
     result = report.orion_db.query_to_list(query)
 
-    logger.info("Creating report ...")
     df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
     # Convert columns to date
     for column in const.DATE_COLUMNS:
         df[column] = pd.to_datetime(df[column]).dt.date
 
-    # Write to CSV
     csv_file = report.create_csv_from_df(df)
-
-    # Attach files to email
-    if report.debug_config.getboolean('compress_files'):
-        # Add CSV to zip file
-        zip_file = report.add_to_zip_file(csv_file)
-        report.attach_file_to_email(zip_file)
-    else:
-        report.attach_file_to_email(csv_file)
-
-    # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
+    zip_file = report.add_to_zip_file(csv_file)
+    report.attach_file_to_email(zip_file)
     report.send_email()
