@@ -15,9 +15,6 @@ WHERE
         OR USR.username = 'mluser@singtel.com'
         OR USR.username = 'aljo.ponce@singtel.com'
         OR USR.username = 'jiangxu@ncs.com.sg'
-        OR USR.username = 'adelinethk@singtel.com'
-        OR USR.username = 'jacob.toh@singtel.com'
-        OR USR.username = 'yuchen.liu@singtel.com'
         OR USR.username = 'weiwang.thang@singtel.com'
     )
     AND USR.team = 'Account Manager'

@@ -1,13 +1,11 @@
 # Import built-in packages
 import os
-from datetime import datetime
 import logging
 
 # Import third-party packages
 import pandas as pd
 
 # Import local packages
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -17,24 +15,11 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(configFile)
+    report.set_email_subject(
+        'AM User Weekly Access Report', add_timestamp=True)
+    report.set_prev_week_monday_sunday_date()
 
-    email_subject = 'AM User Weekly Access Report'
-
-    if report.debug_config.getboolean('generate_manual_report'):
-        logger.info('\\* MANUAL RUN *\\')
-        start_date = report.debug_config['report_start_date']
-        end_date = report.debug_config['report_end_date']
-
-    else:
-        # Monday and Sunday date of previous week
-        start_date, end_date = utils.get_prev_week_monday_sunday_date(
-            datetime.now().date())
-
-    logger.info("report start date: " + str(start_date))
-    logger.info("report end date: " + str(end_date))
-    logger.info("Generating AM User Access report ...")
-
-    query = ("""
+    query = f"""
                 SELECT
                     DISTINCT USR.username
                 FROM
@@ -52,20 +37,16 @@ def generate_report():
                         OR USR.username = 'mluser@singtel.com'
                         OR USR.username = 'aljo.ponce@singtel.com'
                         OR USR.username = 'jiangxu@ncs.com.sg'
-                        OR USR.username = 'adelinethk@singtel.com'
-                        OR USR.username = 'jacob.toh@singtel.com'
-                        OR USR.username = 'yuchen.liu@singtel.com'
                         OR USR.username = 'weiwang.thang@singtel.com'
                     )
                     AND USR.team = 'Account Manager'
-                    AND DATE(USR.last_login) BETWEEN '{}'
-                    AND '{}'
+                    AND DATE(USR.last_login) BETWEEN '{report.start_date}'
+                    AND '{report.end_date}'
                 ORDER BY
                     USR.username;
-            """).format(start_date, end_date)
+            """
 
     result = report.orion_db.query_to_list(query)
-    logger.info("Creating report ...")
     df = None
 
     if result:
@@ -90,20 +71,19 @@ def generate_report():
         Orion Team
     """
 
-    email_body_html = ("""\
+    email_body_html = f"""\
         <html>
         <p>Hello,</p>
-        <p>Please see AM user weekly access report from {} to {}.</p>
-        <p>{}</p>
+        <p>Please see AM user weekly access report from {report.start_date} to {report.end_date}.</p>
+        <p>{df.to_html()}</p>
         <p>&nbsp;</p>
         <p>Thank you and best regards,</p>
         <p>Orion Team</p>
         </html>
-        """).format(start_date, end_date, df.to_html())
+        """
 
     report.set_email_body_text(email_body_text)
     report.set_email_body_html(email_body_html)
-    report.set_email_subject(report.add_timestamp(email_subject))
     report.send_email()
 
     return
