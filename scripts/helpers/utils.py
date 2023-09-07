@@ -176,35 +176,6 @@ def get_prev_month_first_last_day_date(date):
     return start_date, end_date
 
 
-def get_gsp_billing_month_start_end_date(date):
-    # Example:
-    # /* Current date = 2023-01-26 */
-    # If day of current date > 25
-    # 2022-12-26 = First day of billing month
-    # 2023-01-25 = Last day of billing month
-    # /* Current date = 2023-01-25 */
-    # If day of current date < 26
-    # 2022-11-26 = First day of billing month
-    # 2022-12-25 = Last day of billing month
-
-    # Convert date input to a date object
-    date_obj = to_date_obj(date)
-    year = date_obj.year
-    month = date_obj.month
-    day = date_obj.day
-    start_date = None
-    end_date = None
-
-    if day > 25:
-        start_date = subtract_months(date_obj, 1).replace(day=26)
-        end_date = date_obj.replace(day=25)
-    else:
-        start_date = subtract_months(date_obj, 2).replace(day=26)
-        end_date = subtract_months(date_obj, 1).replace(day=25)
-
-    return start_date, end_date
-
-
 def subtract_months(date, no_of_months):
 
     # Convert date input to a date object
