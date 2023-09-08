@@ -116,17 +116,6 @@ def generate_report():
             drop=True)
         df_unique_invalid_users.index += 1
 
-        email_body_text = f"""
-        Hello,
-
-        Please see below the list of new/updated queue owners.
-
-        {str(df_invalid)}
-
-        Best regards,
-        The Orion Team
-                        """
-
         email_body_html = f"""\
             <html>
             <p>Hello,</p>
@@ -144,7 +133,6 @@ def generate_report():
             """
 
         # Send email
-        report.set_email_body_text(email_body_text)
         report.set_email_body_html(email_body_html)
 
         if df_valid.empty:
