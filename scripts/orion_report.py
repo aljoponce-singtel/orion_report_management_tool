@@ -49,18 +49,18 @@ class OrionReport(EmailClient):
         # setup logging and reports folder
         self.__initialize()
 
+        # Connect to Orion DB
         self.orion_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
                                      self.db_config['orion_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
         self.orion_db.connect()
-
+        # Connect to Staging DB
         self.staging_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
                                        self.db_config['staging_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
         self.staging_db.connect()
-
-        if self.db_config['tableau_db']:
-            self.tableau_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
-                                           self.db_config['tableau_db'], self.db_config['tableau_user'], self.db_config['tableau_pwd'])
-            self.tableau_db.connect()
+        # Connect to Tableau DB
+        self.tableau_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
+                                        self.db_config['tableau_db'], self.db_config['tableau_user'], self.db_config['tableau_pwd'])
+        self.tableau_db.connect()
 
         super().__init__()
 
@@ -70,7 +70,7 @@ class OrionReport(EmailClient):
                     utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
 
     # private method
-    def __load_config(self):
+    def __load_config(self) -> ConfigParser:
         # Load the parent (orion_report.ini) config file
         parent_config_file = abspath(os.path.join(
             dirname(__file__), "./orion_report.ini"))
