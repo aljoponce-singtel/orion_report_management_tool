@@ -27,10 +27,14 @@ There should be a main() fucntion defined inside file from sys.argv[2].
 Any exception errors when running the script will inform admin through email.
 """
 
+# Import built-in packages
 import sys
 import importlib
 import traceback
 import configparser
+from pathlib import Path
+
+# Import local packages
 from scripts.helpers import EmailClient
 from scripts.helpers import utils
 
@@ -43,48 +47,79 @@ email_config = config['Email']
 
 def main():
 
-    try:
-        # Print All arguments
-        print(sys.argv)
+    if len(sys.argv) > 1:
+        try:
+            # Print All arguments
+            print(sys.argv)
 
-        # Add script folder path to python system path
-        sys.path.append('./scripts/reports/' + sys.argv[1])
+            script_folder = './scripts/reports/' + sys.argv[1]
+            default_file = 'main'
+            default_function = 'main'
 
-        # If the main script and/or main function is provided
-        if len(sys.argv) > 2:
-            # Import module (call script file)
-            import_module = importlib.import_module(sys.argv[2])
+            if Path(script_folder).exists():
+                # Add script folder path to python system path
+                sys.path.append(script_folder)
 
-            if len(sys.argv) > 3:
-                # Call the main function from the imported module
-                func = getattr(import_module, sys.argv[3])
-                func()
+                # If the main script and/or main function is provided
+                if len(sys.argv) > 2:
+                    try:
+                        # Import module (call script file)
+                        import_module = importlib.import_module(sys.argv[2])
+
+                        if len(sys.argv) > 3:
+                            # Call the main function from the imported module
+                            if hasattr(import_module, sys.argv[3]):
+                                func = getattr(import_module, sys.argv[3])
+                                func()
+                            else:
+                                print(
+                                    f"ERROR: The attribute '{sys.argv[3]}()' does not exist in '{import_module.__name__}'.")
+                        else:
+                            # Call the main function from the imported module
+                            if hasattr(import_module, default_function):
+                                func = getattr(import_module, default_function)
+                                func()
+                            else:
+                                print(
+                                    f"ERROR: The attribute '{default_function}()' does not exist in '{import_module.__name__}'.")
+                    except ImportError:
+                        print(
+                            f"ERROR: The file '{sys.argv[2]}.py' does not exist.")
+
+                # If only the script folder provided
+                else:
+                    try:
+                        # Import/call main.py script/module by default
+                        import_module = importlib.import_module(default_file)
+                        # Call the main function from the imported module
+                        if hasattr(import_module, default_function):
+                            func = getattr(import_module, default_function)
+                            func()
+                        else:
+                            print(
+                                f"ERROR: The attribute '{default_function}()' does not exist in '{import_module.__name__}'.")
+                    except ImportError:
+                        print(
+                            f"ERROR: The file '{default_file}.py' does not exist.")
             else:
-                # Call main() function from the imported module by default
-                func = getattr(import_module, 'main')
-                func()
+                print(f"ERROR: The path [{Path(script_folder)}] does not exist.")
 
-        # If only the script folder provided
-        else:
-            # Import/call main.py script/module by default
-            import_module = importlib.import_module('main')
-            # Call main() function from the imported module by default
-            func = getattr(import_module, 'main')
-            func()
+        except Exception as error:
 
-    except Exception as error:
+            timeStamp = utils.get_current_datetime()
+            fileName = '{}.{}.error.log'.format(__file__, timeStamp)
 
-        timeStamp = utils.get_current_datetime()
-        fileName = '{}.{}.error.log'.format(__file__, timeStamp)
+            if default_config.getboolean('create_error_log'):
+                # Output error to file
+                with open(fileName, 'a') as f:
+                    f.write(str(error))
+                    f.write(traceback.format_exc())
 
-        if default_config.getboolean('create_error_log'):
-            # Output error to file
-            with open(fileName, 'a') as f:
-                f.write(str(error))
-                f.write(traceback.format_exc())
-
-        if default_config.getboolean('send_email'):
-            send_email(sys.argv[1], fileName)
+            if default_config.getboolean('send_email'):
+                send_email(sys.argv[1], fileName)
+    
+    else:
+        print(f"ERROR: Please provide at least one (script folder path) command argument.")
 
 
 def send_email(report, fileName):
