@@ -3,6 +3,7 @@ MAIN_COLUMNS = [
     'user',
     'user_id',
     'is_valid',
+    'is_enabled',
     'actual_user',
     'actual_user_id',
     'expected_user',

@@ -38,6 +38,12 @@ def generate_report():
                             ELSE 'no'
                         END
                     ) AS is_valid,
+                    (
+                        CASE
+                            WHEN GRP.is_enabled = 1 THEN 'yes'
+                            ELSE 'no'
+                        END
+                    ) AS is_enabled,
                     USR_ACTUAL.username AS 'actual_user',
                     USR_ACTUAL.id AS 'actual_user_id',
                     USR_EXPECTED.username AS 'expected_user',
@@ -47,6 +53,7 @@ def generate_report():
                 FROM
                     RestInterface_person PER
                     JOIN auto_escalation_escalationmatrix MTX ON MTX.person_id = PER.id
+                    JOIN auto_escalation_escalationgroup GRP ON GRP.person_id = PER.id
                     LEFT JOIN RestInterface_user USR_ACTUAL ON USR_ACTUAL.id = PER.user_id
                     LEFT JOIN RestInterface_user USR_EXPECTED ON USR_EXPECTED.username = TRIM(PER.email)
                 WHERE
@@ -55,7 +62,6 @@ def generate_report():
                         TRIM(PER.email) != USR_ACTUAL.username
                         OR PER.user_id IS NULL
                     )
-                    -- AND PER.email LIKE '%singtel%'
                 ORDER BY
                     PER.email,
                     PER.role;
@@ -77,8 +83,9 @@ def generate_report():
             else:
                 return date
 
-        # Valid email address:
-        df_valid = df[df['is_valid'] == 'yes']
+        df_valid: pd.DataFrame
+        # Valid email address and escalation enabled:
+        df_valid = df[(df['is_valid'] == 'yes') & (df['is_enabled'] == 'yes')]
         # Reset and change starting index from 0 to 1 for proper table presentation
         df_valid = df_valid.reset_index(drop=True)
         df_valid.index += 1
@@ -88,7 +95,7 @@ def generate_report():
         df_valid['created_at'] = df_valid['created_at'].apply(
             replace_nat_with_empty_string)
         # remove is_valid column
-        df_valid = df_valid.drop('is_valid', axis=1)
+        df_valid = df_valid.drop(['is_valid', 'is_enabled'], axis=1)
         # list unique users
         df_unique_valid_users = pd.DataFrame(df_valid['user'].unique(), columns=[
             'distinct_users']).sort_values(['distinct_users'])
