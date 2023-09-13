@@ -37,19 +37,6 @@ class EmailClient:
 
         return subject
 
-    # Legacy/deprecated function
-    def add_timestamp_2(self, subject):
-        today_datetime = datetime.now()
-        day = today_datetime.strftime('%d').lstrip('0')
-        hour = today_datetime.strftime('%I').lstrip('0')
-        ampm = today_datetime.strftime('%p').lower()
-        year = today_datetime.strftime('%Y')
-        month = today_datetime.strftime('%b').lower()
-        subject = "[{}] {}{}{} {}{}".format(
-            subject, year, month, day, hour, ampm)
-
-        return subject
-
     def get_platform(self):
         platforms = {
             'linux': 'Linux',
