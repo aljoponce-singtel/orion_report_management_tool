@@ -16,8 +16,7 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(configFile)
-    report.set_email_subject(
-        'New Queue Owner Updates', add_timestamp=True)
+    report.set_report_name('New Queue Owner Updates')
 
     query = f"""
                 SELECT
