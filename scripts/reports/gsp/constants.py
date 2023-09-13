@@ -26,3 +26,46 @@ DATE_COLUMNS = [
     'DLY',
     'COM'
 ]
+
+MAIN_COLUMNS_DOUBLE = [
+    "Workorder no",
+    "Service No",
+    "Product Code",
+    "Product Description",
+    "Customer Name",
+    "Order Type",
+    "CRD",
+    "Order Taken Date",
+    "Group ID",
+    "Activity Name",
+    "DUE",
+    "RDY",
+    "EXC",
+    "DLY",
+    "COM",
+    "Group ID",
+    "Activity Name",
+    "DUE",
+    "RDY",
+    "EXC",
+    "DLY",
+    "COM"
+]
+
+MAIN_COLUMNS_SINGLE = [
+    "Workorder no",
+    "Service No",
+    "Product Code",
+    "Product Description",
+    "Customer Name",
+    "Order Type",
+    "CRD",
+    "Order Taken Date",
+    "Group ID",
+    "Activity Name",
+    "DUE",
+    "RDY",
+    "EXC",
+    "DLY",
+    "COM",
+]
