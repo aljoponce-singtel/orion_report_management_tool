@@ -19,7 +19,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('GSP Report 44', add_timestamp=True)
+    report.set_report_name('GSP Report 44')
     report.set_filename('gsp_report_44')
     report.set_prev_month_first_last_day_date()
 
@@ -215,7 +215,8 @@ def get_holidays(report: OrionReport):
                 ;
             """)
 
-    result = report.tableau_db.query_to_list(query, query_description='holidays')
+    result = report.tableau_db.query_to_list(
+        query, query_description='holidays')
     df = pd.DataFrame(data=result, columns=['Holiday', 'Date'])
 
     # set columns to datetime type
