@@ -2,13 +2,8 @@
 import os
 import logging
 
-# Import third-party packages
-import pandas as pd
-
 # Import local packages
-import constants as const
-from scripts.helpers import utils
-from scripts.orion_report import OrionReport
+from gsp_report import GspReport
 
 logger = logging.getLogger(__name__)
 config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
@@ -16,17 +11,50 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 def generate_cplus_ip_report():
 
-    report = OrionReport(config_file)
-    report.set_email_subject('CPlusIP Report', add_timestamp=True)
+    report = GspReport(config_file)
     report.set_filename('cplusip_report')
     report.set_prev_month_first_last_day_date()
 
+    cnp_group_list = [
+        'CNP',
+        'CNP1',
+        'CNP10',
+        'CNP11',
+        'CNP12',
+        'CNP13',
+        'CNP2',
+        'CNP20',
+        'CNP3',
+        'CNP30',
+        'CNP31',
+        'CNP32',
+        'CNP33',
+        'CNP34',
+        'CNP35',
+        'CNP36',
+        'CNP37',
+        'CNP38',
+        'CNP39',
+        'CNP4',
+        'CNP40',
+        'CNP41',
+        'CNP42',
+        'CNP43',
+        'CNP44',
+        'CNP45',
+        'CNP5',
+        'CNP6',
+        'CNP7',
+        'CNP8',
+        'CNP9'
+    ]
+
     cnp_act_list = [
+        'LLC Accepted by Singtel',
         'Change C+ IP',
         'De-Activate C+ IP',
         'DeActivate Video Exch Svc',
         'LLC Received from Partner',
-        'LLC Accepted by Singtel',
         'Activate C+ IP',
         'Cease Resale SGO',
         'OLLC Site Survey',
@@ -53,11 +81,45 @@ def generate_cplus_ip_report():
         'Cease Resale SGO CHN'
     ]
 
+    gsdt6_group_list = [
+        'GSDT6',
+        'GSDT61',
+        'GSDT610',
+        'GSDT611',
+        'GSDT612',
+        'GSDT613',
+        'GSDT62',
+        'GSDT620',
+        'GSDT63',
+        'GSDT630',
+        'GSDT631',
+        'GSDT632',
+        'GSDT633',
+        'GSDT634',
+        'GSDT635',
+        'GSDT636',
+        'GSDT637',
+        'GSDT638',
+        'GSDT639',
+        'GSDT64',
+        'GSDT640',
+        'GSDT641',
+        'GSDT642',
+        'GSDT643',
+        'GSDT644',
+        'GSDT645',
+        'GSDT65',
+        'GSDT66',
+        'GSDT67',
+        'GSDT68',
+        'GSDT69'
+    ]
+
     gsdt6_act_list = [
+        'GSDT Co-ordination OS LLC',
         'GSDT Co-ordination Work',
         'De-Activate C+ IP',
         'Cease Monitoring of IPPBX',
-        'GSDT Co-ordination OS LLC',
         'GSDT Partner Cloud Access',
         'Cease In-Ctry Data Pro',
         'Change Resale SGO',
@@ -77,79 +139,28 @@ def generate_cplus_ip_report():
         'Disconnect RMS for ATM'
     ]
 
-    query = f"""
-                SELECT
-                    DISTINCT ORD.order_code,
-                    ORD.service_number,
-                    PRD.network_product_code,
-                    PRD.network_product_desc,
-                    CUS.name AS customer_name,
-                    ORD.order_type,
-                    ORD.current_crd,
-                    ORD.taken_date,
-                    PER.role AS group_id,
-                    CAST(ACT.activity_code AS SIGNED INTEGER) AS act_step_no,
-                    ACT.name AS act_name,
-                    ACT.due_date AS act_due_date,
-                    ACT.ready_date AS act_rdy_date,
-                    DATE(ACT.exe_date) AS act_exe_date,
-                    DATE(ACT.dly_date) AS act_dly_date,
-                    ACT.completed_date AS act_com_date
-                FROM
-                    RestInterface_order ORD
-                    JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-                    JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                    LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                    LEFT JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                    AND NPP.level = 'MainLine'
-                    AND NPP.status != 'Cancel'
-                    LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                WHERE
-                    ORD.id IN (
-                        SELECT
-                            DISTINCT ORD.id
-                        FROM
-                            RestInterface_order ORD
-                            JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-                            JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                        WHERE
-                            PER.role LIKE 'CNP%'
-                            AND ACT.completed_date BETWEEN '{report.start_date}'
-                            AND '{report.end_date}'
-                            AND ACT.name IN (
-                                {utils.list_to_string(cnp_act_list)}
-                            )
-                    )
-                    AND (
-                        (
-                            PER.role LIKE 'CNP%'
-                            AND ACT.completed_date BETWEEN '{report.start_date}'
-                            AND '{report.end_date}'
-                            AND ACT.name IN (
-                                {utils.list_to_string(cnp_act_list)}
-                            )
-                        )
-                        OR (
-                            PER.role LIKE 'GSDT6%'
-                            AND ACT.name IN (
-                                {utils.list_to_string(gsdt6_act_list)}
-                            )
-                        )
-                    )
-                ORDER BY
-                    ORD.order_code,
-                    act_step_no;
-            """
+    report.set_first_groupid_list(cnp_group_list)
+    report.set_first_activity_list(cnp_act_list)
+    report.set_second_groupid_list(gsdt6_group_list)
+    report.set_second_activity_list(gsdt6_act_list)
+    current_datetime = report.get_current_datetime()
+    zip_filename = ("{}_{}.zip").format(report.filename, current_datetime)
 
-    result = report.orion_db.query_to_list(query)
+    # CNP
+    report.set_gsp_report_name("CNP")
+    df_report = report.generate_report(main_group='first')
+    csv_file = report.create_csv_from_df(df_report, filename=(
+        "{}_{}.csv").format(report.gsp_report_name, current_datetime))
+    zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
 
-    df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
+    # GSDT6
+    report.set_gsp_report_name("GSDT6")
+    df_report = report.generate_report(main_group='second')
+    csv_file = report.create_csv_from_df(df_report, filename=(
+        "{}_{}.csv").format(report.gsp_report_name, current_datetime))
+    zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
 
-    # Convert columns to date
-    for column in const.DATE_COLUMNS:
-        df[column] = pd.to_datetime(df[column]).dt.date
-
-    csv_file = report.create_csv_from_df(df)
-    zip_file = report.add_to_zip_file(csv_file)
+    # Send email
     report.attach_file_to_email(zip_file)
+    report.set_email_subject(report.add_timestamp('CPlusIP Report'))
     report.send_email()
