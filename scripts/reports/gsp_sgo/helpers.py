@@ -16,7 +16,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_sgo_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('SGO Report', add_timestamp=True)
+    report.set_report_name('SGO Report')
     report.set_filename('sgo_report')
     report.set_prev_month_first_last_day_date()
     generate_report(report)
@@ -25,7 +25,7 @@ def generate_sgo_report():
 def generate_sgo_billing_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('SGO (Billing) Report', add_timestamp=True)
+    report.set_report_name('SGO (Billing) Report')
     report.set_filename('sgo_billing_report')
     report.set_gsp_billing_month_start_end_date()
     generate_report(report)
