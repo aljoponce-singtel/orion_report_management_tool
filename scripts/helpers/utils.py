@@ -32,6 +32,39 @@ def df_to_csv(df, file_path):
     df.to_csv(file_path, index=False)
 
 
+# Updates the dataframe based from the contents and sequence of the priority list
+# Example:
+# df_act = pd.DataFrame({'activities': ['activity_1', 'activity_2', 'activity_3',  'activity_4']},
+#                       {'order_id': ['id_123', 'id_456', 'id_789',  'id_901']})
+# act_seq_list = ['activity_4', 'activity_2']
+# Only the rows where the df_act['activities'] is in the act_seq_list will be selected and should also follow the sequence from the list
+# df_output = pd.DataFrame({'activities': ['activity_4', 'activity_2']},
+#                           {'order_id': ['id_901', 'id_456']})
+# There is also a keep_top_record option to keep the top record/s for the purpose of getting only the highest priority
+def sort_df_by_priority_sequence(df: pd.DataFrame, column_name: str, priority_seq_list, keep_top_record=True) -> pd.DataFrame:
+
+    df_prio_seq = pd.DataFrame(columns=df.columns)
+
+    # Iterate through the priority list
+    for element in priority_seq_list:
+        # Gets the unique list of values from the specified column name
+        df_list = df[column_name].unique()
+        # Checks if the current element from the priority list exist in the dataframe
+        if element in df_list:
+            # Adds the matched row to the new dataframe
+            df_to_add = df[df[column_name] == element]
+            df_prio_seq = pd.concat([df_prio_seq, df_to_add])
+
+    # Option to return all records or keep the top record based on priority and sequence
+    if keep_top_record:
+        # Gets the string value of the top record from the specified column
+        top_record = df_prio_seq.head(1)[column_name].iloc[0]
+        # Gets the rows that matches the top record
+        df_prio_seq = df_prio_seq[df_prio_seq[column_name] == top_record]
+
+    return df_prio_seq
+
+
 def write_to_csv(csv_file_path, dataset, headers, folder_path):
 
     try:
@@ -126,12 +159,6 @@ def get_current_datetime(format=None):
     else:
         # sample format - '20220808_1800'
         return datetime.now().strftime("%Y%m%d_%H%M")
-
-
-# Legacy/deprecated function
-def get_current_datetime_2():
-    # sample format - '050622_1845'
-    return datetime.now().strftime("%d%m%y_%H%M")
 
 
 def get_prev_week_monday_sunday_date(date):
