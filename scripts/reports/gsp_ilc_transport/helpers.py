@@ -16,7 +16,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_ilc_transport_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('ILC Transport Report', add_timestamp=True)
+    report.set_report_name('ILC Transport Report')
     report.set_filename('ilc_transport_report')
     report.set_prev_month_first_last_day_date()
     generate_report(report)
@@ -25,8 +25,7 @@ def generate_ilc_transport_report():
 def generate_ilc_transport_billing_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject(
-        'ILC Transport (Billing) Report', add_timestamp=True)
+    report.set_report_name('ILC Transport (Billing) Report')
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')
     report.set_filename('ilc_transport_billing_report')
     report.set_gsp_billing_month_start_end_date()
@@ -186,6 +185,5 @@ def generate_report(report: OrionReport):
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file)
     # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
     report.attach_file_to_email(zip_file)
     report.send_email()
