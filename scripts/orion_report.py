@@ -59,7 +59,7 @@ class OrionReport(EmailClient):
         self.staging_db.connect()
         # Connect to Tableau DB
         self.tableau_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
-                                        self.db_config['tableau_db'], self.db_config['tableau_user'], self.db_config['tableau_pwd'])
+                                       self.db_config['tableau_db'], self.db_config['tableau_user'], self.db_config['tableau_pwd'])
         self.tableau_db.connect()
 
         super().__init__()
@@ -166,6 +166,9 @@ class OrionReport(EmailClient):
 
     def set_reports_folder_path(self, path):
         self.reports_folder_path = abspath(path)
+
+    def set_report_name(self, name):
+        self.report_name = name
 
     def set_filename(self, filename):
         self.filename = filename
@@ -276,6 +279,9 @@ class OrionReport(EmailClient):
                     self.reports_folder_path, zip_filename)
             if password == None:
                 password = self.default_config['zip_password']
+            if self.config.has_option('Debug', 'remove_file_after_zip'):
+                remove_file = self.debug_config.getboolean(
+                    'remove_file_after_zip')
 
             utils.compress_files(
                 files_to_zip, zip_file_path, password, remove_file)
@@ -299,8 +305,10 @@ class OrionReport(EmailClient):
 
         return email_str
 
-    def set_email_subject(self, subject, add_timestamp=False):
-        self.report_name = subject
+    def set_email_subject(self, subject='', add_timestamp=False):
+
+        if not subject:
+            subject = self.report_name
 
         if add_timestamp:
             super().set_email_subject(super().add_timestamp(subject))
@@ -342,6 +350,7 @@ class OrionReport(EmailClient):
             self.export_to_html_file(preview_html, html_file_path)
 
             if open_file:
+                logger.info("Previewing email ...")
                 utils.open_file_using_default_program(html_file_path)
 
         return html_file_path
@@ -364,7 +373,7 @@ class OrionReport(EmailClient):
                 self.receiver_cc = self.email_config["receiver_cc"]
 
             if self.subject == None:
-                self.subject = self.add_timestamp("Orion Report")
+                self.subject = self.report_name
 
             if self.email_body_text == None:
                 self.email_body_text = """
