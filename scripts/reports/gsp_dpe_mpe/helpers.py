@@ -17,7 +17,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_main_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('DPE MPE Report', add_timestamp=True)
+    report.set_report_name('DPE MPE Report')
     report.set_filename('dpe_mpe_report')
     report.set_prev_month_first_last_day_date()
     generate_report(report)
@@ -26,7 +26,7 @@ def generate_main_report():
 def generate_billing_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('DPE MPE (Billing) Report', add_timestamp=True)
+    report.set_report_name('DPE MPE (Billing) Report')
     report.set_filename('dpe_mpe_billing_report')
     report.set_gsp_billing_month_start_end_date()
     generate_report(report)
@@ -71,7 +71,6 @@ def generate_report(report: OrionReport):
         report.attach_file_to_email(excel_file_path)
 
     # Send Email
-    report.set_email_subject(report.add_timestamp(report.subject))
     report.send_email()
 
 
