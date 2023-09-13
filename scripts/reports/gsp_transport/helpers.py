@@ -21,7 +21,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_transport_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('Transport Report', add_timestamp=True)
+    report.set_report_name('Transport Report')
     report.set_filename('transport_report')
     report.set_prev_month_first_last_day_date()
     # Create Report
@@ -41,7 +41,7 @@ def generate_transport_report():
 def generate_transport_billing_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('Transport Report', add_timestamp=True)
+    report.set_report_name('Transport Report')
     report.set_filename('transport_report')
     report.set_gsp_billing_month_start_end_date()
     # Create Report
