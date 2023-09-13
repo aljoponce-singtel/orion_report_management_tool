@@ -18,7 +18,7 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(configFile)
-    report.set_email_subject('GSP OFData OFBiz', add_timestamp=True)
+    report.set_report_name('GSP OFData OFBiz')
     report.set_filename('gsp_ofdata_ofbiz')
     report.set_prev_week_monday_sunday_date()
 
