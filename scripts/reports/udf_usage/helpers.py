@@ -9,7 +9,6 @@ import pandas as pd
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -19,7 +18,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('UDF Usage Report', add_timestamp=True)
+    report.set_report_name('UDF Usage Report')
     report.set_filename('udf_usage_report')
     report.set_prev_month_first_last_day_date()
 
@@ -154,6 +153,7 @@ def generate_report():
         <p>The Orion Team</p>
         </html>
         """
+
     report.set_email_body_html(email_body_html)
     report.attach_file_to_email(csv_file)
     report.send_email()
