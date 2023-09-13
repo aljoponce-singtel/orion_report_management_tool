@@ -16,7 +16,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject('GSP OLLC CRD Change Report', add_timestamp=True)
+    report.set_report_name('GSP OLLC CRD Change Report')
     report.set_filename('gsp_ollc_crd_change_report')
     report.set_reporting_date()
 
