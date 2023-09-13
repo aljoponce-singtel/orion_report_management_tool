@@ -16,8 +16,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(config_file)
-    report.set_email_subject(
-        'Operation War room - DPE/MPE', add_timestamp=True)
+    report.set_report_name('Operation War room - DPE/MPE')
     report.set_filename('pm_dpe_mpe')
     report.set_prev_week_monday_sunday_date()
 
