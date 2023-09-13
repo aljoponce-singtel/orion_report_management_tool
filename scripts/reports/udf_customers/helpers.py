@@ -17,6 +17,7 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_report():
 
     report = OrionReport(configFile)
+    report.set_report_name('New Work Orders created for UDF R1 Customers')
     report.set_reporting_date()
     # Subtract 1 day
     report.set_start_date(report.report_date - relativedelta(days=1))
@@ -99,8 +100,6 @@ def generate_report():
             """
 
         # Send email
-        report.set_email_subject(
-            'New Work Orders created for UDF R1 Customers', add_timestamp=True)
         report.set_email_body_text(email_body_text)
         report.set_email_body_html(email_body_html)
         report.send_email()
