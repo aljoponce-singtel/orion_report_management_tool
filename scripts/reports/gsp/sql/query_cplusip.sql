@@ -33,7 +33,39 @@ WHERE
             JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
             JOIN RestInterface_person PER ON PER.id = ACT.person_id
         WHERE
-            PER.role LIKE 'CNP%'
+            PER.role IN (
+                'CNP',
+                'CNP1',
+                'CNP10',
+                'CNP11',
+                'CNP12',
+                'CNP13',
+                'CNP2',
+                'CNP20',
+                'CNP3',
+                'CNP30',
+                'CNP31',
+                'CNP32',
+                'CNP33',
+                'CNP34',
+                'CNP35',
+                'CNP36',
+                'CNP37',
+                'CNP38',
+                'CNP39',
+                'CNP4',
+                'CNP40',
+                'CNP41',
+                'CNP42',
+                'CNP43',
+                'CNP44',
+                'CNP45',
+                'CNP5',
+                'CNP6',
+                'CNP7',
+                'CNP8',
+                'CNP9'
+            )
             AND ACT.completed_date BETWEEN '2023-07-01'
             AND '2023-07-31'
             AND ACT.name IN (
@@ -70,7 +102,39 @@ WHERE
     )
     AND (
         (
-            PER.role LIKE 'CNP%'
+            PER.role IN (
+                'CNP',
+                'CNP1',
+                'CNP10',
+                'CNP11',
+                'CNP12',
+                'CNP13',
+                'CNP2',
+                'CNP20',
+                'CNP3',
+                'CNP30',
+                'CNP31',
+                'CNP32',
+                'CNP33',
+                'CNP34',
+                'CNP35',
+                'CNP36',
+                'CNP37',
+                'CNP38',
+                'CNP39',
+                'CNP4',
+                'CNP40',
+                'CNP41',
+                'CNP42',
+                'CNP43',
+                'CNP44',
+                'CNP45',
+                'CNP5',
+                'CNP6',
+                'CNP7',
+                'CNP8',
+                'CNP9'
+            )
             AND ACT.completed_date BETWEEN '2023-07-01'
             AND '2023-07-31'
             AND ACT.name IN (
@@ -106,7 +170,39 @@ WHERE
             )
         )
         OR (
-            PER.role LIKE 'GSDT6%'
+            PER.role IN (
+                'GSDT6',
+                'GSDT61',
+                'GSDT610',
+                'GSDT611',
+                'GSDT612',
+                'GSDT613',
+                'GSDT62',
+                'GSDT620',
+                'GSDT63',
+                'GSDT630',
+                'GSDT631',
+                'GSDT632',
+                'GSDT633',
+                'GSDT634',
+                'GSDT635',
+                'GSDT636',
+                'GSDT637',
+                'GSDT638',
+                'GSDT639',
+                'GSDT64',
+                'GSDT640',
+                'GSDT641',
+                'GSDT642',
+                'GSDT643',
+                'GSDT644',
+                'GSDT645',
+                'GSDT65',
+                'GSDT66',
+                'GSDT67',
+                'GSDT68',
+                'GSDT69'
+            )
             AND ACT.name IN (
                 'GSDT Co-ordination Work',
                 'De-Activate C+ IP',
