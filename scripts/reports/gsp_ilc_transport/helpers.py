@@ -163,6 +163,7 @@ def generate_report(report: OrionReport):
                     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
                 WHERE
                     PRD.network_product_code IN (
+                        'BIC0022',
                         'BIC0003',
                         'CIC0001',
                         'CIC0006',

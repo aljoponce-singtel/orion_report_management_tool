@@ -37,7 +37,14 @@ WHERE
         'RDC_ILC3',
         'RDC_ILC4'
     ) -- AND ACT.name       IN ( 'GSDT Co-ordination Work', 'GSDT Co-ordination OS LLC' )
-    AND ORD.order_code IN ('ZBK5222012', 'ZFN2189001')
+    AND ORD.order_code IN ('ZBK5222012', 'ZFN2189001') -- AND PRD.network_product_code IN (
+    --     'BIC0022',
+    --     'BIC0003',
+    --     'CIC0001',
+    --     'CIC0006',
+    --     'CIC0010',
+    --     'ILC0008'
+    -- )
 ORDER BY
     ORD.order_code,
     NPP.level,
