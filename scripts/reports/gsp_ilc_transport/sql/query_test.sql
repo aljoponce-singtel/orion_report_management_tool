@@ -10,7 +10,7 @@ SELECT
     ACT.name,
     ACT.status,
     ACT.completed_date,
-    DATE(ACT.updated_at) AS updated_at
+    DATE_FORMAT(ACT.updated_at, '%Y-%m-%d %H:%i:%s') AS udpated_at
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
