@@ -17,7 +17,8 @@ SELECT
                 'ELK0091',
                 'ELK0092',
                 'ELK0093',
-                'ELK0094'
+                'ELK0094',
+                'ELK0003'
             ) THEN 'MegaPop (CE)'
             WHEN prd.network_product_code LIKE 'GGW%' THEN 'Gigawave'
             ELSE NULL
@@ -120,7 +121,8 @@ WHERE
                 'ELK0091',
                 'ELK0092',
                 'ELK0093',
-                'ELK0094'
+                'ELK0094',
+                'ELK0003'
             )
             AND (
                 (
@@ -156,7 +158,10 @@ WHERE
                         OR per.role LIKE 'RDC_%'
                         OR per.role LIKE 'GSPSG_%'
                     )
-                    AND act.name = 'Node & Circuit Deletion'
+                    AND act.name IN (
+                        'Node & Circuit Deletion',
+                        'Node & Cct Deletion (DN)'
+                    )
                 )
             )
         )

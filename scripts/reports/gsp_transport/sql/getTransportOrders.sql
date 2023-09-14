@@ -91,7 +91,8 @@ WHERE
                 'ELK0091',
                 'ELK0092',
                 'ELK0093',
-                'ELK0094'
+                'ELK0094',
+                'ELK0003'
             )
             AND (
                 (
@@ -111,7 +112,10 @@ WHERE
                         )
                         OR (
                             ord.order_type = 'Cease'
-                            AND act.name = 'Node & Circuit Deletion'
+                            AND act.name IN (
+                                'Node & Circuit Deletion',
+                                'Node & Cct Deletion (DN)'
+                            )
                         )
                     )
                 )

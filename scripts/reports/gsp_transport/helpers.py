@@ -362,7 +362,8 @@ def getTransportOrders(report: OrionReport):
                              'ELK0091',
                              'ELK0092',
                              'ELK0093',
-                             'ELK0094']),
+                             'ELK0094',
+                             'ELK0003']),
                         or_(
                             and_(
                                 or_(
@@ -382,7 +383,8 @@ def getTransportOrders(report: OrionReport):
                                     ).self_group(),
                                     and_(
                                         order_table.c.order_type == 'Cease',
-                                        activity_table.c.name == 'Node & Circuit Deletion'
+                                        activity_table.c.name.in_(
+                                            ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
                                     ).self_group()
                                 )
                             ).self_group(),
@@ -464,7 +466,8 @@ def getTransportRecords(report: OrionReport, order_id_list):
                      'ELK0091',
                      'ELK0092',
                      'ELK0093',
-                     'ELK0094']), 'MegaPop (CE)'),
+                     'ELK0094',
+                     'ELK0003']), 'MegaPop (CE)'),
                 (product_table.c.network_product_code.like('GGW%'), 'Gigawave'),
                 else_=null()
             ).label('service'),
@@ -573,7 +576,8 @@ def getTransportRecords(report: OrionReport, order_id_list):
                              'ELK0091',
                              'ELK0092',
                              'ELK0093',
-                             'ELK0094']),
+                             'ELK0094',
+                             'ELK0003']),
                         or_(
                             and_(
                                 order_table.c.order_type == 'Provide',
@@ -609,7 +613,8 @@ def getTransportRecords(report: OrionReport, order_id_list):
                                     person_table.c.role.like('RDC_%'),
                                     person_table.c.role.like('GSPSG_%')
                                 ),
-                                activity_table.c.name == 'Node & Circuit Deletion'
+                                activity_table.c.name.in_(
+                                    ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
                             ).self_group()
                         )
                     ).self_group(),
