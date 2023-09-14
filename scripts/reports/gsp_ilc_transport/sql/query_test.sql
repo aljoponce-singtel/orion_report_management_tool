@@ -1,8 +1,8 @@
 SELECT
     DISTINCT ORD.order_code,
     ORD.service_number,
-    ORD.order_status,
-    ORD.order_type,
+    -- ORD.order_status,
+    -- ORD.order_type,
     NPP.level,
     NPP.status,
     PRD.network_product_code,
