@@ -7,16 +7,31 @@ import pandas as pd
 
 # Import local packages
 import constants as const
+from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
 configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
-def generate_report():
+def check_disk_usage():
 
-    report = OrionReport(configFile)
-    report.set_report_name('New Queue Owner Updates')
+    report = OrionReport(configFile, "Disk Usage")
+
+    path_to_check = "/"  # Replace with the path to the drive you want to check
+
+    disk_usage_percentage = utils.check_disk_usage(path_to_check)
+
+    if disk_usage_percentage >= 80:
+        logger.warn(
+            f"The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.")
+    else:
+        logger.info(f"The drive at {path_to_check} is not yet 80% full.")
+
+
+def check_new_queueowners():
+
+    report = OrionReport(configFile, 'New Queue Owner Updates')
 
     query = f"""
                 SELECT

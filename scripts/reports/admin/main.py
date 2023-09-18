@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import generate_report
+from helpers import check_disk_usage, check_new_queueowners
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 def main():
 
     try:
-        generate_report()
+        check_disk_usage()
+        check_new_queueowners()
 
     except Exception as err:
         logger.exception(err)
