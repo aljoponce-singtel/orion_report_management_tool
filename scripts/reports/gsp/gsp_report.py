@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 class GspReport(OrionReport):
 
-    def __init__(self, config_file):
+    def __init__(self, config_file, report_name='Orion Report'):
 
         self.gsp_report_name = 'GSP'
         self.first_groupid_list = []
@@ -24,7 +24,7 @@ class GspReport(OrionReport):
         self.first_activity_list = []
         self.second_activity_list = []
 
-        super().__init__(config_file)
+        super().__init__(config_file, report_name)
 
     def set_gsp_report_name(self, name: str):
         self.gsp_report_name = name
@@ -152,9 +152,13 @@ class GspReport(OrionReport):
 
         # Iterate through the records of each uniqe workorders
         for order in unique_orders:
-            # Initialize group 1 and 2 dataframes
+            # Initialize group 1 and 2 dataframe and dictionary
             df_top_group_1 = pd.DataFrame(columns=const.RAW_COLUMNS)
             df_top_group_2 = pd.DataFrame(columns=const.RAW_COLUMNS)
+            group_1_dict = {
+                col: None if col not in const.DATE_COLUMNS else pd.NaT for col in const.RAW_COLUMNS}
+            group_2_dict = {
+                col: None if col not in const.DATE_COLUMNS else pd.NaT for col in const.RAW_COLUMNS}
             # Get the records of an order
             df_order: pd.DataFrame
             df_order = df_raw[df_raw['Workorder no'] == order]

@@ -9,6 +9,58 @@ logger = logging.getLogger(__name__)
 config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
+def generate_sdwan_report():
+
+    report = GspReport(config_file, 'SDWAN Report')
+    report.set_filename('sdwan_report')
+    report.set_prev_month_first_last_day_date()
+
+    gsp_group_list = [
+        'GSP_SDN ',
+        'GSP_NFV'
+    ]
+
+    gsp_act_list = [
+        'NFV Staging & Onboarding',
+        'SDWAN Onsite Installation',
+        'Cease SD-WAN Service'
+    ]
+
+    gsdt_group_list = [
+        'GSDT_SDN',
+        'GSDT_NFV'
+    ]
+
+    gsdt_act_list = [
+        'GSDT Co-ordination Work'
+    ]
+
+    report.set_first_groupid_list(gsp_group_list)
+    report.set_first_activity_list(gsp_act_list)
+    report.set_second_groupid_list(gsdt_group_list)
+    report.set_second_activity_list(gsdt_act_list)
+    current_datetime = report.get_current_datetime()
+    zip_filename = ("{}_{}.zip").format(report.filename, current_datetime)
+
+    # CNP
+    report.set_gsp_report_name("gsp")
+    df_report = report.generate_report(main_group='first')
+    csv_file = report.create_csv_from_df(df_report, filename=(
+        "{}_{}.csv").format(report.gsp_report_name, current_datetime))
+    zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
+
+    # GSDT6
+    report.set_gsp_report_name("gsdt")
+    df_report = report.generate_report(main_group='second')
+    csv_file = report.create_csv_from_df(df_report, filename=(
+        "{}_{}.csv").format(report.gsp_report_name, current_datetime))
+    zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
+
+    # Send email
+    report.attach_file_to_email(zip_file)
+    report.send_email()
+
+
 def generate_cplus_ip_report():
 
     report = GspReport(config_file)

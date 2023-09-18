@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import generate_cplus_ip_report
+from helpers import generate_sdwan_report, generate_cplus_ip_report
 
 logger = logging.getLogger(__name__)
 
@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 def main():
 
     try:
+        generate_sdwan_report()
         generate_cplus_ip_report()
 
     except Exception as err:
