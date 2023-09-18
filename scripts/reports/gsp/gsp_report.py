@@ -234,17 +234,27 @@ class GspReport(OrionReport):
         return df_report
 
     # private method
-    def __select_top_queue(self, df_group, column_name, activity_list) -> pd.DataFrame:
+    def __select_top_queue(self, df_group: pd.DataFrame, column_name, activity_list) -> pd.DataFrame:
+        logger.warn(
+            ("Workorder has MULTIPLE queues.\n{}")
+            .format(df_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
         # Get the top records based on priority and sequence
         df_top_group = utils.sort_df_by_priority_sequence(
             df_group, column_name, activity_list)
         if len(df_top_group) > 1:
             logger.warn(
-                ("Workorder has duplicate queues.\n{}")
+                "Getting the top records based on priority and sequence.")
+            logger.warn(
+                ("Workorder has DUPLICATE queues.\n{}")
                 .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
             df_top_group = df_top_group.sort_values(
                 by=['Step No'], ascending=[False]).drop_duplicates(subset=['Activity Name'], keep='first')
             logger.warn(
                 ("Selecting the queue with the highest step no.\n{}")
                 .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
+        else:
+            logger.warn(
+                ("Getting the top records based on priority and sequence.\n{}")
+                .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
+
         return df_top_group
