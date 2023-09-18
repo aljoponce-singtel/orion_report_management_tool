@@ -23,7 +23,7 @@ class OrionReport(EmailClient):
     receiver_to_list = []
     receiver_cc_list = []
 
-    def __init__(self, config_file):
+    def __init__(self, config_file, report_name='Orion Report'):
 
         # Config
         self.config_file = config_file
@@ -40,7 +40,7 @@ class OrionReport(EmailClient):
         self.debug_config = self.config['Debug']
 
         self.filename = 'orion_report'
-        self.report_name = 'Orion Report'
+        self.report_name = report_name
         self.report_date = None
         self.start_date = None
         self.end_date = None
@@ -99,6 +99,7 @@ class OrionReport(EmailClient):
             logger.info("==========================================")
             logger.info("START of script - " +
                         utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
+            logger.info(f"/* {self.report_name} */")
             logger.info("Running script in " + utils.get_platform())
 
             self.__setup_reports_folder()
