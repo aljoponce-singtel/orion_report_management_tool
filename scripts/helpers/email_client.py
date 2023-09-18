@@ -1,12 +1,13 @@
+# Import built-in packages
+import logging
 import os
 import sys
-from datetime import datetime
 import smtplib
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from datetime import datetime
 from email import encoders
-import logging
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 logger = logging.getLogger(__name__)
 

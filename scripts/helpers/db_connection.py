@@ -1,6 +1,9 @@
+# Import built-in packages
 import logging
-import pandas as pd
 import time
+
+# Import third-party packages
+import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.sql import text
 
