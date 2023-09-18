@@ -5,6 +5,7 @@ import logging
 import csv
 import yaml
 import calendar
+import psutil
 import pandas as pd
 import shutil
 import subprocess
@@ -347,3 +348,13 @@ def set_excel_password(file_path, password, replace=True, append_string='_protec
 def open_file_using_default_program(file_path):
     # Open the file using the default program
     subprocess.run(["start", "", file_path], shell=True)
+
+
+def check_disk_usage(path):
+    # Get disk usage statistics for the specified path
+    disk_usage = psutil.disk_usage(path)
+
+    # Calculate the percentage of disk usage
+    disk_usage_percentage = (disk_usage.used / disk_usage.total) * 100
+
+    return disk_usage_percentage
