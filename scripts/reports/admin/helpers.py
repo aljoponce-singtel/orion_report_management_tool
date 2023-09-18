@@ -17,16 +17,28 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 def check_disk_usage():
 
     report = OrionReport(configFile, "Disk Usage")
-
     path_to_check = "/"  # Replace with the path to the drive you want to check
-
     disk_usage_percentage = utils.check_disk_usage(path_to_check)
 
-    if disk_usage_percentage >= 80:
+    if disk_usage_percentage >= report.default_config.getint('disk_usage_treshold'):
         logger.warn(
             f"The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.")
+
+        email_body_html = f"""\
+            <html>
+            <p>Hello,</p>
+            <p>The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.</p>
+            <p>&nbsp;</p>
+            <p>Best regards,</p>
+            <p>The Orion Team</p>
+            </html>
+            """
+
+        report.set_email_body_html(email_body_html)
+        report.send_email()
     else:
-        logger.info(f"The drive at {path_to_check} is not yet 80% full.")
+        logger.info(
+            f"The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.")
 
 
 def check_new_queueowners():
@@ -157,9 +169,9 @@ def check_new_queueowners():
         report.set_email_body_html(email_body_html)
 
         if df_valid.empty:
-            logger.warn("NO NEW QUEUE OWNERS ADDED/UPDATED TODAY")
+            logger.info("NO NEW QUEUE OWNERS ADDED/UPDATED TODAY")
         else:
             report.send_email()
 
     else:
-        logger.warn("NO NEW QUEUE OWNERS ADDED/UPDATED TODAY")
+        logger.info("NO NEW QUEUE OWNERS ADDED/UPDATED TODAY")
