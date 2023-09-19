@@ -5,6 +5,7 @@ import time
 # Import third-party packages
 import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy.engine.cursor import LegacyCursorResult
 from sqlalchemy.sql import text
 
 logger = logging.getLogger(__name__)
@@ -76,7 +77,7 @@ class DbConnection:
 
         return table_to_drop.metadata.drop_all(self.engine)
 
-    def query_to_list(self, query, data=None, query_description='records'):
+    def query(self, query, data=None, query_description='records'):
 
         # Only works when log_level=debug
         self.log_full_query(query)
@@ -84,16 +85,17 @@ class DbConnection:
         result = []
         query_type = type(query)
         start_time = time.time()
+        result: LegacyCursorResult
 
         # query has data
         if data:
-            result = self.conn.execute(query, data).fetchall()
+            result = self.conn.execute(query, data)
         # query is a an SQL text
         elif query_type is str:
-            result = self.conn.execute(text(query)).fetchall()
+            result = self.conn.execute(text(query))
         # query is a constructed SQL expression
         elif query_type.__name__ == 'Select':
-            result = self.conn.execute(query).fetchall()
+            result = self.conn.execute(query)
         else:
             raise Exception("INVALID QUERY")
 
@@ -104,6 +106,40 @@ class DbConnection:
             f"Query completion time: {self.__format_seconds(elapsed_time)}")
 
         return result
+
+    def query_to_list(self, query, data=None, query_description='records'):
+
+        result = self.query(query, data, query_description)
+        result = result.fetchall()
+
+        return result
+
+    def query_to_dataframe(self, query, data=None, query_description='records', to_datetime=False) -> pd.DataFrame:
+
+        result = self.query(query, data, query_description)
+        # Get the columns that are of type DATE or DATETIME
+        date_type_columns = []
+        # Create dictionary for date/datetime mapping
+        MYSQL_DATETYPE_DICT = {
+            10: "DATE",
+            12: "DATETIME"
+        }
+        # Iterate through the result's column list to identify the date/datetime types
+        for column_name, type_code, display_size, internal_size, precision, scale, nullability in result.cursor.description:
+            if type_code in MYSQL_DATETYPE_DICT.keys():
+                date_type_columns.append(
+                    [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
+        # Print the list of date/datetime columns
+        logger.info(f"Date/Datetime columns: {date_type_columns}")
+        # Create a dataframe from the result
+        df = pd.DataFrame(data=result.fetchall(), columns=result.keys())
+        # If enabled, convert all date/datetime columns to datetime
+        if to_datetime:
+            # set columns to datetime type
+            df[date_type_columns] = df[date_type_columns].apply(
+                pd.to_datetime)
+
+        return df
 
     def insert_df_to_table(self, dataframe, table, if_exist=None):
         logger.info(f'Inserting records to {table} table ...')
