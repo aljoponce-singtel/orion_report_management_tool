@@ -102,6 +102,13 @@ class OrionReport(EmailClient):
             logger.info(f"/* {self.report_name} */")
             logger.info("Running script in " + utils.get_platform())
 
+            # This file (orion_report.py) will be executed by `run.sh`
+            # If this script was manually executed, the parent process will be `bash`
+            # If this script was automatically executed or scheduled to run by a cronjob, the parent process will be `crond`
+            # was_called_by_cronjob() will return true if this script was called by `crond`
+            if not utils.was_called_by_cronjob(os.getppid()):
+                logger.warn(f'THIS SCRIPT WAS MANUALLY EXECUTED.')
+
             self.__setup_reports_folder()
             utils.create_folder(self.reports_folder_path)
 
@@ -411,7 +418,7 @@ class OrionReport(EmailClient):
 
     def set_reporting_date(self):
         if self.debug_config.getboolean('generate_manual_report'):
-            logger.info('\\* MANUAL RUN *\\')
+            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
             self.set_report_date(self.debug_config['report_date'])
 
         else:
@@ -426,7 +433,7 @@ class OrionReport(EmailClient):
 
     def set_prev_week_monday_sunday_date(self):
         if self.debug_config.getboolean('generate_manual_report'):
-            logger.info('\\* MANUAL RUN *\\')
+            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
             self.set_start_date(self.debug_config['report_start_date'])
             self.set_end_date(self.debug_config['report_end_date'])
 
@@ -447,7 +454,7 @@ class OrionReport(EmailClient):
 
     def set_prev_month_first_last_day_date(self):
         if self.debug_config.getboolean('generate_manual_report'):
-            logger.info('\\* MANUAL RUN *\\')
+            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
             self.set_start_date(self.debug_config['report_start_date'])
             self.set_end_date(self.debug_config['report_end_date'])
 
@@ -468,7 +475,7 @@ class OrionReport(EmailClient):
 
     def set_gsp_billing_month_start_end_date(self):
         if self.debug_config.getboolean('generate_manual_report'):
-            logger.info('\\* MANUAL RUN *\\')
+            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
             self.set_start_date(self.debug_config['report_start_date'])
             self.set_end_date(self.debug_config['report_end_date'])
 
