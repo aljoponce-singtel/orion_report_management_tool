@@ -50,17 +50,11 @@ class OrionReport(EmailClient):
         self.__initialize()
 
         # Connect to Orion DB
-        self.orion_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
-                                     self.db_config['orion_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
-        self.orion_db.connect()
+        self.orion_db = self.__connect_to_db(self.db_config['orion_db'])
         # Connect to Staging DB
-        self.staging_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
-                                       self.db_config['staging_db'], self.db_config['orion_user'], self.db_config['orion_pwd'])
-        self.staging_db.connect()
+        self.staging_db = self.__connect_to_db(self.db_config['staging_db'])
         # Connect to Tableau DB
-        self.tableau_db = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
-                                       self.db_config['tableau_db'], self.db_config['tableau_user'], self.db_config['tableau_pwd'])
-        self.tableau_db.connect()
+        self.tableau_db = self.__connect_to_db(self.db_config['tableau_db'])
 
         super().__init__()
 
@@ -171,6 +165,15 @@ class OrionReport(EmailClient):
 
         self.set_reports_folder_path(abspath(self.reports_folder_path))
         utils.create_folder(self.reports_folder_path)
+
+    # private method
+    def __connect_to_db(self, db_name):
+        # Connect to Orion DB
+        db_connection = DbConnection(self.db_config['dbapi'], self.db_config['host'], self.db_config['port'],
+                                     db_name, self.db_config['orion_user'], self.db_config['orion_pwd'])
+        db_connection.connect()
+
+        return db_connection
 
     def set_reports_folder_path(self, path):
         self.reports_folder_path = abspath(path)
