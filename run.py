@@ -102,7 +102,8 @@ def main():
                         print(
                             f"ERROR: The file '{default_file}.py' does not exist.")
             else:
-                print(f"ERROR: The path [{Path(script_folder)}] does not exist.")
+                print(
+                    f"ERROR: The path [{Path(script_folder)}] does not exist.")
 
         except Exception as error:
 
@@ -117,7 +118,7 @@ def main():
 
             if default_config.getboolean('send_email'):
                 send_email(sys.argv[1], fileName)
-    
+
     else:
         print(f"ERROR: Please provide at least one (script folder path) command argument.")
 
