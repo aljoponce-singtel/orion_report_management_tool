@@ -151,8 +151,9 @@ def send_email(report, fileName):
 
     try:
         email_client = EmailClient()
-        subject = 'ERROR for Orion Report - {}'.format(report)
-        email_client.subject = email_client.add_timestamp(subject)
+        subject = '[ERROR] Orion Report - {}'.format(report)
+        # email_client.subject = email_client.add_timestamp(subject)
+        email_client.subject = subject
         email_client.receiver_to = email_config["receiver_to"]
         email_client.receiver_cc = email_config["receiver_cc"]
         email_client.email_body_text = emailBodyText
