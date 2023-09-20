@@ -429,7 +429,5 @@ def was_called_by_cronjob(pid=None):
         except FileNotFoundError:
             # If /proc/<PPID>/comm doesn't exist, it's likely not a cron job
             pass
-    else:
-        return 'NA'
 
     return False
