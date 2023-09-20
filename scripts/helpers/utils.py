@@ -383,3 +383,53 @@ def check_disk_usage(path):
     disk_usage_percentage = (disk_usage.used / disk_usage.total) * 100
 
     return disk_usage_percentage
+
+
+def get_ppid_of_process(target_pid):
+    # Get the parent process id (only for Linux)
+    if get_platform() == 'Linux':
+        try:
+            # Create the path to the status file of the target process
+            status_file_path = f"/proc/{target_pid}/status"
+
+            # Open and read the status file
+            with open(status_file_path, "r") as file:
+                for line in file:
+                    if line.startswith("PPid:"):
+                        # Extract the PPID (Parent Process ID)
+                        ppid = int(line.split()[1])
+                        return ppid
+        except FileNotFoundError:
+            pass
+
+    return None
+
+
+def was_called_by_cronjob(pid=None):
+    # Check if the parent process ID was executed by a cronjob (crond)
+    # Only for Linux
+    if get_platform() == 'Linux':
+        try:
+            # Get the parent process ID (PPID) of the current process
+            if pid:
+                ppid = get_ppid_of_process(pid)
+            else:
+                ppid = os.getppid()
+
+            logger.debug(f"ppid: {ppid}")
+
+            if ppid:
+                # Check if the parent process is named 'cron'
+                with open(f'/proc/{ppid}/comm', 'r') as f:
+                    parent_process_name = f.read().strip()
+                    logger.debug(f"parent_process_name: {parent_process_name}")
+                    if parent_process_name == 'crond':
+                        return True
+
+        except FileNotFoundError:
+            # If /proc/<PPID>/comm doesn't exist, it's likely not a cron job
+            pass
+    else:
+        return 'NA'
+
+    return False
