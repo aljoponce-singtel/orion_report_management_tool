@@ -235,13 +235,34 @@ def get_last_day_of_month(date):
 
 
 def to_date_obj(date_input):
+    date_obj = None
+
     # Convert date input to a date object
+    # Is date/datetime
     if (type(date_input) is datetime) or (type(date_input) is date):
-        return date_input
+        date_obj = date_input
+    # Is string
     elif type(date_input) is str:
-        return datetime.strptime(date_input, '%Y-%m-%d')
+        try:
+            try:
+                # Convert to date objecgt
+                date_obj = datetime.strptime(date_input, '%Y-%m-%d').date()
+            except ValueError:
+                # Convert to datetime object
+                date_obj = datetime.strptime(date_input, '%Y-%m-%d %H:%M:%S')
+        except:
+            raise Exception(f"Invalid date: {str(date_input)}")
     else:
-        raise Exception("Invalid date")
+        raise Exception(f"Invalid date: {str(date_input)}")
+
+    # Is datetime object
+    if isinstance(date_obj, datetime):
+        # Is time 00:00:00
+        if date_obj.hour == 0 and date_obj.minute == 0 and date_obj.second == 0:
+            # Convert to date object
+            date_obj = date_obj.date()
+
+    return date_obj
 
 
 def create_folder(folder_path, overwrite=False):
