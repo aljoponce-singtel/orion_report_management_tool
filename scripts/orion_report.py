@@ -187,10 +187,6 @@ class OrionReport(EmailClient):
     def set_end_date(self, date):
         # Convert date input to a date object
         date_obj = utils.to_date_obj(date)
-        # Check if hour, minute, and second are all 0
-        if date_obj.hour == 0 and date_obj.minute == 0 and date_obj.second == 0:
-            # Set the time component to 23:59:59
-            date_obj = date_obj.replace(hour=23, minute=59, second=59)
         self.end_date = date_obj
 
     def get_log_level(self):
