@@ -342,7 +342,7 @@ class OrionReport(EmailClient):
         html_file_path = None
 
         if self.default_config['email_info'] != 'Email':
-            self.set_email_subject('TEST ' + self.get_email_subject())
+            self.set_email_subject('[TEST] ' + self.get_email_subject())
             self.set_email_body_html(preview_html)
 
         if self.debug_config.getboolean('preview_email') == True:
@@ -410,6 +410,8 @@ class OrionReport(EmailClient):
 
             # Enable/Disable sending email
             if self.debug_config.getboolean('send_email') == True:
+                if self.default_config['email_info'] != 'Email':
+                    logger.warn("THIS IS A TEST EMAIL")
                 self.send()
 
         except Exception as e:
