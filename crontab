@@ -1,0 +1,68 @@
+#CRON backup
+@daily crontab -l > $HOME/.crontab
+
+# 30 * * * * /app/o2p/ossadmin/autoEscalation/precheck.sh
+
+#####
+# 30 6,9,14,19 * * * /app/o2p/ossadmin/autoEscalation/precheck_etlTOOrion.sh
+
+00 2,9,14,20 * * * /app/o2p/ossadmin/pol/pol_report.sh
+10 2,9,14,20 * * * /app/o2p/ossadmin/pol/pol_report_non_pm.sh
+15 9 1 * * /app/o2p/ossadmin/pol/pol_report_monthly.sh
+
+00 6,19 * * * /app/o2p/ossadmin/christian/chris_warroom_rep.sh
+10 6,19 * * * /app/o2p/ossadmin/christian/chris_warroom_rep_nongov.sh
+20 7,17 * * * /app/o2p/ossadmin/admin/o2puser_pwd_expire.sh
+
+50 9 * * 1,2,3,4,5 /app/o2p/ossadmin/yokeloon/fne_crd-5_fibreInstallation.sh
+
+# Every Saturday report for bill
+10 10 * * 6 /app/o2p/ossadmin/christian/chrisi_rep_toBill_oneWk.sh
+#48 09 * * * /app/o2p/ossadmin/christian/chrisi_rep_toBill_oneWk.sh
+
+####### 07 09 * * 1,2,3,4,5 /app/o2p/ossadmin/autoEscalation/sendemail.sh
+
+00 9 * * 1 /app/o2p/ossadmin/christian/OFD_OFBiz_TrxCE_SurveyList.sh
+
+*/5 * * * * /app/o2p/ossadmin/admin/bossmod_slaveerror.sh
+*/5 * * * * /app/o2p/ossadmin/admin/tac_kpi_date_error_check.sh
+
+# Orion Reports
+# 15 9 * * * /app/o2p/ossadmin/hassim/reports.sh
+# 15 18 * * * /app/o2p/ossadmin/gsp_reports/reports.sh
+15 18 1,26 * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp
+18 9 * * 1 /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp main2
+45 18 5 * * /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp_sdo
+# 22 19 * * 1 /app/o2p/ossadmin/orion_report_management_tool/manage.sh gsp_sdwan
+# 25 9 * * 1 /app/o2p/ossadmin/orion_report_management_tool/manage.sh am_user_access
+# 18 9 * * 1 /app/o2p/ossadmin/gsp_reports/reports_sdwan.sh
+
+# New Orion Reports
+5 9 * * * /app/o2p/ossadmin/ormt/run.sh udf_customers
+50 18 1 * * /app/o2p/ossadmin/ormt/run.sh gsp_transport main
+50 18 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_transport main_billing
+30 6,19 * * * /app/o2p/ossadmin/ormt/run.sh gsp_warroom
+15 19 * * * /app/o2p/ossadmin/ormt/run.sh gsp_warroom main_npp
+05 10 * * 1 /app/o2p/ossadmin/ormt/run.sh pm_dpe_mpe
+00 10 1 * * /app/o2p/ossadmin/ormt/run.sh udf_usageF
+00 19 1 * * /app/o2p/ossadmin/ormt/run.sh gsp_sgo main
+00 19 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_sgo main_billing
+00 9,14,18 * * * /app/o2p/ossadmin/ormt/run.sh gsp_ollc_crd_change
+30 23 * * * /app/o2p/ossadmin/ormt/run.sh gsp_ollc_crd_change
+20 10 * * 1 /app/o2p/ossadmin/ormt/run.sh gsp_ofdata_ofbiz
+25 9 * * 1 /app/o2p/ossadmin/ormt/run.sh am_user_access
+55 18 1 * * /app/o2p/ossadmin/ormt/run.sh gsp_ilc_transport
+55 18 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_ilc_transport main_billing
+45 9 * * * /app/o2p/ossadmin/ormt/run.sh admin
+
+20 9 1 * * /app/o2p/ossadmin/user/reports.sh
+
+30 9 1 * * /app/o2p/ossadmin/ed_pd_compliance/ed_pd_compliance.sh
+
+# ML prediction
+30 4 * * * /app/o2p/ossadmin/o2p-ml/o2p-ml.sh
+
+# OMS-Orion Weekly and Monthly Report
+# 0 10 * * 1 [ "$(date +\%m -d tomorrow)" != "$(date +\%m)" ] &&  /app/o2p/ossadmin/omsreport/Main.sh
+0 10 * * 1  /app/o2p/ossadmin/omsreport/Main.sh
+0 10 1 * * /app/o2p/ossadmin/omsreport/Main.sh
