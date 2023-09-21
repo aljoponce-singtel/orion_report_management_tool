@@ -23,10 +23,20 @@ def check_disk_usage():
         logger.warn(
             f"The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.")
 
+        # email_body_html = f"""\
+        #     <html>
+        #     <p>Hello,</p>
+        #     <p>The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.</p>
+        #     <p>&nbsp;</p>
+        #     <p>Best regards,</p>
+        #     <p>The Orion Team</p>
+        #     </html>
+        #     """
+
         email_body_html = f"""\
             <html>
             <p>Hello,</p>
-            <p>The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.</p>
+            <p>The root drive "{path_to_check}" on SGOSSPRDO2PAPP01 is {disk_usage_percentage:.2f}% full.</p>
             <p>&nbsp;</p>
             <p>Best regards,</p>
             <p>The Orion Team</p>
@@ -34,6 +44,8 @@ def check_disk_usage():
             """
 
         report.set_email_body_html(email_body_html)
+        report.add_email_receiver_to("jiangxu.jiang@singtel.com")
+        report.attach_file(report.log_file_path)
         report.send_email()
     else:
         logger.info(
@@ -160,6 +172,7 @@ def check_new_queueowners():
 
         # Send email
         report.set_email_body_html(email_body_html)
+        report.attach_file(report.log_file_path)
 
         if df_valid.empty:
             logger.info("NO NEW QUEUE OWNERS ADDED/UPDATED TODAY")
