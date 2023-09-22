@@ -1,4 +1,4 @@
-# PROD
+# UAT
 # To use this configuration, rename this file to orion_report.ini
 
 [DEFAULT]
@@ -9,20 +9,20 @@ zip_password = 12345678
 # reports_folder = reports/
 
 ; DIRECT SERVER ACCESS
-; ssh mysql@172.26.144.143 #SGOSSPRDO2PDB01 (PROD_IP)
+; ssh mysql@172.26.144.142 #SGOSSUATO2PDB01 (PROD_IP)
 ;
-; mysql> SHOW GRANTS FOR o2puserp@172.26.14.147; #SGOSSPRDO2PAPP01 (MGMT_IP)
-; +---------------------------------------------------------------------------+
-; | Grants for o2puserp@172.26.14.147                                         |
-; +---------------------------------------------------------------------------+
-; | GRANT USAGE ON *.* TO `o2puserp`@`172.26.14.147`                          |
-; | GRANT ALL PRIVILEGES ON `o2pprod`.* TO `o2puserp`@`172.26.14.147`         |
-; | GRANT ALL PRIVILEGES ON `o2pstaging`.* TO `o2puserp`@`172.26.14.147`      |
-; | GRANT ALL PRIVILEGES ON `o2ptableau`.* TO `o2puserp`@`172.26.14.147`      |
-; | GRANT ALL PRIVILEGES ON `pegasusmulesoft`.* TO `o2puserp`@`172.26.14.147` |
-; +---------------------------------------------------------------------------+
+; CREATE user 'o2puserp'@'172.26.14.141' IDENTIFIED BY 'Qsw123!du';
+;
+; mysql> SHOW GRANTS FOR o2puserp@172.26.14.141; #SGOSSUATO2PAPP01 (MGMT_IP)
+; +----------------------------------------------------------------------+
+; | Grants for o2puserp@172.26.14.141                                    |
+; +----------------------------------------------------------------------+
+; | GRANT USAGE ON *.* TO `o2puserp`@`172.26.14.141`                     |
+; | GRANT ALL PRIVILEGES ON `o2pstaging`.* TO `o2puserp`@`172.26.14.141` |
+; | GRANT ALL PRIVILEGES ON `o2puat`.* TO `o2puserp`@`172.26.14.141`     |
+; +----------------------------------------------------------------------+
 [Database]
-# login to PRODAPP as o2puserp@172.26.144.141 #SGOSSPRDO2PAPP01 (PROD_IP)
+# login to UATAPP as o2puserp@172.26.144.140 #SGOSSUATO2PAPP01 (PROD_IP)
 orion_user = o2puserp
 orion_pwd = Qsw123!du
 orion_db = o2pprod
