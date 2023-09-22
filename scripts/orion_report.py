@@ -52,9 +52,11 @@ class OrionReport(EmailClient):
         # Connect to Orion DB
         self.orion_db = self.__connect_to_db(self.db_config['orion_db'])
         # Connect to Staging DB
-        self.staging_db = self.__connect_to_db(self.db_config['staging_db'])
+        if self.db_config['staging_db']:
+            self.staging_db = self.__connect_to_db(self.db_config['staging_db'])
         # Connect to Tableau DB
-        self.tableau_db = self.__connect_to_db(self.db_config['tableau_db'])
+        if self.db_config['tableau_db']:
+            self.tableau_db = self.__connect_to_db(self.db_config['tableau_db'])
 
         super().__init__()
 
