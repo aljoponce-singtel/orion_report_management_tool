@@ -1,0 +1,57 @@
+# To use this configuration, rename this file to orion_report.ini
+
+[DEFAULT]
+database_env = Database
+email_info = Email_Test
+zip_password = 12345678
+# log_file = logs/reports.log
+# reports_folder = reports/
+
+; DIRECT SERVER ACCESS
+; ssh mysql@172.26.144.143 #SGOSSPRDO2PDB01 (PROD_IP)
+;
+; mysql> SHOW GRANTS FOR o2puserp@172.26.14.147; #SGOSSPRDO2PAPP01 (MGMT_IP)
+; +---------------------------------------------------------------------------+
+; | Grants for o2puserp@172.26.14.147                                         |
+; +---------------------------------------------------------------------------+
+; | GRANT USAGE ON *.* TO `o2puserp`@`172.26.14.147`                          |
+; | GRANT ALL PRIVILEGES ON `o2pprod`.* TO `o2puserp`@`172.26.14.147`         |
+; | GRANT ALL PRIVILEGES ON `o2pstaging`.* TO `o2puserp`@`172.26.14.147`      |
+; | GRANT ALL PRIVILEGES ON `o2ptableau`.* TO `o2puserp`@`172.26.14.147`      |
+; | GRANT ALL PRIVILEGES ON `pegasusmulesoft`.* TO `o2puserp`@`172.26.14.147` |
+; +---------------------------------------------------------------------------+
+[Database]
+# login to PRODAPP as o2puserp@172.26.144.141 #SGOSSPRDO2PAPP01 (PROD_IP)
+orion_user = o2puserp
+orion_pwd = Qsw123!du
+orion_db = o2pprod
+staging_db = pegasusmulesoft
+tableau_db = o2ptableau
+dbapi = mysql+pymysql
+host = 172.26.14.148
+port = 3306
+
+[Email]
+receiver_to = aljo.ponce@singtel.com
+receiver_cc =
+from = orion@singtel.com;orion@ncs.com.sg
+server = gddsspsmtp.gebgd.org
+port = 25
+sender = orion@ncs.com.sg
+
+[Email_Test]
+receiver_to = aljo.ponce@singtel.com
+receiver_cc =
+from = orion@singtel.com;orion@ncs.com.sg
+server = gddsspsmtp.gebgd.org
+port = 25
+sender = orion@ncs.com.sg
+
+[Debug]
+generate_manual_report = true
+report_start_date = 2022-07-01
+report_end_date = 2022-07-31
+create_report = false
+send_email = false
+# log_to_file = false
+# log_level = info
