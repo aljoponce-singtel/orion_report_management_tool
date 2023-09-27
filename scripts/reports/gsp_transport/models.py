@@ -7,7 +7,7 @@ TransportBase = declarative_base()
 
 
 class Transport(TransportBase):
-    __tablename__ = 't_GSP_ip_transport_dev'
+    __tablename__ = 't_GSP_ip_transport'
     __table_args__ = (PrimaryKeyConstraint(
         'OrderCode', 'update_time'),)
 
