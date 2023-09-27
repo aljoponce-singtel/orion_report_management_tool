@@ -19,6 +19,7 @@ zip_password = 12345678
 ; +----------------------------------------------------------------------+
 ; | GRANT USAGE ON *.* TO `o2puserp`@`172.26.14.141`                     |
 ; | GRANT ALL PRIVILEGES ON `o2pstaging`.* TO `o2puserp`@`172.26.14.141` |
+; | GRANT ALL PRIVILEGES ON `o2ptableau`.* TO `o2puserp`@`172.26.14.141` |
 ; | GRANT ALL PRIVILEGES ON `o2puat`.* TO `o2puserp`@`172.26.14.141`     |
 ; +----------------------------------------------------------------------+
 [Database]
