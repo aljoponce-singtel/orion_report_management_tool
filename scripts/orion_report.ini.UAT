@@ -14,14 +14,15 @@ zip_password = 12345678
 ; CREATE user 'o2puserp'@'172.26.14.141' IDENTIFIED BY 'Qsw123!du';
 ;
 ; mysql> SHOW GRANTS FOR o2puserp@172.26.14.141; #SGOSSUATO2PAPP01 (MGMT_IP)
-; +----------------------------------------------------------------------+
-; | Grants for o2puserp@172.26.14.141                                    |
-; +----------------------------------------------------------------------+
-; | GRANT USAGE ON *.* TO `o2puserp`@`172.26.14.141`                     |
-; | GRANT ALL PRIVILEGES ON `o2pstaging`.* TO `o2puserp`@`172.26.14.141` |
-; | GRANT ALL PRIVILEGES ON `o2ptableau`.* TO `o2puserp`@`172.26.14.141` |
-; | GRANT ALL PRIVILEGES ON `o2puat`.* TO `o2puserp`@`172.26.14.141`     |
-; +----------------------------------------------------------------------+
+; +---------------------------------------------------------------------------+
+; | Grants for o2puserp@172.26.14.141                                         |
+; +---------------------------------------------------------------------------+
+; | GRANT USAGE ON *.* TO `o2puserp`@`172.26.14.141`                          |
+; | GRANT ALL PRIVILEGES ON `o2pstaging`.* TO `o2puserp`@`172.26.14.141`      |
+; | GRANT ALL PRIVILEGES ON `o2ptableau`.* TO `o2puserp`@`172.26.14.141`      |
+; | GRANT ALL PRIVILEGES ON `o2puat`.* TO `o2puserp`@`172.26.14.141`          |
+; | GRANT ALL PRIVILEGES ON `pegasusmulesoft`.* TO `o2puserp`@`172.26.14.141` |
+; +---------------------------------------------------------------------------+
 [Database]
 # login to UATAPP as o2puserp@172.26.144.140 #SGOSSUATO2PAPP01 (PROD_IP)
 orion_user = o2puserp
