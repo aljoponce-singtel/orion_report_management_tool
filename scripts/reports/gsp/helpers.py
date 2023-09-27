@@ -16,7 +16,7 @@ def generate_sdwan_report():
     report.set_prev_month_first_last_day_date()
 
     gsp_group_list = [
-        'GSP_SDN ',
+        'GSP_SDN',
         'GSP_NFV'
     ]
 
