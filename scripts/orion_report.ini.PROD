@@ -5,6 +5,8 @@
 database_env = Database
 email_info = Email_Test
 zip_password = 12345678
+# max file size (mb)
+email_att_max_size = 20
 # log_file = logs/reports.log
 # reports_folder = reports/
 
