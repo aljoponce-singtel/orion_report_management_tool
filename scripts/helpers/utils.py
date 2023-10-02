@@ -370,9 +370,27 @@ def set_excel_password(file_path, password, replace=True, append_string='_protec
         raise Exception(f"OS {platform} not supported.")
 
 
-def open_file_using_default_program(file_path):
-    # Open the file using the default program
-    subprocess.run(["start", "", file_path], shell=True)
+# Only supports Windows for now
+def open_file_using_default_program(file_path, app_name=None):
+
+    if get_platform() == 'Windows':
+        if app_name:
+            if app_name == 'Edge':
+                # Specify the path to the Microsoft Edge executable
+                edge_exe_path = r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+                # Use subprocess to open the HTML file with Microsoft Edge
+                subprocess.run([edge_exe_path, file_path])
+            elif app_name == 'Chrome':
+                # Specify the path to the Google Chrome executable
+                chrome_exe_path = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
+                # Use subprocess to open the HTML file with Microsoft Edge
+                subprocess.run([chrome_exe_path, file_path])
+            else:
+                # Open the file using the default program
+                subprocess.run(["start", "", file_path], shell=True)
+        else:
+            # Open the file using the default program
+            subprocess.run(["start", "", file_path], shell=True)
 
 
 def check_disk_usage(path):
