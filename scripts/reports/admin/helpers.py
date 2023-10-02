@@ -13,6 +13,28 @@ logger = logging.getLogger(__name__)
 configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
+def query_to_file(query_file, filename, report_name='Quick Query'):
+
+    report = OrionReport(configFile, report_name)
+    report.set_filename(filename)
+    query_file = os.path.join(os.path.dirname(__file__), 'sql', query_file)
+    query = None
+
+    # Open the file in read mode
+    with open(query_file, 'r') as file:
+        # Read the entire contents of the file into a string
+        query = file.read()
+
+    df = report.orion_db.query_to_dataframe(query)
+    csv_file = report.create_csv_from_df(df)
+
+    if not df.empty:
+        report.attach_file(csv_file)
+        report.send_email()
+    else:
+        logger.warn("QUERY IS EMPTY")
+
+
 def check_disk_usage():
 
     report = OrionReport(configFile, "Disk Usage")
