@@ -53,10 +53,12 @@ class OrionReport(EmailClient):
         self.orion_db = self.__connect_to_db(self.db_config['orion_db'])
         # Connect to Staging DB
         if self.db_config['staging_db']:
-            self.staging_db = self.__connect_to_db(self.db_config['staging_db'])
+            self.staging_db = self.__connect_to_db(
+                self.db_config['staging_db'])
         # Connect to Tableau DB
         if self.db_config['tableau_db']:
-            self.tableau_db = self.__connect_to_db(self.db_config['tableau_db'])
+            self.tableau_db = self.__connect_to_db(
+                self.db_config['tableau_db'])
 
         super().__init__()
 
@@ -363,10 +365,26 @@ class OrionReport(EmailClient):
             self.export_to_html_file(preview_html, html_file_path)
 
             if open_file:
-                logger.info("Previewing email ...")
-                utils.open_file_using_default_program(html_file_path)
+                if utils.get_platform() == 'Windows':
+                    logger.info("Previewing email ...")
+                utils.open_file_using_default_program(
+                    html_file_path, app_name='Edge')
 
         return html_file_path
+
+    def attach_file(self, attachment):
+
+        file_stat = os.stat(attachment)
+        # Get the file size in bytes
+        filesize_bytes = file_stat.st_size
+        # Get the file size in megabytes
+        filesize_mbytes = filesize_bytes/1048576
+        # Attach the file if less than the max allowed file size
+        if (filesize_mbytes < self.default_config.getfloat('email_att_max_size')):
+            super().attach_file(attachment)
+        else:
+            logger.warn(
+                f"FILE TOO LARGE TO ATTACH IN EMAIL: Max is {self.default_config.getint('email_att_max_size')} mb, and {basename(attachment)} is {filesize_mbytes:.2f} mb in size.")
 
     def send_email(self):
 
@@ -417,7 +435,7 @@ class OrionReport(EmailClient):
             if self.debug_config.getboolean('send_email') == True:
                 if self.default_config['email_info'] != 'Email':
                     logger.warn("THIS IS A TEST EMAIL")
-                self.send()
+                super().send()
 
         except Exception as e:
             logger.error("Failed to send email.")
