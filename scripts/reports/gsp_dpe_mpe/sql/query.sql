@@ -7,7 +7,7 @@ SELECT
     ORD.current_crd AS 'CRD',
     ORD.order_type AS 'Order type',
     PAR.STPoNo AS 'PO No',
-    'TBD' AS 'PO/SO No',
+    PAR.STPoNo AS 'PO/SO No',
     'TBD' AS 'GRS No',
     NPP.level AS 'NPP Level',
     PRD.network_product_code AS 'NPC',
@@ -21,7 +21,7 @@ SELECT
     PAR.LLC_Partner_Ref AS 'LLC Partner reference',
     PAR.CrossConnReq AS 'Cross Connect Reference',
     'TBD' AS 'Purchasing Group',
-    'TBD' AS 'Product Type',
+    ORD.arbor_disp AS 'Product Type',
     PAR.IMPGcode AS 'IMPG Code',
     PER.email AS 'Group Owner',
     ACT.performer_id AS 'Performer ID'

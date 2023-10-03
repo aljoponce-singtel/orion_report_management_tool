@@ -17,8 +17,8 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 def generate_main_report():
 
     report = OrionReport(config_file)
-    report.set_report_name('DPE MPE Report')
-    report.set_filename('dpe_mpe_report')
+    report.set_report_name('GSP DPE_MPE_MSE Report')
+    report.set_filename('dpe_mpe_mse_report')
     report.set_prev_month_first_last_day_date()
     generate_report(report)
 
@@ -27,7 +27,7 @@ def generate_billing_report():
 
     report = OrionReport(config_file)
     report.set_report_name('DPE MPE (Billing) Report')
-    report.set_filename('dpe_mpe_billing_report')
+    report.set_filename('dpe_mpe_mse_billing_report')
     report.set_gsp_billing_month_start_end_date()
     generate_report(report)
 
@@ -125,7 +125,7 @@ def get_raw_records(report: OrionReport):
                     ORD.current_crd AS 'CRD',
                     ORD.order_type AS 'Order type',
                     PAR.STPoNo AS 'PO No',
-                    'TBD' AS 'PO/SO No',
+                    PAR.STPoNo AS 'PO/SO No',
                     'TBD' AS 'GRS No',
                     NPP.level AS 'NPP Level',
                     PRD.network_product_code AS 'NPC',
@@ -139,7 +139,7 @@ def get_raw_records(report: OrionReport):
                     PAR.LLC_Partner_Ref AS 'LLC Partner reference',
                     PAR.CrossConnReq AS 'Cross Connect Reference',
                     'TBD' AS 'Purchasing Group',
-                    'TBD' AS 'Product Type',
+                    ORD.arbor_disp AS 'Product Type',
                     PAR.IMPGcode AS 'IMPG Code',
                     PER.email AS 'Group Owner',
                     ACT.performer_id AS 'Performer ID'
@@ -260,13 +260,7 @@ def get_raw_records(report: OrionReport):
                     ACT.name;
             """
 
-    result = report.orion_db.query_to_list(
+    df = report.orion_db.query_to_dataframe(
         query, query_description='raw records')
-
-    df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
-    # Convert columns to date
-    for column in const.DATE_COLUMNS:
-        df[column] = pd.to_datetime(df[column]).dt.date
 
     return df
