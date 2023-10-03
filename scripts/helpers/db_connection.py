@@ -114,7 +114,7 @@ class DbConnection:
 
         return result
 
-    def query_to_dataframe(self, query, data=None, query_description='records', to_datetime=False) -> pd.DataFrame:
+    def query_to_dataframe(self, query, data=None, query_description='records', datetime_to_date=False) -> pd.DataFrame:
 
         result = self.query(query, data, query_description)
         # Get the columns that are of type DATE or DATETIME
@@ -130,14 +130,24 @@ class DbConnection:
                 date_type_columns.append(
                     [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
         # Print the list of date/datetime columns
-        logger.info(f"Date/Datetime columns: {date_type_columns}")
+        logger.info(
+            f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
         # Create a dataframe from the result
         df = pd.DataFrame(data=result.fetchall(), columns=result.keys())
         # If enabled, convert all date/datetime columns to datetime
-        if to_datetime:
-            # set columns to datetime type
-            df[date_type_columns] = df[date_type_columns].apply(
-                pd.to_datetime)
+        if datetime_to_date:
+            # # set columns to datetime type
+            # df[date_type_columns] = df[date_type_columns].apply(
+            #     pd.to_datetime)
+
+            # Filter and extract the first element of each sub-list for DATETIME records
+            datetime_columns = [record[0]
+                                for record in date_type_columns if record[2] == 'DATETIME']
+            logger.info(f"Converting datetime columns to date ...")
+            # convert datetime to date (remove time)
+            for column in datetime_columns:
+                df[str(column)] = pd.to_datetime(
+                    df[str(column)]).dt.date
 
         return df
 
