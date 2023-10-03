@@ -28,6 +28,8 @@ def generate_warroom_report():
     query = f"""
                 SELECT
                     DISTINCT ORD.order_code,
+                    ORD.order_taken_by AS created_by,
+                    ORD.service_order_number AS service_order_no,
                     ORD.service_number,
                     CUS.name AS customer,
                     ORD.order_type,
@@ -126,17 +128,20 @@ def generate_warroom_report():
                     ACT.tag_name = 'Pegasus';
             """
 
-    result = report.orion_db.query_to_list(query)
-    logger.info("Creating warroom report ...")
-    df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
+    # result = report.orion_db.query_to_list(query)
+    # logger.info("Creating warroom report ...")
+    # df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
 
-    # set columns to datetime type
-    df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
-        pd.to_datetime)
+    # # set columns to datetime type
+    # df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
+    #     pd.to_datetime)
+
+    df_raw = report.orion_db.query_to_dataframe(
+        query, query_description="warroom records", datetime_to_date=True)
 
     # convert datetime to date (remove time)
-    df_raw['act_dly_reason_date'] = pd.to_datetime(
-        df_raw['act_dly_reason_date']).dt.date
+    # df_raw['act_dly_reason_date'] = pd.to_datetime(
+    #     df_raw['act_dly_reason_date']).dt.date
 
     # Create new dataframe based from CRD_AMENDMENT_COLUMNS
     df_crd_amendment = df_raw[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
@@ -197,6 +202,8 @@ def generate_warroom_npp_report():
     query = f"""
                 SELECT
                     DISTINCT ORD.order_code,
+                    ORD.order_taken_by AS created_by,
+                    ORD.service_order_number AS service_order_no,
                     ORD.service_number,
                     CUS.name AS customer,
                     ORD.order_type,
@@ -617,13 +624,16 @@ def generate_warroom_npp_report():
                     AND '{report.end_date}';
             """
 
-    result = report.orion_db.query_to_list(query)
-    logger.info("Creating warroom npp report ...")
-    df_raw = pd.DataFrame(data=result, columns=const.MAIN_NPP_COLUMNS)
+    # result = report.orion_db.query_to_list(query)
+    # logger.info("Creating warroom npp report ...")
+    # df_raw = pd.DataFrame(data=result, columns=const.MAIN_NPP_COLUMNS)
 
-    # Convert columns to date
-    for column in const.DATE_NPP_COLUMNS:
-        df_raw[column] = pd.to_datetime(df_raw[column]).dt.date
+    # # Convert columns to date
+    # for column in const.DATE_NPP_COLUMNS:
+    #     df_raw[column] = pd.to_datetime(df_raw[column]).dt.date
+
+    df_raw = report.orion_db.query_to_dataframe(
+        query, query_description="warroom npp records")
 
     # Sort records in ascending order by order_code, parameter_name and step_no
     df_raw = df_raw.sort_values(

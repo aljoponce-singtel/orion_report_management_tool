@@ -1,5 +1,7 @@
 SELECT
     DISTINCT ORD.order_code,
+    ORD.order_taken_by AS created_by,
+    ORD.service_order_number AS service_order_no,
     ORD.service_number,
     CUS.name AS customer,
     ORD.order_type,
