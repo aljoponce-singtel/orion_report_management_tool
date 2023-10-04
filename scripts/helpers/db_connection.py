@@ -81,7 +81,7 @@ class DbConnection:
 
         # Only works when log_level=debug
         self.log_full_query(query)
-        logger.info(f"Querying {query_description} ...")
+        logger.info(f"[DB:{self.database}] Querying {query_description} ...")
         result = []
         query_type = type(query)
         start_time = time.time()
@@ -104,6 +104,9 @@ class DbConnection:
 
         logger.info(
             f"Query completion time: {self.__format_seconds(elapsed_time)}")
+
+        if result is None:
+            logger.warn('Query result is empty.')
 
         return result
 
