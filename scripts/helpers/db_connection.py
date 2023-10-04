@@ -133,7 +133,7 @@ class DbConnection:
                 date_type_columns.append(
                     [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
         # Print the list of date/datetime columns
-        logger.info(
+        logger.debug(
             f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
         # Create a dataframe from the result
         if len(column_names) == 0:
