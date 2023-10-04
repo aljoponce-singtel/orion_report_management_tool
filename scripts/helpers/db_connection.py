@@ -117,7 +117,7 @@ class DbConnection:
 
         return result
 
-    def query_to_dataframe(self, query, data=None, query_description='records', datetime_to_date=False) -> pd.DataFrame:
+    def query_to_dataframe(self, query, data=None, query_description='records', column_names=[], datetime_to_date=False) -> pd.DataFrame:
 
         result = self.query(query, data, query_description)
         # Get the columns that are of type DATE or DATETIME
@@ -136,7 +136,12 @@ class DbConnection:
         logger.info(
             f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
         # Create a dataframe from the result
-        df = pd.DataFrame(data=result.fetchall(), columns=result.keys())
+        if len(column_names) == 0:
+            # Get the list of column names directly from the query if column_names is empty
+            df = pd.DataFrame(data=result.fetchall(), columns=result.keys())
+        else:
+            # Get the list of column names from column_names if provided
+            df = pd.DataFrame(data=result.fetchall(), columns=column_names)
         # If enabled, convert all date/datetime columns to datetime
         if datetime_to_date:
             # # set columns to datetime type
