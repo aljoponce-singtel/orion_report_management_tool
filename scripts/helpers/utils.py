@@ -31,10 +31,9 @@ def list_to_string(list):
     return str_list_no_brackets
 
 
-def df_to_csv(df, file_path):
+def df_to_csv(df: pd.DataFrame, file_path, index=False):
     logger.info("Creating file " + os.path.basename(file_path) + " ...")
-    df = pd.DataFrame(df)
-    df.to_csv(file_path, index=False)
+    df.to_csv(file_path, index=index)
 
 
 # Updates the dataframe based from the contents and sequence of the priority list
