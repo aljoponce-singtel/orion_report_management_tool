@@ -1,5 +1,5 @@
 SELECT
-    DISTINCT CAST(created_at AS DATE) AS login_date,
+    DISTINCT DATE(created_at) AS login_date,
     DAYNAME(created_at) AS day_name,
     username
 FROM
