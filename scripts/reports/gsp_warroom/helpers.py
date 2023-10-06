@@ -16,8 +16,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 def generate_warroom_report():
 
-    report = OrionReport(config_file)
-    report.set_report_name('GSP (NEW) War Room Report')
+    report = OrionReport(config_file, 'GSP (NEW) War Room Report')
     report.add_email_receiver_to('teokokwee@singtel.com')
     report.add_email_receiver_to('kinex.yeoh@singtel.com')
     report.add_email_receiver_to('ml-cssosdpe@singtel.com')
@@ -168,8 +167,7 @@ def generate_warroom_report():
 
 def generate_warroom_npp_report():
 
-    report = OrionReport(config_file)
-    report.set_report_name('GSP War Room NPP Report')
+    report = OrionReport(config_file, 'GSP War Room NPP Report')
     report.add_email_receiver_cc('sulo@singtel.com')
     report.add_email_receiver_cc('ksha@singtel.com')
     report.add_email_receiver_cc('annesha@singtel.com')

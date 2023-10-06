@@ -16,8 +16,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 def generate_report():
 
-    report = OrionReport(config_file)
-    report.set_report_name('GSP Report 44')
+    report = OrionReport(config_file, 'GSP Report 44')
     report.set_filename('gsp_report_44')
     report.set_prev_month_first_last_day_date()
 

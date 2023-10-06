@@ -58,12 +58,13 @@ def generate_sdwan_report():
 
     # Send email
     report.attach_file_to_email(zip_file)
+    report.add_email_receiver_to('xv.hema.pawar@singtel.com')
     report.send_email()
 
 
 def generate_cplus_ip_report():
 
-    report = GspReport(config_file)
+    report = GspReport(config_file, 'CPlusIP Report')
     report.set_filename('cplusip_report')
     report.set_prev_month_first_last_day_date()
 
@@ -214,5 +215,5 @@ def generate_cplus_ip_report():
 
     # Send email
     report.attach_file_to_email(zip_file)
-    report.set_email_subject(report.add_timestamp('CPlusIP Report'))
+    # report.set_email_subject(report.add_timestamp('CPlusIP Report'))
     report.send_email()

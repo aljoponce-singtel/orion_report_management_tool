@@ -17,8 +17,7 @@ config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 def generate_report():
 
-    report = OrionReport(config_file)
-    report.set_report_name('UDF Usage Report')
+    report = OrionReport(config_file, 'UDF Usage Report')
     report.set_filename('udf_usage_report')
     report.set_prev_month_first_last_day_date()
 

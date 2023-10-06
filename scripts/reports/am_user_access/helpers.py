@@ -14,8 +14,7 @@ configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 def generate_report():
 
-    report = OrionReport(configFile)
-    report.set_report_name('AM User Weekly Access Report')
+    report = OrionReport(configFile, 'AM User Weekly Access Report')
     report.set_prev_week_monday_sunday_date()
 
     query = f"""
