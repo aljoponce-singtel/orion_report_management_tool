@@ -45,11 +45,9 @@ def generate_report():
                     USR.username;
             """
 
-    result = report.orion_db.query_to_list(query)
-    df = None
+    df = report.query_to_dataframe(query)
 
-    if result:
-        df = pd.DataFrame(result)
+    if not df.empty:
         # Add column name
         df.columns = ['username']
     else:

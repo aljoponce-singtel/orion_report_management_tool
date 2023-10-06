@@ -3,11 +3,7 @@ import os
 from dateutil.relativedelta import relativedelta
 import logging
 
-# Import third-party packages
-import pandas as pd
-
 # Import local packages
-import constants as const
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -65,15 +61,9 @@ def generate_report():
                 ;
             """
 
-    result = report.orion_db.query_to_list(query)
+    df = report.query_to_dataframe(query)
 
-    if result:
-        df = pd.DataFrame(data=result, columns=const.MAIN_COLUMNS)
-
-        # set columns to datetime type
-        df[const.DATE_COLUMNS] = df[const.DATE_COLUMNS].apply(
-            pd.to_datetime)
-
+    if not df.empty:
         # Change starting index from 0 to 1 for proper table presentation
         df.index += 1
 

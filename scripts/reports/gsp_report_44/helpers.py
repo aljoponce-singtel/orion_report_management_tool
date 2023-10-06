@@ -1,6 +1,6 @@
 # Import built-in packages
 import os
-from datetime import datetime
+from datetime import date
 import logging
 
 # Import third-party packages
@@ -8,8 +8,6 @@ import numpy as np
 import pandas as pd
 
 # Import local packages
-import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -144,16 +142,9 @@ def generate_report():
                     ORD.taken_date BETWEEN '{report.start_date}' AND '{report.end_date}'
             """
 
-    result = report.orion_db.query_to_list(query)
-    df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
-    # set columns to datetime type
-    df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
-        pd.to_datetime)
-
+    df_raw = report.query_to_dataframe(query)
     # Get the list of holiday dates excluding weekends
     df_holidays = get_holidays(report)
-
     # calculate the number of days between two dates
     df_raw['tat_for_sales'] = df_raw.apply(
         lambda row: count_weekdays(row['received_date'], row['sde_received_date'], df_holidays), axis=1)
@@ -215,16 +206,11 @@ def get_holidays(report: OrionReport):
                 ;
             """)
 
-    result = report.tableau_db.query_to_list(
-        query, query_description='holidays')
-    df = pd.DataFrame(data=result, columns=['Holiday', 'Date'])
-
-    # set columns to datetime type
-    df[['Date']] = df[['Date']].apply(
-        pd.to_datetime)
+    df = report.query_to_dataframe(
+        query, db=report.tableau_db, query_description='holidays')
 
     # Exclude weekend holidays
-    df['Weekday'] = df['Date'].dt.dayofweek
+    df['Weekday'] = pd.to_datetime(df['Date']).dt.dayofweek
     filtered_dates = df.loc[(df['Weekday'] != 5) & (df['Weekday'] != 6)]
 
     # logger.info(filtered_dates)
@@ -232,11 +218,11 @@ def get_holidays(report: OrionReport):
     return filtered_dates
 
 
-def count_weekdays(start_date: datetime, end_date: datetime, df_holidays: pd.DataFrame):
+def count_weekdays(start_date: date, end_date: date, df_holidays: pd.DataFrame):
     num_weekdays = np.nan
 
     if pd.notnull(start_date) and pd.notnull(end_date):
-        num_weekdays = np.busday_count(start_date.date(), end_date.date())
+        num_weekdays = np.busday_count(start_date, end_date)
         num_wkday_holidays = sum(start_date <= date
                                  <= end_date for date in df_holidays['Date'])
 

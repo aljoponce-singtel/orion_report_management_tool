@@ -31,7 +31,7 @@ def generate_report():
 
     query = f"""
                 SELECT
-                    DISTINCT CAST(created_at AS DATE) AS login_date,
+                    DISTINCT DATE(created_at) AS login_date,
                     DAYNAME(created_at) AS day_name,
                     username
                 FROM
@@ -63,32 +63,20 @@ def generate_report():
                     username;
             """
 
-    result = report.orion_db.query_to_list(query)
-
-    df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
-    # convert to datetime
-    df_raw['login_date'] = pd.to_datetime(df_raw['login_date'])
-
+    df_raw = report.query_to_dataframe(query)
     # Sort records in ascending order by login_date, and username
     df_raw = df_raw.sort_values(
         by=['login_date', 'username'], ascending=[True, True])
-
-    df_main = pd.DataFrame(columns=const.MAIN_COLUMNS)
-
+    # Main dataframe
+    df_main = pd.DataFrame(columns=['Monday', 'Week of', 'Month', 'Name'])
     # Get the email address
     df_main['Name'] = df_raw['username']
     # output: e.g., "May '22"
-    df_main['Month'] = df_raw['login_date'].dt.strftime(
+    df_main['Month'] = pd.to_datetime(df_raw['login_date']).dt.strftime(
         "%b '%y")
-
-    # convert datetime to date (remove time)
-    df_raw['login_date'] = pd.to_datetime(
-        df_raw['login_date']).dt.date
 
     # update the 'Week of' column for the rows within the specified 'login_date' date range
     for monday in mondays:
-
         # # output: e.g., "22 May"
         # remove leading zero from day
         formatted_date = monday.strftime('%d' + ' %B').lstrip('0')

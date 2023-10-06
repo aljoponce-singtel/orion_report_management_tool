@@ -2,11 +2,7 @@
 import os
 import logging
 
-# Import third-party packages
-import pandas as pd
-
 # Import local packages
-import constants as const
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -171,8 +167,7 @@ def generate_report(report: OrionReport):
                     ACT.name;
             """
 
-    result = report.orion_db.query_to_list(query)
-    df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
+    df = report.query_to_dataframe(query)
 
     # /* START */
     # There is no value in 'PO No' for 'NPP Level' == 'Mainline'.
@@ -214,10 +209,6 @@ def generate_report(report: OrionReport):
     # Remove the 'NPP Level' column
     df = df.drop('NPP Level', axis=1)
     # /* END */
-
-    # Convert columns to date
-    for column in const.DATE_COLUMNS:
-        df[column] = pd.to_datetime(df[column]).dt.date
 
     # Write to CSV
     csv_file = report.create_csv_from_df(df)

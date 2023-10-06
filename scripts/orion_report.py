@@ -250,7 +250,38 @@ class OrionReport(EmailClient):
 
                 raise Exception(err)
 
-    def create_csv_from_df(self, df: pd.DataFrame, file_path=None, filename=None):
+    def query_to_dataframe(self, query, db: DbConnection = None, data=None, query_description='records', column_names=[], datetime_to_date=False) -> pd.DataFrame:
+        if db == None:
+            db = self.orion_db
+
+        return db.query_to_dataframe(
+            query, data, query_description, column_names, datetime_to_date)
+
+    def query_to_csv(self, query, db: DbConnection = None, data=None, query_description='records', column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
+        if db == None:
+            db = self.orion_db
+
+        df = db.query_to_dataframe(
+            query, data, query_description, column_names, datetime_to_date)
+
+        if not df.empty:
+            return self.create_csv_from_df(df, file_path, filename, index)
+        else:
+            return None
+
+    def query_to_excel(self, query, db: DbConnection = None, data=None, query_description='records', column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
+        if db == None:
+            db = self.orion_db
+
+        df = db.query_to_dataframe(
+            query, data, query_description, column_names, datetime_to_date)
+
+        if not df.empty:
+            return self.create_excel_from_df(df, file_path, filename, index)
+        else:
+            return None
+
+    def create_csv_from_df(self, df: pd.DataFrame, file_path=None, filename=None, index=False):
         if self.debug_config.getboolean('create_report') == True:
             if filename is None:
                 filename = ("{}_{}.csv").format(
@@ -259,7 +290,7 @@ class OrionReport(EmailClient):
                 file_path = os.path.join(
                     self.reports_folder_path, filename)
 
-            utils.df_to_csv(df, file_path)
+            utils.df_to_csv(df, file_path, index=index)
             logger.debug("CSV file path: " +
                          os.path.dirname(file_path) + " ...")
 
@@ -367,6 +398,7 @@ class OrionReport(EmailClient):
             if open_file:
                 if utils.get_platform() == 'Windows':
                     logger.info("Previewing email ...")
+                # Preview HTML using the Edge browser as it is the only allowed browser from Singtel.
                 utils.open_file_using_default_program(
                     html_file_path, app_name='Edge')
 

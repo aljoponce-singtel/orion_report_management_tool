@@ -2,9 +2,6 @@
 import os
 import logging
 
-# Import third-party packages
-import pandas as pd
-
 # Import local packages
 import constants as const
 from scripts.orion_report import OrionReport
@@ -87,18 +84,11 @@ def generate_report():
                     AND PROD.product_type_id = 1082;
             """
 
-    result = report.orion_db.query_to_list(query)
+    df_raw = report.query_to_dataframe(query)
 
-    if result:
-        df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
-        # set columns to datetime type
-        df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
-            pd.to_datetime)
-
+    if not df_raw.empty:
         # set the final columns for the report
         df_main = df_raw[const.MAIN_COLUMNS]
-
         # Export df_main to CSV
         csv_file = report.create_csv_from_df(df_main)
 

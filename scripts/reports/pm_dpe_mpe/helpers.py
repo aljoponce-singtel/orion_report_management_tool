@@ -6,7 +6,6 @@ import logging
 import pandas as pd
 
 # Import local packages
-import constants as const
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -196,11 +195,7 @@ def generate_report():
                     );
             """
 
-    result = report.orion_db.query_to_list(query)
-    df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-    # set columns to datetime type
-    df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
-        pd.to_datetime)
+    df_raw = report.query_to_dataframe(query)
     df_raw['delay_reason'] = df_raw['delay_reason'].astype(str)
     df_raw['category'] = df_raw['category'].astype(str)
 

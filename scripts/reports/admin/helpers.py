@@ -25,14 +25,9 @@ def query_to_file(query_file, filename, report_name='Quick Query'):
         # Read the entire contents of the file into a string
         query = file.read()
 
-    df = report.orion_db.query_to_dataframe(query)
-    csv_file = report.create_csv_from_df(df)
-
-    if not df.empty:
-        report.attach_file(csv_file)
-        report.send_email()
-    else:
-        logger.warn("QUERY IS EMPTY")
+    csv_file = report.query_to_csv(query)
+    report.attach_file(csv_file)
+    report.send_email()
 
 
 def check_disk_usage():

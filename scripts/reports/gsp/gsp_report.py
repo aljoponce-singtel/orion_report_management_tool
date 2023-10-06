@@ -137,13 +137,8 @@ class GspReport(OrionReport):
                         act_step_no;
                 """
 
-        result = self.orion_db.query_to_list(
-            query, query_description=f"{self.gsp_report_name} records")
-
-        df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-        # Convert columns to date
-        for column in const.DATE_COLUMNS:
-            df_raw[column] = pd.to_datetime(df_raw[column]).dt.date
+        df_raw = self.query_to_dataframe(
+            query, query_description=f"{self.gsp_report_name} records", column_names=const.RAW_COLUMNS)
 
         # New dataframe for the final report
         df_report = pd.DataFrame(columns=const.MAIN_COLUMNS_DOUBLE)

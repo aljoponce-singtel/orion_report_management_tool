@@ -120,12 +120,7 @@ def generate_report():
                 ORDER BY
                     ORD.order_code;
             """
-
-    result = report.orion_db.query_to_list(query)
-    df = pd.DataFrame(data=result, columns=const.MAIN_COLUMNS)
-    # Convert columns to date
-    for column in const.DATE_COLUMNS:
-        df[column] = pd.to_datetime(df[column]).dt.date
+    df = report.query_to_dataframe(query)
     # Export the DataFrame to an Excel file
     # Keep the first row for duplicate records with the same 'OrderNo'
     df = df.drop_duplicates(subset=['OrderNo'], keep='first')
@@ -251,14 +246,7 @@ def generate_report_raw(report: OrionReport):
                     CON.contact_type;
             """
 
-    result = report.orion_db.query_to_list(
-        query, query_description='raw records')
-    df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-    # Convert columns to date
-    for column in const.DATE_COLUMNS:
-        df[column] = pd.to_datetime(df[column]).dt.date
-    # Export the DataFrame to an Excel file
-    excel_file = report.create_excel_from_df(df)
+    excel_file = report.query_to_excel(query, query_description='raw records')
 
     return excel_file
 

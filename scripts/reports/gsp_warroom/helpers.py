@@ -128,20 +128,8 @@ def generate_warroom_report():
                     ACT.tag_name = 'Pegasus';
             """
 
-    # result = report.orion_db.query_to_list(query)
-    # logger.info("Creating warroom report ...")
-    # df_raw = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
-    # # set columns to datetime type
-    # df_raw[const.DATE_COLUMNS] = df_raw[const.DATE_COLUMNS].apply(
-    #     pd.to_datetime)
-
     df_raw = report.orion_db.query_to_dataframe(
         query, query_description="warroom records", datetime_to_date=True)
-
-    # convert datetime to date (remove time)
-    # df_raw['act_dly_reason_date'] = pd.to_datetime(
-    #     df_raw['act_dly_reason_date']).dt.date
 
     # Create new dataframe based from CRD_AMENDMENT_COLUMNS
     df_crd_amendment = df_raw[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
@@ -623,14 +611,6 @@ def generate_warroom_npp_report():
                     AND ORD.current_crd BETWEEN '{report.start_date}'
                     AND '{report.end_date}';
             """
-
-    # result = report.orion_db.query_to_list(query)
-    # logger.info("Creating warroom npp report ...")
-    # df_raw = pd.DataFrame(data=result, columns=const.MAIN_NPP_COLUMNS)
-
-    # # Convert columns to date
-    # for column in const.DATE_NPP_COLUMNS:
-    #     df_raw[column] = pd.to_datetime(df_raw[column]).dt.date
 
     df_raw = report.orion_db.query_to_dataframe(
         query, query_description="warroom npp records")

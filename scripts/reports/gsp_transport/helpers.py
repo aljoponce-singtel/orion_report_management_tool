@@ -243,7 +243,7 @@ def getActRecord(df: pd.DataFrame, activities):
     return actGroupId, actTeam, actName, actStatus, actDueDate, actComDate
 
 
-def getTransportOrders(report: OrionReport):
+def getTransportOrders(report: OrionReport) -> pd.DataFrame:
 
     # store variables to upper_case (string) variables for better readability in the query
     START_DATE = str(report.start_date)
@@ -425,11 +425,11 @@ def getTransportOrders(report: OrionReport):
         )
     )
 
-    result = report.orion_db.query_to_list(query, query_description='orders')
-    return pd.DataFrame(data=result, columns=['order_id'])
+    return report.query_to_dataframe(
+        query, query_description='orders', column_names=['order_id'])
 
 
-def getTransportRecords(report: OrionReport, order_id_list):
+def getTransportRecords(report: OrionReport, order_id_list) -> pd.DataFrame:
 
     # store variables to upper_case variables for better readability in the query
     ORDER_ID_LIST = order_id_list
@@ -680,5 +680,4 @@ def getTransportRecords(report: OrionReport, order_id_list):
         )
     )
 
-    result = report.orion_db.query_to_list(query)
-    return pd.DataFrame(data=result, columns=const.DRAFT_COLUMNS)
+    return report.query_to_dataframe(query, column_names=const.DRAFT_COLUMNS)

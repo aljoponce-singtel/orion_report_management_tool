@@ -2,11 +2,7 @@
 import os
 import logging
 
-# Import third-party packages
-import pandas as pd
-
 # Import local packages
-import constants as const
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -174,15 +170,8 @@ def generate_report(report: OrionReport):
                     ORD.order_code;
             """
 
-    result = report.orion_db.query_to_list(query)
-    df = pd.DataFrame(data=result, columns=const.RAW_COLUMNS)
-
-    # Convert columns to date
-    for column in const.DATE_COLUMNS:
-        df[column] = pd.to_datetime(df[column]).dt.date
-
-    # Export df to CSV
-    csv_file = report.create_csv_from_df(df)
+    # Query results and export to CSV
+    csv_file = report.query_to_csv(query)
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file)
     # Send Email
