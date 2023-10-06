@@ -55,19 +55,10 @@ def generate_report(report: OrionReport):
 
     # Close the Excel file
     excel_writer.close()
-
     # Add Excel file to zip file
-    zip_file = ("{}_{}.zip").format(
-        report.filename, utils.get_current_datetime())
-    zip_file_path = os.path.join(report.reports_folder_path, zip_file)
-
+    zip_file_path = report.add_to_zip_file(excel_file_path, add_timestamp=True)
     # Attach files to email
-    if report.debug_config.getboolean('compress_files'):
-        report.add_to_zip_file(excel_file_path, zip_file_path)
-        report.attach_file_to_email(zip_file_path)
-    else:
-        report.attach_file_to_email(excel_file_path)
-
+    report.attach_file_to_email(zip_file_path)
     # Send Email
     report.send_email()
 

@@ -25,7 +25,7 @@ def query_to_file(query_file, filename, report_name='Quick Query'):
         # Read the entire contents of the file into a string
         query = file.read()
 
-    csv_file = report.query_to_csv(query)
+    csv_file = report.query_to_csv(query, add_timestamp=True)
     report.attach_file(csv_file)
     report.send_email()
 

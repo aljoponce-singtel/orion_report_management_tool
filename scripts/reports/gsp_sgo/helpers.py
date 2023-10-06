@@ -209,9 +209,9 @@ def generate_report(report: OrionReport):
     # /* END */
 
     # Write to CSV
-    csv_file = report.create_csv_from_df(df)
+    csv_file = report.create_csv_from_df(df, add_timestamp=True)
     # Add CSV to zip file
-    zip_file = report.add_to_zip_file(csv_file)
+    zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Send Email
     report.attach_file_to_email(zip_file)
     report.send_email()

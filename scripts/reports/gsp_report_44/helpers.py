@@ -186,11 +186,11 @@ def generate_report():
     )
 
     # Write to CSV
-    csv_file = report.create_csv_from_df(df_raw)
+    csv_file = report.create_csv_from_df(df_raw, add_timestamp=True)
     # Add CSV to zip file
-    # zip_file = report.add_to_zip_file(csv_file)
+    zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Send Email
-    report.attach_file_to_email(csv_file)
+    report.attach_file_to_email(zip_file)
     report.send_email()
 
 

@@ -224,7 +224,7 @@ def generate_report():
         by=['order_code', 'act_stepno'], ascending=[True, True])
 
     # Write to CSV
-    csv_file = report.create_csv_from_df(df_raw)
+    csv_file = report.create_csv_from_df(df_raw, add_timestamp=True)
     # Send Email
     report.attach_file_to_email(csv_file)
     report.send_email()

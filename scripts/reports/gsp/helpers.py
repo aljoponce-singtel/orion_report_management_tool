@@ -3,6 +3,7 @@ import os
 import logging
 
 # Import local packages
+from scripts.helpers import utils
 from gsp_report import GspReport
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ def generate_sdwan_report():
     report.set_first_activity_list(gsp_act_list)
     report.set_second_groupid_list(gsdt_group_list)
     report.set_second_activity_list(gsdt_act_list)
-    current_datetime = report.get_current_datetime()
+    current_datetime = utils.get_current_datetime()
     zip_filename = ("{}_{}.zip").format(report.filename, current_datetime)
 
     # CNP
@@ -47,14 +48,16 @@ def generate_sdwan_report():
     df_report = report.generate_report(main_group='first')
     csv_file = report.create_csv_from_df(df_report, filename=(
         "{}_{}.csv").format(report.gsp_report_name, current_datetime))
-    zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
+    zip_file = report.add_to_zip_file(
+        csv_file, zip_filename=zip_filename, add_timestamp=True)
 
     # GSDT6
     report.set_gsp_report_name("gsdt")
     df_report = report.generate_report(main_group='second')
     csv_file = report.create_csv_from_df(df_report, filename=(
         "{}_{}.csv").format(report.gsp_report_name, current_datetime))
-    zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
+    zip_file = report.add_to_zip_file(
+        csv_file, zip_filename=zip_filename, add_timestamp=True)
 
     # Send email
     report.attach_file_to_email(zip_file)

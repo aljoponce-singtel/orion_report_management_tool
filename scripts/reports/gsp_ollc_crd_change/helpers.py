@@ -89,7 +89,7 @@ def generate_report():
         # set the final columns for the report
         df_main = df_raw[const.MAIN_COLUMNS]
         # Export df_main to CSV
-        csv_file = report.create_csv_from_df(df_main)
+        csv_file = report.create_csv_from_df(df_main, add_timestamp=True)
 
         df_pm = df_raw[df_raw['assignee'] == 'PM']
         df_pm = df_pm[const.MAIN_COLUMNS]

@@ -124,7 +124,8 @@ def generate_report():
     df_main.rename(columns={'index': '#'}, inplace=True)
 
     # Write to CSV for Warroom Report
-    csv_file = report.create_csv_from_df(df_main[const.FINAL_COLUMNS])
+    csv_file = report.create_csv_from_df(
+        df_main[const.FINAL_COLUMNS], add_timestamp=True)
 
     # Send Email
     # Change starting index from 0 to 1 for proper table presentation

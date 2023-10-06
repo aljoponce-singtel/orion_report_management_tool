@@ -28,9 +28,9 @@ def generate_transport_report():
     # Insert records to tableau db
     update_tableau_db(report, df_finalReport)
     # Write to CSV
-    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS])
+    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS], add_timestamp=True)
     # Add CSV to zip file
-    zip_file = report.add_to_zip_file(csv_file)
+    zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Send Email
     report.attach_file_to_email(zip_file)
     report.add_email_receiver_to('teokokwee@singtel.com')
@@ -49,9 +49,9 @@ def generate_transport_billing_report():
     df_finalReport = df_finalReport.drop(
         (df_finalReport.loc[df_finalReport['PreConfig_Team'] == 'SGP'].index) | (df_finalReport.loc[df_finalReport['Coordination_Team'] == 'SGP'].index))
     # Write to CSV
-    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS])
+    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS], add_timestamp=True)
     # Add CSV to zip file
-    zip_file = report.add_to_zip_file(csv_file)
+    zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Send Email
     report.attach_file_to_email(zip_file)
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')

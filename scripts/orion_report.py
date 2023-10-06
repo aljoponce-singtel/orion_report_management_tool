@@ -185,7 +185,10 @@ class OrionReport(EmailClient):
     def set_report_name(self, name):
         self.report_name = name
 
-    def set_filename(self, filename):
+    def set_filename(self, filename, add_timestamp=False):
+        if add_timestamp:
+            filename = ("{}_{}").format(
+                filename, utils.get_current_datetime())
         self.filename = filename
 
     def set_report_date(self, date):
@@ -257,7 +260,7 @@ class OrionReport(EmailClient):
         return db.query_to_dataframe(
             query, data, query_description, column_names, datetime_to_date)
 
-    def query_to_csv(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
+    def query_to_csv(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False, add_timestamp=False):
         if db == None:
             db = self.orion_db
 
@@ -265,11 +268,11 @@ class OrionReport(EmailClient):
             query, data, query_description, column_names, datetime_to_date)
 
         if not df.empty:
-            return self.create_csv_from_df(df, file_path, filename, index)
+            return self.create_csv_from_df(df, file_path, filename, index, add_timestamp)
         else:
             return None
 
-    def query_to_excel(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
+    def query_to_excel(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False, add_timestamp=False):
         if db == None:
             db = self.orion_db
 
@@ -277,15 +280,18 @@ class OrionReport(EmailClient):
             query, data, query_description, column_names, datetime_to_date)
 
         if not df.empty:
-            return self.create_excel_from_df(df, file_path, filename, index)
+            return self.create_excel_from_df(df, file_path, filename, index, add_timestamp)
         else:
             return None
 
-    def create_csv_from_df(self, df: pd.DataFrame, file_path=None, filename=None, index=False):
+    def create_csv_from_df(self, df: pd.DataFrame, file_path=None, filename=None, index=False, add_timestamp=False):
         if self.debug_config.getboolean('create_report') == True:
             if filename is None:
-                filename = ("{}_{}.csv").format(
-                    self.filename, utils.get_current_datetime())
+                if add_timestamp:
+                    filename = ("{}_{}.csv").format(
+                        self.filename, utils.get_current_datetime())
+                else:
+                    filename = ("{}.csv").format(self.filename)
             if file_path is None:
                 file_path = os.path.join(
                     self.reports_folder_path, filename)
@@ -296,11 +302,14 @@ class OrionReport(EmailClient):
 
         return file_path
 
-    def create_excel_from_df(self, df: pd.DataFrame, file_path=None, filename=None, index=False):
+    def create_excel_from_df(self, df: pd.DataFrame, file_path=None, filename=None, index=False, add_timestamp=False):
         if self.debug_config.getboolean('create_report') == True:
             if filename is None:
-                filename = ("{}_{}.xlsx").format(
-                    self.filename, utils.get_current_datetime())
+                if add_timestamp:
+                    filename = ("{}_{}.xlsx").format(
+                        self.filename, utils.get_current_datetime())
+                else:
+                    filename = ("{}.xlsx").format(self.filename)
             if file_path is None:
                 file_path = os.path.join(
                     self.reports_folder_path, filename)
@@ -315,11 +324,14 @@ class OrionReport(EmailClient):
 
         return file_path
 
-    def add_to_zip_file(self, files_to_zip, zip_file_path=None, zip_filename=None, password=None, remove_file=True):
+    def add_to_zip_file(self, files_to_zip, zip_file_path=None, zip_filename=None, password=None, remove_file=True, add_timestamp=False):
         if self.debug_config.getboolean('create_report') == True:
             if zip_filename is None:
-                zip_filename = ("{}_{}.zip").format(
-                    self.filename, utils.get_current_datetime())
+                if add_timestamp:
+                    zip_filename = ("{}_{}.zip").format(
+                        self.filename, utils.get_current_datetime())
+                else:
+                    zip_filename = ("{}.zip").format(self.filename)
             if zip_file_path is None:
                 zip_file_path = os.path.join(
                     self.reports_folder_path, zip_filename)
