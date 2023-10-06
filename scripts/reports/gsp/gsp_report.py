@@ -60,7 +60,7 @@ class GspReport(OrionReport):
 
         return subject
 
-    def generate_report(self, main_group: str = 'first') -> pd.DataFrame:
+    def generate_report_two_group(self, main_group: str = 'first', only_group_id=False) -> pd.DataFrame:
 
         primary_groupid = self.first_groupid_list
         primary_activities = self.first_activity_list
@@ -73,69 +73,125 @@ class GspReport(OrionReport):
             secondary_groupid = self.first_groupid_list
             secondary_activities = self.first_activity_list
 
-        query = f"""
-                    SELECT
-                        DISTINCT ORD.order_code,
-                        ORD.service_number,
-                        PRD.network_product_code,
-                        PRD.network_product_desc,
-                        CUS.name AS customer_name,
-                        ORD.order_type,
-                        ORD.current_crd,
-                        ORD.taken_date,
-                        PER.role AS group_id,
-                        CAST(ACT.activity_code AS SIGNED INTEGER) AS act_step_no,
-                        ACT.name AS act_name,
-                        ACT.due_date AS act_due_date,
-                        ACT.ready_date AS act_rdy_date,
-                        DATE(ACT.exe_date) AS act_exe_date,
-                        DATE(ACT.dly_date) AS act_dly_date,
-                        ACT.completed_date AS act_com_date
-                    FROM
-                        RestInterface_order ORD
-                        JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-                        JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                        LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-                        LEFT JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
-                        AND NPP.level = 'MainLine'
-                        AND NPP.status != 'Cancel'
-                        LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
-                    WHERE
-                        ORD.id IN (
-                            SELECT
-                                DISTINCT ORD.id
-                            FROM
-                                RestInterface_order ORD
-                                JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-                                JOIN RestInterface_person PER ON PER.id = ACT.person_id
-                            WHERE
-                                PER.role IN ({utils.list_to_string(primary_groupid)})
-                                AND ACT.completed_date BETWEEN '{self.start_date}'
-                                AND '{self.end_date}'
-                                AND ACT.name IN (
-                                    {utils.list_to_string(primary_activities)}
+        query = ""
+
+        if only_group_id == False:
+            query = f"""
+                        SELECT
+                            DISTINCT ORD.order_code,
+                            ORD.service_number,
+                            PRD.network_product_code,
+                            PRD.network_product_desc,
+                            CUS.name AS customer_name,
+                            ORD.order_type,
+                            ORD.current_crd,
+                            ORD.taken_date,
+                            PER.role AS group_id,
+                            CAST(ACT.activity_code AS SIGNED INTEGER) AS act_step_no,
+                            ACT.name AS act_name,
+                            ACT.due_date AS act_due_date,
+                            ACT.ready_date AS act_rdy_date,
+                            DATE(ACT.exe_date) AS act_exe_date,
+                            DATE(ACT.dly_date) AS act_dly_date,
+                            ACT.completed_date AS act_com_date
+                        FROM
+                            RestInterface_order ORD
+                            JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+                            JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                            LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                            LEFT JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
+                            AND NPP.level = 'MainLine'
+                            AND NPP.status != 'Cancel'
+                            LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
+                        WHERE
+                            ORD.id IN (
+                                SELECT
+                                    DISTINCT ORD.id
+                                FROM
+                                    RestInterface_order ORD
+                                    JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+                                    JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                                WHERE
+                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    AND ACT.completed_date BETWEEN '{self.start_date}'
+                                    AND '{self.end_date}'
+                                    AND ACT.name IN (
+                                        {utils.list_to_string(primary_activities)}
+                                    )
+                            )
+                            AND (
+                                (
+                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    AND ACT.completed_date BETWEEN '{self.start_date}'
+                                    AND '{self.end_date}'
+                                    AND ACT.name IN (
+                                        {utils.list_to_string(primary_activities)}
+                                    )
                                 )
-                        )
-                        AND (
-                            (
-                                PER.role IN ({utils.list_to_string(primary_groupid)})
-                                AND ACT.completed_date BETWEEN '{self.start_date}'
-                                AND '{self.end_date}'
-                                AND ACT.name IN (
-                                    {utils.list_to_string(primary_activities)}
+                                OR (
+                                    PER.role IN ({utils.list_to_string(secondary_groupid)})
+                                    AND ACT.name IN (
+                                        {utils.list_to_string(secondary_activities)}
+                                    )
                                 )
                             )
-                            OR (
-                                PER.role IN ({utils.list_to_string(secondary_groupid)})
-                                AND ACT.name IN (
-                                    {utils.list_to_string(secondary_activities)}
-                                )
+                        ORDER BY
+                            ORD.order_code,
+                            act_step_no;
+                    """
+        else:
+            query = f"""
+                        SELECT
+                            DISTINCT ORD.order_code,
+                            ORD.service_number,
+                            PRD.network_product_code,
+                            PRD.network_product_desc,
+                            CUS.name AS customer_name,
+                            ORD.order_type,
+                            ORD.current_crd,
+                            ORD.taken_date,
+                            PER.role AS group_id,
+                            CAST(ACT.activity_code AS SIGNED INTEGER) AS act_step_no,
+                            ACT.name AS act_name,
+                            ACT.due_date AS act_due_date,
+                            ACT.ready_date AS act_rdy_date,
+                            DATE(ACT.exe_date) AS act_exe_date,
+                            DATE(ACT.dly_date) AS act_dly_date,
+                            ACT.completed_date AS act_com_date
+                        FROM
+                            RestInterface_order ORD
+                            JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+                            JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                            LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                            LEFT JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
+                            AND NPP.level = 'MainLine'
+                            AND NPP.status != 'Cancel'
+                            LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
+                        WHERE
+                            ORD.id IN (
+                                SELECT
+                                    DISTINCT ORD.id
+                                FROM
+                                    RestInterface_order ORD
+                                    JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+                                    JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                                WHERE
+                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    AND ACT.completed_date BETWEEN '{self.start_date}'
+                                    AND '{self.end_date}'
                             )
-                        )
-                    ORDER BY
-                        ORD.order_code,
-                        act_step_no;
-                """
+                            AND (
+                                (
+                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    AND ACT.completed_date BETWEEN '{self.start_date}'
+                                    AND '{self.end_date}'
+                                )
+                                OR PER.role IN ({utils.list_to_string(secondary_groupid)})
+                            )
+                        ORDER BY
+                            ORD.order_code,
+                            act_step_no;
+                    """
 
         df_raw = self.query_to_dataframe(
             query, query_description=f"{self.gsp_report_name} records", column_names=const.RAW_COLUMNS)
@@ -157,12 +213,22 @@ class GspReport(OrionReport):
             # Get the records of an order
             df_order: pd.DataFrame
             df_order = df_raw[df_raw['Workorder no'] == order]
-            # Get the records that matches group 1
-            df_group_1 = df_order[df_order['Group ID'].isin(
-                self.first_groupid_list) & df_order['Activity Name'].isin(self.first_activity_list)]
-            # Get the records that matches group 2
-            df_group_2 = df_order[df_order['Group ID'].isin(
-                self.second_groupid_list) & df_order['Activity Name'].isin(self.second_activity_list)]
+
+            if only_group_id == False:
+                # Get the group_id and activity records that matches group 1
+                df_group_1 = df_order[df_order['Group ID'].isin(
+                    self.first_groupid_list) & df_order['Activity Name'].isin(self.first_activity_list)]
+                # Get the group_id and activity records that matches group 2
+                df_group_2 = df_order[df_order['Group ID'].isin(
+                    self.second_groupid_list) & df_order['Activity Name'].isin(self.second_activity_list)]
+            else:
+                # Get the group_id records that matches group 1
+                df_group_1 = df_order[df_order['Group ID'].isin(
+                    self.first_groupid_list)]
+                # Get the group_id records that matches group 2
+                df_group_2 = df_order[df_order['Group ID'].isin(
+                    self.second_groupid_list)]
+
             # Check if group 1 is not empty
             if not df_group_1.empty:
                 # Check if group 1 has more than 1 records

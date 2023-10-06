@@ -22,9 +22,9 @@ def generate_sdwan_report():
     ]
 
     gsp_act_list = [
-        'NFV Staging & Onboarding',
-        'SDWAN Onsite Installation',
-        'Cease SD-WAN Service'
+        # 'NFV Staging & Onboarding',
+        # 'SDWAN Onsite Installation',
+        # 'Cease SD-WAN Service'
     ]
 
     gsdt_group_list = [
@@ -33,7 +33,7 @@ def generate_sdwan_report():
     ]
 
     gsdt_act_list = [
-        'GSDT Co-ordination Work'
+        # 'GSDT Co-ordination Work'
     ]
 
     report.set_first_groupid_list(gsp_group_list)
@@ -45,7 +45,8 @@ def generate_sdwan_report():
 
     # CNP
     report.set_gsp_report_name("gsp")
-    df_report = report.generate_report(main_group='first')
+    df_report = report.generate_report_two_group(
+        main_group='first', only_group_id=True)
     csv_file = report.create_csv_from_df(df_report, filename=(
         "{}_{}.csv").format(report.gsp_report_name, current_datetime))
     zip_file = report.add_to_zip_file(
@@ -53,7 +54,8 @@ def generate_sdwan_report():
 
     # GSDT6
     report.set_gsp_report_name("gsdt")
-    df_report = report.generate_report(main_group='second')
+    df_report = report.generate_report_two_group(
+        main_group='second', only_group_id=True)
     csv_file = report.create_csv_from_df(df_report, filename=(
         "{}_{}.csv").format(report.gsp_report_name, current_datetime))
     zip_file = report.add_to_zip_file(
@@ -204,19 +206,18 @@ def generate_cplus_ip_report():
 
     # CNP
     report.set_gsp_report_name("CNP")
-    df_report = report.generate_report(main_group='first')
+    df_report = report.generate_report_two_group(main_group='first')
     csv_file = report.create_csv_from_df(df_report, filename=(
         "{}_{}.csv").format(report.gsp_report_name, current_datetime))
     zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
 
     # GSDT6
     report.set_gsp_report_name("GSDT6")
-    df_report = report.generate_report(main_group='second')
+    df_report = report.generate_report_two_group(main_group='second')
     csv_file = report.create_csv_from_df(df_report, filename=(
         "{}_{}.csv").format(report.gsp_report_name, current_datetime))
     zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
 
     # Send email
     report.attach_file_to_email(zip_file)
-    # report.set_email_subject(report.add_timestamp('CPlusIP Report'))
     report.send_email()
