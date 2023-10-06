@@ -77,11 +77,17 @@ class DbConnection:
 
         return table_to_drop.metadata.drop_all(self.engine)
 
-    def query(self, query, data=None, query_description='records'):
+    def query(self, query, data=None, query_description=None):
 
         # Only works when log_level=debug
         self.log_full_query(query)
+
+        # Set default query description
+        if not query_description:
+            query_description = 'records'
+
         logger.info(f"[DB:{self.database}] Querying {query_description} ...")
+
         result = []
         query_type = type(query)
         start_time = time.time()
@@ -110,14 +116,14 @@ class DbConnection:
 
         return result
 
-    def query_to_list(self, query, data=None, query_description='records'):
+    def query_to_list(self, query, data=None, query_description=None):
 
         result = self.query(query, data, query_description)
         result = result.fetchall()
 
         return result
 
-    def query_to_dataframe(self, query, data=None, query_description='records', column_names=[], datetime_to_date=False) -> pd.DataFrame:
+    def query_to_dataframe(self, query, data=None, query_description=None, column_names=[], datetime_to_date=False) -> pd.DataFrame:
 
         result = self.query(query, data, query_description)
         # Get the columns that are of type DATE or DATETIME
@@ -137,6 +143,8 @@ class DbConnection:
             f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
         # Create a dataframe from the result
         if len(column_names) == 0:
+            # Extracting the column names from the query is required for Pandas package version 1.1.5 and below
+            # The columns will be in numbers by default if not explicitly extracted.
             # Get the list of column names directly from the query if column_names is empty
             df = pd.DataFrame(data=result.fetchall(), columns=result.keys())
         else:

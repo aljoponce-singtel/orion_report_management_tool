@@ -250,14 +250,14 @@ class OrionReport(EmailClient):
 
                 raise Exception(err)
 
-    def query_to_dataframe(self, query, db: DbConnection = None, data=None, query_description='records', column_names=[], datetime_to_date=False) -> pd.DataFrame:
+    def query_to_dataframe(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False) -> pd.DataFrame:
         if db == None:
             db = self.orion_db
 
         return db.query_to_dataframe(
             query, data, query_description, column_names, datetime_to_date)
 
-    def query_to_csv(self, query, db: DbConnection = None, data=None, query_description='records', column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
+    def query_to_csv(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
         if db == None:
             db = self.orion_db
 
@@ -269,7 +269,7 @@ class OrionReport(EmailClient):
         else:
             return None
 
-    def query_to_excel(self, query, db: DbConnection = None, data=None, query_description='records', column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
+    def query_to_excel(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False, file_path=None, filename=None, index=False):
         if db == None:
             db = self.orion_db
 
