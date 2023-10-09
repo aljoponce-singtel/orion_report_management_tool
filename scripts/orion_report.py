@@ -373,9 +373,43 @@ class OrionReport(EmailClient):
         else:
             super().set_email_subject(subject)
 
-    def attach_file_to_email(self, attachment):
+    def attach_file_to_email(self, attachment, append_file_ext=None, rm_appended_file=True):
+        # Attach the file if the create_report option is true
         if self.debug_config.getboolean('create_report') == True:
-            super().attach_file(attachment)
+            # Temporary file name
+            new_attachement = None
+            # Check if a new extension type is to be concatenated on the filename
+            if append_file_ext:
+                # Append the new extension type to the filename
+                new_attachement = utils.add_ext_type(
+                    attachment, new_extension=append_file_ext)
+                # Duplicate the file with the new extension type
+                utils.copy_file(attachment, new_attachement)
+                # The file to attach will be the new attachement file
+                attachment = new_attachement
+
+            # Prevent email attachment of large files
+            file_stat = os.stat(attachment)
+            # Get the file size in bytes
+            filesize_bytes = file_stat.st_size
+            # Get the file size in megabytes
+            filesize_mbytes = filesize_bytes/1048576
+            # Attach the file if less than the max allowed file size
+            if (filesize_mbytes < self.default_config.getfloat('email_att_max_size')):
+                super().attach_file(attachment)
+            else:
+                # Ignore attaching the file but still send the email
+                logger.warn(
+                    f"FILE TOO LARGE TO ATTACH IN EMAIL: Max is {self.default_config.getint('email_att_max_size')} mb, and {basename(attachment)} is {filesize_mbytes:.2f} mb in size.")
+
+            # Check if the temporary file will be removed after sending the email
+            if rm_appended_file:
+                # Only remove the newly created file
+                if attachment == new_attachement:
+                    # Remove the temporary (new extension type) file
+                    utils.delete_file(new_attachement)
+
+        return attachment
 
     def preview_email(self, filename=None, file_path=None, open_file=True):
 
@@ -415,20 +449,6 @@ class OrionReport(EmailClient):
                     html_file_path, app_name='Edge')
 
         return html_file_path
-
-    def attach_file(self, attachment):
-
-        file_stat = os.stat(attachment)
-        # Get the file size in bytes
-        filesize_bytes = file_stat.st_size
-        # Get the file size in megabytes
-        filesize_mbytes = filesize_bytes/1048576
-        # Attach the file if less than the max allowed file size
-        if (filesize_mbytes < self.default_config.getfloat('email_att_max_size')):
-            super().attach_file(attachment)
-        else:
-            logger.warn(
-                f"FILE TOO LARGE TO ATTACH IN EMAIL: Max is {self.default_config.getint('email_att_max_size')} mb, and {basename(attachment)} is {filesize_mbytes:.2f} mb in size.")
 
     def send_email(self):
 
