@@ -115,8 +115,7 @@ def zip_file(files_to_zip, zip_file, remove_file=True):
             zip_obj.write(filename=file, arcname=os.path.basename(file))
 
             if remove_file:
-                logger.info(f"Deleting file {os.path.basename(file)} ...")
-                os.remove(file)
+                delete_file(file)
 
 
 # Only works with Linux
@@ -293,6 +292,12 @@ def scan_files(dir_path, regex=None):
     return filenames
 
 
+def delete_file(file_path):
+
+    logger.info(f"Removing file {os.path.basename(file_path)} ...")
+    os.remove(file_path)
+
+
 def read_yaml_file(file_path):
     parsed_yaml = None
 
@@ -303,10 +308,15 @@ def read_yaml_file(file_path):
 
 
 def copy_file(source_path, destination_path):
-    shutil.copy2(source_path, destination_path)
+    shutil.copy(source_path, destination_path)
 
 
-def replace_extension(filename, new_extension):
+def add_ext_type(filename, new_extension):
+    new_filename = f"{filename}.{new_extension}"  # Create the new filename
+    return new_filename
+
+
+def replace_ext_type(filename, new_extension):
     base_name = os.path.splitext(filename)[0]  # Get the base name of the file
     new_filename = f"{base_name}.{new_extension}"  # Create the new filename
     return new_filename
