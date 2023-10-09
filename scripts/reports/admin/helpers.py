@@ -57,7 +57,9 @@ def check_disk_usage():
         report.send_email()
     else:
         logger.info(
-            f"The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.")
+            f"The drive at '{path_to_check}' is {disk_usage_percentage:.2f} % full.")
+        logger.info(
+            f"It is still within the {report.default_config.get('disk_usage_treshold')} % threshold.")
 
 
 def check_new_queueowners():
