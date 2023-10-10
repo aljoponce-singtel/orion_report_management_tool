@@ -54,6 +54,8 @@
 55 18 1 * * /app/o2p/ossadmin/ormt/run.sh gsp_ilc_transport
 55 18 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_ilc_transport main_billing
 45 9 * * * /app/o2p/ossadmin/ormt/run.sh admin
+15 18 1,26 * * /app/o2p/ossadmin/ormt/run.sh gsp
+18 9 * * 1 /app/o2p/ossadmin/ormt/run.sh gsp main_billing
 
 20 9 1 * * /app/o2p/ossadmin/user/reports.sh
 
