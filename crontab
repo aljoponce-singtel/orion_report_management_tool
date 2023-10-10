@@ -1,5 +1,4 @@
-#CRON backup
-@daily crontab -l > $HOME/.crontab
+@daily crontab -l >$HOME/.crontab
 
 # 30 * * * * /app/o2p/ossadmin/autoEscalation/precheck.sh
 
@@ -44,7 +43,7 @@
 30 6,19 * * * /app/o2p/ossadmin/ormt/run.sh gsp_warroom
 15 19 * * * /app/o2p/ossadmin/ormt/run.sh gsp_warroom main_npp
 05 10 * * 1 /app/o2p/ossadmin/ormt/run.sh pm_dpe_mpe
-00 10 1 * * /app/o2p/ossadmin/ormt/run.sh udf_usageF
+00 10 1 * * /app/o2p/ossadmin/ormt/run.sh udf_usage
 00 19 1 * * /app/o2p/ossadmin/ormt/run.sh gsp_sgo main
 00 19 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_sgo main_billing
 00 9,14,18 * * * /app/o2p/ossadmin/ormt/run.sh gsp_ollc_crd_change
@@ -54,8 +53,10 @@
 55 18 1 * * /app/o2p/ossadmin/ormt/run.sh gsp_ilc_transport
 55 18 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_ilc_transport main_billing
 45 9 * * * /app/o2p/ossadmin/ormt/run.sh admin
-15 18 1,26 * * /app/o2p/ossadmin/ormt/run.sh gsp
-18 9 * * 1 /app/o2p/ossadmin/ormt/run.sh gsp main_billing
+58 18 1 * * /app/o2p/ossadmin/ormt/run.sh gsp_dpe_mpe_mse
+58 18 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_dpe_mpe_mse main_billing
+15 18 1 * * /app/o2p/ossadmin/ormt/run.sh gsp
+18 9 26 * * /app/o2p/ossadmin/ormt/run.sh gsp main_billing
 
 20 9 1 * * /app/o2p/ossadmin/user/reports.sh
 
@@ -66,5 +67,5 @@
 
 # OMS-Orion Weekly and Monthly Report
 # 0 10 * * 1 [ "$(date +\%m -d tomorrow)" != "$(date +\%m)" ] &&  /app/o2p/ossadmin/omsreport/Main.sh
-0 10 * * 1  /app/o2p/ossadmin/omsreport/Main.sh
+0 10 * * 1 /app/o2p/ossadmin/omsreport/Main.sh
 0 10 1 * * /app/o2p/ossadmin/omsreport/Main.sh
