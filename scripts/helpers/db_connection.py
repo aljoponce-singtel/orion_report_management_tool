@@ -116,6 +116,7 @@ class DbConnection:
 
         return result
 
+    # DEPRECATED FUNCTION
     def query_to_list(self, query, data=None, query_description=None):
 
         result = self.query(query, data, query_description)
