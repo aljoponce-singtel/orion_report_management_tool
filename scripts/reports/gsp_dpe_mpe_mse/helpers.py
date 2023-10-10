@@ -11,12 +11,11 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_main_report():
 
-    report = OrionReport(config_file, 'GSP DPE_MPE_MSE Report')
+    report = OrionReport('GSP DPE_MPE_MSE Report')
     report.set_filename('dpe_mpe_mse_report')
     report.set_prev_month_first_last_day_date()
     generate_report(report)
@@ -24,7 +23,7 @@ def generate_main_report():
 
 def generate_billing_report():
 
-    report = OrionReport(config_file, 'GSP DPE_MPE_MSE (Billing) Report')
+    report = OrionReport('GSP DPE_MPE_MSE (Billing) Report')
     report.set_filename('dpe_mpe_mse_billing_report')
     report.set_gsp_billing_month_start_end_date()
     generate_report(report)
@@ -249,7 +248,7 @@ def get_raw_records(report: OrionReport):
                     ACT.name;
             """
 
-    df = report.orion_db.query_to_dataframe(
+    df = report.query_to_dataframe(
         query, query_description='raw records')
 
     return df

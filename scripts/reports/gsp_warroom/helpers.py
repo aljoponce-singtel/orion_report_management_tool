@@ -1,5 +1,4 @@
 # Import built-in packages
-import os
 from dateutil.relativedelta import relativedelta
 import logging
 
@@ -11,12 +10,11 @@ import constants as const
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_warroom_report():
 
-    report = OrionReport(config_file, 'GSP (NEW) War Room Report')
+    report = OrionReport('GSP (NEW) War Room Report')
     report.add_email_receiver_to('teokokwee@singtel.com')
     report.add_email_receiver_to('kinex.yeoh@singtel.com')
     report.add_email_receiver_to('ml-cssosdpe@singtel.com')
@@ -127,7 +125,7 @@ def generate_warroom_report():
                     ACT.tag_name = 'Pegasus';
             """
 
-    df_raw = report.orion_db.query_to_dataframe(
+    df_raw = report.query_to_dataframe(
         query, query_description="warroom records", datetime_to_date=True)
 
     # Create new dataframe based from CRD_AMENDMENT_COLUMNS
@@ -167,7 +165,7 @@ def generate_warroom_report():
 
 def generate_warroom_npp_report():
 
-    report = OrionReport(config_file, 'GSP War Room NPP Report')
+    report = OrionReport('GSP War Room NPP Report')
     report.add_email_receiver_cc('sulo@singtel.com')
     report.add_email_receiver_cc('ksha@singtel.com')
     report.add_email_receiver_cc('annesha@singtel.com')
@@ -610,7 +608,7 @@ def generate_warroom_npp_report():
                     AND '{report.end_date}';
             """
 
-    df_raw = report.orion_db.query_to_dataframe(
+    df_raw = report.query_to_dataframe(
         query, query_description="warroom npp records")
 
     # Sort records in ascending order by order_code, parameter_name and step_no

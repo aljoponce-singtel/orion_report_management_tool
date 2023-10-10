@@ -1,17 +1,15 @@
 # Import built-in packages
-import os
 import logging
 
 # Import local packages
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_ilc_transport_report():
 
-    report = OrionReport(config_file, 'ILC Transport Report')
+    report = OrionReport('ILC Transport Report')
     report.set_filename('ilc_transport_report')
     report.set_prev_month_first_last_day_date()
     generate_report(report)
@@ -19,7 +17,7 @@ def generate_ilc_transport_report():
 
 def generate_ilc_transport_billing_report():
 
-    report = OrionReport(config_file, 'ILC Transport (Billing) Report')
+    report = OrionReport('ILC Transport (Billing) Report')
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')
     report.set_filename('ilc_transport_billing_report')
     report.set_gsp_billing_month_start_end_date()

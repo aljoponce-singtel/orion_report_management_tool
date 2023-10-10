@@ -1,5 +1,4 @@
 # Import built-in packages
-import os
 from dateutil.relativedelta import relativedelta
 import logging
 
@@ -7,12 +6,11 @@ import logging
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(configFile, 'New Work Orders created for UDF R1 Customers')
+    report = OrionReport('New Work Orders created for UDF R1 Customers')
     report.set_reporting_date()
     # Subtract 1 day
     report.set_start_date(report.report_date - relativedelta(days=1))

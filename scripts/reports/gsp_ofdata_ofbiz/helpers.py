@@ -1,5 +1,4 @@
 # Import built-in packages
-import os
 from datetime import datetime
 import logging
 
@@ -8,12 +7,11 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(configFile, 'GSP OFData OFBiz')
+    report = OrionReport('GSP OFData OFBiz')
     report.set_filename('gsp_ofdata_ofbiz')
     report.set_prev_week_monday_sunday_date()
 

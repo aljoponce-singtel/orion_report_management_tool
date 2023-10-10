@@ -1,6 +1,4 @@
 # Import built-in packages
-import os
-from datetime import datetime
 import logging
 
 # Import third-party packages
@@ -10,17 +8,15 @@ from sqlalchemy import select, case, and_, or_, null, func, Integer
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 from models import TransportBase
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_transport_report():
 
-    report = OrionReport(config_file, 'Transport Report')
+    report = OrionReport('Transport Report')
     report.set_filename('transport_report')
     report.set_prev_month_first_last_day_date()
     # Create Report
@@ -28,7 +24,8 @@ def generate_transport_report():
     # Insert records to tableau db
     update_tableau_db(report, df_finalReport)
     # Write to CSV
-    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS], add_timestamp=True)
+    csv_file = report.create_csv_from_df(
+        df_finalReport[const.FINAL_COLUMNS], add_timestamp=True)
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Send Email
@@ -39,7 +36,7 @@ def generate_transport_report():
 
 def generate_transport_billing_report():
 
-    report = OrionReport(config_file, 'Transport (Billing) Report')
+    report = OrionReport('Transport (Billing) Report')
     report.set_filename('transport_report')
     report.set_gsp_billing_month_start_end_date()
     # Create Report
@@ -49,7 +46,8 @@ def generate_transport_billing_report():
     df_finalReport = df_finalReport.drop(
         (df_finalReport.loc[df_finalReport['PreConfig_Team'] == 'SGP'].index) | (df_finalReport.loc[df_finalReport['Coordination_Team'] == 'SGP'].index))
     # Write to CSV
-    csv_file = report.create_csv_from_df(df_finalReport[const.FINAL_COLUMNS], add_timestamp=True)
+    csv_file = report.create_csv_from_df(
+        df_finalReport[const.FINAL_COLUMNS], add_timestamp=True)
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Send Email

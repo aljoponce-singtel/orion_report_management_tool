@@ -1,5 +1,4 @@
 # Import built-in packages
-import os
 import logging
 
 # Import third-party packages
@@ -9,12 +8,11 @@ import pandas as pd
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(config_file, 'Operation War room - DPE/MPE')
+    report = OrionReport('Operation War room - DPE/MPE')
     report.set_filename('pm_dpe_mpe')
     report.set_prev_week_monday_sunday_date()
 

@@ -1,4 +1,5 @@
 # Import built-in packages
+import inspect
 import logging
 import logging.config
 import os
@@ -23,10 +24,17 @@ class OrionReport(EmailClient):
     receiver_to_list = []
     receiver_cc_list = []
 
-    def __init__(self, config_file, report_name='Orion Report'):
+    def __init__(self, report_name='Orion Report', config_file=None):
+
+        # Get the caller's frame
+        caller_frame = inspect.currentframe().f_back
+        # Get the filename of the calling script
+        caller_filename = caller_frame.f_code.co_filename
+        # Get the scripts > report > project folder path
+        self.project_folder_path = os.path.dirname(caller_filename)
 
         # Config
-        self.config_file = config_file
+        self.config_file = self.__set_config(config_file)
         self.config = self.__load_config()
         self.default_config: SectionProxy
         self.email_config: SectionProxy
@@ -45,6 +53,7 @@ class OrionReport(EmailClient):
         self.start_date = None
         self.end_date = None
         self.reports_folder_path = None
+        self.sql_folder_path = os.path.join(self.project_folder_path, 'sql')
         self.log_file_path = None
         # setup logging and reports folder
         self.__initialize()
@@ -66,6 +75,34 @@ class OrionReport(EmailClient):
     def __del__(self):
         logger.info("END of script - " +
                     utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
+
+    # private method
+    def __set_config(self, config_file):
+        # If no config_file information is provide, the system will check for the config file in the same project folder by default.
+        # For example, if the project folder/name is admin, the system will check for the config file under:
+        # scripts > reports > admin
+        if config_file == None:
+            # Get the default config file from the same directory
+            config_file = os.path.join(self.project_folder_path, 'config.ini')
+            # Check if config_file does not exists
+            if not os.path.exists(config_file):
+                # Use orion_report.ini as the default config file
+                # Get the scripts > reports folder path
+                scripts_report_folder_path = os.path.dirname(
+                    self.project_folder_path)
+                # Get the scripts folder path
+                scripts_folder_path = os.path.dirname(
+                    scripts_report_folder_path)
+                # Get the orion_report.ini path
+                config_file = os.path.join(
+                    scripts_folder_path, 'orion_report.ini')
+
+            print(f"Using default config file: {basename(config_file)}")
+
+        else:
+            print(f"Using provided config file: {basename(config_file)}")
+
+        return config_file
 
     # private method
     def __load_config(self) -> ConfigParser:
@@ -252,6 +289,38 @@ class OrionReport(EmailClient):
                 logger.exception(err)
 
                 raise Exception(err)
+
+    def get_query_from_file(self, filename=None, file_path=None):
+        # Only filename is provided
+        if file_path is None:
+            if not filename:
+                raise Exception(
+                    "Please provide the SQL filename to extract the query.")
+            # Default SQL path + filename will be used
+            file_path = os.path.join(
+                self.sql_folder_path, filename)
+        else:
+            # Check if the path exists
+            if os.path.exists(file_path):
+                # Check if it's a directory
+                if os.path.isdir(file_path):
+                    # Must provide the filename if file_path is a directory
+                    if filename:
+                        file_path = os.path.join(file_path, filename)
+                        # new file_path does not exist
+                        if not os.path.exists(file_path):
+                            raise Exception(
+                                f"The file/path '{file_path}' does not exist.")
+                    else:
+                        raise Exception(
+                            "Please provide the SQL filename to extract the query.")
+            else:
+                raise Exception(
+                    f"The file/path '{file_path}' does not exist.")
+
+        query = utils.file_to_string(file_path)
+
+        return query
 
     def query_to_dataframe(self, query, db: DbConnection = None, data=None, query_description=None, column_names=[], datetime_to_date=False) -> pd.DataFrame:
         if db == None:

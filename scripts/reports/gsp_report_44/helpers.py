@@ -1,5 +1,4 @@
 # Import built-in packages
-import os
 from datetime import date
 import logging
 
@@ -11,12 +10,11 @@ import pandas as pd
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(config_file, 'GSP Report 44')
+    report = OrionReport('GSP Report 44')
     report.set_filename('gsp_report_44')
     report.set_prev_month_first_last_day_date()
 

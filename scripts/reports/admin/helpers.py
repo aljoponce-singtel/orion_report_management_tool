@@ -11,21 +11,13 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-configFile = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def query_to_file(query_file, filename, report_name='Quick Query'):
 
-    report = OrionReport(configFile, report_name)
+    report = OrionReport(report_name)
     report.set_filename(filename)
-    query_file = os.path.join(os.path.dirname(__file__), 'sql', query_file)
-    query = None
-
-    # Open the file in read mode
-    with open(query_file, 'r') as file:
-        # Read the entire contents of the file into a string
-        query = file.read()
-
+    query = report.get_query_from_file(query_file)
     csv_file = report.query_to_csv(query, add_timestamp=True)
     report.attach_file_to_email(csv_file)
     report.send_email()
@@ -33,7 +25,7 @@ def query_to_file(query_file, filename, report_name='Quick Query'):
 
 def check_disk_usage():
 
-    report = OrionReport(configFile, "Disk Usage")
+    report = OrionReport("Disk Usage")
     path_to_check = "/"  # Replace with the path to the drive you want to check
     disk_usage_percentage = utils.check_disk_usage(path_to_check)
 
@@ -64,17 +56,9 @@ def check_disk_usage():
 
 def check_new_queueowners():
 
-    report = OrionReport(configFile, 'New Queue Owner Updates')
-    query_file = os.path.join(os.path.dirname(
-        __file__), 'sql', "query_new_queueowner.sql")
-    query = None
-
-    # Open the file in read mode
-    with open(query_file, 'r') as file:
-        # Read the entire contents of the file into a string
-        query = file.read()
-
-    df = report.orion_db.query_to_dataframe(query)
+    report = OrionReport('New Queue Owner Updates')
+    query = report.get_query_from_file("query_new_queueowner.sql")
+    df = report.query_to_dataframe(query)
 
     if not df.empty:
         # Define a custom function to replace NaT with an empty string
@@ -155,19 +139,12 @@ def check_new_queueowners():
 
 def check_new_product_codes_to_map():
 
-    report = OrionReport(configFile, 'New Product Codes To Map')
-    query_file = os.path.join(os.path.dirname(
-        __file__), 'sql', "query_producttype.sql")
-    query = None
-    query_update_file = os.path.join(os.path.dirname(
-        __file__), 'sql', "update_producttype.sql")
-
-    # Open the file in read mode
-    with open(query_file, 'r') as file:
-        # Read the entire contents of the file into a string
-        query = file.read()
-
-    df = report.orion_db.query_to_dataframe(query)
+    report = OrionReport('New Product Codes To Map')
+    query_file = os.path.join(report.sql_folder_path, "query_producttype.sql")
+    query_update_file = os.path.join(
+        report.sql_folder_path, "update_producttype.sql")
+    query = report.get_query_from_file("query_producttype.sql")
+    df = report.query_to_dataframe(query)
 
     if not df.empty:
         # Remove None values

@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 class GspReport(OrionReport):
 
-    def __init__(self, config_file, report_name='Orion Report'):
+    def __init__(self, report_name=None, config_file=None):
 
         self.gsp_report_name = 'GSP'
         self.first_groupid_list = []
@@ -24,7 +24,7 @@ class GspReport(OrionReport):
         self.first_activity_list = []
         self.second_activity_list = []
 
-        super().__init__(config_file, report_name)
+        super().__init__(report_name, config_file)
 
     def set_gsp_report_name(self, name: str):
         self.gsp_report_name = name
@@ -296,18 +296,29 @@ class GspReport(OrionReport):
 
     # private method
     def __select_top_queue(self, df_group: pd.DataFrame, column_name, activity_list) -> pd.DataFrame:
+
         logger.warn(
             ("Workorder has MULTIPLE queues.\n{}")
             .format(df_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
-        # Get the top records based on priority and sequence
-        df_top_group = utils.sort_df_by_priority_sequence(
-            df_group, column_name, activity_list)
+        # Check if list is not empty
+        if len(activity_list) > 0:
+            # Get the top records based on priority and sequence
+            df_top_group = utils.sort_df_by_priority_sequence(
+                df_group, column_name, activity_list)
+        else:
+            df_top_group = df_group
+
         if len(df_top_group) > 1:
-            logger.warn(
-                "Getting the top records based on priority and sequence.")
-            logger.warn(
-                ("Workorder has DUPLICATE queues.\n{}")
-                .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
+            # Check if list is not empty
+            if len(activity_list) != 0:
+                logger.warn(
+                    "Getting the top records based on priority and sequence.")
+                logger.warn(
+                    ("Workorder has DUPLICATE queues.\n{}")
+                    .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
+            else:
+                logger.warn("Can't decide the priority queue.")
+
             df_top_group = df_top_group.sort_values(
                 by=['Step No'], ascending=[False]).drop_duplicates(subset=['Activity Name'], keep='first')
             logger.warn(

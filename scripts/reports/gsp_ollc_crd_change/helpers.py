@@ -1,5 +1,4 @@
 # Import built-in packages
-import os
 import logging
 
 # Import local packages
@@ -7,12 +6,11 @@ import constants as const
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_report():
 
-    report = OrionReport(config_file, 'GSP OLLC CRD Change Report')
+    report = OrionReport('GSP OLLC CRD Change Report')
     report.set_filename('gsp_ollc_crd_change_report')
     report.set_reporting_date()
 
