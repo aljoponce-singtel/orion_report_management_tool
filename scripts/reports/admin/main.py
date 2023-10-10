@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 def main():
 
     try:
+        # query_to_file('query_aop.sql', 'gsp_aop', 'GSP AOP Report')
         check_disk_usage()
         check_new_queueowners()
-        # query_to_file('query_aop.sql', 'gsp_aop', 'GSP AOP Report')
         check_new_product_codes_to_map()
 
     except Exception as err:
