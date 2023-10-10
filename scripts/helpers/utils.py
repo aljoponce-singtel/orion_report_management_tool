@@ -307,6 +307,16 @@ def read_yaml_file(file_path):
     return parsed_yaml
 
 
+def file_to_string(file_path):
+
+    # Open the file in read mode
+    with open(file_path, 'r') as file:
+        # Read the entire contents of the file into a string
+        file_string = file.read()
+
+    return file_string
+
+
 def copy_file(source_path, destination_path):
     shutil.copy(source_path, destination_path)
 
