@@ -23,6 +23,7 @@ class OrionReport(EmailClient):
     config = ConfigParser()
     receiver_to_list = []
     receiver_cc_list = []
+    email_att_to_remove = []
 
     def __init__(self, report_name='Orion Report', config_file=None):
 
@@ -73,6 +74,10 @@ class OrionReport(EmailClient):
 
     # Calling destructor
     def __del__(self):
+        # Remove the temporary email attachment
+        for attachment in self.email_att_to_remove:
+            utils.delete_file(attachment)
+
         logger.info("END of script - " +
                     utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
 
@@ -451,8 +456,10 @@ class OrionReport(EmailClient):
             if rm_appended_file:
                 # Only remove the newly created file
                 if attachment == new_attachement:
-                    # Remove the temporary (new extension type) file
-                    utils.delete_file(new_attachement)
+                    logger.debug(
+                        "Temporary files will be removed after sending the email ...")
+                    # Store the attachment to a list to remove at the end of this script
+                    self.email_att_to_remove.append(new_attachement)
 
         return attachment
 
