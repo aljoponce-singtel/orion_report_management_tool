@@ -114,51 +114,54 @@ def generate_report():
                     ORD.order_code;
             """
     df = report.query_to_dataframe(query)
-    # Export the DataFrame to an Excel file
-    # Keep the first row for duplicate records with the same 'OrderNo'
-    df = df.drop_duplicates(subset=['OrderNo'], keep='first')
 
-    # /* START - BizSeg */
-    df_bizseg = df[df['Sector'].str.contains('BizSeg')]
-    df_bizseg = df_bizseg[df_bizseg['ServiceType'].isin(
-        ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'ISDN'])]
-    # Remove the 'Assignee' column
-    df_bizseg = df_bizseg.drop('Assignee', axis=1)
-    excel_bizseg_file = report.create_excel_from_df(
-        df_bizseg, filename=("BSOFB_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
-    zip_bizseg_file = report.add_to_zip_file(excel_bizseg_file, zip_file_path=utils.replace_ext_type(
-        excel_bizseg_file, 'zip'), password=("BSOFB{}").format(get_date_password()))
-    report.attach_file_to_email(zip_bizseg_file)
-    # /* END - BizSeg */
+    if not df.empty:
+        # Export the DataFrame to an Excel file
+        # Keep the first row for duplicate records with the same 'OrderNo'
+        df = df.drop_duplicates(subset=['OrderNo'], keep='first')
 
-    # /* START - EAG_GB */
-    df_eag_gb_assignee = df[df['Sector'].str.contains(
-        '|'.join(['SGO', 'Ent and Govt', 'Global Business']))]
-    df_eag_gb_assignee = df_eag_gb_assignee[df_eag_gb_assignee['ServiceType'].isin(
-        ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'DigiNet', 'ISDN',
-         'CN - ConnectPlus IP VPN', 'ConnectPlus E-Line', 'ILC', 'Software Defined Networking'])]
+        # /* START - BizSeg */
+        df_bizseg = df[df['Sector'].str.contains('BizSeg')]
+        df_bizseg = df_bizseg[df_bizseg['ServiceType'].isin(
+            ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'ISDN'])]
+        # Remove the 'Assignee' column
+        df_bizseg = df_bizseg.drop('Assignee', axis=1)
+        excel_bizseg_file = report.create_excel_from_df(
+            df_bizseg, filename=("BSOFB_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
+        zip_bizseg_file = report.add_to_zip_file(excel_bizseg_file, zip_file_path=utils.replace_ext_type(
+            excel_bizseg_file, 'zip'), password=("BSOFB{}").format(get_date_password()))
+        report.attach_file_to_email(zip_bizseg_file)
+        # /* END - BizSeg */
 
-    # With 'Assignee' column
-    excel_eag_gb_assignee_file = report.create_excel_from_df(
-        df_eag_gb_assignee, filename=("GLEOFD_{}_PM_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
-    zip_eag_gb_assignee_file = report.add_to_zip_file(excel_eag_gb_assignee_file, zip_file_path=utils.replace_ext_type(
-        excel_eag_gb_assignee_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
-    report.attach_file_to_email(zip_eag_gb_assignee_file)
+        # /* START - EAG_GB */
+        df_eag_gb_assignee = df[df['Sector'].str.contains(
+            '|'.join(['SGO', 'Ent and Govt', 'Global Business']))]
+        df_eag_gb_assignee = df_eag_gb_assignee[df_eag_gb_assignee['ServiceType'].isin(
+            ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'DigiNet', 'ISDN',
+                'CN - ConnectPlus IP VPN', 'ConnectPlus E-Line', 'ILC', 'Software Defined Networking'])]
 
-    # Without 'Assignee' column
-    # Remove the 'Assignee' column
-    df_eag_gb = df_eag_gb_assignee.drop('Assignee', axis=1)
-    excel_eag_gb_file = report.create_excel_from_df(
-        df_eag_gb, filename=("GLEOFD_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
-    zip_eag_gb_file = report.add_to_zip_file(excel_eag_gb_file, zip_file_path=utils.replace_ext_type(
-        excel_eag_gb_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
-    report.attach_file_to_email(zip_eag_gb_file)
-    # /* END - EAG_GB */
+        # With 'Assignee' column
+        excel_eag_gb_assignee_file = report.create_excel_from_df(
+            df_eag_gb_assignee, filename=("GLEOFD_{}_PM_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
+        zip_eag_gb_assignee_file = report.add_to_zip_file(excel_eag_gb_assignee_file, zip_file_path=utils.replace_ext_type(
+            excel_eag_gb_assignee_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
+        report.attach_file_to_email(zip_eag_gb_assignee_file)
 
-    # Option to generate raw file
-    if report.debug_config.getboolean('include_raw_report'):
-        excel_raw_file = generate_report_raw(report)
-        report.attach_file_to_email(excel_raw_file)
+        # Without 'Assignee' column
+        # Remove the 'Assignee' column
+        df_eag_gb = df_eag_gb_assignee.drop('Assignee', axis=1)
+        excel_eag_gb_file = report.create_excel_from_df(
+            df_eag_gb, filename=("GLEOFD_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
+        zip_eag_gb_file = report.add_to_zip_file(excel_eag_gb_file, zip_file_path=utils.replace_ext_type(
+            excel_eag_gb_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
+        report.attach_file_to_email(zip_eag_gb_file)
+        # /* END - EAG_GB */
+
+        # Option to generate raw file
+        if report.debug_config.getboolean('include_raw_report'):
+            excel_raw_file = generate_report_raw(report)
+            report.attach_file_to_email(excel_raw_file)
+
     # Send Email
     report.send_email()
 
