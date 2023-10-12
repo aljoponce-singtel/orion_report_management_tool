@@ -111,7 +111,12 @@ class DbConnection:
         logger.info(
             f"Query completion time: {self.__format_seconds(elapsed_time)}")
 
-        if result is None:
+        # Need to add this unused variable to allow the logger to log the next code
+        # which is to check if the query result is empty
+        # TODO: look for a better approach
+        result_list = result.fetchall()
+
+        if len(result.fetchall()) == 0:
             logger.warn('Query result is empty.')
 
         return result
@@ -126,45 +131,50 @@ class DbConnection:
 
     def query_to_dataframe(self, query, data=None, query_description=None, column_names=[], datetime_to_date=False) -> pd.DataFrame:
 
+        df = pd.DataFrame()
+        # Perform a query
         result = self.query(query, data, query_description)
-        # Get the columns that are of type DATE or DATETIME
-        date_type_columns = []
-        # Create dictionary for date/datetime mapping
-        MYSQL_DATETYPE_DICT = {
-            10: "DATE",
-            12: "DATETIME"
-        }
-        # Iterate through the result's column list to identify the date/datetime types
-        for column_name, type_code, display_size, internal_size, precision, scale, nullability in result.cursor.description:
-            if type_code in MYSQL_DATETYPE_DICT.keys():
-                date_type_columns.append(
-                    [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
-        # Print the list of date/datetime columns
-        logger.debug(
-            f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
-        # Create a dataframe from the result
-        if len(column_names) == 0:
-            # Extracting the column names from the query is required for Pandas package version 1.1.5 and below
-            # The columns will be in numbers by default if not explicitly extracted.
-            # Get the list of column names directly from the query if column_names is empty
-            df = pd.DataFrame(data=result.fetchall(), columns=result.keys())
-        else:
-            # Get the list of column names from column_names if provided
-            df = pd.DataFrame(data=result.fetchall(), columns=column_names)
-        # If enabled, convert all date/datetime columns to datetime
-        if datetime_to_date:
-            # # set columns to datetime type
-            # df[date_type_columns] = df[date_type_columns].apply(
-            #     pd.to_datetime)
+        # If query result is not empty
+        if not df.empty:
+            # Get the columns that are of type DATE or DATETIME
+            date_type_columns = []
+            # Create dictionary for date/datetime mapping
+            MYSQL_DATETYPE_DICT = {
+                10: "DATE",
+                12: "DATETIME"
+            }
+            # Iterate through the result's column list to identify the date/datetime types
+            for column_name, type_code, display_size, internal_size, precision, scale, nullability in result.cursor.description:
+                if type_code in MYSQL_DATETYPE_DICT.keys():
+                    date_type_columns.append(
+                        [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
+            # Print the list of date/datetime columns
+            logger.debug(
+                f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
+            # Create a dataframe from the result
+            if len(column_names) == 0:
+                # Extracting the column names from the query is required for Pandas package version 1.1.5 and below
+                # The columns will be in numbers by default if not explicitly extracted.
+                # Get the list of column names directly from the query if column_names is empty
+                df = pd.DataFrame(data=result.fetchall(),
+                                  columns=result.keys())
+            else:
+                # Get the list of column names from column_names if provided
+                df = pd.DataFrame(data=result.fetchall(), columns=column_names)
+            # If enabled, convert all date/datetime columns to datetime
+            if datetime_to_date:
+                # # set columns to datetime type
+                # df[date_type_columns] = df[date_type_columns].apply(
+                #     pd.to_datetime)
 
-            # Filter and extract the first element of each sub-list for DATETIME records
-            datetime_columns = [record[0]
-                                for record in date_type_columns if record[2] == 'DATETIME']
-            logger.info(f"Converting datetime columns to date ...")
-            # convert datetime to date (remove time)
-            for column in datetime_columns:
-                df[str(column)] = pd.to_datetime(
-                    df[str(column)]).dt.date
+                # Filter and extract the first element of each sub-list for DATETIME records
+                datetime_columns = [record[0]
+                                    for record in date_type_columns if record[2] == 'DATETIME']
+                logger.info(f"Converting datetime columns to date ...")
+                # convert datetime to date (remove time)
+                for column in datetime_columns:
+                    df[str(column)] = pd.to_datetime(
+                        df[str(column)]).dt.date
 
         return df
 
