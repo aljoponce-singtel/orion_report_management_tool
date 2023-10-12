@@ -164,34 +164,40 @@ class OrionReport(EmailClient):
             dirname(__file__), "logging.yml")
         logs_folder = None
 
+        # Read the contents from the yaml file
         parsed_yaml = utils.read_yaml_file(main_logger_config)
-
-        # If there is a separate logging.yml file in the reports script folder, load this instead.
+        # If there is a separate logging.yml file in the script folder, load this file instead.
         if os.path.exists(script_logger_config):
             parsed_yaml = utils.read_yaml_file(script_logger_config)
             logging.config.dictConfig(parsed_yaml)
         # Load the default logging.yml file
         else:
+            # Choose whether to output the logs to a file or to a console
             if self.config.has_option('Debug', 'log_to_file') == True and self.debug_config.getboolean('log_to_file') == False:
                 parsed_yaml['root']['handlers'] = ['console']
-
+            # If there is no log_file option specified in the config file
             if self.config.has_option('DEFAULT', 'log_file') == False:
+                # Save the log file in the default log folder
                 logs_folder = os.path.join('logs', script_folder_name)
+                # Create a new folder (if not exist) named after the script (project) inside the log folder to save the logs
                 utils.create_folder(logs_folder)
+                # Name the log_file based on the script (project) name
                 parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
                     logs_folder, f"{script_folder_name}.log")
             else:
-                parsed_yaml['handlers']['timedRotatingFile']['filename'] = self.default_config['logFile']
+                # Save the log in the specified log_file path
+                parsed_yaml['handlers']['timedRotatingFile']['filename'] = self.default_config['log_file']
 
+            # Load the final configuration to the logging config
             logging.config.dictConfig(parsed_yaml)
 
+        # Set the log level
+        if self.config.has_option('Debug', 'log_level') == True:
+            logger.setLevel(utils.get_level_num_value(
+                self.debug_config['log_level']))
+        # Set the log file path
         self.log_file_path = abspath(
             parsed_yaml['handlers']['timedRotatingFile']['filename'])
-
-        # Set log level
-        if self.config.has_option('Debug', 'log_level') == True:
-            logger.setLevel(self.get_level_num_value(
-                self.debug_config['log_level']))
 
     # private method
     def __setup_reports_folder(self):
@@ -242,36 +248,6 @@ class OrionReport(EmailClient):
         # Convert date input to a date object
         date_obj = utils.to_date_obj(date)
         self.end_date = date_obj
-
-    def get_log_level(self):
-
-        if logger.level == 10:
-            return 'DEBUG'
-        elif logger.level == 20:
-            return 'INFO'
-        elif logger.level == 30:
-            return 'WARNING'
-        elif logger.level == 40:
-            return 'ERROR'
-        elif logger.level == 50:
-            return 'CRITICAL'
-        else:  # 0
-            return 'NOTSET'
-
-    def get_level_num_value(self, level: str):
-
-        if level.casefold() == 'debug':
-            return 10
-        elif level.casefold() == 'info':
-            return 20
-        elif level.casefold() == 'warning':
-            return 30
-        elif level.casefold() == 'error':
-            return 40
-        elif level.casefold() == 'critical':
-            return 50
-        else:  # 'NOTSET'
-            return 0
 
     def insert_df_to_tableau_db(self, df: pd.DataFrame):
         # Allow Tableaue DB update
