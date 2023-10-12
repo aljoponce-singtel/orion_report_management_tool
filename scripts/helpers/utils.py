@@ -9,6 +9,7 @@ import sys
 import csv
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
+from os import system
 from zipfile import ZipFile
 
 # Import third-party packages
@@ -18,8 +19,41 @@ import yaml
 from openpyxl import load_workbook
 from openpyxl.workbook.protection import WorkbookProtection
 
-
 logger = logging.getLogger(__name__)
+
+
+# log level mapping
+def get_log_level():
+
+    if logger.level == 10:
+        return 'DEBUG'
+    elif logger.level == 20:
+        return 'INFO'
+    elif logger.level == 30:
+        return 'WARNING'
+    elif logger.level == 40:
+        return 'ERROR'
+    elif logger.level == 50:
+        return 'CRITICAL'
+    else:  # 0
+        return 'NOTSET'
+
+
+# log level mapping
+def get_level_num_value(level: str):
+
+    if level.casefold() == 'debug':
+        return 10
+    elif level.casefold() == 'info':
+        return 20
+    elif level.casefold() == 'warning':
+        return 30
+    elif level.casefold() == 'error':
+        return 40
+    elif level.casefold() == 'critical':
+        return 50
+    else:  # 'NOTSET'
+        return 0
 
 
 # Converts a list to a string without the brackets
@@ -319,6 +353,13 @@ def file_to_string(file_path):
 
 def copy_file(source_path, destination_path):
     shutil.copy(source_path, destination_path)
+
+
+def move_file(source, destination, filename):
+    if get_platform() == "Windows":
+        shutil.move(source, destination + filename)
+    else:
+        system('sudo mv {0} {1}'.format(source, destination))
 
 
 def add_ext_type(filename, new_extension):
