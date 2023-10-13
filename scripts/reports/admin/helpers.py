@@ -23,6 +23,37 @@ def query_to_file(query_file, filename, report_name='Quick Query'):
     report.send_email()
 
 
+def get_superusers():
+
+    # Today's date is the last day of the month
+    if utils.get_today_date() == utils.get_last_day_of_month():
+
+        report = OrionReport("Orion list of superusers")
+        query = report.get_query_from_file("query_superuser.sql")
+        df = report.query_to_dataframe(query)
+
+        if not df.empty:
+            # Reset and change starting index from 0 to 1 for proper table presentation
+            df = df.reset_index(drop=True)
+            df.index += 1
+
+            # Create email body
+            email_body_html = f"""\
+                    <html>
+                    <p>Hello,</p>
+                    <p>Please see below the list of Orion superusers as of today.</p>
+                    <p>{df.to_html()}</p>
+                    <p>&nbsp;</p>
+                    <p>Best regards,</p>
+                    <p>The Orion Team</p>
+                    </html>
+                    """
+            # Send email
+            report.set_email_body_html(email_body_html)
+            report.add_email_receiver_to("jiangxu.jiang@singtel.com")
+            report.send_email()
+
+
 def check_disk_usage():
 
     report = OrionReport("Disk Usage")

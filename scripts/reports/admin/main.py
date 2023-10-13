@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import check_disk_usage, check_new_queueowners, query_to_file, check_new_product_codes_to_map
+from helpers import check_disk_usage, check_new_queueowners, query_to_file, check_new_product_codes_to_map, get_superusers
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +14,7 @@ def main():
         check_disk_usage()
         check_new_queueowners()
         check_new_product_codes_to_map()
+        get_superusers()
 
     except Exception as err:
         logger.exception(err)
