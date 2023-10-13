@@ -200,7 +200,7 @@ class GspReport(OrionReport):
         df_report = pd.DataFrame(columns=const.MAIN_COLUMNS_DOUBLE)
 
         # Check if the dataframe is not empty
-        if not df_report.empty:
+        if not df_raw.empty:
             # Get the list of unique workorders
             unique_orders = df_raw['Workorder no'].unique()
 
