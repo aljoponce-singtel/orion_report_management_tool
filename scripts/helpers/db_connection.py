@@ -108,12 +108,12 @@ class DbConnection:
         end_time = time.time()
         elapsed_time = end_time - start_time
 
-        logger.info(
+        logger.debug(
             f"Update completion time: {self.__format_seconds(elapsed_time)}")
 
         # Get the number of rows updated
         updated_row_count = result.rowcount
-        logger.info(f"No. of updated rows: {updated_row_count}")
+        logger.debug(f"No. of updated rows: {updated_row_count}")
 
         return updated_row_count
 
