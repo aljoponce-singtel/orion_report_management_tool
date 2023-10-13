@@ -28,15 +28,19 @@ def check_disk_usage():
     report = OrionReport("Disk Usage")
     path_to_check = "/"  # Replace with the path to the drive you want to check
     disk_usage_percentage = utils.check_disk_usage(path_to_check)
+    disk_usage_treshold = report.default_config.getint('disk_usage_treshold')
 
-    if disk_usage_percentage >= report.default_config.getint('disk_usage_treshold'):
-        logger.warn(
+    if disk_usage_percentage >= disk_usage_treshold:
+        logger.warning(
             f"The drive at {path_to_check} is {disk_usage_percentage:.2f}% full.")
+        logger.warning(
+            f"PLEASE FREE UP SOME DRIVE SPACE NOT EXCEEDING {disk_usage_treshold}%.")
 
         email_body_html = f"""\
             <html>
             <p>Hello,</p>
             <p>The root drive "{path_to_check}" on SGOSSPRDO2PAPP01 is {disk_usage_percentage:.2f}% full.</p>
+            <p>Please free up some drive space,</p>
             <p>&nbsp;</p>
             <p>Best regards,</p>
             <p>The Orion Team</p>
@@ -131,6 +135,9 @@ def check_new_queueowners():
         if df_valid.empty:
             logger.info("NO NEW QUEUE OWNERS ADDED/UPDATED TODAY")
         else:
+            logger.warning("There are new queue owners added/updated today.")
+            logger.warning(
+                "PLEASE ASSIGN/CREATE A USER ACCOUNT FOR THE NEW QUEUE OWNER/S.")
             report.send_email()
 
     else:
@@ -161,7 +168,7 @@ def check_new_product_codes_to_map():
         email_body_html = f"""\
             <html>
             <p>Hello,</p>
-            <p>Please see below the list of new product codes to be mapped to the product types table.</p>
+            <p>Please see below the list of new product codes to be map in the product table.</p>
             <p>{df.to_html()}</p>
             <p>See attached file {basename(query_file_txt)} for the query.</p>
             <p>See attached file {basename(query_update_file_txt)} to map the product code.</p>
@@ -171,8 +178,12 @@ def check_new_product_codes_to_map():
             </html>
             """
 
+        logger.warning("There are new product codes to map today.")
+        logger.warning(
+            "PLEASE MAP THE NEW PRODUCT CODE/S TO THE PRODUCT TABLE.")
+
         report.set_email_body_html(email_body_html)
         report.send_email()
 
     else:
-        logger.info("NO NEW PRODUCT CODES TO MAP TODAY")
+        logger.info("NO NEW PRODUCT CODE/S TO MAP TODAY.")
