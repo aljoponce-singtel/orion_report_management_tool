@@ -77,6 +77,46 @@ class DbConnection:
 
         return table_to_drop.metadata.drop_all(self.engine)
 
+    def update(self, query, data=None, query_description=None):
+
+        # Only works when log_level=debug
+        self.log_full_query(query)
+
+        # Set default query description
+        if not query_description:
+            query_description = 'records'
+
+        logger.info(f"[DB:{self.database}] Updating {query_description} ...")
+
+        result = []
+        query_type = type(query)
+        start_time = time.time()
+        result: LegacyCursorResult
+
+        # query has data
+        if data:
+            result = self.conn.execute(query, data)
+        # query is a an SQL text
+        elif query_type is str:
+            result = self.conn.execute(text(query))
+        # query is a constructed SQL expression
+        elif query_type.__name__ == 'Select':
+            result = self.conn.execute(query)
+        else:
+            raise Exception("INVALID SQL STATEMENT")
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+
+        logger.info(
+            f"Update completion time: {self.__format_seconds(elapsed_time)}")
+
+        # Get the number of rows updated
+        updated_row_count = result.rowcount
+        logger.info(f"No. of updated rows: {updated_row_count}")
+
+        return updated_row_count
+
     def query(self, query, data=None, query_description=None):
 
         # Only works when log_level=debug
@@ -103,7 +143,7 @@ class DbConnection:
         elif query_type.__name__ == 'Select':
             result = self.conn.execute(query)
         else:
-            raise Exception("INVALID QUERY")
+            raise Exception("INVALID SQL STATEMENT")
 
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -111,95 +151,105 @@ class DbConnection:
         logger.info(
             f"Query completion time: {self.__format_seconds(elapsed_time)}")
 
-        # Need to add this unused variable to allow the logger to log the next code
-        # which is to check if the query result is empty
-        # TODO: look for a better approach
-        result_list = result.fetchall()
-
-        if len(result.fetchall()) == 0:
-            logger.warn('Query result is empty.')
-
         return result
 
-    # DEPRECATED FUNCTION
     def query_to_list(self, query, data=None, query_description=None):
 
         result = self.query(query, data, query_description)
-        result = result.fetchall()
+        # Get the list of records
+        result_list = result.fetchall()
+        # Check if the query result is empty
+        if len(result_list) == 0:
+            logger.warning('Query result is empty.')
 
-        return result
+        return result_list
 
     def query_to_dataframe(self, query, data=None, query_description=None, column_names=[], datetime_to_date=False) -> pd.DataFrame:
 
         df = pd.DataFrame()
         # Perform a query
         result = self.query(query, data, query_description)
-        # If query result is not empty
-        if not df.empty:
-            # Get the columns that are of type DATE or DATETIME
-            date_type_columns = []
-            # Create dictionary for date/datetime mapping
-            MYSQL_DATETYPE_DICT = {
-                10: "DATE",
-                12: "DATETIME"
-            }
-            # Iterate through the result's column list to identify the date/datetime types
-            for column_name, type_code, display_size, internal_size, precision, scale, nullability in result.cursor.description:
-                if type_code in MYSQL_DATETYPE_DICT.keys():
-                    date_type_columns.append(
-                        [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
-            # Print the list of date/datetime columns
-            logger.debug(
-                f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
-            # Create a dataframe from the result
-            if len(column_names) == 0:
-                # Extracting the column names from the query is required for Pandas package version 1.1.5 and below
-                # The columns will be in numbers by default if not explicitly extracted.
-                # Get the list of column names directly from the query if column_names is empty
-                df = pd.DataFrame(data=result.fetchall(),
-                                  columns=result.keys())
-            else:
-                # Get the list of column names from column_names if provided
-                df = pd.DataFrame(data=result.fetchall(), columns=column_names)
-            # If enabled, convert all date/datetime columns to datetime
-            if datetime_to_date:
-                # # set columns to datetime type
-                # df[date_type_columns] = df[date_type_columns].apply(
-                #     pd.to_datetime)
 
-                # Filter and extract the first element of each sub-list for DATETIME records
-                datetime_columns = [record[0]
-                                    for record in date_type_columns if record[2] == 'DATETIME']
-                logger.info(f"Converting datetime columns to date ...")
-                # convert datetime to date (remove time)
-                for column in datetime_columns:
-                    df[str(column)] = pd.to_datetime(
-                        df[str(column)]).dt.date
+        # Get the columns that are of type DATE or DATETIME
+        date_type_columns = []
+        # Create dictionary for date/datetime mapping
+        MYSQL_DATETYPE_DICT = {
+            10: "DATE",
+            12: "DATETIME"
+        }
+        # Iterate through the result's column list to identify the date/datetime types
+        for column_name, type_code, display_size, internal_size, precision, scale, nullability in result.cursor.description:
+            if type_code in MYSQL_DATETYPE_DICT.keys():
+                date_type_columns.append(
+                    [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
+        # Print the list of date/datetime columns
+        logger.debug(
+            f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
+        # Get the list of records
+        result_list = result.fetchall()
+        # Check if the query result is empty
+        if len(result_list) == 0:
+            logger.warning('Query result is empty.')
+        # Create a dataframe from the result
+        if len(column_names) == 0:
+            # Extracting the column names from the query is required for Pandas package version 1.1.5 and below
+            # The columns will be in numbers by default if not explicitly extracted.
+            # Get the list of column names directly from the query if column_names is empty
+            df = pd.DataFrame(data=result_list,
+                              columns=result.keys())
+        else:
+            # Get the list of column names from column_names if provided
+            df = pd.DataFrame(data=result_list, columns=column_names)
+        # If enabled, convert all date/datetime columns to datetime
+        if datetime_to_date:
+            # # set columns to datetime type
+            # df[date_type_columns] = df[date_type_columns].apply(
+            #     pd.to_datetime)
+
+            # Filter and extract the first element of each sub-list for DATETIME records
+            datetime_columns = [record[0]
+                                for record in date_type_columns if record[2] == 'DATETIME']
+            logger.info(f"Converting datetime columns to date ...")
+            # convert datetime to date (remove time)
+            for column in datetime_columns:
+                df[str(column)] = pd.to_datetime(
+                    df[str(column)]).dt.date
 
         return df
 
-    def insert_df_to_table(self, dataframe, table, if_exist=None):
+    def insert_df_to_table(self, dataframe, table, if_exist=None, chunk_size=None):
         logger.info(f'Inserting records to {table} table ...')
 
         df = pd.DataFrame(dataframe)
-        df.to_sql(table,
-                  #   con=self.engine,
-                  con=self.engine,
-                  #   indexbool, default True
-                  #         Write DataFrame index as a column. Uses index_label as the column name in the table.
-                  index=False,
-                  # if_exists : {‘fail’, ‘replace’, ‘append’}, default ‘fail’
-                  #     How to behave if the table already exists.
-                  #     fail: Raise a ValueError.
-                  #     replace: Drop the table before inserting new values.
-                  #     append: Insert new values to the existing table.
-                  if_exists='append' if not if_exist else if_exist,
-                  # method : {None, ‘multi’, callable}, optional
-                  #     Controls the SQL insertion clause used:
-                  #     None : Uses standard SQL INSERT clause (one per row).
-                  #     ‘multi’: Pass multiple values in a single INSERT clause.
-                  #     callable with signature (pd_table, conn, keys, data_iter).
-                  method='multi')
+
+        if not chunk_size:
+            df.to_sql(table,
+                      #   con=self.engine,
+                      con=self.engine,
+                      #   indexbool, default True
+                      #         Write DataFrame index as a column. Uses index_label as the column name in the table.
+                      index=False,
+                      # if_exists : {‘fail’, ‘replace’, ‘append’}, default ‘fail’
+                      #     How to behave if the table already exists.
+                      #     fail: Raise a ValueError.
+                      #     replace: Drop the table before inserting new values.
+                      #     append: Insert new values to the existing table.
+                      if_exists='append' if not if_exist else if_exist,
+                      # method : {None, ‘multi’, callable}, optional
+                      #     Controls the SQL insertion clause used:
+                      #     None : Uses standard SQL INSERT clause (one per row).
+                      #     ‘multi’: Pass multiple values in a single INSERT clause.
+                      #     callable with signature (pd_table, conn, keys, data_iter).
+                      method='multi')
+        else:
+            logger.info(
+                f"Inserting in chunk sizes of {chunk_size} ...")
+            df.to_sql(table,
+                      con=self.engine,
+                      index=False,
+                      if_exists='append' if not if_exist else if_exist,
+                      chunksize=chunk_size,
+                      method='multi')
 
     # private method
     def __format_seconds(self, seconds):
