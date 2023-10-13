@@ -77,6 +77,8 @@ class OrionReport(EmailClient):
         # Remove the temporary email attachment
         for attachment in self.email_att_to_remove:
             utils.delete_file(attachment)
+        # Clear the list
+        self.email_att_to_remove.clear()
 
         logger.info("END of script - " +
                     utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
