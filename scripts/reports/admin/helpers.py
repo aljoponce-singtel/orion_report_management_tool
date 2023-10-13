@@ -72,7 +72,14 @@ def check_new_queueowners():
             else:
                 return date
 
-        df_valid: pd.DataFrame
+        # Define int data types for the columns for conversion
+        dtype_mapping = {
+            'user_id': int,
+            'actual_user_id': int,
+            'expected_user_id': int
+        }
+        int_columns = ['user_id', 'actual_user_id', 'expected_user_id']
+
         # Valid email address and escalation enabled:
         df_valid = df[(df['is_valid'] == 'yes') & (df['is_enabled'] == 'yes')]
         # Reset and change starting index from 0 to 1 for proper table presentation
@@ -83,8 +90,12 @@ def check_new_queueowners():
         # Apply the custom function to replace NaT values
         df_valid['created_at'] = df_valid['created_at'].apply(
             replace_nat_with_empty_string)
-        # remove is_valid column
+        # Remove is_valid column
         df_valid = df_valid.drop(['is_valid', 'is_enabled'], axis=1)
+        # Replace NaN values in int_columns with 0
+        df_valid[int_columns] = df_valid[int_columns].fillna(0)
+        # Convert data types of DataFrame columns
+        df_valid = df_valid.astype(dtype_mapping)
         # list unique users
         df_unique_valid_users = pd.DataFrame(df_valid['user'].unique(), columns=[
             'distinct_users']).sort_values(['distinct_users'])
@@ -102,7 +113,7 @@ def check_new_queueowners():
         # Apply the custom function to replace NaT values
         df_invalid['created_at'] = df_invalid['created_at'].apply(
             replace_nat_with_empty_string)
-        # remove is_valid column
+        # Remove is_valid column
         df_invalid = df_invalid.drop('is_valid', axis=1)
         # list unique users
         df_unique_invalid_users = pd.DataFrame(df_invalid['user'].unique(), columns=[
