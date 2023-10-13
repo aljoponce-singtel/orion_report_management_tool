@@ -254,12 +254,21 @@ def subtract_months(date, no_of_months):
     return new_date_obj
 
 
-def get_last_day_of_month(date):
+def get_today_date():
+
+    return date.today()
+
+
+def get_last_day_of_month(date_input=None):
     # Example:
     # Current date = 2023-01-26 */
     # 2023-01-31 = Date with last day of the month
 
-    date_obj = to_date_obj(date)
+    # If no date_input is provided, the current date will be used
+    if not date_input:
+        date_input = date.today()
+
+    date_obj = to_date_obj(date_input)
     last_day_of_the_month = calendar.monthrange(
         date_obj.year, date_obj.month)[1]
 
