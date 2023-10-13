@@ -467,6 +467,9 @@ class OrionReport(EmailClient):
 
     def preview_email(self, filename=None, file_path=None, open_file=True):
 
+        if self.default_config['email_info'] != 'Email':
+            self.set_email_subject('[TEST] ' + self.get_email_subject())
+
         preview_html = f"""\
                         <html>
                         <p>Subject: {self.subject}</p>
@@ -480,7 +483,6 @@ class OrionReport(EmailClient):
         html_file_path = None
 
         if self.default_config['email_info'] != 'Email':
-            self.set_email_subject('[TEST] ' + self.get_email_subject())
             self.set_email_body_html(preview_html)
 
         if self.debug_config.getboolean('preview_email') == True:
