@@ -61,6 +61,10 @@ def check_disk_usage():
 def check_new_queueowners():
 
     report = OrionReport('New Queue Owner Updates')
+    query_file = os.path.join(report.sql_folder_path,
+                              "query_new_queueowner.sql")
+    query_update_file = os.path.join(
+        report.sql_folder_path, "update_new_queueowner.sql")
     query = report.get_query_from_file("query_new_queueowner.sql")
     df = report.query_to_dataframe(query)
 
@@ -123,32 +127,39 @@ def check_new_queueowners():
             drop=True)
         df_unique_invalid_users.index += 1
 
-        email_body_html = f"""\
-            <html>
-            <p>Hello,</p>
-            <p>Please see below the list of new/updated queue owners.</p>
-            <p>VALID USERS:</p>
-            <p>{df_valid.to_html()}</p>
-            <p>{df_unique_valid_users.to_html()}</p>
-            <p>INVALID USERS:</p>
-            <p>{df_invalid.to_html()}</p>
-            <p>{df_unique_invalid_users.to_html()}</p>
-            <p>&nbsp;</p>
-            <p>Best regards,</p>
-            <p>The Orion Team</p>
-            </html>
-            """
-
-        # Send email
-        report.set_email_body_html(email_body_html)
-        report.attach_file_to_email(report.log_file_path)
-
         if df_valid.empty:
             logger.info("NO NEW QUEUE OWNERS ADDED/UPDATED TODAY")
         else:
             logger.warning("There are new queue owners added/updated today.")
             logger.warning(
                 "PLEASE ASSIGN/CREATE A USER ACCOUNT FOR THE NEW QUEUE OWNER/S.")
+
+            # Attach query and update SQL files
+            query_file_txt = report.attach_file_to_email(
+                query_file, append_file_ext='txt')
+            query_update_file_txt = report.attach_file_to_email(
+                query_update_file, append_file_ext='txt')
+            # Create email body
+            email_body_html = f"""\
+                <html>
+                <p>Hello,</p>
+                <p>Please see below the list of new/updated queue owners.</p>
+                <p>VALID USERS:</p>
+                <p>{df_valid.to_html()}</p>
+                <p>{df_unique_valid_users.to_html()}</p>
+                <p>INVALID USERS:</p>
+                <p>{df_invalid.to_html()}</p>
+                <p>{df_unique_invalid_users.to_html()}</p>
+                <p>&nbsp;</p>
+                <p>See attached file {basename(query_file_txt)} for the query.</p>
+                <p>See attached file {basename(query_update_file_txt)} to add/update the queue owners.</p>
+                <p>&nbsp;</p>
+                <p>Best regards,</p>
+                <p>The Orion Team</p>
+                </html>
+                """
+            # Send email
+            report.set_email_body_html(email_body_html)
             report.send_email()
 
     else:
@@ -171,28 +182,29 @@ def check_new_product_codes_to_map():
         df = df.reset_index(drop=True)
         df.index += 1
 
+        logger.warning("There are new product codes to map today.")
+        logger.warning(
+            "PLEASE MAP THE NEW PRODUCT CODE/S TO THE PRODUCT TABLE.")
+
+        # Attach query and update SQL files
         query_file_txt = report.attach_file_to_email(
             query_file, append_file_ext='txt')
         query_update_file_txt = report.attach_file_to_email(
             query_update_file, append_file_ext='txt')
-
+        # Create email body
         email_body_html = f"""\
             <html>
             <p>Hello,</p>
             <p>Please see below the list of new product codes to be map in the product table.</p>
             <p>{df.to_html()}</p>
             <p>See attached file {basename(query_file_txt)} for the query.</p>
-            <p>See attached file {basename(query_update_file_txt)} to map the product code.</p>
+            <p>See attached file {basename(query_update_file_txt)} to map the product codes.</p>
             <p>&nbsp;</p>
             <p>Best regards,</p>
             <p>The Orion Team</p>
             </html>
             """
-
-        logger.warning("There are new product codes to map today.")
-        logger.warning(
-            "PLEASE MAP THE NEW PRODUCT CODE/S TO THE PRODUCT TABLE.")
-
+        # Send email
         report.set_email_body_html(email_body_html)
         report.send_email()
 
