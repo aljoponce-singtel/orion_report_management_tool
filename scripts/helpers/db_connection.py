@@ -77,7 +77,7 @@ class DbConnection:
 
         return table_to_drop.metadata.drop_all(self.engine)
 
-    def update(self, query, data=None, query_description=None):
+    def sql_update(self, query, data=None, query_description=None):
 
         # Only works when log_level=debug
         self.log_full_query(query)
@@ -117,7 +117,7 @@ class DbConnection:
 
         return updated_row_count
 
-    def query(self, query, data=None, query_description=None):
+    def sql_select(self, query, data=None, query_description=None):
 
         # Only works when log_level=debug
         self.log_full_query(query)
@@ -155,7 +155,7 @@ class DbConnection:
 
     def query_to_list(self, query, data=None, query_description=None):
 
-        result = self.query(query, data, query_description)
+        result = self.sql_select(query, data, query_description)
         # Get the list of records
         result_list = result.fetchall()
         # Check if the query result is empty
@@ -168,7 +168,7 @@ class DbConnection:
 
         df = pd.DataFrame()
         # Perform a query
-        result = self.query(query, data, query_description)
+        result = self.sql_select(query, data, query_description)
 
         # Get the columns that are of type DATE or DATETIME
         date_type_columns = []
