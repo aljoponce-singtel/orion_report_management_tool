@@ -171,20 +171,39 @@ class DbConnection:
         result = self.sql_select(query, data, query_description)
 
         # Get the columns that are of type DATE or DATETIME
+        non_date_type_columns = []
         date_type_columns = []
         # Create dictionary for date/datetime mapping
         MYSQL_DATETYPE_DICT = {
             10: "DATE",
             12: "DATETIME"
         }
-        # Iterate through the result's column list to identify the date/datetime types
+        # Create dictionary for non-date/datetime mapping
+        MYSQL_NON_DATETYPE_DICT = {
+            3: "INT",
+            253: "TEXT"
+        }
+        # Iterate through the result's column list to identify the column's data types
         for column_name, type_code, display_size, internal_size, precision, scale, nullability in result.cursor.description:
+            # Add date/datetime columns to a list
             if type_code in MYSQL_DATETYPE_DICT.keys():
                 date_type_columns.append(
                     [column_name, type_code, MYSQL_DATETYPE_DICT.get(type_code)])
+            # Add non-date/datetime columns to a list
+            if type_code not in MYSQL_DATETYPE_DICT.keys():
+                if type_code in MYSQL_NON_DATETYPE_DICT.keys():
+                    non_date_type_columns.append(
+                        [column_name, type_code, MYSQL_NON_DATETYPE_DICT.get(type_code)])
+                else:
+                    # Map the unknown type_code
+                    non_date_type_columns.append(
+                        [column_name, type_code, type_code])
         # Print the list of date/datetime columns
         logger.debug(
             f"Date/Datetime columns: {[[record[0], record[2]] for record in date_type_columns]}")
+        # Print the list of non-date/datetime columns
+        logger.debug(
+            f"Non-Date/Datetime columns: {[[record[0], record[2]] for record in non_date_type_columns]}")
         # Get the list of records
         result_list = result.fetchall()
         # Check if the query result is empty
