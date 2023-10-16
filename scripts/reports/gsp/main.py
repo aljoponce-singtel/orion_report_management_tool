@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import generate_sdwan_report, generate_cplus_ip_report
+from helper import generate_sdwan_report, generate_cplus_ip_report
 
 logger = logging.getLogger(__name__)
 
