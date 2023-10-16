@@ -105,7 +105,7 @@ class OrionReport(EmailClient):
                     scripts_folder_path, 'orion_report.ini')
 
             print(f"Using default config file: {basename(config_file)}")
-
+        # If it does not follow the default folder structure, please provide the config_file path instead.
         else:
             print(f"Using provided config file: {basename(config_file)}")
 
