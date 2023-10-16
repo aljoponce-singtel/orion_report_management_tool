@@ -1,16 +1,20 @@
 # Import built-in packages
 import logging
+import os
 
 # Import local packages
 from scripts.helpers import utils
-from gsp_report import GspReport
+from scripts.reports.gsp.helpers import GspReport
 
 logger = logging.getLogger(__name__)
+
+# Add the config file path
+config = os.path.join(os.path.dirname(__file__), "config.ini")
 
 
 def generate_sdwan_report():
 
-    report = GspReport('SDWAN Report')
+    report = GspReport('SDWAN Report', config)
     report.set_filename('sdwan_report')
     report.set_prev_month_first_last_day_date()
 
@@ -67,7 +71,7 @@ def generate_sdwan_report():
 
 def generate_cplus_ip_report():
 
-    report = GspReport('CPlusIP Report')
+    report = GspReport('CPlusIP Report', config)
     report.set_filename('cplusip_report')
     report.set_prev_month_first_last_day_date()
 
