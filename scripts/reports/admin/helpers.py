@@ -107,14 +107,6 @@ def check_new_queueowners():
             else:
                 return date
 
-        # Define int data types for the columns for conversion
-        dtype_mapping = {
-            'user_id': int,
-            'actual_user_id': int,
-            'expected_user_id': int
-        }
-        int_columns = ['user_id', 'actual_user_id', 'expected_user_id']
-
         # Valid email address and escalation enabled:
         df_valid = df[(df['is_valid'] == 'yes') & (df['is_enabled'] == 'yes')]
         # Reset and change starting index from 0 to 1 for proper table presentation
@@ -127,10 +119,39 @@ def check_new_queueowners():
             replace_nat_with_empty_string)
         # Remove is_valid column
         df_valid = df_valid.drop(['is_valid', 'is_enabled'], axis=1)
-        # Replace NaN values in int_columns with 0
+
+        '''''
+        Because there were NULL values for the user_id as an INT data type queried from MySQL,
+        transforming the result to dataframe will cause Pandas to convert the datatype to float.
+        Int type in Pandas doesn't accept NULL values as compared to float data type.
+        Because float accepts decimal values, Pandas will add a decimal value to the whole number.
+        For example, the INT value 423 will be converted to 423.00 float value.
+        Depending on how you want to display the value, you can remove the decimal point during post-process.
+        '''''
+        # Define int data types for the columns for conversion
+        dtype_int_mapping = {
+            'user_id': int,
+            'actual_user_id': int,
+            'expected_user_id': int
+        }
+        int_columns = ['user_id', 'actual_user_id', 'expected_user_id']
+        # Replace NaN values in int_columns with 0 to allow INT conversion
         df_valid[int_columns] = df_valid[int_columns].fillna(0)
-        # Convert data types of DataFrame columns
-        df_valid = df_valid.astype(dtype_mapping)
+        # Replace empty '' values in int_columns with 0 to allow INT conversion
+        df_valid[int_columns] = df_valid[int_columns].replace('', 0)
+        # Convert data types of DataFrame columns to INT to remove the decimal points.
+        df_valid = df_valid.astype(dtype_int_mapping)
+        # Define string data types for the columns for conversion
+        dtype_str_mapping = {
+            'user_id': str,
+            'actual_user_id': str,
+            'expected_user_id': str
+        }
+        # Convert data types of DataFrame columns to String.
+        df_valid = df_valid.astype(dtype_str_mapping)
+        # Replace the 0 values to ''.
+        df_valid[int_columns] = df_valid[int_columns].replace('0', '')
+
         # list unique users
         df_unique_valid_users = pd.DataFrame(df_valid['user'].unique(), columns=[
             'distinct_users']).sort_values(['distinct_users'])
