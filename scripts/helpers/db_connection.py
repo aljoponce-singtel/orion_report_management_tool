@@ -181,6 +181,7 @@ class DbConnection:
         # Create dictionary for non-date/datetime mapping
         MYSQL_NON_DATETYPE_DICT = {
             3: "INT",
+            252: "LONGTEXT",
             253: "TEXT"
         }
         # Iterate through the result's column list to identify the column's data types
