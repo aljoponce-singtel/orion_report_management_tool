@@ -9,7 +9,7 @@ import sys
 import csv
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
-from os import system
+from os.path import basename
 from zipfile import ZipFile
 
 # Import third-party packages
@@ -364,11 +364,14 @@ def copy_file(source_path, destination_path):
     shutil.copy(source_path, destination_path)
 
 
-def move_file(source, destination, filename):
+def move_file(source_path, destination_path):
+
+    logger.info(f"Moving {basename(source_path)} to {destination_path} ... ")
+
     if get_platform() == "Windows":
-        shutil.move(source, destination + filename)
+        shutil.move(source_path, destination_path)
     else:
-        system('sudo mv {0} {1}'.format(source, destination))
+        os.system(f"sudo mv {source_path} {destination_path}")
 
 
 def add_ext_type(filename, new_extension):
