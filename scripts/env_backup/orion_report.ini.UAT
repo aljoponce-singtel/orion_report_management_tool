@@ -33,7 +33,7 @@ orion_db = o2pprod
 staging_db = pegasusmulesoft
 tableau_db = o2ptableau
 dbapi = mysql+pymysql
-host = 172.26.14.148
+host = 172.26.14.142
 port = 3306
 
 [Email]
