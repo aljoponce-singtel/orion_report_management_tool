@@ -1,17 +1,15 @@
 # Import built-in packages
-import os
 import logging
 
 # Import local packages
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
-config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
 
 
 def generate_sgo_report():
 
-    report = OrionReport(config_file, 'SGO Report')
+    report = OrionReport('SGO Report')
     report.set_filename('sgo_report')
     report.set_prev_month_first_last_day_date()
     generate_report(report)
@@ -19,7 +17,7 @@ def generate_sgo_report():
 
 def generate_sgo_billing_report():
 
-    report = OrionReport(config_file, 'SGO (Billing) Report')
+    report = OrionReport('SGO (Billing) Report')
     report.set_filename('sgo_billing_report')
     report.set_gsp_billing_month_start_end_date()
     generate_report(report)
