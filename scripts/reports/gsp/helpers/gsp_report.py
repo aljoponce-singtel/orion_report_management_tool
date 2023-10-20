@@ -297,6 +297,157 @@ class GspReport(OrionReport):
 
         return df_report
 
+    def generate_report_one_group(self, only_group_id=False) -> pd.DataFrame:
+
+        query = ""
+
+        if only_group_id == False:
+            query = f"""
+                        SELECT
+                            DISTINCT ORD.order_code,
+                            ORD.service_number,
+                            PRD.network_product_code,
+                            PRD.network_product_desc,
+                            CUS.name AS customer_name,
+                            ORD.order_type,
+                            ORD.current_crd,
+                            ORD.taken_date,
+                            PER.role AS group_id,
+                            CAST(ACT.activity_code AS SIGNED INTEGER) AS act_step_no,
+                            ACT.name AS act_name,
+                            ACT.due_date AS act_due_date,
+                            ACT.ready_date AS act_rdy_date,
+                            DATE(ACT.exe_date) AS act_exe_date,
+                            DATE(ACT.dly_date) AS act_dly_date,
+                            ACT.completed_date AS act_com_date
+                        FROM
+                            RestInterface_order ORD
+                            JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+                            JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                            LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                            LEFT JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
+                            AND NPP.level = 'MainLine'
+                            AND NPP.status != 'Cancel'
+                            LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
+                        WHERE 
+                            PER.role IN ({utils.list_to_string(self.first_groupid_list)})
+                            AND ACT.completed_date BETWEEN '{self.start_date}' 
+                            AND '{self.end_date}'
+                            AND ACT.name IN ({utils.list_to_string(self.first_activity_list)})
+                        ORDER BY
+                            ORD.order_code,
+                            act_step_no;
+                    """
+        else:
+            query = f"""
+                        SELECT
+                            DISTINCT ORD.order_code,
+                            ORD.service_number,
+                            PRD.network_product_code,
+                            PRD.network_product_desc,
+                            CUS.name AS customer_name,
+                            ORD.order_type,
+                            ORD.current_crd,
+                            ORD.taken_date,
+                            PER.role AS group_id,
+                            CAST(ACT.activity_code AS SIGNED INTEGER) AS act_step_no,
+                            ACT.name AS act_name,
+                            ACT.due_date AS act_due_date,
+                            ACT.ready_date AS act_rdy_date,
+                            DATE(ACT.exe_date) AS act_exe_date,
+                            DATE(ACT.dly_date) AS act_dly_date,
+                            ACT.completed_date AS act_com_date
+                        FROM
+                            RestInterface_order ORD
+                            JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
+                            JOIN RestInterface_person PER ON PER.id = ACT.person_id
+                            LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+                            LEFT JOIN RestInterface_npp NPP ON ORD.id = NPP.order_id
+                            AND NPP.level = 'MainLine'
+                            AND NPP.status != 'Cancel'
+                            LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
+                        WHERE 
+                            PER.role IN ({utils.list_to_string(self.first_groupid_list)})
+                            AND ACT.completed_date BETWEEN '{self.start_date}' 
+                            AND '{self.end_date}'
+                        ORDER BY
+                            ORD.order_code,
+                            act_step_no;
+                    """
+
+        df_raw = self.query_to_dataframe(
+            query, query_description=f"{self.gsp_report_name} records", column_names=const.RAW_COLUMNS)
+
+        # New dataframe for the final report
+        df_report = pd.DataFrame(columns=const.MAIN_COLUMNS_SINGLE)
+
+        # Check if the dataframe is not empty
+        if not df_raw.empty:
+            # Get the list of unique workorders
+            unique_orders = df_raw['Workorder no'].unique()
+
+            # Iterate through the records of each uniqe workorders
+            for order in unique_orders:
+                # Initialize group 1 and 2 dataframe and dictionary
+                df_top_group_1 = pd.DataFrame(columns=const.RAW_COLUMNS)
+                group_1_dict = {
+                    col: None if col not in const.DATE_COLUMNS else pd.NaT for col in const.RAW_COLUMNS}
+                # Get the records of an order
+                df_order: pd.DataFrame
+                df_order = df_raw[df_raw['Workorder no'] == order]
+
+                if only_group_id == False:
+                    # Get the group_id and activity records that matches group 1
+                    df_group_1 = df_order[df_order['Group ID'].isin(
+                        self.first_groupid_list) & df_order['Activity Name'].isin(self.first_activity_list)]
+                else:
+                    # Get the group_id records that matches group 1
+                    df_group_1 = df_order[df_order['Group ID'].isin(
+                        self.first_groupid_list)]
+
+                # Check if group 1 is not empty
+                if not df_group_1.empty:
+                    # Check if group 1 has more than 1 records
+                    if len(df_group_1) > 1:
+                        # Get the top records based on priority and sequence
+                        df_top_group_1 = self.__select_top_queue(
+                            df_group_1, 'Activity Name', self.first_activity_list)
+                    else:
+                        df_top_group_1 = df_group_1
+
+                # Convert the dataframe to a dictionary
+                order_dict = df_order.head(1).to_dict(orient='records')[0]
+                if not df_group_1.empty:
+                    group_1_dict = df_top_group_1.to_dict(orient='records')[0]
+
+                report_data = [
+                    order_dict['Workorder no'],
+                    order_dict['Service No'],
+                    order_dict['Product Code'],
+                    order_dict['Product Description'],
+                    order_dict['Customer Name'],
+                    order_dict['Order Type'],
+                    order_dict['CRD'],
+                    order_dict['Order Taken Date'],
+                    group_1_dict['Group ID'],
+                    group_1_dict['Activity Name'],
+                    group_1_dict['DUE'],
+                    # set RDY date to COM date if RDY date is empty
+                    group_1_dict['RDY'] if not pd.isna(
+                        group_1_dict['RDY']) else group_1_dict['COM'],
+                    # set EXC date to COM date if EXC date is empty
+                    group_1_dict['EXC'] if not pd.isna(
+                        group_1_dict['EXC']) else group_1_dict['COM'],
+                    group_1_dict['DLY'],
+                    group_1_dict['COM']
+                ]
+
+                df_to_add = pd.DataFrame(
+                    data=[report_data], columns=const.MAIN_COLUMNS_SINGLE)
+                df_report = pd.concat([df_report, df_to_add])
+
+        return df_report
+
     # private method
     def __select_top_queue(self, df_group: pd.DataFrame, column_name, activity_list) -> pd.DataFrame:
 
