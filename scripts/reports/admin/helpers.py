@@ -3,6 +3,7 @@ import os
 import logging
 
 # Import third-party packages
+import numpy as np
 import pandas as pd
 
 # Import local packages
@@ -11,6 +12,12 @@ from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
+
+def test_email(email_address, email_subject='[Orion] Test Email'):
+
+    report = OrionReport(email_subject)
+    report.add_email_receiver_to(email_address)
+    report.send_email()
 
 
 def query_to_file(query_file, filename, report_name='Quick Query'):
@@ -21,6 +28,60 @@ def query_to_file(query_file, filename, report_name='Quick Query'):
     csv_file = report.query_to_csv(query, add_timestamp=True)
     report.attach_file_to_email(csv_file)
     report.send_email()
+
+
+def load_csv_to_table(csv_file, table_name, report_name='CSV to DB'):
+
+    report = OrionReport(report_name)
+
+    csv_file_path = os.path.join(
+        os.path.dirname(__file__), 'resource', csv_file)
+
+    logger.warning(csv_file_path)
+
+    columns_list = [
+        'order_code',
+        'order_status_no',
+        'order_status',
+        'completion_date',
+        'close_date',
+        'job_effective_date',
+        'activity_code',
+        'group_id',
+        'activity_status',
+        'exe_date',
+        'last_updated_id',
+        'last_updated_date'
+    ]
+
+    df = pd.read_csv(csv_file_path,
+                     #  encoding='utf-8',
+                     #  header='infer',
+                     skiprows=1,
+                     header=None,
+                     names=columns_list,
+                     engine='python')
+
+    logger.warning(f"\n{df}")
+    logger.warning(df.dtypes)
+
+    datetime_columns_list = [
+        'completion_date',
+        'close_date',
+        'job_effective_date',
+        'exe_date',
+        'last_updated_date'
+    ]
+
+    # df = df.replace({np.nan: ''})
+    # df[datetime_columns_list] = pd.to_datetime(df[datetime_columns_list])
+    df[datetime_columns_list] = df[datetime_columns_list].apply(
+        pd.to_datetime)
+
+    logger.warning(f"\n{df}")
+    logger.warning(df.dtypes)
+
+    report.orion_db.insert_df_to_table(df, table_name)
 
 
 def get_superusers():
