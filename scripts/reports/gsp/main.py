@@ -18,7 +18,7 @@ def main():
         # generate_singnet_report()
         # generate_internet_report()
         # generate_stix_report()
-        generate_sdwan_report()
+        generate_sdwan_new_report()
 
     except Exception as err:
         logger.exception(err)
