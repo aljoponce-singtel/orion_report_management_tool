@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 config = os.path.join(os.path.dirname(__file__), "config.ini")
 
 
-def generate_sdwan_new_report():
+def generate_sdwan_report():
 
     report = GspReport('SDWAN Report', config)
     report.set_filename('sdwan_report')
@@ -66,6 +66,9 @@ def generate_sdwan_new_report():
     # Send email
     report.attach_file_to_email(zip_file)
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')
+    report.add_email_receiver_to('francis.tan1@singtel.com')
+    report.add_email_receiver_to('cheongwey.tin@singtel.com')
+    report.add_email_receiver_to('niranjan.kawde@singtel.com')
     report.send_email()
 
 
@@ -518,40 +521,6 @@ def generate_stix_report():
 
     # CNP
     report.set_gsp_report_name("GSDT9")
-    df_report = report.generate_report_one_group()
-    csv_file = report.create_csv_from_df(df_report, filename=(
-        "{}_{}.csv").format(report.gsp_report_name, current_datetime))
-    zip_file = report.add_to_zip_file(csv_file, zip_filename=zip_filename)
-
-    # Send email
-    report.attach_file_to_email(zip_file)
-    report.send_email()
-
-
-def generate_sdwan_report():
-
-    report = GspReport('SDWAN Report', config)
-    report.set_filename('sdwan_report')
-    report.set_prev_month_first_last_day_date()
-
-    sdwan_group_list = [
-        'GSP_SDN_TM',
-        'GSDT_TM'
-    ]
-
-    sdwan_act_list = [
-        'GSDT Co-ordination Wk-BQ',
-        'GSDT Co-ordination Wrk-BQ',
-        'GSP-TM Coordination Work'
-    ]
-
-    report.set_first_groupid_list(sdwan_group_list)
-    report.set_first_activity_list(sdwan_act_list)
-    current_datetime = report.get_current_datetime()
-    zip_filename = ("{}_{}.zip").format(report.filename, current_datetime)
-
-    # CNP
-    report.set_gsp_report_name("GSP_SDN_TM_GSDT_TM")
     df_report = report.generate_report_one_group()
     csv_file = report.create_csv_from_df(df_report, filename=(
         "{}_{}.csv").format(report.gsp_report_name, current_datetime))
