@@ -301,6 +301,8 @@ class OrionReport(EmailClient):
                 raise Exception(
                     f"The file/path '{file_path}' does not exist.")
 
+        logger.info(f"Getting query from {basename(file_path)} ...")
+
         query = utils.file_to_string(file_path)
 
         return query
@@ -448,6 +450,8 @@ class OrionReport(EmailClient):
             filesize_mbytes = filesize_bytes/1048576
             # Attach the file if less than the max allowed file size
             if (filesize_mbytes < self.default_config.getfloat('email_att_max_size')):
+                logger.debug(
+                    f"File size for {basename(attachment)} is {filesize_mbytes:.2f} mb in size.")
                 super().attach_file(attachment)
             else:
                 # Ignore attaching the file but still send the email
