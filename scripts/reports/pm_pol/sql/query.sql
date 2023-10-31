@@ -12,17 +12,16 @@ SELECT
     PRJ.project_code AS ProjectID,
     ORD.service_number AS SvcNumber,
     ORD.service_action_type AS SvcActionType,
-    -- ORD.business_sector AS Sector,
-    -- BRN.brn AS BRN,
+    ORD.business_sector AS Sector,
+    BRN.brn AS BRN,
     CAST(ACT.activity_code AS SIGNED INTEGER) AS ActivityCode,
     ACT.name AS ActivityName,
     ACT.status AS ActivityStatus
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
-    -- JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
-    -- JOIN RestInterface_customer CUS ON CUS.id = BRN.customer_id
-    JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+    JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
+    JOIN RestInterface_customer CUS ON CUS.id = BRN.customer_id
     JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id
 WHERE
     ACT.tag_name = "Pegasus"
