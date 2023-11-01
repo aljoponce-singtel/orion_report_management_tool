@@ -62,7 +62,7 @@ def load_csv_to_table(csv_file, table_name, report_name='CSV to DB'):
                      names=columns_list,
                      engine='python')
 
-    logger.warning(f"\n{df}")
+    # logger.warning(f"\n{df}")
     logger.warning(df.dtypes)
 
     datetime_columns_list = [
@@ -78,10 +78,10 @@ def load_csv_to_table(csv_file, table_name, report_name='CSV to DB'):
     df[datetime_columns_list] = df[datetime_columns_list].apply(
         pd.to_datetime)
 
-    logger.warning(f"\n{df}")
+    # logger.warning(f"\n{df}")
     logger.warning(df.dtypes)
 
-    report.orion_db.insert_df_to_table(df, table_name)
+    # report.orion_db.insert_df_to_table(df, table_name)
 
 
 def get_superusers():
