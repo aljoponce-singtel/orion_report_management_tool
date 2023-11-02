@@ -451,7 +451,7 @@ class GspReport(OrionReport):
     # private method
     def __select_top_queue(self, df_group: pd.DataFrame, column_name, activity_list) -> pd.DataFrame:
 
-        logger.warn(
+        self.__log_multiple_records(
             ("Workorder has MULTIPLE queues.\n{}")
             .format(df_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
         # Check if list is not empty
@@ -465,22 +465,28 @@ class GspReport(OrionReport):
         if len(df_top_group) > 1:
             # Check if list is not empty
             if len(activity_list) != 0:
-                logger.warn(
+                self.__log_multiple_records(
                     "Getting the top records based on priority and sequence.")
-                logger.warn(
+                self.__log_multiple_records(
                     ("Workorder has DUPLICATE queues.\n{}")
                     .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
             else:
-                logger.warn("Can't decide the priority queue.")
+                self.__log_multiple_records("Can't decide the priority queue.")
 
             df_top_group = df_top_group.sort_values(
                 by=['Step No'], ascending=[False]).drop_duplicates(subset=['Activity Name'], keep='first')
-            logger.warn(
+            self.__log_multiple_records(
                 ("Selecting the queue with the highest step no.\n{}")
                 .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
         else:
-            logger.warn(
+            self.__log_multiple_records(
                 ("Getting the top records based on priority and sequence.\n{}")
                 .format(df_top_group[['Workorder no', 'Group ID', 'Step No', 'Activity Name', 'COM']].to_string(index=False)))
 
         return df_top_group
+
+    def __log_multiple_records(self, log):
+
+        if self.debug_config.getboolean('log_multiple_records') == True:
+
+            logger.warn(log)
