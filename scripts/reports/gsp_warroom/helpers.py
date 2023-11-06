@@ -19,6 +19,7 @@ def generate_warroom_report():
     report.add_email_receiver_to('kinex.yeoh@singtel.com')
     report.add_email_receiver_to('ml-cssosdpe@singtel.com')
     report.add_email_receiver_to('ml-cssosmpeteam@singtel.com')
+    report.add_email_receiver_to('ml-cpetm@singtel.com')
     report.set_filename('gsp_warroom_report')
     report.set_reporting_date()
 
