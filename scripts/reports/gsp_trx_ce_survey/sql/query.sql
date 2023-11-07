@@ -42,8 +42,22 @@ WHERE
     ORD.order_type <> 'Cease'
     AND ORD.order_status = 'Closed'
     AND ORD.close_date IS NOT NULL
-    AND ORD.close_date > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 8 DAY), '%Y-%m-%d')
-    AND ORD.close_date < DATE_FORMAT(NOW(), '%Y-%m-%d')
+    AND ORD.close_date > DATE_SUB(NOW(), INTERVAL 8 DAY)
+    AND ORD.close_date < DATE(NOW())
+    AND ORD.id NOT IN (
+        SELECT
+            ORDEV.id
+        FROM
+            RestInterface_order ORDEV
+            JOIN RestInterface_npp NPPEV ON NPPEV.order_id = ORDEV.id
+            AND NPPEV.level = "Mainline"
+            AND ORDEV.service_number LIKE 'EV%'
+            JOIN RestInterface_product PRDEV ON PRDEV.id = NPPEV.product_id
+            AND PRDEV.network_product_code != "SGN0005"
+        WHERE
+            ORDEV.close_date > DATE_SUB(NOW(), INTERVAL 8 DAY)
+            AND ORDEV.close_date < DATE(NOW())
+    )
 ORDER BY
     CloseDate,
     OrderNo,
