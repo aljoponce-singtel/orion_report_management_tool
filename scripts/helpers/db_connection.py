@@ -158,8 +158,10 @@ class DbConnection:
         result = self.sql_select(query, data, query_description)
         # Get the list of records
         result_list = result.fetchall()
+        no_of_rows_retrieved = len(result_list)
+        logger.info(f"Number of rows retrieved: {no_of_rows_retrieved}")
         # Check if the query result is empty
-        if len(result_list) == 0:
+        if no_of_rows_retrieved == 0:
             logger.warning('Query result is empty.')
 
         return result_list
@@ -207,8 +209,10 @@ class DbConnection:
             f"Non-Date/Datetime columns: {[[record[0], record[2]] for record in non_date_type_columns]}")
         # Get the list of records
         result_list = result.fetchall()
+        no_of_rows_retrieved = len(result_list)
+        logger.info(f"Number of rows retrieved: {no_of_rows_retrieved}")
         # Check if the query result is empty
-        if len(result_list) == 0:
+        if no_of_rows_retrieved == 0:
             logger.warning('Query result is empty.')
         # Create a dataframe from the result
         if len(column_names) == 0:
@@ -240,36 +244,52 @@ class DbConnection:
     def insert_df_to_table(self, dataframe, table, if_exist=None, chunk_size=None):
         logger.info(f'Inserting records to {table} table ...')
 
+        no_of_affected_rows = 0
         df = pd.DataFrame(dataframe)
 
+        '''
+        Returns:
+            None or int
+                Number of rows affected by to_sql. None is returned if the callable passed into method does not return an integer number of rows.
+                The number of returned rows affected is the sum of the rowcount attribute of sqlite3.Cursor or SQLAlchemy connectable 
+                which may not reflect the exact number of written rows as stipulated in the sqlite3 or SQLAlchemy.
+
+        Raises:
+            ValueError
+                When the table already exists and if_exists is ‘fail’ (the default).
+        '''
         if not chunk_size:
-            df.to_sql(table,
-                      #   con=self.engine,
-                      con=self.engine,
-                      #   indexbool, default True
-                      #         Write DataFrame index as a column. Uses index_label as the column name in the table.
-                      index=False,
-                      # if_exists : {‘fail’, ‘replace’, ‘append’}, default ‘fail’
-                      #     How to behave if the table already exists.
-                      #     fail: Raise a ValueError.
-                      #     replace: Drop the table before inserting new values.
-                      #     append: Insert new values to the existing table.
-                      if_exists='append' if not if_exist else if_exist,
-                      # method : {None, ‘multi’, callable}, optional
-                      #     Controls the SQL insertion clause used:
-                      #     None : Uses standard SQL INSERT clause (one per row).
-                      #     ‘multi’: Pass multiple values in a single INSERT clause.
-                      #     callable with signature (pd_table, conn, keys, data_iter).
-                      method='multi')
+            no_of_affected_rows = df.to_sql(table,
+                                            #   con=self.engine,
+                                            con=self.engine,
+                                            #   indexbool, default True
+                                            #         Write DataFrame index as a column. Uses index_label as the column name in the table.
+                                            index=False,
+                                            # if_exists : {‘fail’, ‘replace’, ‘append’}, default ‘fail’
+                                            #     How to behave if the table already exists.
+                                            #     fail: Raise a ValueError.
+                                            #     replace: Drop the table before inserting new values.
+                                            #     append: Insert new values to the existing table.
+                                            if_exists='append' if not if_exist else if_exist,
+                                            # method : {None, ‘multi’, callable}, optional
+                                            #     Controls the SQL insertion clause used:
+                                            #     None : Uses standard SQL INSERT clause (one per row).
+                                            #     ‘multi’: Pass multiple values in a single INSERT clause.
+                                            #     callable with signature (pd_table, conn, keys, data_iter).
+                                            method='multi')
         else:
             logger.info(
                 f"Inserting in chunk sizes of {chunk_size} ...")
-            df.to_sql(table,
-                      con=self.engine,
-                      index=False,
-                      if_exists='append' if not if_exist else if_exist,
-                      chunksize=chunk_size,
-                      method='multi')
+            no_of_affected_rows = df.to_sql(table,
+                                            con=self.engine,
+                                            index=False,
+                                            if_exists='append' if not if_exist else if_exist,
+                                            chunksize=chunk_size,
+                                            method='multi')
+
+        logger.info(f"Number of affected rows: {no_of_affected_rows}")
+
+        return no_of_affected_rows
 
     # private method
     def __format_seconds(self, seconds):
