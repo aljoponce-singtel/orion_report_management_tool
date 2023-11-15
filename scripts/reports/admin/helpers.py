@@ -3,6 +3,7 @@ import os
 import logging
 
 # Import third-party packages
+import numpy as np
 import pandas as pd
 
 # Import local packages
@@ -40,7 +41,7 @@ def query_to_excel(query_file, filename, report_name='Quick Query'):
     report.send_email()
 
 
-def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB'):
+def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB', chunk_size: int = 1000):
 
     report = OrionReport(report_name)
 
@@ -57,10 +58,8 @@ def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_colum
                      names=columns,
                      engine='python')
 
-    # # logger.warning(f"\n{df}")
+    # logger.warning(f"\n{str(df)}")
     # logger.warning(df.dtypes)
-
-    # df = df.replace({np.nan: ''})
 
     # convert to datetime
     if datetime_columns:
@@ -70,7 +69,20 @@ def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_colum
     # # logger.warning(f"\n{df}")
     # logger.warning(df.dtypes)
 
-    report.orion_db.insert_df_to_table(df, table_name)
+    try:
+
+        report.orion_db.insert_df_to_table(
+            df, table_name, chunk_size=chunk_size)
+
+    except Exception as e:
+        # Log including the stack trace
+        # logger.error(
+        #     f"Failed to load data into database: {e}")
+
+        # Log only the error description, as the raw error info maybe too large
+        # Ignore logging the stack trace
+        logger.error(
+            f"Failed to load data into database: {e.args[0]}")
 
 
 def get_superusers():
