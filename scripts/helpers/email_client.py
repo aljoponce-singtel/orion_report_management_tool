@@ -112,6 +112,13 @@ class EmailClient:
             message['CC'] = self.receiver_cc
             receiver = self.receiver_to + ";" + self.receiver_cc
             smtp_obj = smtplib.SMTP(self.server, self.port)
+
+            # Get the maximum file attachment size
+            smtp_obj.ehlo()
+            max_limit_in_bytes = int(smtp_obj.esmtp_features['size'])
+            logger.debug(
+                f"Max file attachment size: {max_limit_in_bytes/1000000} mb")
+
             smtp_obj.sendmail(self.sender, receiver.split(";"),
                               message.as_string())
             smtp_obj.quit()
