@@ -5,6 +5,7 @@ import sys
 import smtplib
 from datetime import datetime
 from email import encoders
+from email.mime.application import MIMEApplication
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -83,6 +84,27 @@ class EmailClient:
                 new_attachments.append(os.path.basename(attachment))
             return new_attachments
 
+    # Get the maximum message size allowed
+    def get_max_msg_size(self, smtp_obj: smtplib.SMTP):
+        smtp_obj.ehlo()
+        max_limit_in_bytes = int(smtp_obj.esmtp_features['size'])
+        max_limit_in_mbytes = max_limit_in_bytes/1000000
+
+        return max_limit_in_mbytes
+
+    # Calculate the actual size of the message
+    def get_message_size(self, msg: MIMEMultipart):
+        # Get the size in bytes
+        message_size = len(msg.as_bytes())
+        # Iterate through attachments and add their sizes
+        for part in msg.walk():
+            if isinstance(part, MIMEApplication):
+                message_size += len(part.get_payload(decode=True))
+        # Round off to 2 decimal places
+        message_size_in_mbytes = round(message_size/1000000, 2)
+
+        return message_size_in_mbytes
+
     def smtp_send(self):
         logger.info('Sending email with subject "{}" ...'.format(self.subject))
 
@@ -102,6 +124,15 @@ class EmailClient:
                                 'attachment; filename="%s"' % os.path.basename(attachment))
                 message.attach(part)
 
+                '''
+                Tried using MIMEApplication for file attachment but the file size grew almost twice the size.
+                Reverted back to MIMEBase instead.
+                '''
+                # part = MIMEApplication(open(attachment, 'rb').read())
+                # part.add_header('Content-Disposition', 'attachment',
+                #                 filename=os.path.basename(attachment))
+                # message.attach(part)
+
             # Add HTML/plain-text parts to MIMEMultipart message
             # The email client will try to render the last part first
             # message.attach(part1)
@@ -114,10 +145,11 @@ class EmailClient:
             smtp_obj = smtplib.SMTP(self.server, self.port)
 
             # Get the maximum file attachment size
-            smtp_obj.ehlo()
-            max_limit_in_bytes = int(smtp_obj.esmtp_features['size'])
             logger.debug(
-                f"Max file attachment size: {max_limit_in_bytes/1000000} mb")
+                f"Maximum message size allowed: {self.get_max_msg_size(smtp_obj)} mb")
+            # Get the message size
+            logger.debug(
+                f"Message size: {self.get_message_size(message)} mb")
 
             smtp_obj.sendmail(self.sender, receiver.split(";"),
                               message.as_string())
