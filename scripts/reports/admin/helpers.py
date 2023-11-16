@@ -14,10 +14,21 @@ from scripts.orion_report import OrionReport
 logger = logging.getLogger(__name__)
 
 
-def test_email(email_address, email_subject='[Orion] Test Email'):
+def test_email(email_address, attachment_path=None, email_subject='[Orion] Test Email'):
 
     report = OrionReport(email_subject)
     report.add_email_receiver_to(email_address)
+
+    if attachment_path:
+        # The variable contains the filename with a path.
+        if os.path.dirname(attachment_path):
+            report.attach_file_to_email(attachment_path)
+        # The variable contains only the filename.
+        else:
+            # Get the file inside the default reports folder path
+            report.attach_file_to_email(os.path.join(
+                report.reports_folder_path, attachment_path))
+
     report.send_email()
 
 

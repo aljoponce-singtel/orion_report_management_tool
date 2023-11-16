@@ -66,7 +66,7 @@ def main():
         # query_to_file('query_aop.sql', 'gsp_aop', 'GSP AOP Report')
         # query_to_file('query_aop_poe.sql', 'gsp_aop', 'GSP AOP Report')
         # test_email("EdmsOutlook@edmssingtel.onmicrosoft.com;jamesp@prem-grp.com")
-        # test_email("ajahiroy@singtel.com")
+        # test_email("aljo.ponce@singtel.com", "POL_PM_Managed_161123_1312.zip")
         # query_to_csv(
         #     r'C:\Users\p1319639\Development\orion_report_management_tool\scripts\reports\gsp_trx_ce_survey\sql\query.sql', "trx_ce_survey_no_evolve", "TRX CE SURVEY")
         # query_to_excel(
