@@ -1,0 +1,47 @@
+Issue:
+
+15:58:47 - orion_report - INFO - ==========================================
+15:58:47 - orion_report - INFO - START of script - Thu 11/16/2023, 15:58:47
+15:58:47 - orion_report - INFO - /* [Orion] Test Email */
+15:58:47 - orion_report - INFO - Running script in Linux
+15:58:47 - utils - DEBUG - ppid: 32625
+15:58:47 - utils - DEBUG - parent_process_name: bash
+15:58:47 - orion_report - WARNING - THIS SCRIPT WAS MANUALLY EXECUTED.
+15:58:47 - orion_report - INFO - Log path: /app/o2p/ossadmin/ormt_test/logs/admin/admin.log
+15:58:47 - orion_report - INFO - Reports folder: /app/o2p/ossadmin/ormt_test/reports/admin
+15:58:47 - db_connection - INFO - Connected to DB o2pprod at o2puserp@172.26.14.148:3306
+15:58:47 - db_connection - INFO - Connected to DB pegasusmulesoft at o2puserp@172.26.14.148:3306
+15:58:47 - db_connection - INFO - Connected to DB o2ptableau at o2puserp@172.26.14.148:3306
+15:58:47 - orion_report - DEBUG - File size for POL_PM_Managed_161123_1312.zip is 7.38 mb in size.
+15:58:47 - email_client - INFO - Attaching file POL_PM_Managed_161123_1312.zip ...
+15:58:47 - email_client - INFO - Sending email with subject "[Orion] Test Email" ...
+15:58:47 - email_client - DEBUG - Maximum message size allowed: 10.24 mb
+15:58:47 - email_client - DEBUG - Message size: 10.45 mb
+15:58:48 - email_client - ERROR - Failed to send email.
+15:58:48 - email_client - ERROR - (552, b'5.3.4 Message size exceeds fixed limit', 'orion@singtel.com')
+Traceback (most recent call last):
+  File "/app/o2p/ossadmin/ormt_test/scripts/helpers/email_client.py", line 155, in smtp_send
+    message.as_string())
+  File "/usr/lib64/python3.6/smtplib.py", line 867, in sendmail
+    raise SMTPSenderRefused(code, resp, from_addr)
+smtplib.SMTPSenderRefused: (552, b'5.3.4 Message size exceeds fixed limit', 'orion@singtel.com')
+15:58:48 - orion_report - INFO - END of script - Thu 11/16/2023, 15:58:48
+
+Fix:
+
+postconf message_size_limit
+message_size_limit = 25600000
+
+postconf -e "message_size_limit = 26214400"
+
+/etc/postfix/main.cf
+ 
+[Solved] Email size adjustment: message_size_limit not taking effect | Virtualmin
+
+Resources:
+
+https://social.technet.microsoft.com/Forums/en-US/2435eeaa-1ea9-49d5-a646-e7830eef9e94/552-534-message-size-exceeds-fixed-maximum-message-size-config-looks-ok
+https://learn.microsoft.com/en-us/exchange/mail-flow/message-size-limits?view=exchserver-2016
+https://docs.python.org/3/library/smtplib.html
+https://stackoverflow.com/questions/45409799/change-set-maximum-message-size-for-python-smtplib
+https://archive.virtualmin.com/node/35034#comment-139301
