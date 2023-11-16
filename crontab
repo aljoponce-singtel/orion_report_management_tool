@@ -5,10 +5,6 @@
 #####
 # 30 6,9,14,19 * * * /app/o2p/ossadmin/autoEscalation/precheck_etlTOOrion.sh
 
-00 2,9,14,20 * * * /app/o2p/ossadmin/pol/pol_report.sh
-10 2,9,14,20 * * * /app/o2p/ossadmin/pol/pol_report_non_pm.sh
-15 9 1 * * /app/o2p/ossadmin/pol/pol_report_monthly.sh
-
 00 6,19 * * * /app/o2p/ossadmin/christian/chris_warroom_rep.sh
 10 6,19 * * * /app/o2p/ossadmin/christian/chris_warroom_rep_nongov.sh
 20 7,17 * * * /app/o2p/ossadmin/admin/o2puser_pwd_expire.sh
@@ -57,6 +53,8 @@
 58 18 26 * * /app/o2p/ossadmin/ormt/run.sh gsp_dpe_mpe_mse main_billing
 15 18 1 * * /app/o2p/ossadmin/ormt/run.sh gsp
 18 9 26 * * /app/o2p/ossadmin/ormt/run.sh gsp main_billing
+00 2,9,14,20 * * * /app/o2p/ossadmin/ormt/run.sh pm_pol
+15 9 1 * * /app/o2p/ossadmin/ormt/run.sh pm_pol main_monthly
 
 20 9 1 * * /app/o2p/ossadmin/user/reports.sh
 
