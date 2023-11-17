@@ -11,25 +11,30 @@ SELECT
     ORD.arbor_disp AS ArborSvcDisp,
     ORD.ord_action_type AS OrderActionType,
     PRD.network_product_desc AS ProductDescription,
-    (
-        SELECT
-            CONCAT(given_name, ", ", family_name)
-        FROM
-            RestInterface_contactdetails
-        WHERE
-            order_id = ORD.id
-            AND contact_type = 'Project Manager'
-        LIMIT
-            1
-    ) AS ProjectManager,
+    CON.ProjectManager,
     CUS.name AS CustomerName,
     PRJ.project_code AS ProjectID,
     ORD.service_number AS SvcNumber,
     ORD.service_action_type AS SvcActionType
 FROM
     RestInterface_order ORD
+    JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id
     LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-    LEFT JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id
+    LEFT JOIN (
+        SELECT
+            order_id,
+            GROUP_CONCAT(
+                DISTINCT TRIM(CONCAT(given_name, ", ", family_name))
+                ORDER BY
+                    given_name SEPARATOR '; '
+            ) AS ProjectManager
+        FROM
+            RestInterface_contactdetails
+        WHERE
+            contact_type = 'Project Manager'
+        GROUP BY
+            order_id
+    ) CON ON CON.order_id = ORD.id
     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
     AND NPP.level = 'Mainline'
     AND NPP.status <> 'Cancel'
@@ -38,5 +43,6 @@ WHERE
     ORD.business_sector NOT LIKE 'Enterprise Sales (Government%'
     AND ORD.taken_date BETWEEN '{start_date}'
     AND '{end_date}'
+    AND PRJ.project_code REGEXP "^([a-zA-Z]{{3}}|[a-zA-Z]{{5}})[a-zA-Z0-9]{{2}}[0-9]{{2}}[A-Z]$"
 ORDER BY
     ORD.order_code;

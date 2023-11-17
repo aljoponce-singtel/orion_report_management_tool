@@ -28,6 +28,7 @@ WHERE
     AND ORD.business_sector NOT LIKE 'Enterprise Sales (Government%'
     AND ORD.assignee = 'PM'
     AND ORD.taken_date > '2018-09-31'
+    AND PRJ.project_code REGEXP "^([a-zA-Z]{3}|[a-zA-Z]{5})[a-zA-Z0-9]{2}[0-9]{2}[A-Z]$"
 ORDER BY
     OrderNumber,
     ActivityCode;
