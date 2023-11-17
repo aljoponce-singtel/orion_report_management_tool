@@ -13,13 +13,19 @@ SELECT
     SINOTE.note_code,
     SINOTE.date_created AS crd_amendment_date,
     SINOTE.details AS crd_amendment_details,
-    REGEXP_SUBSTR(
-        SINOTE.details,
-        BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{8})'
+    DATE_FORMAT(
+        REGEXP_SUBSTR(
+            SINOTE.details,
+            BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})'
+        ),
+        '%Y-%m-%d'
     ) AS old_crd,
-    REGEXP_SUBSTR(
-        SINOTE.details,
-        BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
+    DATE_FORMAT(
+        REGEXP_SUBSTR(
+            SINOTE.details,
+            BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
+        ),
+        '%Y-%m-%d'
     ) AS new_crd,
     NOTEDLY.reason AS crd_amendment_reason,
     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
@@ -73,17 +79,34 @@ FROM
                 'Pending Cancellation',
                 'Completed'
             )
-            AND ORD2.current_crd <= DATE_ADD(NOW(), INTERVAL 3 MONTH)
+            AND ORD2.current_crd <= DATE_ADD('{report_date}', INTERVAL 3 MONTH)
     ) ORDGD ON ORDGD.id = ORD.id
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
     JOIN RestInterface_person PER ON PER.id = ACT.person_id
+    AND ACT.tag_name = 'Pegasus'
     JOIN GSP_Q_ownership GSP ON GSP.group_id = PER.role
     LEFT JOIN auto_escalation_remarks RMK ON RMK.activity_id = ACT.id
     LEFT JOIN auto_escalation_queueownerdelayreasons ACTDLY ON RMK.delay_reason_id = ACTDLY.id
-    LEFT JOIN RestInterface_ordersinote SINOTE ON SINOTE.order_id = ORD.id
-    AND SINOTE.categoty = 'CRD'
-    AND SINOTE.sub_categoty = 'CRD Change History'
-    AND SINOTE.reason_code IS NOT NULL
+    LEFT JOIN (
+        SELECT
+            SINOTEINNER.*
+        FROM
+            o2pprod.RestInterface_ordersinote SINOTEINNER
+            JOIN (
+                SELECT
+                    order_id,
+                    MAX(note_code) AS note_code
+                FROM
+                    o2pprod.RestInterface_ordersinote
+                WHERE
+                    categoty = 'CRD'
+                    AND sub_categoty = 'CRD Change History'
+                    AND reason_code IS NOT NULL
+                GROUP BY
+                    order_id
+            ) SINOTEMAX ON SINOTEMAX.order_id = SINOTEINNER.order_id
+            AND SINOTEMAX.note_code = SINOTEINNER.note_code
+    ) SINOTE ON SINOTE.order_id = ORD.id
     LEFT JOIN RestInterface_delayreason NOTEDLY ON NOTEDLY.code = SINOTE.reason_code
     LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
     LEFT JOIN RestInterface_circuit CKT ON ORD.circuit_id = CKT.id
@@ -98,6 +121,4 @@ FROM
     AND PAR.parameter_name = 'Type'
     AND PAR.parameter_value IN ('1', '2', '010', '020')
     LEFT JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
-    AND CON.contact_type = "Project Manager"
-WHERE
-    ACT.tag_name = 'Pegasus';
+    AND CON.contact_type = "Project Manager";

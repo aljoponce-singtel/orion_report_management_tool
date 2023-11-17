@@ -68,23 +68,32 @@ SELECT
     PAR.STPoNo,
     PAR.SvcNo,
     PAR.TermCarr,
+    PAR.InterCoReq,
     ORD.business_sector,
     SITE.site_code AS exchange_code_a,
     SITE.site_code_second AS exchange_code_b,
     BRN.brn,
+    CON.am_contact,
     ORD.am_id,
+    ORD.secondary_am_id,
     ORD.sde_received_date,
     ORD.arbor_disp AS arbor_service,
     ORD.service_type,
     ORD.order_priority,
     SINOTE.date_created AS crd_amendment_date,
-    REGEXP_SUBSTR(
-        SINOTE.details,
-        BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{8})'
+    DATE_FORMAT(
+        REGEXP_SUBSTR(
+            SINOTE.details,
+            BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})'
+        ),
+        '%Y-%m-%d'
     ) AS old_crd,
-    REGEXP_SUBSTR(
-        SINOTE.details,
-        BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
+    DATE_FORMAT(
+        REGEXP_SUBSTR(
+            SINOTE.details,
+            BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
+        ),
+        '%Y-%m-%d'
     ) AS new_crd,
     NOTEDLY.reason AS crd_amendment_reason,
     NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
@@ -151,6 +160,21 @@ FROM
     LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
     AND NPP.status != 'Cancel'
+    LEFT JOIN (
+        SELECT
+            order_id,
+            GROUP_CONCAT(
+                DISTINCT email_address
+                ORDER BY
+                    email_address SEPARATOR '; '
+            ) AS am_contact
+        FROM
+            RestInterface_contactdetails
+        WHERE
+            contact_type = "AM"
+        GROUP BY
+            order_id
+    ) CON ON CON.order_id = ORD.id
     LEFT JOIN (
         SELECT
             npp_id,
@@ -413,7 +437,12 @@ FROM
                 CASE
                     WHEN parameter_name = 'TermCarr' THEN parameter_value
                 END
-            ) TermCarr
+            ) TermCarr,
+            MAX(
+                CASE
+                    WHEN parameter_name = 'SpecTP' THEN parameter_value
+                END
+            ) InterCoReq
         FROM
             RestInterface_parameter
         GROUP BY
@@ -421,5 +450,5 @@ FROM
     ) PAR ON PAR.npp_id = NPP.id
 WHERE
     ORD.order_status IN ('Submitted', 'Closed')
-    AND ORD.current_crd BETWEEN '2023-03-15'
-    AND '2023-09-15';
+    AND ORD.current_crd BETWEEN '{start_date}'
+    AND '{end_date}';
