@@ -63,8 +63,8 @@ def main():
         '''
         FOR TESTING
         '''
-        # query_to_file('query_aop.sql', 'gsp_aop', 'GSP AOP Report')
-        # query_to_file('query_aop_poe.sql', 'gsp_aop', 'GSP AOP Report')
+        # query_to_csv('query_aop.sql', 'gsp_aop', 'GSP AOP Report')
+        # query_to_csv('query_aop_poe.sql', 'gsp_aop', 'GSP AOP Report')
         # test_email("EdmsOutlook@edmssingtel.onmicrosoft.com;jamesp@prem-grp.com")
         # test_email("aljo.ponce@singtel.com", "POL_PM_Managed_161123_1312.zip")
         # query_to_csv(
