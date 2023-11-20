@@ -15,7 +15,9 @@ SELECT
     CUS.name AS CustomerName,
     PRJ.project_code AS ProjectID,
     ORD.service_number AS SvcNumber,
-    ORD.service_action_type AS SvcActionType
+    ORD.service_action_type AS SvcActionType,
+    ORD.business_sector AS Sector,
+    BRN.brn AS BRN
 FROM
     RestInterface_order ORD
     JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id
@@ -39,6 +41,7 @@ FROM
     AND NPP.level = 'Mainline'
     AND NPP.status <> 'Cancel'
     LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+    LEFT JOIN RestInterface_customerbrnmapping BRN ON BRN.id = ORD.customer_brn_id
 WHERE
     ORD.business_sector NOT LIKE 'Enterprise Sales (Government%'
     AND ORD.taken_date BETWEEN '{start_date}'
