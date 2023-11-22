@@ -34,6 +34,7 @@ orion_pwd = Qsw123!du
 orion_db = o2puat
 staging_db = pegasusmulesoft
 tableau_db = o2ptableau
+test_db = o2ptest
 dbapi = mysql+pymysql
 host = localhost
 port = 54406

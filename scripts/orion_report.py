@@ -69,6 +69,10 @@ class OrionReport(EmailClient):
         if self.db_config['tableau_db']:
             self.tableau_db = self.__connect_to_db(
                 self.db_config['tableau_db'])
+        # Connect to Test DB
+        if self.db_config['test_db']:
+            self.test_db = self.__connect_to_db(
+                self.db_config['test_db'])
 
         super().__init__()
 

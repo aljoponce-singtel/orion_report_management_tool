@@ -33,6 +33,7 @@ orion_pwd = Qsw123!du
 orion_db = o2pprod
 staging_db = pegasusmulesoft
 tableau_db = o2ptableau
+test_db = o2ptest
 dbapi = mysql+pymysql
 host = 172.26.14.142
 port = 3306
