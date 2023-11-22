@@ -1,0 +1,42 @@
+Within  the same project code, verify by:
+- service order
+- billing dependency ID
+- circuit tie?
+- NPP > LC Reference #1
+
+RMS and LLC circuit #
+if no Billing Dependency ID, then go to NPP and find "LC Reference #1" from a non-mainline product
+
+Billing Dependency ID similar to dummy project code?
+
+4315
+4262
+
+
+MPLS (layer 3)
+C+ IP ()
+MegaPop
+Singnet
+STIX
+
+PTP (layer 2)
+Eline (Int)
+MetroE (Dom) 1GB
+Gigawave (Dom) > 1G
+
+Singnet > GPON (home user) 1GB and more
+
+MegaPop
+FTTH (cheaper)
+
+
+Sort (service)
+International (customer see)
+Domestic
+Hardware
+
+Sort:
+Provide
+Change
+Cease
+
