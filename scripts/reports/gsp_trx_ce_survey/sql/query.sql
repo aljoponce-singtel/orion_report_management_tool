@@ -54,10 +54,9 @@ WHERE
             AND NPPEV.level = "Mainline"
             LEFT JOIN RestInterface_product PRDEV ON PRDEV.id = NPPEV.product_id
         WHERE
-            ORDEV.close_date > DATE_SUB(NOW(), INTERVAL 8 DAY)
-            AND ORDEV.close_date < DATE(NOW())
-            AND PRDEV.network_product_code != "SGN0005"
-            AND (
+            ORDEV.close_date BETWEEN '{start_date}'
+            AND '{end_date}'
+            AND NOT (
                 ORDEV.service_number LIKE '%EV%'
                 OR LOWER(BILLEV.package_description) LIKE '%evolve%'
                 OR LOWER(BILLEV.component_description) LIKE '%evolve%'
