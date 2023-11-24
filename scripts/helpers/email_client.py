@@ -24,7 +24,19 @@ class EmailClient:
         self.email_from = None
         self.email_body_text = None
         self.email_body_html = None
+        self.receiver_to_list = []
+        self.receiver_cc_list = []
         self.attachments = []
+        self.email_attachments_to_remove = []
+
+     # Calling destructor
+    def __del__(self):
+        # Remove any temporary email attachments
+        for attachment in self.email_attachments_to_remove:
+            logger.debug(f"Removing file {os.path.basename(attachment)} ...")
+            os.remove(attachment)
+        # Clear the list
+        self.email_attachments_to_remove.clear()
 
     def add_timestamp(self, subject):
         today_datetime = datetime.now()
@@ -58,6 +70,34 @@ class EmailClient:
 
     def set_email_subject(self, subject):
         self.subject = subject
+
+    def email_list_to_str(self, email_list: list, separator: str = ";"):
+        return separator.join(email_list)
+
+    def email_str_to_list(self, email_str: str, separator: str = ";"):
+        return email_str.split(separator)
+
+    def add_email_receiver_to(self, email: str):
+        self.receiver_to_list.extend(email.split(";"))
+
+    def add_email_receiver_cc(self, email: str):
+        self.receiver_cc_list.extend(email.split(";"))
+
+    def remove_email_receiver_to(self, email: str):
+        for email_address in self.email_str_to_list(email):
+            if email_address in self.receiver_to_list:
+                self.receiver_to_list.remove(email_address)
+
+    def remove_email_receiver_cc(self, email: str):
+        for email_address in self.email_str_to_list(email):
+            if email_address in self.receiver_cc_list:
+                self.receiver_cc_list.remove(email_address)
+
+    def add_to_list_of_attachments_to_remove(self, attachment):
+        logger.debug(
+            "Temporary files will be removed after sending the email ...")
+        # Store the attachment to a list to remove at the end of this script
+        self.email_attachments_to_remove.append(attachment)
 
     def set_email_body_text(self, email_body):
         self.email_body_text = email_body
@@ -187,6 +227,9 @@ class EmailClient:
             logger.exception(e)
 
     def send(self):
+
+        logger.debug(f"To: {self.receiver_to}")
+        logger.debug(f"Cc: {self.receiver_cc}")
 
         platform = self.get_platform()
 

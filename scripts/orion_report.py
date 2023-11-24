@@ -21,11 +21,10 @@ logger = logging.getLogger()
 class OrionReport(EmailClient):
 
     config = ConfigParser()
-    receiver_to_list = []
-    receiver_cc_list = []
-    email_att_to_remove = []
 
     def __init__(self, report_name='Orion Report', config_file=None):
+
+        super().__init__()
 
         # Get the caller's frame
         caller_frame = inspect.currentframe().f_back
@@ -37,17 +36,11 @@ class OrionReport(EmailClient):
         # Config
         self.config_file = self.__set_config(config_file)
         self.config = self.__load_config()
-        self.default_config: SectionProxy
-        self.email_config: SectionProxy
-        self.email_preview_config: SectionProxy
-        self.db_config: SectionProxy
-        self.debug_config: SectionProxy
-        self.default_config = self.config['DEFAULT']
-        self.email_config = self.config[self.default_config['email_info']]
-        self.email_preview_config = self.config['Email']
-        self.db_config = self.config[self.default_config['database_env']]
-        self.debug_config = self.config['Debug']
-
+        self.default_config: SectionProxy = self.config['DEFAULT']
+        self.email_config: SectionProxy = self.config[self.default_config['email_info']]
+        self.email_preview_config: SectionProxy = self.config['Email']
+        self.db_config: SectionProxy = self.config[self.default_config['database_env']]
+        self.debug_config: SectionProxy = self.config['Debug']
         self.filename = 'orion_report'
         self.report_name = report_name
         self.report_date = None
@@ -56,9 +49,8 @@ class OrionReport(EmailClient):
         self.reports_folder_path = None
         self.sql_folder_path = os.path.join(self.project_folder_path, 'sql')
         self.log_file_path = None
-        # setup logging and reports folder
+        # Setup logging and reports folder
         self.__initialize()
-
         # Connect to Orion DB
         self.orion_db = self.__connect_to_db(self.db_config['orion_db'])
         # Connect to Staging DB
@@ -74,15 +66,8 @@ class OrionReport(EmailClient):
             self.test_db = self.__connect_to_db(
                 self.db_config['test_db'])
 
-        super().__init__()
-
     # Calling destructor
     def __del__(self):
-        # Remove the temporary email attachment
-        for attachment in self.email_att_to_remove:
-            utils.delete_file(attachment)
-        # Clear the list
-        self.email_att_to_remove.clear()
 
         logger.info("END of script - " +
                     utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
@@ -406,21 +391,6 @@ class OrionReport(EmailClient):
 
         return zip_file_path
 
-    def add_email_receiver_to(self, email):
-        self.receiver_to_list.append(email)
-
-    def add_email_receiver_cc(self, email):
-        self.receiver_cc_list.append(email)
-
-    # private method
-    def __email_list_to_str(self, email_list):
-        email_str = ''
-
-        for email in email_list:
-            email_str = email_str + ';' + email
-
-        return email_str
-
     def set_email_subject(self, subject='', add_timestamp=False):
 
         if not subject:
@@ -462,14 +432,19 @@ class OrionReport(EmailClient):
                 logger.warn(
                     f"FILE TOO LARGE TO ATTACH IN EMAIL: Max is {self.default_config.getint('email_att_max_size')} mb, and {basename(attachment)} is {filesize_mbytes:.2f} mb in size.")
 
-            # Check if the temporary file will be removed after sending the email
+            """
+            Check if the temporary file should be removed after sending the email.
+            This is mainly used for attachming files created on runtime and works together with the append_file_ext option.
+            For example, a query.sql files needs to be attached in the email.
+            Because .sql files are prohibited to be attached, it will be duplicated and renamed by appending .txt extension resulting to query.sql.txt.
+            The query.sql.txt file will be attached instead.
+            Setting rm_appended_file=True (default) will remove/cleanup the recently created query.sql.txt file before the script ends.
+            """
             if rm_appended_file:
                 # Only remove the newly created file
                 if attachment == new_attachement:
-                    logger.debug(
-                        "Temporary files will be removed after sending the email ...")
                     # Store the attachment to a list to remove at the end of this script
-                    self.email_att_to_remove.append(new_attachement)
+                    self.add_to_list_of_attachments_to_remove(new_attachement)
 
         return attachment
 
@@ -478,11 +453,16 @@ class OrionReport(EmailClient):
         if self.default_config['email_info'] != 'Email':
             self.set_email_subject('[TEST] ' + self.get_email_subject())
 
+        preview_email_to = self.email_preview_config["receiver_to"] + ";" + self.email_list_to_str(
+            self.receiver_to_list) if self.email_preview_config["receiver_to"] else self.email_list_to_str(self.receiver_to_list)
+        preview_email_cc = self.email_preview_config["receiver_cc"] + ";" + self.email_list_to_str(
+            self.receiver_cc_list) if self.email_preview_config["receiver_cc"] else self.email_list_to_str(self.receiver_cc_list)
+
         preview_html = f"""\
                         <html>
                         <p>Subject: {self.subject}</p>
-                        <p>To: {self.email_preview_config["receiver_to"] + self.__email_list_to_str(self.receiver_to_list)}</p>
-                        <p>Cc: {self.email_preview_config["receiver_cc"] + self.__email_list_to_str(self.receiver_cc_list)}</p>
+                        <p>To: {preview_email_to}</p>
+                        <p>Cc: {preview_email_cc}</p>
                         <p>Attachments: {self.get_file_attachments(include_path=False)}</p>
                         <p>&nbsp;</p>
                         </html>
@@ -524,9 +504,9 @@ class OrionReport(EmailClient):
 
             if self.default_config['email_info'] == 'Email':
                 self.receiver_to = self.email_config["receiver_to"] + \
-                    self.__email_list_to_str(self.receiver_to_list)
+                    self.email_list_to_str(self.receiver_to_list)
                 self.receiver_cc = self.email_config["receiver_cc"] + \
-                    self.__email_list_to_str(self.receiver_cc_list)
+                    self.email_list_to_str(self.receiver_cc_list)
             else:
                 self.receiver_to = self.email_config["receiver_to"]
                 self.receiver_cc = self.email_config["receiver_cc"]
