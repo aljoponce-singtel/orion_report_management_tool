@@ -1,5 +1,6 @@
 SELECT
     DISTINCT ORD.order_code AS OrderNo,
+    ORD.service_number AS ServiceNumber,
     CUS.name AS CustomerName,
     CUS_BRN.brn AS BRN,
     PRD.network_product_desc AS ProductDescription,
