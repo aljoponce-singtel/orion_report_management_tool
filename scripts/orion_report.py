@@ -43,6 +43,8 @@ class OrionReport(EmailClient, Utils):
         self.email_preview_config: SectionProxy = self.config['Email']
         self.db_config: SectionProxy = self.config[self.default_config['database_env']]
         self.debug_config: SectionProxy = self.config['Debug']
+        self.receiver_to_preview_list = []
+        self.receiver_cc_preview_list = []
         self.filename = 'orion_report'
         self.report_name = report_name
         self.report_date = None
@@ -127,6 +129,7 @@ class OrionReport(EmailClient, Utils):
 
         try:
             self.__setup_logging()
+            self.__configure_email()
 
             # START LOGGING OF SCRIPT
             logger.info("==========================================")
@@ -210,6 +213,19 @@ class OrionReport(EmailClient, Utils):
 
         self.set_reports_folder_path(abspath(self.reports_folder_path))
         super().create_folder(self.reports_folder_path)
+
+    # private method
+    def __configure_email(self):
+        self.server = self.email_config['server']
+        self.port = self.email_config['port']
+        self.sender = self.email_config['sender']
+        self.email_from = self.email_config["from"]
+        super().add_email_receiver_to(self.email_config.get("receiver_to"))
+        super().add_email_receiver_cc(self.email_config.get("receiver_cc"))
+        self.receiver_to_preview_list.extend(
+            self.email_preview_config.get("receiver_to").split(";"))
+        self.receiver_cc_preview_list.extend(
+            self.email_preview_config.get("receiver_cc").split(";"))
 
     # private method
     def __connect_to_db(self, db_name):
@@ -403,6 +419,30 @@ class OrionReport(EmailClient, Utils):
         else:
             super().set_email_subject(subject)
 
+    def add_email_receiver_to(self, email: str):
+        if self.default_config.get('email_info') == 'Email':
+            super().add_email_receiver_to(email)
+        self.receiver_to_preview_list.extend(email.split(";"))
+
+    def add_email_receiver_cc(self, email: str):
+        if self.default_config.get('email_info') == 'Email':
+            super().add_email_receiver_cc(email)
+        self.receiver_cc_preview_list.extend(email.split(";"))
+
+    def remove_email_receiver_to(self, email: str):
+        if self.default_config.get('email_info') == 'Email':
+            super().remove_email_receiver_to(email)
+        for email_address in super().email_str_to_list(email):
+            if email_address in self.receiver_to_preview_list:
+                self.receiver_to_preview_list.remove(email_address)
+
+    def remove_email_receiver_cc(self, email: str):
+        if self.default_config.get('email_info') == 'Email':
+            super().remove_email_receiver_cc(email)
+        for email_address in super().email_str_to_list(email):
+            if email_address in self.receiver_cc_preview_list:
+                self.receiver_cc_preview_list.remove(email_address)
+
     def attach_file_to_email(self, attachment, append_file_ext=None, rm_appended_file=True):
         # Attach the file if the create_report option is true
         if self.debug_config.getboolean('create_report') == True:
@@ -452,19 +492,14 @@ class OrionReport(EmailClient, Utils):
 
     def preview_email(self, filename=None, file_path=None, open_file=True):
 
-        if self.default_config['email_info'] != 'Email':
+        if self.default_config.get('email_info') != 'Email':
             self.set_email_subject('[TEST] ' + super().get_email_subject())
-
-        preview_email_to = self.email_preview_config["receiver_to"] + ";" + super().email_list_to_str(
-            self.receiver_to_list) if self.email_preview_config["receiver_to"] else super().email_list_to_str(self.receiver_to_list)
-        preview_email_cc = self.email_preview_config["receiver_cc"] + ";" + super().email_list_to_str(
-            self.receiver_cc_list) if self.email_preview_config["receiver_cc"] else super().email_list_to_str(self.receiver_cc_list)
 
         preview_html = f"""\
                         <html>
                         <p>Subject: {self.subject}</p>
-                        <p>To: {preview_email_to}</p>
-                        <p>Cc: {preview_email_cc}</p>
+                        <p>To: {super().email_list_to_str(self.receiver_to_preview_list)}</p>
+                        <p>Cc: {super().email_list_to_str(self.receiver_cc_preview_list)}</p>
                         <p>Attachments: {super().get_file_attachments(include_path=False)}</p>
                         <p>&nbsp;</p>
                         </html>
@@ -499,19 +534,8 @@ class OrionReport(EmailClient, Utils):
     def send_email(self):
 
         try:
-            self.server = self.email_config['server']
-            self.port = self.email_config['port']
-            self.sender = self.email_config['sender']
-            self.email_from = self.email_config["from"]
-
-            if self.default_config['email_info'] == 'Email':
-                self.receiver_to = self.email_config["receiver_to"] + \
-                    super().email_list_to_str(self.receiver_to_list)
-                self.receiver_cc = self.email_config["receiver_cc"] + \
-                    super().email_list_to_str(self.receiver_cc_list)
-            else:
-                self.receiver_to = self.email_config["receiver_to"]
-                self.receiver_cc = self.email_config["receiver_cc"]
+            self.receiver_to = super().email_list_to_str(self.receiver_to_list)
+            self.receiver_cc = super().email_list_to_str(self.receiver_cc_list)
 
             if self.subject == None:
                 self.subject = self.report_name
@@ -540,6 +564,13 @@ class OrionReport(EmailClient, Utils):
 
             # Preview email before sending
             self.preview_email()
+
+            logger.debug(
+                f"To (Preview): {super().email_list_to_str(self.receiver_to_preview_list)}")
+            logger.debug(
+                f"Cc (Preview): {super().email_list_to_str(self.receiver_cc_preview_list)}")
+            logger.debug(f"To: {self.receiver_to}")
+            logger.debug(f"Cc: {self.receiver_cc}")
 
             # Enable/Disable sending email
             if self.debug_config.getboolean('send_email') == True:
