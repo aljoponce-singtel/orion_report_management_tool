@@ -550,8 +550,8 @@ class OrionReport(EmailClient):
             raise Exception(e)
 
     def set_reporting_date(self):
-        if self.debug_config.getboolean('generate_manual_report'):
-            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
+        if self.debug_config.getboolean('override_report_dates'):
+            logger.warn('REPORT DATES OVERRIDEN IN CONFIG FILE')
             self.set_report_date(self.debug_config['report_date'])
 
         else:
@@ -565,8 +565,8 @@ class OrionReport(EmailClient):
                         str(self.debug_config.getboolean('update_tableau_db')))
 
     def set_prev_week_monday_sunday_date(self):
-        if self.debug_config.getboolean('generate_manual_report'):
-            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
+        if self.debug_config.getboolean('override_report_dates'):
+            logger.warn('REPORT DATES OVERRIDEN IN CONFIG FILE')
             self.set_start_date(self.debug_config['report_start_date'])
             self.set_end_date(self.debug_config['report_end_date'])
 
@@ -586,8 +586,8 @@ class OrionReport(EmailClient):
                         str(self.debug_config.getboolean('update_tableau_db')))
 
     def set_prev_month_first_last_day_date(self):
-        if self.debug_config.getboolean('generate_manual_report'):
-            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
+        if self.debug_config.getboolean('override_report_dates'):
+            logger.warn('REPORT DATES OVERRIDEN IN CONFIG FILE')
             self.set_start_date(self.debug_config['report_start_date'])
             self.set_end_date(self.debug_config['report_end_date'])
 
@@ -607,8 +607,8 @@ class OrionReport(EmailClient):
                         str(self.debug_config.getboolean('update_tableau_db')))
 
     def set_gsp_billing_month_start_end_date(self):
-        if self.debug_config.getboolean('generate_manual_report'):
-            logger.warn('REPORT DATES MANUALLY SET BY CONFIG.INI.')
+        if self.debug_config.getboolean('override_report_dates'):
+            logger.warn('REPORT DATES OVERRIDEN IN CONFIG FILE')
             self.set_start_date(self.debug_config['report_start_date'])
             self.set_end_date(self.debug_config['report_end_date'])
 
