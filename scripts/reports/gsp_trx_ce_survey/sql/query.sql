@@ -42,21 +42,18 @@ WHERE
     ORD.order_type <> 'Cease'
     AND ORD.order_status = 'Closed'
     AND ORD.close_date IS NOT NULL
-    AND ORD.close_date > DATE_SUB(NOW(), INTERVAL 8 DAY)
-    AND ORD.close_date < DATE(NOW())
+    AND ORD.close_date BETWEEN '{start_date}'
+    AND '{end_date}'
     AND ORD.id NOT IN (
         SELECT
             DISTINCT ORDEV.id
         FROM
             RestInterface_order ORDEV
-            LEFT JOIN RestInterface_billing BILLEV ON BILLEV.order_id = ORDEV.id
-            LEFT JOIN RestInterface_npp NPPEV ON NPPEV.order_id = ORDEV.id
-            AND NPPEV.level = "Mainline"
-            LEFT JOIN RestInterface_product PRDEV ON PRDEV.id = NPPEV.product_id
+            JOIN RestInterface_billing BILLEV ON BILLEV.order_id = ORDEV.id
         WHERE
             ORDEV.close_date BETWEEN '{start_date}'
             AND '{end_date}'
-            AND NOT (
+            AND (
                 ORDEV.service_number LIKE '%EV%'
                 OR LOWER(BILLEV.package_description) LIKE '%evolve%'
                 OR LOWER(BILLEV.component_description) LIKE '%evolve%'
