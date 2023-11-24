@@ -228,9 +228,6 @@ class EmailClient:
 
     def send(self):
 
-        logger.debug(f"To: {self.receiver_to}")
-        logger.debug(f"Cc: {self.receiver_cc}")
-
         platform = self.get_platform()
 
         if platform == 'Linux':
