@@ -36,13 +36,14 @@ from pathlib import Path
 
 # Import local packages
 from scripts.helpers import EmailClient
-from scripts.helpers import utils
+from scripts.helpers import Utils
 
 config = configparser.ConfigParser()
 config_file = 'run.ini'
 config.read(config_file)
 default_config = config['DEFAULT']
 email_config = config['Email']
+utils = Utils()
 
 
 def main():

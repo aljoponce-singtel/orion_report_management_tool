@@ -3,7 +3,6 @@ import logging
 import os
 
 # Import local packages
-from scripts.helpers import utils
 from scripts.reports.gsp.helpers import GspReport
 
 logger = logging.getLogger(__name__)
@@ -42,7 +41,7 @@ def generate_sdwan_report():
     report.set_first_activity_list(gsp_act_list)
     report.set_second_groupid_list(gsdt_group_list)
     report.set_second_activity_list(gsdt_act_list)
-    current_datetime = utils.get_current_datetime()
+    current_datetime = report.get_current_datetime()
     zip_filename = ("{}_{}.zip").format(report.filename, current_datetime)
 
     # CNP

@@ -7,7 +7,6 @@ import pandas as pd
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ def generate_report(report: OrionReport):
 
     # Create Excel writer object
     excel_file = ("{}_{}.xlsx").format(
-        report.filename, utils.get_current_datetime())
+        report.filename, report.get_current_datetime())
     excel_file_path = os.path.join(report.reports_folder_path, excel_file)
     excel_writer = pd.ExcelWriter(excel_file_path, engine='xlsxwriter')
 

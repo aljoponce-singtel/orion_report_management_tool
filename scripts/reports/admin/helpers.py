@@ -8,7 +8,6 @@ import pandas as pd
 
 # Import local packages
 from os.path import basename
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -98,10 +97,10 @@ def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_colum
 
 def get_superusers():
 
-    # Today's date is the last day of the month
-    if utils.get_today_date() == utils.get_last_day_of_month():
+    report = OrionReport("Orion list of superusers")
 
-        report = OrionReport("Orion list of superusers")
+    # Today's date is the last day of the month
+    if report.get_today_date() == report.get_last_day_of_month():
         query = report.get_query_from_file("query_superuser.sql")
         df = report.query_to_dataframe(query)
 
@@ -131,7 +130,7 @@ def check_disk_usage():
 
     report = OrionReport("Disk Usage")
     path_to_check = "/"  # Replace with the path to the drive you want to check
-    disk_usage_percentage = utils.check_disk_usage(path_to_check)
+    disk_usage_percentage = report.check_disk_usage(path_to_check)
     disk_usage_treshold = report.default_config.getint('disk_usage_treshold')
 
     if disk_usage_percentage >= disk_usage_treshold:

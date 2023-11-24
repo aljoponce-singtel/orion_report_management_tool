@@ -13,12 +13,12 @@ import pandas as pd
 # Import local packages
 from scripts.helpers import DbConnection
 from scripts.helpers import EmailClient
-from scripts.helpers import utils
+from scripts.helpers import Utils
 
 logger = logging.getLogger()
 
 
-class OrionReport(EmailClient):
+class OrionReport(EmailClient, Utils):
 
     config = ConfigParser()
 
@@ -70,7 +70,7 @@ class OrionReport(EmailClient):
     def __del__(self):
 
         logger.info("END of script - " +
-                    utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
+                    super().get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
 
     # private method
     def __set_config(self, config_file):
@@ -129,19 +129,19 @@ class OrionReport(EmailClient):
             # START LOGGING OF SCRIPT
             logger.info("==========================================")
             logger.info("START of script - " +
-                        utils.get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
+                        super().get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
             logger.info(f"/* {self.report_name} */")
-            logger.info("Running script in " + utils.get_platform())
+            logger.info("Running script in " + super().get_platform())
 
             # This file (orion_report.py) will be executed by `run.sh`
             # If this script was manually executed, the parent process will be `bash`
             # If this script was automatically executed or scheduled to run by a cronjob, the parent process will be `crond`
             # was_called_by_cronjob() will return true if this script was called by `crond`
-            if not utils.was_called_by_cronjob(os.getppid()):
+            if not super().was_called_by_cronjob(os.getppid()):
                 logger.warn(f'THIS SCRIPT WAS MANUALLY EXECUTED.')
 
             self.__setup_reports_folder()
-            utils.create_folder(self.reports_folder_path)
+            super().create_folder(self.reports_folder_path)
 
             logger.info(f'Log path: {str(self.log_file_path)}')
             logger.info(f'Reports folder: {str(self.reports_folder_path)}')
@@ -161,10 +161,10 @@ class OrionReport(EmailClient):
         logs_folder = None
 
         # Read the contents from the yaml file
-        parsed_yaml = utils.read_yaml_file(main_logger_config)
+        parsed_yaml = super().read_yaml_file(main_logger_config)
         # If there is a separate logging.yml file in the script folder, load this file instead.
         if os.path.exists(script_logger_config):
-            parsed_yaml = utils.read_yaml_file(script_logger_config)
+            parsed_yaml = super().read_yaml_file(script_logger_config)
             logging.config.dictConfig(parsed_yaml)
         # Load the default logging.yml file
         else:
@@ -176,7 +176,7 @@ class OrionReport(EmailClient):
                 # Save the log file in the default log folder
                 logs_folder = os.path.join('logs', script_folder_name)
                 # Create a new folder (if not exist) named after the script (project) inside the log folder to save the logs
-                utils.create_folder(logs_folder)
+                super().create_folder(logs_folder)
                 # Name the log_file based on the script (project) name
                 parsed_yaml['handlers']['timedRotatingFile']['filename'] = os.path.join(
                     logs_folder, f"{script_folder_name}.log")
@@ -189,7 +189,7 @@ class OrionReport(EmailClient):
 
         # Set the log level
         if self.config.has_option('Debug', 'log_level') == True:
-            logger.setLevel(utils.get_level_num_value(
+            logger.setLevel(super().get_level_num_value(
                 self.debug_config['log_level']))
         # Set the log file path
         self.log_file_path = abspath(
@@ -207,7 +207,7 @@ class OrionReport(EmailClient):
             self.reports_folder_path = self.default_config['reports_folder']
 
         self.set_reports_folder_path(abspath(self.reports_folder_path))
-        utils.create_folder(self.reports_folder_path)
+        super().create_folder(self.reports_folder_path)
 
     # private method
     def __connect_to_db(self, db_name):
@@ -227,22 +227,22 @@ class OrionReport(EmailClient):
     def set_filename(self, filename, add_timestamp=False):
         if add_timestamp:
             filename = ("{}_{}").format(
-                filename, utils.get_current_datetime())
+                filename, super().get_current_datetime())
         self.filename = filename
 
     def set_report_date(self, date):
         # Convert date input to a date object
-        date_obj = utils.to_date_obj(date)
+        date_obj = super().to_date_obj(date)
         self.report_date = date_obj
 
     def set_start_date(self, date):
         # Convert date input to a date object
-        date_obj = utils.to_date_obj(date)
+        date_obj = super().to_date_obj(date)
         self.start_date = date_obj
 
     def set_end_date(self, date):
         # Convert date input to a date object
-        date_obj = utils.to_date_obj(date)
+        date_obj = super().to_date_obj(date)
         self.end_date = date_obj
 
     def insert_df_to_tableau_db(self, df: pd.DataFrame):
@@ -292,7 +292,7 @@ class OrionReport(EmailClient):
 
         logger.info(f"Getting query from {basename(file_path)} ...")
 
-        query = utils.file_to_string(file_path)
+        query = super().file_to_string(file_path)
 
         return query
 
@@ -332,14 +332,14 @@ class OrionReport(EmailClient):
             if filename is None:
                 if add_timestamp:
                     filename = ("{}_{}.csv").format(
-                        self.filename, utils.get_current_datetime())
+                        self.filename, super().get_current_datetime())
                 else:
                     filename = ("{}.csv").format(self.filename)
             if file_path is None:
                 file_path = os.path.join(
                     self.reports_folder_path, filename)
 
-            utils.df_to_csv(df, file_path, index=index)
+            super().df_to_csv(df, file_path, index=index)
             logger.debug("CSV file path: " +
                          os.path.dirname(file_path) + " ...")
 
@@ -350,7 +350,7 @@ class OrionReport(EmailClient):
             if filename is None:
                 if add_timestamp:
                     filename = ("{}_{}.xlsx").format(
-                        self.filename, utils.get_current_datetime())
+                        self.filename, super().get_current_datetime())
                 else:
                     filename = ("{}.xlsx").format(self.filename)
             if file_path is None:
@@ -372,7 +372,7 @@ class OrionReport(EmailClient):
             if zip_filename is None:
                 if add_timestamp:
                     zip_filename = ("{}_{}.zip").format(
-                        self.filename, utils.get_current_datetime())
+                        self.filename, super().get_current_datetime())
                 else:
                     zip_filename = ("{}.zip").format(self.filename)
             if zip_file_path is None:
@@ -384,7 +384,7 @@ class OrionReport(EmailClient):
                 remove_file = self.debug_config.getboolean(
                     'remove_file_after_zip')
 
-            utils.compress_files(
+            super().compress_files(
                 files_to_zip, zip_file_path, password, remove_file)
             logger.debug("ZIP file path: " +
                          os.path.dirname(zip_file_path) + " ...")
@@ -409,10 +409,10 @@ class OrionReport(EmailClient):
             # Check if a new extension type is to be concatenated on the filename
             if append_file_ext:
                 # Append the new extension type to the filename
-                new_attachement = utils.add_ext_type(
+                new_attachement = super().add_ext_type(
                     attachment, new_extension=append_file_ext)
                 # Duplicate the file with the new extension type
-                utils.copy_file(attachment, new_attachement)
+                super().copy_file(attachment, new_attachement)
                 # The file to attach will be the new attachement file
                 attachment = new_attachement
 
@@ -444,26 +444,26 @@ class OrionReport(EmailClient):
                 # Only remove the newly created file
                 if attachment == new_attachement:
                     # Store the attachment to a list to remove at the end of this script
-                    self.add_to_list_of_attachments_to_remove(new_attachement)
+                    super().add_to_list_of_attachments_to_remove(new_attachement)
 
         return attachment
 
     def preview_email(self, filename=None, file_path=None, open_file=True):
 
         if self.default_config['email_info'] != 'Email':
-            self.set_email_subject('[TEST] ' + self.get_email_subject())
+            self.set_email_subject('[TEST] ' + super().get_email_subject())
 
-        preview_email_to = self.email_preview_config["receiver_to"] + ";" + self.email_list_to_str(
-            self.receiver_to_list) if self.email_preview_config["receiver_to"] else self.email_list_to_str(self.receiver_to_list)
-        preview_email_cc = self.email_preview_config["receiver_cc"] + ";" + self.email_list_to_str(
-            self.receiver_cc_list) if self.email_preview_config["receiver_cc"] else self.email_list_to_str(self.receiver_cc_list)
+        preview_email_to = self.email_preview_config["receiver_to"] + ";" + super().email_list_to_str(
+            self.receiver_to_list) if self.email_preview_config["receiver_to"] else super().email_list_to_str(self.receiver_to_list)
+        preview_email_cc = self.email_preview_config["receiver_cc"] + ";" + super().email_list_to_str(
+            self.receiver_cc_list) if self.email_preview_config["receiver_cc"] else super().email_list_to_str(self.receiver_cc_list)
 
         preview_html = f"""\
                         <html>
                         <p>Subject: {self.subject}</p>
                         <p>To: {preview_email_to}</p>
                         <p>Cc: {preview_email_cc}</p>
-                        <p>Attachments: {self.get_file_attachments(include_path=False)}</p>
+                        <p>Attachments: {super().get_file_attachments(include_path=False)}</p>
                         <p>&nbsp;</p>
                         </html>
                         """
@@ -471,7 +471,7 @@ class OrionReport(EmailClient):
         html_file_path = None
 
         if self.default_config['email_info'] != 'Email':
-            self.set_email_body_html(preview_html)
+            super().set_email_body_html(preview_html)
 
         if self.debug_config.getboolean('preview_email') == True:
             if filename is None:
@@ -483,13 +483,13 @@ class OrionReport(EmailClient):
             else:
                 html_file_path = os.path.join(file_path, filename)
 
-            self.export_to_html_file(preview_html, html_file_path)
+            super().export_to_html_file(preview_html, html_file_path)
 
             if open_file:
-                if utils.get_platform() == 'Windows':
+                if super().get_platform() == 'Windows':
                     logger.info("Previewing email ...")
                 # Preview HTML using the Edge browser as it is the only allowed browser from Singtel.
-                utils.open_file_using_default_program(
+                super().open_file_using_default_program(
                     html_file_path, app_name='Edge')
 
         return html_file_path
@@ -504,9 +504,9 @@ class OrionReport(EmailClient):
 
             if self.default_config['email_info'] == 'Email':
                 self.receiver_to = self.email_config["receiver_to"] + \
-                    self.email_list_to_str(self.receiver_to_list)
+                    super().email_list_to_str(self.receiver_to_list)
                 self.receiver_cc = self.email_config["receiver_cc"] + \
-                    self.email_list_to_str(self.receiver_cc_list)
+                    super().email_list_to_str(self.receiver_cc_list)
             else:
                 self.receiver_to = self.email_config["receiver_to"]
                 self.receiver_cc = self.email_config["receiver_cc"]
@@ -572,7 +572,7 @@ class OrionReport(EmailClient):
 
         else:
             # Monday date of the week
-            start_date, end_date = utils.get_prev_week_monday_sunday_date(
+            start_date, end_date = super().get_prev_week_monday_sunday_date(
                 datetime.now().date())
             self.set_start_date(start_date)
             self.set_end_date(end_date)
@@ -593,7 +593,7 @@ class OrionReport(EmailClient):
 
         else:
             # 1st day of the month
-            start_date, end_date = utils.get_prev_month_first_last_day_date(
+            start_date, end_date = super().get_prev_month_first_last_day_date(
                 datetime.now().date())
             self.set_start_date(start_date)
             self.set_end_date(end_date)
@@ -639,7 +639,7 @@ class OrionReport(EmailClient):
         # 2022-12-25 = Last day of billing month
 
         # Convert date input to a date object
-        date_obj = utils.to_date_obj(date)
+        date_obj = super().to_date_obj(date)
         year = date_obj.year
         month = date_obj.month
         day = date_obj.day
@@ -647,10 +647,10 @@ class OrionReport(EmailClient):
         end_date = None
 
         if day > 25:
-            start_date = utils.subtract_months(date_obj, 1).replace(day=26)
+            start_date = super().subtract_months(date_obj, 1).replace(day=26)
             end_date = date_obj.replace(day=25)
         else:
-            start_date = utils.subtract_months(date_obj, 2).replace(day=26)
-            end_date = utils.subtract_months(date_obj, 1).replace(day=25)
+            start_date = super().subtract_months(date_obj, 2).replace(day=26)
+            end_date = super().subtract_months(date_obj, 1).replace(day=25)
 
         return start_date, end_date

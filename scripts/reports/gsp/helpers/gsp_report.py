@@ -8,7 +8,6 @@ import pandas as pd
 
 # Import local packages
 import constants as const
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger()
@@ -18,13 +17,13 @@ class GspReport(OrionReport):
 
     def __init__(self, report_name=None, config_file=None):
 
+        super().__init__(report_name, config_file)
+
         self.gsp_report_name = 'GSP'
         self.first_groupid_list = []
         self.second_groupid_list = []
         self.first_activity_list = []
         self.second_activity_list = []
-
-        super().__init__(report_name, config_file)
 
     def set_gsp_report_name(self, name: str):
         self.gsp_report_name = name
@@ -44,7 +43,7 @@ class GspReport(OrionReport):
     # Legacy/deprecated function
     def get_current_datetime(self):
         # sample format - '050622_1845'
-        return datetime.now().strftime("%d%m%y_%H%M")
+        return super().get_current_datetime(format="%d%m%y_%H%M")
 
     # Legacy/deprecated function
     def add_timestamp(self, subject):
@@ -112,26 +111,26 @@ class GspReport(OrionReport):
                                     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
                                     JOIN RestInterface_person PER ON PER.id = ACT.person_id
                                 WHERE
-                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    PER.role IN ({super().list_to_string(primary_groupid)})
                                     AND ACT.completed_date BETWEEN '{self.start_date}'
                                     AND '{self.end_date}'
                                     AND ACT.name IN (
-                                        {utils.list_to_string(primary_activities)}
+                                        {super().list_to_string(primary_activities)}
                                     )
                             )
                             AND (
                                 (
-                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    PER.role IN ({super().list_to_string(primary_groupid)})
                                     AND ACT.completed_date BETWEEN '{self.start_date}'
                                     AND '{self.end_date}'
                                     AND ACT.name IN (
-                                        {utils.list_to_string(primary_activities)}
+                                        {super().list_to_string(primary_activities)}
                                     )
                                 )
                                 OR (
-                                    PER.role IN ({utils.list_to_string(secondary_groupid)})
+                                    PER.role IN ({super().list_to_string(secondary_groupid)})
                                     AND ACT.name IN (
-                                        {utils.list_to_string(secondary_activities)}
+                                        {super().list_to_string(secondary_activities)}
                                     )
                                 )
                             )
@@ -176,24 +175,24 @@ class GspReport(OrionReport):
                                     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
                                     JOIN RestInterface_person PER ON PER.id = ACT.person_id
                                 WHERE
-                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    PER.role IN ({super().list_to_string(primary_groupid)})
                                     AND ACT.completed_date BETWEEN '{self.start_date}'
                                     AND '{self.end_date}'
                             )
                             AND (
                                 (
-                                    PER.role IN ({utils.list_to_string(primary_groupid)})
+                                    PER.role IN ({super().list_to_string(primary_groupid)})
                                     AND ACT.completed_date BETWEEN '{self.start_date}'
                                     AND '{self.end_date}'
                                 )
-                                OR PER.role IN ({utils.list_to_string(secondary_groupid)})
+                                OR PER.role IN ({super().list_to_string(secondary_groupid)})
                             )
                         ORDER BY
                             ORD.order_code,
                             act_step_no;
                     """
 
-        df_raw = self.query_to_dataframe(
+        df_raw = super().query_to_dataframe(
             query, query_description=f"{self.gsp_report_name} records", column_names=const.RAW_COLUMNS)
 
         # New dataframe for the final report
@@ -330,10 +329,10 @@ class GspReport(OrionReport):
                             AND NPP.status != 'Cancel'
                             LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
                         WHERE 
-                            PER.role IN ({utils.list_to_string(self.first_groupid_list)})
+                            PER.role IN ({super().list_to_string(self.first_groupid_list)})
                             AND ACT.completed_date BETWEEN '{self.start_date}' 
                             AND '{self.end_date}'
-                            AND ACT.name IN ({utils.list_to_string(self.first_activity_list)})
+                            AND ACT.name IN ({super().list_to_string(self.first_activity_list)})
                         ORDER BY
                             ORD.order_code,
                             act_step_no;
@@ -367,7 +366,7 @@ class GspReport(OrionReport):
                             AND NPP.status != 'Cancel'
                             LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
                         WHERE 
-                            PER.role IN ({utils.list_to_string(self.first_groupid_list)})
+                            PER.role IN ({super().list_to_string(self.first_groupid_list)})
                             AND ACT.completed_date BETWEEN '{self.start_date}' 
                             AND '{self.end_date}'
                         ORDER BY
@@ -375,7 +374,7 @@ class GspReport(OrionReport):
                             act_step_no;
                     """
 
-        df_raw = self.query_to_dataframe(
+        df_raw = super().query_to_dataframe(
             query, query_description=f"{self.gsp_report_name} records", column_names=const.RAW_COLUMNS)
 
         # New dataframe for the final report
@@ -457,7 +456,7 @@ class GspReport(OrionReport):
         # Check if list is not empty
         if len(activity_list) > 0:
             # Get the top records based on priority and sequence
-            df_top_group = utils.sort_df_by_priority_sequence(
+            df_top_group = super().sort_df_by_priority_sequence(
                 df_group, column_name, activity_list)
         else:
             df_top_group = df_group

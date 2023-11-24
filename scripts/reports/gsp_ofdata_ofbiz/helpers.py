@@ -3,7 +3,6 @@ from datetime import datetime
 import logging
 
 # Import local packages
-from scripts.helpers import utils
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -127,8 +126,8 @@ def generate_report():
         # Remove the 'Assignee' column
         df_bizseg = df_bizseg.drop('Assignee', axis=1)
         excel_bizseg_file = report.create_excel_from_df(
-            df_bizseg, filename=("BSOFB_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
-        zip_bizseg_file = report.add_to_zip_file(excel_bizseg_file, zip_file_path=utils.replace_ext_type(
+            df_bizseg, filename=("BSOFB_{}_TEST.xlsx").format(report.get_current_datetime(format="%d%m%y")))
+        zip_bizseg_file = report.add_to_zip_file(excel_bizseg_file, zip_file_path=report.replace_ext_type(
             excel_bizseg_file, 'zip'), password=("BSOFB{}").format(get_date_password()))
         report.attach_file_to_email(zip_bizseg_file)
         # /* END - BizSeg */
@@ -142,8 +141,8 @@ def generate_report():
 
         # With 'Assignee' column
         excel_eag_gb_assignee_file = report.create_excel_from_df(
-            df_eag_gb_assignee, filename=("GLEOFD_{}_PM_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
-        zip_eag_gb_assignee_file = report.add_to_zip_file(excel_eag_gb_assignee_file, zip_file_path=utils.replace_ext_type(
+            df_eag_gb_assignee, filename=("GLEOFD_{}_PM_TEST.xlsx").format(report.get_current_datetime(format="%d%m%y")))
+        zip_eag_gb_assignee_file = report.add_to_zip_file(excel_eag_gb_assignee_file, zip_file_path=report.replace_ext_type(
             excel_eag_gb_assignee_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
         report.attach_file_to_email(zip_eag_gb_assignee_file)
 
@@ -151,8 +150,8 @@ def generate_report():
         # Remove the 'Assignee' column
         df_eag_gb = df_eag_gb_assignee.drop('Assignee', axis=1)
         excel_eag_gb_file = report.create_excel_from_df(
-            df_eag_gb, filename=("GLEOFD_{}_TEST.xlsx").format(utils.get_current_datetime(format="%d%m%y")))
-        zip_eag_gb_file = report.add_to_zip_file(excel_eag_gb_file, zip_file_path=utils.replace_ext_type(
+            df_eag_gb, filename=("GLEOFD_{}_TEST.xlsx").format(report.get_current_datetime(format="%d%m%y")))
+        zip_eag_gb_file = report.add_to_zip_file(excel_eag_gb_file, zip_file_path=report.replace_ext_type(
             excel_eag_gb_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
         report.attach_file_to_email(zip_eag_gb_file)
         # /* END - EAG_GB */
