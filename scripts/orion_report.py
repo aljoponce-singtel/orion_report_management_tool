@@ -24,7 +24,9 @@ class OrionReport(EmailClient, Utils):
 
     def __init__(self, report_name='Orion Report', config_file=None):
 
-        super().__init__()
+        # Call constructors of base classes
+        EmailClient.__init__(self)
+        Utils.__init__(self)
 
         # Get the caller's frame
         caller_frame = inspect.currentframe().f_back

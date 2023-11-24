@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 
 class Utils:
 
+    def __init__(self):
+        pass
+
     # log level mapping
     def get_log_level(self):
 
