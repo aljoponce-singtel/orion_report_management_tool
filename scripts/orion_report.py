@@ -38,11 +38,12 @@ class OrionReport(EmailClient, Utils):
         # Config
         self.config_file = self.__set_config(config_file)
         self.config = self.__load_config()
-        self.default_config: SectionProxy = self.config['DEFAULT']
-        self.email_config: SectionProxy = self.config[self.default_config['email_info']]
-        self.email_preview_config: SectionProxy = self.config['Email']
-        self.db_config: SectionProxy = self.config[self.default_config['database_env']]
         self.debug_config: SectionProxy = self.config['Debug']
+        self.default_config: SectionProxy = self.config['DEFAULT']
+        self.email_config: SectionProxy = self.config['Email_Test'] if self.debug_config.getboolean(
+            "use_test_email") else self.config['Email']
+        self.email_preview_config: SectionProxy = self.config['Email']
+        self.db_config: SectionProxy = self.config['Database']
         self.receiver_to_preview_list = []
         self.receiver_cc_preview_list = []
         self.filename = 'orion_report'
@@ -420,24 +421,24 @@ class OrionReport(EmailClient, Utils):
             super().set_email_subject(subject)
 
     def add_email_receiver_to(self, email: str):
-        if self.default_config.get('email_info') == 'Email':
+        if self.debug_config.getboolean("use_test_email") == False:
             super().add_email_receiver_to(email)
         self.receiver_to_preview_list.extend(email.split(";"))
 
     def add_email_receiver_cc(self, email: str):
-        if self.default_config.get('email_info') == 'Email':
+        if self.debug_config.getboolean("use_test_email") == False:
             super().add_email_receiver_cc(email)
         self.receiver_cc_preview_list.extend(email.split(";"))
 
     def remove_email_receiver_to(self, email: str):
-        if self.default_config.get('email_info') == 'Email':
+        if self.debug_config.getboolean("use_test_email") == False:
             super().remove_email_receiver_to(email)
         for email_address in super().email_str_to_list(email):
             if email_address in self.receiver_to_preview_list:
                 self.receiver_to_preview_list.remove(email_address)
 
     def remove_email_receiver_cc(self, email: str):
-        if self.default_config.get('email_info') == 'Email':
+        if self.debug_config.getboolean("use_test_email") == False:
             super().remove_email_receiver_cc(email)
         for email_address in super().email_str_to_list(email):
             if email_address in self.receiver_cc_preview_list:
@@ -492,7 +493,7 @@ class OrionReport(EmailClient, Utils):
 
     def preview_email(self, filename=None, file_path=None, open_file=True):
 
-        if self.default_config.get('email_info') != 'Email':
+        if self.debug_config.getboolean("use_test_email") == True:
             self.set_email_subject('[TEST] ' + super().get_email_subject())
 
         preview_html = f"""\
@@ -507,7 +508,7 @@ class OrionReport(EmailClient, Utils):
         preview_html = preview_html + "\n" + self.email_body_html
         html_file_path = None
 
-        if self.default_config['email_info'] != 'Email':
+        if self.debug_config.getboolean("use_test_email") == True:
             super().set_email_body_html(preview_html)
 
         if self.debug_config.getboolean('preview_email') == True:
@@ -574,7 +575,7 @@ class OrionReport(EmailClient, Utils):
 
             # Enable/Disable sending email
             if self.debug_config.getboolean('send_email') == True:
-                if self.default_config['email_info'] != 'Email':
+                if self.debug_config.getboolean("use_test_email") == True:
                     logger.warn("THIS IS A TEST EMAIL")
                 super().send()
 
