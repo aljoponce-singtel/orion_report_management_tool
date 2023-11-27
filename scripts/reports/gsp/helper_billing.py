@@ -64,6 +64,7 @@ def generate_sdwan_report():
 
     # Send email
     report.attach_file_to_email(zip_file)
+    report.remove_email_receiver_to('hassim@singtel.com')
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')
     report.add_email_receiver_to('francis.tan1@singtel.com')
     report.add_email_receiver_to('cheongwey.tin@singtel.com')
