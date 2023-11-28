@@ -140,11 +140,11 @@ class OrionReport(EmailClient, Utils):
             logger.info("Running script in " + super().get_platform())
 
             # This file (orion_report.py) will be executed by `run.sh`
-            # If this script was manually executed, the parent process will be `bash`
+            # If this script was executed manually, the parent process will be `bash`
             # If this script was automatically executed or scheduled to run by a cronjob, the parent process will be `crond`
             # was_called_by_cronjob() will return true if this script was called by `crond`
             if not super().was_called_by_cronjob(os.getppid()):
-                logger.warn(f'THIS SCRIPT WAS MANUALLY EXECUTED.')
+                logger.warn(f'THIS SCRIPT WAS EXECUTED MANUALLY.')
 
             self.__setup_reports_folder()
             super().create_folder(self.reports_folder_path)
