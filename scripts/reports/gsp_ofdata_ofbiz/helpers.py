@@ -19,22 +19,33 @@ def generate_report():
     df = report.query_to_dataframe(formatted_query)
 
     if not df.empty:
-        # Export the DataFrame to an Excel file
-        # Keep the first row for duplicate records with the same 'OrderNo'
-        df = df.drop_duplicates(subset=['OrderNo'], keep='first')
+        # Option to generate raw file
+        if report.debug_config.getboolean('include_raw_report'):
+            excel_raw_file = generate_report_raw(report)
+            report.attach_file_to_email(excel_raw_file)
 
-        # /* START - BizSeg */
-        df_bizseg = df[df['Sector'].str.contains('BizSeg')]
-        df_bizseg = df_bizseg[df_bizseg['ServiceType'].isin(
-            ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'ISDN'])]
-        # Remove the 'Assignee' column
-        df_bizseg = df_bizseg.drop('Assignee', axis=1)
-        excel_bizseg_file = report.create_excel_from_df(
-            df_bizseg, filename=("BSOFB_{}_TEST.xlsx").format(report.get_current_datetime(format="%d%m%y")))
-        zip_bizseg_file = report.add_to_zip_file(excel_bizseg_file, zip_file_path=report.replace_ext_type(
-            excel_bizseg_file, 'zip'), password=("BSOFB{}").format(get_date_password()))
-        report.attach_file_to_email(zip_bizseg_file)
-        # /* END - BizSeg */
+        '''
+        Disable the BizSeg report for now until further notice.
+        '''
+        disable_bizseg_report = True
+
+        if disable_bizseg_report == False:
+            # Export the DataFrame to an Excel file
+            # Keep the first row for duplicate records with the same 'OrderNo'
+            df = df.drop_duplicates(subset=['OrderNo'], keep='first')
+
+            # /* START - BizSeg */
+            df_bizseg = df[df['Sector'].str.contains('BizSeg')]
+            df_bizseg = df_bizseg[df_bizseg['ServiceType'].isin(
+                ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'ISDN'])]
+            # Remove the Assignee column
+            df_bizseg = df_bizseg.drop('Assignee', axis=1)
+            excel_bizseg_file = report.create_excel_from_df(
+                df_bizseg, filename=("BSOFB_{}_TEST.xlsx").format(report.get_current_datetime(format="%d%m%y")))
+            zip_bizseg_file = report.add_to_zip_file(excel_bizseg_file, zip_file_path=report.replace_ext_type(
+                excel_bizseg_file, 'zip'), password=create_dynamic_password("BSOFB"))
+            report.attach_file_to_email(zip_bizseg_file)
+            # /* END - BizSeg */
 
         # /* START - EAG_GB */
         df_eag_gb_assignee = df[df['Sector'].str.contains(
@@ -47,23 +58,18 @@ def generate_report():
         excel_eag_gb_assignee_file = report.create_excel_from_df(
             df_eag_gb_assignee, filename=("GLEOFD_{}_PM_TEST.xlsx").format(report.get_current_datetime(format="%d%m%y")))
         zip_eag_gb_assignee_file = report.add_to_zip_file(excel_eag_gb_assignee_file, zip_file_path=report.replace_ext_type(
-            excel_eag_gb_assignee_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
+            excel_eag_gb_assignee_file, 'zip'), password=create_dynamic_password("GLEOFD"))
         report.attach_file_to_email(zip_eag_gb_assignee_file)
 
         # Without 'Assignee' column
-        # Remove the 'Assignee' column
+        # Remove the Assignee column
         df_eag_gb = df_eag_gb_assignee.drop('Assignee', axis=1)
         excel_eag_gb_file = report.create_excel_from_df(
             df_eag_gb, filename=("GLEOFD_{}_TEST.xlsx").format(report.get_current_datetime(format="%d%m%y")))
         zip_eag_gb_file = report.add_to_zip_file(excel_eag_gb_file, zip_file_path=report.replace_ext_type(
-            excel_eag_gb_file, 'zip'), password=("GLEOFD{}").format(get_date_password()))
+            excel_eag_gb_file, 'zip'), password=create_dynamic_password("GLEOFD"))
         report.attach_file_to_email(zip_eag_gb_file)
         # /* END - EAG_GB */
-
-        # Option to generate raw file
-        if report.debug_config.getboolean('include_raw_report'):
-            excel_raw_file = generate_report_raw(report)
-            report.attach_file_to_email(excel_raw_file)
 
     # Send Email
     report.send_email()
@@ -74,7 +80,7 @@ def generate_report():
 def generate_report_raw(report: OrionReport):
 
     logger.info("Including raw report ...")
-    query = report.get_query_from_file("query.sql")
+    query = report.get_query_from_file("query_raw.sql")
     formatted_query = query.format(
         start_date=report.start_date, end_date=report.end_date)
     excel_file = report.query_to_excel(
@@ -83,6 +89,12 @@ def generate_report_raw(report: OrionReport):
     return excel_file
 
 
+# Sample password: GLEOFD112@23
+def create_dynamic_password(prefix: str):
+    return f"{prefix}{get_date_password()}"
+
+
+# Sample output: 112@23
 def get_date_password():
     # Get the current date
     current_date = datetime.now()
