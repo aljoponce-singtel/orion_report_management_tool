@@ -50,14 +50,14 @@ FROM
     )
     AND (
         (
-            CON.work_phone_no REGEXP '^[0-9]{8}$'
-            OR CON.work_phone_no REGEXP '^65[0-9]{8}$'
-            OR CON.work_phone_no REGEXP '^\\+65[0-9]{8}$'
+            CON.work_phone_no REGEXP '^[0-9]{{8}}$'
+            OR CON.work_phone_no REGEXP '^65[0-9]{{8}}$'
+            OR CON.work_phone_no REGEXP '^\\\\+65[0-9]{{8}}$'
         )
         OR (
-            CON.mobile_no REGEXP '^[0-9]{8}$'
-            OR CON.mobile_no REGEXP '^65[0-9]{8}$'
-            OR CON.mobile_no REGEXP '^\\+65[0-9]{8}$'
+            CON.mobile_no REGEXP '^[0-9]{{8}}$'
+            OR CON.mobile_no REGEXP '^65[0-9]{{8}}$'
+            OR CON.mobile_no REGEXP '^\\\\+65[0-9]{{8}}$'
         )
     )
     LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
@@ -90,7 +90,7 @@ WHERE
     AND ORD.order_status = 'Closed'
     AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
     AND ORD.current_crd < ORD.close_date
-    AND ORD.close_date BETWEEN '2023-07-31'
-    AND '2023-08-06'
+    AND ORD.close_date BETWEEN '{start_date}'
+    AND '{end_date}'
 ORDER BY
     ORD.order_code;

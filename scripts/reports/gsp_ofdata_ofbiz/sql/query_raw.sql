@@ -60,8 +60,8 @@ WHERE
     AND ORD.order_status = 'Closed'
     AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
     AND ORD.current_crd < ORD.close_date
-    AND ORD.close_date BETWEEN '2023-07-31'
-    AND '2023-08-06'
+    AND ORD.close_date BETWEEN '{start_date}'
+    AND '{end_date}'
 ORDER BY
     ORD.order_code,
     CON.contact_type;
