@@ -1,6 +1,7 @@
 SELECT
     DISTINCT PRJ.project_code,
     ORD.service_order_number,
+    PRJTRK.circuit_tie,
     (
         CASE
             WHEN ORD.service_number REGEXP "^M[0-9]{7}$"
@@ -11,8 +12,8 @@ SELECT
             OR ORD.service_number REGEXP "^GWM[0-9]{7}$" THEN "Gigawave"
             WHEN PRD.network_product_code REGEXP "^CPE[0-9]{4}$" THEN "MS-CPE"
             WHEN ORD.service_number REGEXP "^RMS00000[0-9]{5}$" THEN "MS - RMS"
-            WHEN ORD.service_number REGEXP "^001[0-9]{5}SNG$" THEN "Cplus IPVPN ( in SG) (GSP)"
-            WHEN ORD.service_number REGEXP "^001[0-9]{5}(?!SNG)[A-Z]{3}$"
+            WHEN ORD.service_number REGEXP "^[0-9]{8}SNG$" THEN "Cplus IPVPN ( in SG) (GSP)"
+            WHEN ORD.service_number REGEXP "^[0-9]{8}(?!SNG)[A-Z]{3}$"
             OR ORD.service_number REGEXP "^[A-Z]{3}[0-9]{10}LLC$" THEN "Cplus IPVPN (Overseas) (GSP)"
         END
     ) AS product_name,
@@ -23,8 +24,8 @@ SELECT
             WHEN ORD.service_number REGEXP "^GWM[0-9]{7}$" THEN "Gigawave Monitoring"
             WHEN PRD.network_product_code REGEXP "^CPE[0-9]{4}$" THEN "CPE"
             WHEN ORD.service_number REGEXP "^RMS00000[0-9]{5}$" THEN "RMS"
-            WHEN ORD.service_number REGEXP "^001[0-9]{5}SNG$" THEN "Cplus PE Port"
-            WHEN ORD.service_number REGEXP "^001[0-9]{5}(?!SNG)[A-Z]{3}$" THEN "Cplus PE Port"
+            WHEN ORD.service_number REGEXP "^[0-9]{8}SNG$" THEN "Cplus PE Port"
+            WHEN ORD.service_number REGEXP "^[0-9]{8}(?!SNG)[A-Z]{3}$" THEN "Cplus PE Port"
             WHEN ORD.service_number REGEXP "^[A-Z]{3}[0-9]{10}LLC$" THEN "OLLC (resale data service)"
         END
     ) AS exp_type_of_work
@@ -41,5 +42,6 @@ WHERE
 ORDER BY
     PRJ.project_code,
     ORD.service_order_number,
+    PRJTRK.circuit_tie,
     product_name,
     exp_type_of_work;
