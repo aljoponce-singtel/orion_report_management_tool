@@ -27,9 +27,10 @@ SELECT
         END
     ) AS 'IsEvolve'
 FROM
-    (
+    RestInterface_order ORD
+    JOIN (
         SELECT
-            *
+            DISTINCT id
         FROM
             RestInterface_order
         WHERE
@@ -48,7 +49,7 @@ FROM
                     )
                     AND email_address REGEXP '.*@singtel.com$'
             )
-    ) ORD
+    ) ORDSINGTEL ON ORDSINGTEL.id = ORD.id
     LEFT JOIN (
         SELECT
             DISTINCT ORDEV.id

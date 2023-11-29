@@ -50,9 +50,9 @@ def generate_report():
         # /* START - EAG_GB */
         df_eag_gb_assignee = df[df['Sector'].str.contains(
             '|'.join(['SGO', 'Ent and Govt', 'Global Business']))]
-        df_eag_gb_assignee = df_eag_gb_assignee[df_eag_gb_assignee['ServiceType'].isin(
-            ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'DigiNet', 'ISDN',
-                'CN - ConnectPlus IP VPN', 'ConnectPlus E-Line', 'ILC', 'Software Defined Networking'])]
+        # df_eag_gb_assignee = df_eag_gb_assignee[df_eag_gb_assignee['ServiceType'].isin(
+        #     ['CN - Meg@pop Suite Of IP Services', 'SingNet', 'DigiNet', 'ISDN',
+        #         'CN - ConnectPlus IP VPN', 'ConnectPlus E-Line', 'ILC', 'Software Defined Networking'])]
 
         # With 'Assignee' column
         excel_eag_gb_assignee_file = report.create_excel_from_df(

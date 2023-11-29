@@ -56,7 +56,7 @@ FROM
         GROUP BY
             ORDEV.id
     ) ORDEVOLVE ON ORDEVOLVE.id = ORD.id
-    LEFT JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
+    JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
     AND CON.contact_type IN (
         'A-end-Cust',
         'B-end-Cust',
