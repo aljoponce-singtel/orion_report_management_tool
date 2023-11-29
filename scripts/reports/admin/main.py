@@ -30,31 +30,43 @@ def main():
         '''
         columns: list = [
             'order_code',
+            'work_order_status',
+            'order_status',
+            'ord_creation_date',
             'job_effective_date',
             'completed_date',
-            'close_date',
+            'closed_date',
             'group_id',
-            'activity_code',
+            'activity_no',
             'activity_name',
             'activity_status',
             'due_date',
+            'assigned_date',
             'exe_date',
             'dly_date',
+            'com_date',
+            'act_completed_date',
+            'act_status_change_date',
             'last_updated_id',
-            'act_status_change_date'
+            'last_updated_date'
         ]
         datetime_colums: list = [
+            'ord_creation_date',
             'job_effective_date',
             'completed_date',
-            'close_date',
+            'closed_date',
             'due_date',
+            'assigned_date',
             'exe_date',
             'dly_date',
-            'act_status_change_date'
+            'com_date',
+            'act_completed_date',
+            'act_status_change_date',
+            'last_updated_date'
         ]
         # datetime_colums: list = None
-        # load_csv_to_table(r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231114_esom_order_status\esom_order_status_v4.csv',
-        #                   'tmp_esom_order_status_20231114', columns=columns, date_columns=datetime_colums)
+        load_csv_to_table(r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231127_esom_order_status\esom_order_status.csv',
+                          'esom_order_status_20231127', columns=columns, date_columns=datetime_colums)
         # query_to_file(
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231107_esom_order_status\query_4.sql', "esom_order_status", "ESOM Order Status")
         # query_to_csv(

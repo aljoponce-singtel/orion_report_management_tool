@@ -58,8 +58,6 @@ def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_colum
     csv_file_path = os.path.join(
         os.path.dirname(__file__), 'resource', csv_file)
 
-    logger.warning(csv_file_path)
-
     df = pd.read_csv(csv_file_path,
                      #  encoding='utf-8',
                      #  header='infer',
@@ -81,7 +79,9 @@ def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_colum
 
     try:
 
-        report.orion_db.insert_df_to_table(
+        # report.orion_db.insert_df_to_table(
+        #     df, table_name, chunk_size=chunk_size)
+        report.test_db.insert_df_to_table(
             df, table_name, chunk_size=chunk_size)
 
     except Exception as e:
