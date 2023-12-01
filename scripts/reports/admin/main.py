@@ -64,13 +64,29 @@ def main():
             'act_status_change_date',
             'last_updated_date'
         ]
+        date_colums: list = [
+            'ord_creation_date',
+            'job_effective_date',
+            'completed_date',
+            'closed_date',
+            'due_date',
+            'assigned_date',
+            'exe_date',
+            'dly_date',
+            'com_date',
+            'act_completed_date',
+            'act_status_change_date',
+            'last_updated_date'
+        ]
         # datetime_colums: list = None
-        load_csv_to_table(r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231127_esom_order_status\esom_order_status.csv',
-                          'esom_order_status_20231127', columns=columns, date_columns=datetime_colums)
+        # load_csv_to_table(r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231130_esom_order_status\esom_order_status.csv',
+        #                   'esom_order_status_20231130', columns=columns, date_columns=date_colums, chunk_size=5000)
         # query_to_file(
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231107_esom_order_status\query_4.sql', "esom_order_status", "ESOM Order Status")
         # query_to_csv(
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231114_esom_order_status\ord_esom_compare.sql', "missing_orders", "MISSING ORDERS")
+        # query_to_csv(
+        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231130_esom_order_status\order_select_date_reversed_all.sql', "reversed_dates", "REVERSED DATES")
 
         '''
         FOR TESTING

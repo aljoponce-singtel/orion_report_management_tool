@@ -74,6 +74,12 @@ def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_colum
         df[datetime_columns] = df[datetime_columns].apply(
             pd.to_datetime)
 
+    if date_columns:
+        for date_column in date_columns:
+            date_column: str
+            df[date_column] = pd.to_datetime(
+                df[date_column], format='%d/%m/%Y').dt.date
+
     # # logger.warning(f"\n{df}")
     # logger.warning(df.dtypes)
 
