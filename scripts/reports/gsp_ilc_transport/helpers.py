@@ -19,6 +19,9 @@ def generate_ilc_transport_billing_report():
 
     report = OrionReport('ILC Transport (Billing) Report')
     report.add_email_receiver_to('xv.hema.pawar@singtel.com')
+    report.add_email_receiver_to('xv.abhijeet.navale@singtel.com')
+    report.add_email_receiver_to('xv.chetna.deshmukh@singtel.com')
+    report.add_email_receiver_to('maladzim@singtel.com')
     report.set_filename('ilc_transport_billing_report')
     report.set_gsp_billing_month_start_end_date()
     generate_report(report)
