@@ -51,20 +51,24 @@ def query_to_excel(query_file, filename, report_name='Quick Query'):
     report.send_email()
 
 
-def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB', chunk_size: int = 1000):
+def load_csv_to_table(csv_file, database_name='o2ptest', table_name=None, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB', chunk_size: int = 1000):
 
     report = OrionReport(report_name)
 
     csv_file_path = os.path.join(
         os.path.dirname(__file__), 'resource', csv_file)
 
-    df = pd.read_csv(csv_file_path,
-                     #  encoding='utf-8',
-                     #  header='infer',
-                     skiprows=1,
-                     header=None,
-                     names=columns,
-                     engine='python')
+    if columns:
+        df = pd.read_csv(csv_file_path,
+                         #  encoding='utf-8',
+                         #  header='infer',
+                         skiprows=1,
+                         header=None,
+                         names=columns,
+                         engine='python')
+    else:
+        df = pd.read_csv(csv_file_path,
+                         engine='python')
 
     # logger.warning(f"\n{str(df)}")
     # logger.warning(df.dtypes)
@@ -80,15 +84,23 @@ def load_csv_to_table(csv_file, table_name, columns: list = None, datetime_colum
             df[date_column] = pd.to_datetime(
                 df[date_column], format='%d/%m/%Y').dt.date
 
-    # # logger.warning(f"\n{df}")
+    # logger.warning(f"\n{df}")
     # logger.warning(df.dtypes)
 
     try:
-
-        # report.orion_db.insert_df_to_table(
-        #     df, table_name, chunk_size=chunk_size)
-        report.test_db.insert_df_to_table(
-            df, table_name, chunk_size=chunk_size)
+        if table_name == "o2pprod":
+            report.orion_db.insert_df_to_table(
+                df, table_name, chunk_size=chunk_size)
+        elif table_name == "pegasusmulesoft":
+            report.staging_db.insert_df_to_table(
+                df, table_name, chunk_size=chunk_size)
+        elif table_name == "o2ptableau":
+            report.tableau_db.insert_df_to_table(
+                df, table_name, chunk_size=chunk_size)
+        else:
+            # table_name == "o2ptest":
+            report.test_db.insert_df_to_table(
+                df, table_name, chunk_size=chunk_size)
 
     except Exception as e:
         # Log including the stack trace

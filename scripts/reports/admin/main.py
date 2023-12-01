@@ -89,6 +89,12 @@ def main():
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231130_esom_order_status\order_select_date_reversed_all.sql', "reversed_dates", "REVERSED DATES")
 
         '''
+        PRODUCT CODE MAPPING
+        '''
+        # load_csv_to_table(csv_file=r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\Products\20231130_voice_uc\product_mapping_20231130.csv', database_name="o2ptest",
+        #                   table_name='product_mapping_20231130')
+
+        '''
         FOR TESTING
         '''
         # query_to_csv('query_aop.sql', 'gsp_aop', 'GSP AOP Report')
