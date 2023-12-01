@@ -31,27 +31,59 @@ def test_email(email_address, attachment_path=None, email_subject='[Orion] Test 
     report.send_email()
 
 
-def query_to_csv(query_file, filename, report_name='Quick Query'):
+def query_to_csv(query_file, filename, db_name, report_name='Quick Query'):
 
     report = OrionReport(report_name)
     report.set_filename(filename)
     query = report.get_query_from_file(query_file)
-    csv_file = report.query_to_csv(query, add_timestamp=True)
-    report.attach_file_to_email(csv_file)
-    report.send_email()
+    csv_file = None
+
+    if db_name == "o2pprod":
+        csv_file = report.query_to_csv(
+            query, db=report.orion_db, add_timestamp=True)
+    elif db_name == "pegasusmulesoft":
+        csv_file = report.query_to_csv(
+            query, db=report.staging_db, add_timestamp=True)
+    elif db_name == "o2ptableau":
+        csv_file = report.query_to_csv(
+            query, db=report.tableau_db, add_timestamp=True)
+    else:
+        # table_name == "o2ptest":
+        csv_file = report.query_to_csv(
+            query, db=report.test_db, add_timestamp=True)
+
+    if csv_file:
+        report.attach_file_to_email(csv_file)
+        report.send_email()
 
 
-def query_to_excel(query_file, filename, report_name='Quick Query'):
+def query_to_excel(query_file, filename, db_name, report_name='Quick Query'):
 
     report = OrionReport(report_name)
     report.set_filename(filename)
     query = report.get_query_from_file(query_file)
-    csv_file = report.query_to_excel(query, add_timestamp=True)
-    report.attach_file_to_email(csv_file)
-    report.send_email()
+    csv_file = None
+
+    if db_name == "o2pprod":
+        csv_file = report.query_to_excel(
+            query, db=report.orion_db, add_timestamp=True)
+    elif db_name == "pegasusmulesoft":
+        csv_file = report.query_to_excel(
+            query, db=report.staging_db, add_timestamp=True)
+    elif db_name == "o2ptableau":
+        csv_file = report.query_to_excel(
+            query, db=report.tableau_db, add_timestamp=True)
+    else:
+        # table_name == "o2ptest":
+        csv_file = report.query_to_excel(
+            query, db=report.test_db, add_timestamp=True)
+
+    if csv_file:
+        report.attach_file_to_email(csv_file)
+        report.send_email()
 
 
-def load_csv_to_table(csv_file, database_name='o2ptest', table_name=None, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB', chunk_size: int = 1000):
+def load_csv_to_table(csv_file, database_name=None, table_name=None, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB', chunk_size: int = 1000):
 
     report = OrionReport(report_name)
 
@@ -88,13 +120,13 @@ def load_csv_to_table(csv_file, database_name='o2ptest', table_name=None, column
     # logger.warning(df.dtypes)
 
     try:
-        if table_name == "o2pprod":
+        if database_name == "o2pprod":
             report.orion_db.insert_df_to_table(
                 df, table_name, chunk_size=chunk_size)
-        elif table_name == "pegasusmulesoft":
+        elif database_name == "pegasusmulesoft":
             report.staging_db.insert_df_to_table(
                 df, table_name, chunk_size=chunk_size)
-        elif table_name == "o2ptableau":
+        elif database_name == "o2ptableau":
             report.tableau_db.insert_df_to_table(
                 df, table_name, chunk_size=chunk_size)
         else:

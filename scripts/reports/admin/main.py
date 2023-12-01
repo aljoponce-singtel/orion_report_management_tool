@@ -105,6 +105,8 @@ def main():
         #     r'C:\Users\p1319639\Development\orion_report_management_tool\scripts\reports\gsp_trx_ce_survey\sql\query.sql', "trx_ce_survey_no_evolve", "TRX CE SURVEY")
         # query_to_excel(
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\Auto-Escalation\20231108_alanlam_replacement\query.sql', "level_3_update", "LEVEL 3 UPDATE")
+        # query_to_excel(
+        #     query_file=r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\Products\20231130_voice_uc\select_compare.sql', filename="product_code_mapping_20231201", db_name="o2ptest")
 
     except Exception as err:
         logger.exception(err)
