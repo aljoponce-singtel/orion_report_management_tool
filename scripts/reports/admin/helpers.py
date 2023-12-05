@@ -136,13 +136,13 @@ def load_csv_to_table(csv_file, database_name=None, table_name=None, columns: li
 
     except Exception as e:
         # Log including the stack trace
-        # logger.error(
-        #     f"Failed to load data into database: {e}")
+        logger.error(
+            f"Failed to load data into database: {e}")
 
         # Log only the error description, as the raw error info maybe too large
         # Ignore logging the stack trace
-        logger.error(
-            f"Failed to load data into database: {e.args[0]}")
+        # logger.error(
+        #     f"Failed to load data into database: {e.args[0]}")
 
 
 def get_superusers():

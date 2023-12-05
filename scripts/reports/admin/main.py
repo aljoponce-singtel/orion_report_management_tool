@@ -79,8 +79,8 @@ def main():
             'last_updated_date'
         ]
         # datetime_colums: list = None
-        # load_csv_to_table(r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231130_esom_order_status\esom_order_status.csv',
-        #                   'esom_order_status_20231130', columns=columns, date_columns=date_colums, chunk_size=5000)
+        # load_csv_to_table(csv_file=r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231204_esom_order_status\esom_order_status.csv',
+        #                   table_name='esom_order_status_20231204', columns=columns, date_columns=date_colums, chunk_size=5000)
         # query_to_file(
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231107_esom_order_status\query_4.sql', "esom_order_status", "ESOM Order Status")
         # query_to_csv(
