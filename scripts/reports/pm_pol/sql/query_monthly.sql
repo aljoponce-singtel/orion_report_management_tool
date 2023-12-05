@@ -20,7 +20,7 @@ SELECT
     BRN.brn AS BRN
 FROM
     RestInterface_order ORD
-    JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id
+    LEFT JOIN RestInterface_project PRJ ON PRJ.id = ORD.project_id
     LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
     LEFT JOIN (
         SELECT
@@ -46,6 +46,9 @@ WHERE
     ORD.business_sector NOT LIKE 'Enterprise Sales (Government%'
     AND ORD.taken_date BETWEEN '{start_date}'
     AND '{end_date}'
-    AND PRJ.project_code REGEXP "^([a-zA-Z]{{3}}|[a-zA-Z]{{5}})[a-zA-Z0-9]{{2}}[0-9]{{2}}[A-Z]$"
+    AND (
+        ORD.assignee = "Non-PM"
+        OR PRJ.project_code REGEXP "^([a-zA-Z]{{3}}|[a-zA-Z]{{5}})[a-zA-Z0-9]{{2}}[0-9]{{2}}[A-Z]$"
+    )
 ORDER BY
     ORD.order_code;
