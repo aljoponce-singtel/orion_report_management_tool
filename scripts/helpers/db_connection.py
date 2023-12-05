@@ -242,7 +242,7 @@ class DbConnection:
         return df
 
     def insert_df_to_table(self, dataframe, table, if_exist=None, chunk_size=None):
-        logger.info(f'Inserting records to {table} table ...')
+        logger.info(f'Inserting records to {self.database}.{table} ...')
 
         no_of_affected_rows = 0
         df = pd.DataFrame(dataframe)
