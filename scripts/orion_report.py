@@ -137,6 +137,8 @@ class OrionReport(EmailClient, Utils):
             logger.info("START of script - " +
                         super().get_current_datetime(format="%a %m/%d/%Y, %H:%M:%S"))
             logger.info(f"/* {self.report_name} */")
+            if self.get_log_level() == 'DEBUG':
+                logger.warning("Running in DEBUG mode.")
             logger.info("Running script in " + super().get_platform())
 
             # This file (orion_report.py) will be executed by `run.sh`
@@ -195,7 +197,7 @@ class OrionReport(EmailClient, Utils):
 
         # Set the log level
         if self.config.has_option('Debug', 'log_level') == True:
-            logger.setLevel(super().get_level_num_value(
+            logger.setLevel(self.get_level_num_value(
                 self.debug_config['log_level']))
         # Set the log file path
         self.log_file_path = abspath(
@@ -236,6 +238,39 @@ class OrionReport(EmailClient, Utils):
         db_connection.connect()
 
         return db_connection
+
+    # log level mapping
+    def get_log_level(self):
+
+        if logger.level == 10:
+            return 'DEBUG'
+        elif logger.level == 20:
+            return 'INFO'
+        elif logger.level == 30:
+            return 'WARNING'
+        elif logger.level == 40:
+            return 'ERROR'
+        elif logger.level == 50:
+            return 'CRITICAL'
+        else:  # 0
+            return 'NOTSET'
+
+    # log level mapping
+
+    def get_level_num_value(self, level: str):
+
+        if level.casefold() == 'debug':
+            return 10
+        elif level.casefold() == 'info':
+            return 20
+        elif level.casefold() == 'warning':
+            return 30
+        elif level.casefold() == 'error':
+            return 40
+        elif level.casefold() == 'critical':
+            return 50
+        else:  # 'NOTSET'
+            return 0
 
     def set_reports_folder_path(self, path):
         self.reports_folder_path = abspath(path)

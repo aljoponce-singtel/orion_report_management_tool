@@ -27,39 +27,6 @@ class Utils:
     def __init__(self):
         pass
 
-    # log level mapping
-    def get_log_level(self):
-
-        if logger.level == 10:
-            return 'DEBUG'
-        elif logger.level == 20:
-            return 'INFO'
-        elif logger.level == 30:
-            return 'WARNING'
-        elif logger.level == 40:
-            return 'ERROR'
-        elif logger.level == 50:
-            return 'CRITICAL'
-        else:  # 0
-            return 'NOTSET'
-
-    # log level mapping
-
-    def get_level_num_value(self, level: str):
-
-        if level.casefold() == 'debug':
-            return 10
-        elif level.casefold() == 'info':
-            return 20
-        elif level.casefold() == 'warning':
-            return 30
-        elif level.casefold() == 'error':
-            return 40
-        elif level.casefold() == 'critical':
-            return 50
-        else:  # 'NOTSET'
-            return 0
-
     # Converts a list to a string without the brackets
     # E.g. ['GSDT7', 'GSDT8'] => -'GSDT7', 'GSDT8'
 
