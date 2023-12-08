@@ -17,7 +17,7 @@ def generate_sdo_singnet_report():
 
     report = OrionReport('SDO Singnet Report')
     report.set_filename('sdo_singnet_report')
-    report.set_reporting_date()
+    report.set_current_month_first_day_date()
 
     product_code_list = [
         'SGN0051',
@@ -102,7 +102,7 @@ def generate_sdo_megapop_report():
 
     report = OrionReport('SDO MegaPop Report')
     report.set_filename('sdo_megapop_report')
-    report.set_reporting_date()
+    report.set_current_month_first_day_date()
 
     product_code_list = [
         'ELK0052',

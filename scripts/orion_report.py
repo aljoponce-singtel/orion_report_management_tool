@@ -701,6 +701,22 @@ class OrionReport(EmailClient, Utils):
             logger.info('update_tableau_table = ' +
                         str(self.debug_config.getboolean('update_tableau_table')))
 
+    def set_current_month_first_day_date(self):
+        if self.debug_config.getboolean('override_report_dates'):
+            logger.warn('REPORT DATE OVERRIDEN IN CONFIG FILE')
+            self.set_report_date(self.debug_config['report_date'])
+
+        else:
+            # Get the first day date of the month
+            self.set_report_date(datetime.now().date().replace(day=1))
+
+        logger.info(f"Generating {self.report_name} ...")
+        logger.info("report date: " + str(self.report_date))
+
+        if self.config.has_option('Debug', 'update_tableau_table'):
+            logger.info('update_tableau_table = ' +
+                        str(self.debug_config.getboolean('update_tableau_table')))
+
     def get_gsp_billing_month_start_end_date(self, date):
         # Example:
         # /* Current date = 2023-01-26 */
