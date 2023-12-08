@@ -9,7 +9,7 @@ from sqlalchemy import select, case, and_, or_, null, func, Integer
 # Import local packages
 import constants as const
 from scripts.orion_report import OrionReport
-from models import TransportBase
+from models import Transport
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def generate_transport_report():
     # Create Report
     df_finalReport = createFinalReport(report)
     # Insert records to tableau db
-    update_tableau_db(report, df_finalReport)
+    update_tableau_table(report, df_finalReport)
     # Write to CSV
     csv_file = report.create_csv_from_df(
         df_finalReport[const.FINAL_COLUMNS], add_timestamp=True)
@@ -62,7 +62,7 @@ def generate_transport_billing_report():
     report.send_email()
 
 
-def update_tableau_db(report: OrionReport, df: pd.DataFrame):
+def update_tableau_table(report: OrionReport, df: pd.DataFrame):
     # add new column
     df["update_time"] = pd.Timestamp.now()
     # set columns to datetime type
@@ -71,7 +71,8 @@ def update_tableau_db(report: OrionReport, df: pd.DataFrame):
     # set empty values to null
     df.replace('', None)
     # insert records to DB
-    report.insert_df_to_tableau_db(df)
+    report.insert_df_to_tableau_table(
+        df, table_name=Transport.__tablename__, table_model=Transport)
 
 
 def createFinalReport(report: OrionReport):
