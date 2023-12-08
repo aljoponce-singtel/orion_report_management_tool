@@ -3,9 +3,11 @@ import logging
 import numpy as np
 import pandas as pd
 import sqlalchemy as db
+from typing import List
 
 # Import local packages
 import constants as const
+from models import Sdo
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -89,7 +91,7 @@ def generate_sdo_singnet_report():
         df_final_report, add_timestamp=report.get_current_datetime(format="%d%m%y_%H%M"))
     zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Insert records to tableau db
-    update_tableau_db(report, df_final_report, 'SINGNET')
+    update_tableau_table(report, df_final_report, 'SINGNET')
     # Attach report and send to email
     report.attach_file_to_email(zip_file)
     report.add_email_receiver_to('kajendran@singtel.com')
@@ -173,14 +175,14 @@ def generate_sdo_megapop_report():
         df_final_report, add_timestamp=report.get_current_datetime(format="%d%m%y_%H%M"))
     zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Insert records to tableau db
-    update_tableau_db(report, df_final_report, 'MEGAPOP')
+    update_tableau_table(report, df_final_report, 'MEGAPOP')
     # Attach report and send to email
     report.attach_file_to_email(zip_file)
     report.add_email_receiver_to('kajendran@singtel.com')
     report.send_email()
 
 
-def get_tableau_orders(report: OrionReport, group_id: str, product_code_list: list[str]) -> pd.DataFrame:
+def get_tableau_orders(report: OrionReport, group_id: str, product_code_list: List[str]) -> pd.DataFrame:
 
     query = report.get_query_from_file("query_tableau_orders.sql")
     formatted_query = query.format(report_id=group_id, product_code_list=report.list_to_string(
@@ -189,7 +191,7 @@ def get_tableau_orders(report: OrionReport, group_id: str, product_code_list: li
     return report.query_to_dataframe(query=formatted_query, db=report.tableau_db, query_description="tableau orders")
 
 
-def get_raw_orders(report: OrionReport, order_list: list[str]) -> pd.DataFrame:
+def get_raw_orders(report: OrionReport, order_list: List[str]) -> pd.DataFrame:
 
     query = report.get_query_from_file("query_raw.sql")
     formatted_query = query.format(
@@ -198,9 +200,11 @@ def get_raw_orders(report: OrionReport, order_list: list[str]) -> pd.DataFrame:
     return report.query_to_dataframe(query=formatted_query, query_description="orion orders")
 
 
-def add_param_svcno_col_to_df(report: OrionReport, df: pd.DataFrame, product_code_instance: list[str], parameters_names: list[str]) -> pd.DataFrame:
-    # Add new ParameterName and ParameterValue columns to df
+def add_param_svcno_col_to_df(report: OrionReport, df: pd.DataFrame, product_code_instance: List[str], parameters_names: List[str]) -> pd.DataFrame:
+
+    # Retrieve records that contains product codes in product_code_instance
     df_instance = df[df['ProductCode'].isin(product_code_instance)]
+    # Retrieve the parameter names and values base on ServiceNumberUpd
     para_names_list_str = report.list_to_string(parameters_names)
     serviceno_list_str = report.list_to_string(
         df_instance['ServiceNumberUpd'].to_list())
@@ -209,20 +213,32 @@ def add_param_svcno_col_to_df(report: OrionReport, df: pd.DataFrame, product_cod
         para_names_list=para_names_list_str, serviceno_list=serviceno_list_str)
     df_parameters = report.query_to_dataframe(
         query=formatted_query, query_description="parameter info")
+    # Remove duplicate service numbers by keeping the latest order creation date (already sorted by query_parameters.sql)
+    df_parameters = df_parameters.drop_duplicates(
+        subset=['ServiceNumberUpd'], keep='first')
+    # Remove 'OrderCode' and 'CreationDate' columns
+    df_parameters.drop(['OrderCode', 'CreationDate'], axis=1)
+    # Join df and df_parameters based on ServiceNumberUpd
     df = pd.merge(df, df_parameters, how='left')
     # Add new ServiceNoNew column
     df['ServiceNoNew'] = None
-    # Copy df['ServiceNumberUpd'] values to df['ServiceNoNew] where df['ServiceNumberUpd'] == df_nonInstance['ServiceNumberUpd']
+    # Retrieve records which does not match the product_code_instance
     df_non_instance = df[~df['ProductCode'].isin(product_code_instance)]
-    df.loc[df['ServiceNumberUpd'].isin(df_non_instance['ServiceNumberUpd'].to_list(
-    )), 'ServiceNoNew'] = df_non_instance['ServiceNumberUpd']
-
-    # Copy df_parameters['ParameterValue'] values to df['ServiceNoNew] where df['ServiceNumberUpd'] == df_parameters['ParameterValue']
+    # Creates a boolean mask list by checking for each row in df['ServiceNumberUpd'] whether the service number is present in df_non_instance['ServiceNumberUpd']
+    svcno_existin_dfnoninstance = df['ServiceNumberUpd'].isin(
+        df_non_instance['ServiceNumberUpd'].to_list())
+    # Updates df['ServiceNoNew'] with the values from df_non_instance['ServiceNumberUpd'], but only for the rows where df['ServiceNumberUpd] is also present in df_non_instance['ServiceNumberUpd'] (svcno_existin_dfnoninstance)
+    df.loc[svcno_existin_dfnoninstance,
+           'ServiceNoNew'] = df_non_instance['ServiceNumberUpd']
+    # Set 'ServiceNumberUpd' column as an index for both df and df_parameters, which will remove this as a column and change to an index
     df.set_index('ServiceNumberUpd', inplace=True)
     df_parameters.set_index('ServiceNumberUpd', inplace=True)
+    # Rename the column name df_parameters['ParameterValue'] to df_parameters['ServiceNoNew']
     df_parameters.rename(
         columns={'ParameterValue': 'ServiceNoNew'}, inplace=True)
+    # df_parameters['ServiceNoNew'] will replace df['ServiceNoNew'] based on the same service numbers in the 'ServiceNumberUpd' columns for both df and df_parameters
     df.update(df_parameters)
+    # Index for df will reset to 0
     df.reset_index(inplace=True)
 
     return df
@@ -314,7 +330,7 @@ def remove_duplicates(df_raw_report: pd.DataFrame, df_act_info: pd.DataFrame, ac
     return df_act_final
 
 
-def update_tableau_db(report: OrionReport, df: pd.DataFrame, report_id: str):
+def update_tableau_table(report: OrionReport, df: pd.DataFrame, report_id: str):
 
     # Get a list of public holidays from Tableaue DB
     t_GSP_holidays = report.tableau_db.get_table_metadata('t_GSP_holidays')
@@ -374,12 +390,11 @@ def update_tableau_db(report: OrionReport, df: pd.DataFrame, report_id: str):
     # add new columns
     df["report_id"] = report_id.lower()
     df["update_time"] = pd.Timestamp.now()
-
     # set columns to datetime type
     df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
         pd.to_datetime)
-
     # set empty values to null
     df.replace('', None)
     # insert records to DB
-    report.insert_df_to_tableau_db(df)
+    report.insert_df_to_tableau_table(
+        df, table_name=Sdo.__tablename__, table_model=Sdo)

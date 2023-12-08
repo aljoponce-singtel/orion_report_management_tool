@@ -10,7 +10,7 @@ def main():
 
     try:
         generate_sdo_singnet_report()
-        # generate_sdo_megapop_report()
+        generate_sdo_megapop_report()
 
     except Exception as err:
         logger.exception(err)
