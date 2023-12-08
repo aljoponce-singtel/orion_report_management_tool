@@ -6,6 +6,7 @@ import os
 from configparser import ConfigParser, SectionProxy
 from datetime import datetime
 from os.path import abspath, basename, dirname
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 # Import third-party packages
 import pandas as pd
@@ -299,21 +300,25 @@ class OrionReport(EmailClient, Utils):
         date_obj = super().to_date_obj(date)
         self.end_date = date_obj
 
-    def insert_df_to_tableau_db(self, df: pd.DataFrame):
+    def insert_df_to_tableau_table(self, df: pd.DataFrame, table_name: str, table_model: DeclarativeMeta = None):
         # Allow Tableaue DB update
-        if self.debug_config.getboolean('update_tableau_db'):
+        if self.debug_config.getboolean('update_tableau_table'):
             try:
+                db = self.tableau_db
+                # Use the o2ptest database for testing the table insertion
+                if self.debug_config.getboolean('use_test_tableau_db'):
+                    db = self.test_db
                 logger.info(
-                    'Inserting records to ' + self.db_config['tableau_db'] + '.' + self.default_config['tableau_table'] + ' ...')
+                    f"Inserting tableau records to {db.database}.{table_name} ...")
+                # Create table if not exist if table_model is provided
+                if table_model:
+                    db.create_table_from_metadata(table_model)
                 # insert records to DB
-                self.tableau_db.insert_df_to_table(
-                    df, self.default_config['tableau_table'])
-
+                db.insert_df_to_table(df, table_name)
             except Exception as err:
-                logger.info("Failed processing DB " + self.db_config['tableau_db'] + ' at ' +
-                            self.db_config['tableau_user'] + '@' + self.db_config['host'] + ':' + self.db_config['port'] + '.')
+                logger.info(
+                    f"Failed to insert tableau records to {db.database}.{table_name} at {db.user}@{db.host}:{db.port}")
                 logger.exception(err)
-
                 raise Exception(err)
 
     def get_query_from_file(self, filename=None, file_path=None):
@@ -629,9 +634,9 @@ class OrionReport(EmailClient, Utils):
         logger.info(f"Generating {self.report_name} ...")
         logger.info("report date: " + str(self.report_date))
 
-        if self.config.has_option('Debug', 'update_tableau_db'):
-            logger.info('update_tableau_db = ' +
-                        str(self.debug_config.getboolean('update_tableau_db')))
+        if self.config.has_option('Debug', 'update_tableau_table'):
+            logger.info('update_tableau_table = ' +
+                        str(self.debug_config.getboolean('update_tableau_table')))
 
     def set_prev_week_monday_sunday_date(self):
         if self.debug_config.getboolean('override_report_dates'):
@@ -650,9 +655,9 @@ class OrionReport(EmailClient, Utils):
         logger.info("report start date: " + str(self.start_date))
         logger.info("report end date: " + str(self.end_date))
 
-        if self.config.has_option('Debug', 'update_tableau_db'):
-            logger.info('update_tableau_db = ' +
-                        str(self.debug_config.getboolean('update_tableau_db')))
+        if self.config.has_option('Debug', 'update_tableau_table'):
+            logger.info('update_tableau_table = ' +
+                        str(self.debug_config.getboolean('update_tableau_table')))
 
     def set_prev_month_first_last_day_date(self):
         if self.debug_config.getboolean('override_report_dates'):
@@ -671,9 +676,9 @@ class OrionReport(EmailClient, Utils):
         logger.info("report start date: " + str(self.start_date))
         logger.info("report end date: " + str(self.end_date))
 
-        if self.config.has_option('Debug', 'update_tableau_db'):
-            logger.info('update_tableau_db = ' +
-                        str(self.debug_config.getboolean('update_tableau_db')))
+        if self.config.has_option('Debug', 'update_tableau_table'):
+            logger.info('update_tableau_table = ' +
+                        str(self.debug_config.getboolean('update_tableau_table')))
 
     def set_gsp_billing_month_start_end_date(self):
         if self.debug_config.getboolean('override_report_dates'):
@@ -692,9 +697,9 @@ class OrionReport(EmailClient, Utils):
         logger.info("report start date: " + str(self.start_date))
         logger.info("report end date: " + str(self.end_date))
 
-        if self.config.has_option('Debug', 'update_tableau_db'):
-            logger.info('update_tableau_db = ' +
-                        str(self.debug_config.getboolean('update_tableau_db')))
+        if self.config.has_option('Debug', 'update_tableau_table'):
+            logger.info('update_tableau_table = ' +
+                        str(self.debug_config.getboolean('update_tableau_table')))
 
     def get_gsp_billing_month_start_end_date(self, date):
         # Example:

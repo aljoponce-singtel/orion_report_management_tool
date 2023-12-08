@@ -6,6 +6,7 @@ import time
 import pandas as pd
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.engine.cursor import LegacyCursorResult
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.sql import text
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ class DbConnection:
             logger.debug(query.compile(self.engine,
                                        compile_kwargs={"literal_binds": True}))
 
-    def create_table_from_metadata(self, table):
+    def create_table_from_metadata(self, table: DeclarativeMeta):
         return table.metadata.create_all(self.engine)
 
     def truncate_table(self, tableName):
