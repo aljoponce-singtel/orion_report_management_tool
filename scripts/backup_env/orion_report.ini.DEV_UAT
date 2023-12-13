@@ -19,16 +19,16 @@ email_att_max_size = 20
 ; If the direct SSH TUNNEL above does not work, use a MULTIHOP SSH TUNNEL shown below.
 ;
 ; /* MULTIHOP SSH TUNNEL */
-;   # TUNNEL #1 (Jumphost x PRODAPP)
+;   # TUNNEL #1 (Jumphost x UATAPP)
 ;       SSH server:       username@10.70.233.200:5022   #SGDSSPJMP01
 ;       Remote server:    o2puserp@172.26.144.140:22    #SGOSSUATO2PAPP01 (PROD_IP)
 ;       Local port:       54422                         #can be any valid port
-;   # TUNNEL #2 (PRODAPP x PRODDB)
+;   # TUNNEL #2 (UATAPP x UATDB)
 ;       SSH server:       o2puser@127.0.0.1:54422       #SGOSSUATO2PAPP01 (PROD_IP) via TUNNEL #1
 ;       Remote server:    mysql@172.26.14.142:3306      #SGOSSUATO2PDB01 (MGMT_IP)
 ;       Local port:       54406                         #can be any valid port
 [Database]
-# login to PRODAPP as o2puserp@172.26.144.140 #SGOSSUATO2PAPP01 (PROD_IP)
+# login to UATAPP as o2puserp@172.26.144.140 #SGOSSUATO2PAPP01 (PROD_IP)
 orion_user = o2puserp
 orion_pwd = Qsw123!du
 orion_db = o2puat
