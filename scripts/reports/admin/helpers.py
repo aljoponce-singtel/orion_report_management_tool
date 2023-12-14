@@ -38,7 +38,7 @@ def query_to_csv(query_file, filename, db_name, report_name='Quick Query'):
     query = report.get_query_from_file(query_file)
     csv_file = None
 
-    if db_name == "o2pprod":
+    if db_name == "o2pprod" or db_name == "o2puat":
         csv_file = report.query_to_csv(
             query, db=report.orion_db, add_timestamp=True)
     elif db_name == "pegasusmulesoft":
@@ -64,7 +64,7 @@ def query_to_excel(query_file, filename, db_name, report_name='Quick Query'):
     query = report.get_query_from_file(query_file)
     csv_file = None
 
-    if db_name == "o2pprod":
+    if db_name == "o2pprod" or db_name == "o2puat":
         csv_file = report.query_to_excel(
             query, db=report.orion_db, add_timestamp=True)
     elif db_name == "pegasusmulesoft":
