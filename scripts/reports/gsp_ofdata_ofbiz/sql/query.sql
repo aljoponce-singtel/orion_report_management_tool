@@ -92,8 +92,8 @@ WHERE
     )
     AND ORD.order_status = 'Closed'
     AND ORD.order_type != 'Cease'
-    AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
-    AND ORD.current_crd < ORD.close_date
+    -- AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
+    -- AND ORD.current_crd < ORD.close_date
     AND ORD.close_date BETWEEN '{start_date}'
     AND '{end_date}'
 ORDER BY
