@@ -28,7 +28,7 @@ email_att_max_size = 20
 # login to UATAPP as o2puserp@172.26.144.140 #SGOSSUATO2PAPP01 (PROD_IP)
 orion_user = o2puserp
 orion_pwd = Qsw123!du
-orion_db = o2pprod
+orion_db = o2puat
 staging_db = pegasusmulesoft
 tableau_db = o2ptableau
 test_db = o2ptest
