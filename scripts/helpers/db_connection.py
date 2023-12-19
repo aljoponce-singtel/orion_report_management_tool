@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class DbConnection:
-    def __init__(self, dbapi, host, port, database, user, password):
+    def __init__(self, dbapi: str, host: str, port: str, database: str, user: str, password: str):
         self.dbapi = dbapi
         self.host = host
         self.port = port
