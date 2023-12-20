@@ -259,6 +259,7 @@ class DbConnection:
             ValueError
                 When the table already exists and if_exists is ‘fail’ (the default).
         '''
+        # If chunk_size is not 0 or NULL
         if not chunk_size:
             no_of_affected_rows = df.to_sql(table,
                                             #   con=self.engine,
@@ -278,6 +279,7 @@ class DbConnection:
                                             #     ‘multi’: Pass multiple values in a single INSERT clause.
                                             #     callable with signature (pd_table, conn, keys, data_iter).
                                             method='multi')
+        # Insert in batches (chunk_size)
         else:
             logger.info(
                 f"Inserting in chunk sizes of {chunk_size} ...")
