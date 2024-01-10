@@ -22,7 +22,9 @@ SELECT
     CON.work_phone_no AS WorkPhoneNo,
     CON.mobile_no AS MobileNo,
     CON.email_address AS Email,
-    SITE.location AS Address
+    SITE.location AS Address,
+    BILL.package_description AS PackageDescription,
+    BILL.component_description AS ComponentDescription
 FROM
     RestInterface_order ORD
     LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
@@ -39,30 +41,13 @@ FROM
     AND NPP.level = 'MainLine'
     LEFT JOIN RestInterface_product PRD ON NPP.product_id = PRD.id
     LEFT JOIN RestInterface_site SITE ON SITE.id = ORD.site_id
+    LEFT JOIN RestInterface_billing BILL ON BILL.order_id = ORD.id
 WHERE
     ORD.order_type <> 'Cease'
     AND ORD.order_status = 'Closed'
     AND ORD.close_date IS NOT NULL
     AND ORD.close_date BETWEEN '{start_date}'
     AND '{end_date}'
-    AND ORD.id NOT IN (
-        SELECT
-            DISTINCT ORDEV.id
-        FROM
-            RestInterface_order ORDEV
-            JOIN RestInterface_billing BILLEV ON BILLEV.order_id = ORDEV.id
-        WHERE
-            ORDEV.close_date BETWEEN '{start_date}'
-            AND '{end_date}'
-            AND (
-                ORDEV.service_number LIKE '%EV%'
-                OR LOWER(BILLEV.package_description) LIKE '%evolve%'
-                OR LOWER(BILLEV.component_description) LIKE '%evolve%'
-            )
-        ORDER BY
-            ORDEV.close_date,
-            ORDEV.order_code
-    )
 ORDER BY
     CloseDate,
     OrderNo,
