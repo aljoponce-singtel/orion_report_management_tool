@@ -47,7 +47,7 @@ FROM
     AND npp.status <> 'Cancel'
     LEFT JOIN RestInterface_product prd ON prd.id = npp.product_id
 WHERE
-    ord.id IN ({ })
+    ord.id IN ({ order_id_list })
     AND (
         (
             (

@@ -252,181 +252,189 @@ def getTransportOrders(report: OrionReport) -> pd.DataFrame:
     START_DATE = str(report.start_date)
     END_DATE = str(report.end_date)
 
-    order_table = report.orion_db.get_table_metadata(
-        'RestInterface_order', 'ord')
-    activity_table = report.orion_db.get_table_metadata(
-        'RestInterface_activity', 'act')
-    person_table = report.orion_db.get_table_metadata(
-        'RestInterface_person', 'per')
-    npp_table = report.orion_db.get_table_metadata('RestInterface_npp', 'npp')
-    product_table = report.orion_db.get_table_metadata(
-        'RestInterface_product', 'prd')
-    customer_table = report.orion_db.get_table_metadata(
-        'RestInterface_customer', 'cus')
+    if report.debug_config.getboolean("use_orm_query"):
+        order_table = report.orion_db.get_table_metadata(
+            'RestInterface_order', 'ord')
+        activity_table = report.orion_db.get_table_metadata(
+            'RestInterface_activity', 'act')
+        person_table = report.orion_db.get_table_metadata(
+            'RestInterface_person', 'per')
+        npp_table = report.orion_db.get_table_metadata(
+            'RestInterface_npp', 'npp')
+        product_table = report.orion_db.get_table_metadata(
+            'RestInterface_product', 'prd')
+        customer_table = report.orion_db.get_table_metadata(
+            'RestInterface_customer', 'cus')
 
-    # see gsp_transport/sql/getTransportOrders.sql for the raw MySQL query
-    query = (
-        select([order_table.c.id])
-        .distinct()
-        .select_from(order_table)
-        .join(activity_table,
-              activity_table.c.order_id == order_table.c.id)
-        .outerjoin(person_table,
-                   person_table.c.id == activity_table.c.person_id)
-        .outerjoin(npp_table,
-                   and_(
-                       npp_table.c.order_id == order_table.c.id,
-                       npp_table.c.level == 'Mainline',
-                       npp_table.c.status != 'Cancel'
-                   ))
-        .outerjoin(product_table,
-                   product_table.c.id == npp_table.c.product_id)
-        .outerjoin(customer_table,
-                   customer_table.c.id == order_table.c.customer_id)
-        .where(
-            and_(
-                or_(
-                    and_(
-                        or_(
-                            product_table.c.network_product_code.like('DGN%'),
-                            product_table.c.network_product_code.like('DEK%'),
-                            product_table.c.network_product_code.like('DLC%')
-                        ),
-                        or_(
-                            person_table.c.role.like('ODC_%'),
-                            person_table.c.role.like('RDC_%'),
-                            person_table.c.role.like('GSPSG_%')
-                        ),
-                        or_(
-                            and_(
-                                order_table.c.order_type.in_(
-                                    ['Provide', 'Change', 'Cease']),
-                                activity_table.c.name == 'GSDT Co-ordination Wrk-BQ'
-                            ).self_group(),
-                            and_(
-                                or_(
-                                    and_(
-                                        order_table.c.order_type.in_(
-                                            ['Provide', 'Change']),
-                                        activity_table.c.name == 'Circuit creation'
-                                    ).self_group(),
-                                    and_(
-                                        order_table.c.order_type == 'Cease',
-                                        activity_table.c.name.in_(
-                                            ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'])
-                                    ).self_group()
-                                ),
-                                customer_table.c.name.like('SINGNET%')
-                            ).self_group()
-                        )
-                    ).self_group(),
-                    and_(
-                        product_table.c.network_product_code.like('DME%'),
-                        or_(
-                            person_table.c.role.like('ODC_%'),
-                            person_table.c.role.like('RDC_%'),
-                            person_table.c.role.like('GSPSG_%')
-                        ),
-                        or_(
-                            and_(
-                                order_table.c.order_type.in_(
-                                    ['Provide', 'Change', 'Cease']),
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work'])
-                            ).self_group(),
-                            and_(
-                                or_(
-                                    and_(
-                                        order_table.c.order_type == 'Provide',
-                                        activity_table.c.name == 'Circuit creation'
-                                    ).self_group(),
-                                    and_(
-                                        order_table.c.order_type == 'Change',
-                                        activity_table.c.name.in_(
-                                            ['Circuit creation', 'Change Speed Configure'])
-                                    ).self_group(),
-                                    and_(
-                                        order_table.c.order_type == 'Cease',
-                                        activity_table.c.name == 'Node & Circuit Deletion'
-                                    ).self_group()
-                                ),
-                                customer_table.c.name.like('SINGNET%')
-                            ).self_group()
-                        )
-                    ).self_group(),
-                    and_(
-                        product_table.c.network_product_code.in_(
-                            ['ELK0031',
-                             'ELK0052',
-                             'ELK0053',
-                             'ELK0055',
-                             'ELK0089',
-                             'ELK0090',
-                             'ELK0091',
-                             'ELK0092',
-                             'ELK0093',
-                             'ELK0094',
-                             'ELK0003']),
-                        or_(
-                            and_(
-                                or_(
-                                    person_table.c.role.like('ODC_%'),
-                                    person_table.c.role.like('RDC_%'),
-                                    person_table.c.role.like('GSPSG_%')
-                                ),
-                                or_(
-                                    and_(
-                                        order_table.c.order_type == 'Provide',
-                                        activity_table.c.name == 'Circuit Creation'
-                                    ).self_group(),
-                                    and_(
-                                        order_table.c.order_type == 'Change',
-                                        activity_table.c.name.in_(
-                                            ['Circuit Creation', 'Reconfiguration'])
-                                    ).self_group(),
-                                    and_(
-                                        order_table.c.order_type == 'Cease',
-                                        activity_table.c.name.in_(
-                                            ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
-                                    ).self_group()
-                                )
-                            ).self_group(),
-                            and_(
-                                person_table.c.role == 'GSPSG_ME',
-                                order_table.c.order_type == 'Provide',
-                                activity_table.c.name == 'Circuit Configuration-STM'
-                            ).self_group()
-                        )
-                    ).self_group(),
-                    and_(
-                        product_table.c.network_product_code.like('GGW%'),
-                        activity_table.c.name.in_(
-                            ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination WK-BQ', 'GSDT Co-ordination Work']),
-                        or_(
-                            and_(
-                                order_table.c.order_type == 'Provide',
-                                or_(
-                                    person_table.c.role == 'GSP_LTC_GW',
-                                    person_table.c.role.like('ODC_%'),
-                                    person_table.c.role.like('RDC_%')
-                                )
-                            ).self_group(),
-                            and_(
-                                order_table.c.order_type == 'Cease',
-                                or_(
-                                    person_table.c.role == 'GSDT31',
-                                    person_table.c.role.like('ODC_%'),
-                                    person_table.c.role.like('RDC_%')
-                                )
-                            ).self_group(),
-                        )
-                    ).self_group()
-                ),
-                activity_table.c.completed_date.between(
-                    START_DATE, END_DATE)
+        query = (
+            select([order_table.c.id])
+            .distinct()
+            .select_from(order_table)
+            .join(activity_table,
+                  activity_table.c.order_id == order_table.c.id)
+            .outerjoin(person_table,
+                       person_table.c.id == activity_table.c.person_id)
+            .outerjoin(npp_table,
+                       and_(
+                           npp_table.c.order_id == order_table.c.id,
+                           npp_table.c.level == 'Mainline',
+                           npp_table.c.status != 'Cancel'
+                       ))
+            .outerjoin(product_table,
+                       product_table.c.id == npp_table.c.product_id)
+            .outerjoin(customer_table,
+                       customer_table.c.id == order_table.c.customer_id)
+            .where(
+                and_(
+                    or_(
+                        and_(
+                            or_(
+                                product_table.c.network_product_code.like(
+                                    'DGN%'),
+                                product_table.c.network_product_code.like(
+                                    'DEK%'),
+                                product_table.c.network_product_code.like(
+                                    'DLC%')
+                            ),
+                            or_(
+                                person_table.c.role.like('ODC_%'),
+                                person_table.c.role.like('RDC_%'),
+                                person_table.c.role.like('GSPSG_%')
+                            ),
+                            or_(
+                                and_(
+                                    order_table.c.order_type.in_(
+                                        ['Provide', 'Change', 'Cease']),
+                                    activity_table.c.name == 'GSDT Co-ordination Wrk-BQ'
+                                ).self_group(),
+                                and_(
+                                    or_(
+                                        and_(
+                                            order_table.c.order_type.in_(
+                                                ['Provide', 'Change']),
+                                            activity_table.c.name == 'Circuit creation'
+                                        ).self_group(),
+                                        and_(
+                                            order_table.c.order_type == 'Cease',
+                                            activity_table.c.name.in_(
+                                                ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'])
+                                        ).self_group()
+                                    ),
+                                    customer_table.c.name.like('SINGNET%')
+                                ).self_group()
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.like('DME%'),
+                            or_(
+                                person_table.c.role.like('ODC_%'),
+                                person_table.c.role.like('RDC_%'),
+                                person_table.c.role.like('GSPSG_%')
+                            ),
+                            or_(
+                                and_(
+                                    order_table.c.order_type.in_(
+                                        ['Provide', 'Change', 'Cease']),
+                                    activity_table.c.name.in_(
+                                        ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work'])
+                                ).self_group(),
+                                and_(
+                                    or_(
+                                        and_(
+                                            order_table.c.order_type == 'Provide',
+                                            activity_table.c.name == 'Circuit creation'
+                                        ).self_group(),
+                                        and_(
+                                            order_table.c.order_type == 'Change',
+                                            activity_table.c.name.in_(
+                                                ['Circuit creation', 'Change Speed Configure'])
+                                        ).self_group(),
+                                        and_(
+                                            order_table.c.order_type == 'Cease',
+                                            activity_table.c.name == 'Node & Circuit Deletion'
+                                        ).self_group()
+                                    ),
+                                    customer_table.c.name.like('SINGNET%')
+                                ).self_group()
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.in_(
+                                ['ELK0031',
+                                 'ELK0052',
+                                 'ELK0053',
+                                 'ELK0055',
+                                 'ELK0089',
+                                 'ELK0090',
+                                 'ELK0091',
+                                 'ELK0092',
+                                 'ELK0093',
+                                 'ELK0094',
+                                 'ELK0003']),
+                            or_(
+                                and_(
+                                    or_(
+                                        person_table.c.role.like('ODC_%'),
+                                        person_table.c.role.like('RDC_%'),
+                                        person_table.c.role.like('GSPSG_%')
+                                    ),
+                                    or_(
+                                        and_(
+                                            order_table.c.order_type == 'Provide',
+                                            activity_table.c.name == 'Circuit Creation'
+                                        ).self_group(),
+                                        and_(
+                                            order_table.c.order_type == 'Change',
+                                            activity_table.c.name.in_(
+                                                ['Circuit Creation', 'Reconfiguration'])
+                                        ).self_group(),
+                                        and_(
+                                            order_table.c.order_type == 'Cease',
+                                            activity_table.c.name.in_(
+                                                ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
+                                        ).self_group()
+                                    )
+                                ).self_group(),
+                                and_(
+                                    person_table.c.role == 'GSPSG_ME',
+                                    order_table.c.order_type == 'Provide',
+                                    activity_table.c.name == 'Circuit Configuration-STM'
+                                ).self_group()
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.like('GGW%'),
+                            activity_table.c.name.in_(
+                                ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination WK-BQ', 'GSDT Co-ordination Work']),
+                            or_(
+                                and_(
+                                    order_table.c.order_type == 'Provide',
+                                    or_(
+                                        person_table.c.role == 'GSP_LTC_GW',
+                                        person_table.c.role.like('ODC_%'),
+                                        person_table.c.role.like('RDC_%')
+                                    )
+                                ).self_group(),
+                                and_(
+                                    order_table.c.order_type == 'Cease',
+                                    or_(
+                                        person_table.c.role == 'GSDT31',
+                                        person_table.c.role.like('ODC_%'),
+                                        person_table.c.role.like('RDC_%')
+                                    )
+                                ).self_group(),
+                            )
+                        ).self_group()
+                    ),
+                    activity_table.c.completed_date.between(
+                        START_DATE, END_DATE)
+                )
             )
         )
-    )
+    else:
+        raw_query = report.get_query_from_file("getTransportOrders.sql")
+        query = raw_query.format(
+            start_date=START_DATE, end_date=END_DATE)
 
     return report.query_to_dataframe(
         query, query_description='orders', column_names=['order_id'])
@@ -449,238 +457,255 @@ def getTransportRecords(report: OrionReport, order_id_list) -> pd.DataFrame:
     product_table = report.orion_db.get_table_metadata(
         'RestInterface_product', 'prd')
 
-    # see gsp_transport/sql/getTransportRecords.sql for the raw MySQL query
-    query = (
-        select([
-            case(
-                (or_(
-                    product_table.c.network_product_code.like('DGN%'),
-                    product_table.c.network_product_code.like('DEK%'),
-                    product_table.c.network_product_code.like('DLC%')
-                ), 'Diginet'),
-                (product_table.c.network_product_code.like('DME%'), 'MetroE'),
-                (product_table.c.network_product_code.in_(
-                    ['ELK0031',
-                     'ELK0052',
-                     'ELK0053',
-                     'ELK0055',
-                     'ELK0089',
-                     'ELK0090',
-                     'ELK0091',
-                     'ELK0092',
-                     'ELK0093',
-                     'ELK0094',
-                     'ELK0003']), 'MegaPop (CE)'),
-                (product_table.c.network_product_code.like('GGW%'), 'Gigawave'),
-                else_=null()
-            ).label('service'),
-            order_table.c.order_code,
-            customer_table.c.name,
-            order_table.c.current_crd,
-            order_table.c.service_number,
-            order_table.c.order_status,
-            order_table.c.order_type,
-            product_table.c.network_product_code,
-            person_table.c.role,
-            activity_table.c.activity_code.cast(Integer).label('step_no'),
-            activity_table.c.name,
-            activity_table.c.status,
-            activity_table.c.due_date,
-            activity_table.c.completed_date
-        ])
-        .distinct()
-        .select_from(order_table)
-        .join(activity_table,
-              activity_table.c.order_id == order_table.c.id)
-        .outerjoin(person_table,
-                   person_table.c.id == activity_table.c.person_id)
-        .outerjoin(customer_table,
-                   customer_table.c.id == order_table.c.customer_id)
-        .outerjoin(npp_table,
-                   and_(
-                       npp_table.c.order_id == order_table.c.id,
-                       npp_table.c.level == 'Mainline',
-                       npp_table.c.status != 'Cancel'
-                   ))
-        .outerjoin(product_table,
-                   product_table.c.id == npp_table.c.product_id)
-        .where(
-            and_(
-                order_table.c.id.in_(ORDER_ID_LIST),
-                or_(
-                    and_(
-                        or_(
-                            product_table.c.network_product_code.like('DGN%'),
-                            product_table.c.network_product_code.like('DEK%'),
-                            product_table.c.network_product_code.like('DLC%')
-                        ),
-                        or_(
-                            person_table.c.role.like('ODC_%'),
-                            person_table.c.role.like('RDC_%'),
-                            person_table.c.role.like('GSPSG_%')
-                        ),
-                        or_(
-                            and_(
-                                order_table.c.order_type.in_(
-                                    ['Provide', 'Change']),
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'Circuit Creation'])
-                            ).self_group(),
-                            and_(
-                                order_table.c.order_type == 'Cease',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'Node & Cct Del (DN-ISDN)',
-                                     'Node & Cct Deletion (DN)'])
-                            ).self_group()
-                        )
-                    ).self_group(),
-                    and_(
-                        product_table.c.network_product_code.like('DME%'),
-                        or_(
-                            person_table.c.role.like('ODC_%'),
-                            person_table.c.role.like('RDC_%'),
-                            person_table.c.role.like('GSPSG_%')
-                        ),
-                        or_(
-                            and_(
-                                order_table.c.order_type == 'Provide',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'GSDT Co-ordination Work',
-                                     'Circuit Creation']),
-                            ).self_group(),
-                            and_(
-                                order_table.c.order_type == 'Change',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'GSDT Co-ordination Work',
-                                     'Circuit Creation',
-                                     'Change Speed Configure']),
-                            ).self_group(),
-                            and_(
-                                order_table.c.order_type == 'Cease',
-                                activity_table.c.name.in_(
-                                    ['GSDT Co-ordination Wrk-BQ',
-                                     'GSDT Co-ordination Work',
-                                     'Node & Circuit Deletion']),
-                            ).self_group()
-                        )
-                    ).self_group(),
-                    and_(
-                        product_table.c.network_product_code.in_(
-                            ['ELK0031',
-                             'ELK0052',
-                             'ELK0053',
-                             'ELK0055',
-                             'ELK0089',
-                             'ELK0090',
-                             'ELK0091',
-                             'ELK0092',
-                             'ELK0093',
-                             'ELK0094',
-                             'ELK0003']),
-                        or_(
-                            and_(
-                                order_table.c.order_type == 'Provide',
-                                or_(
-                                    and_(
-                                        or_(
-                                            person_table.c.role.like('ODC_%'),
-                                            person_table.c.role.like('RDC_%'),
-                                            person_table.c.role.like('GSPSG_%')
-                                        ),
-                                        activity_table.c.name == 'Circuit Creation'
-                                    ).self_group(),
-                                    and_(
-                                        person_table.c.role == 'GSPSG_ME',
-                                        activity_table.c.name == 'Circuit Configuration-STM'
-                                    ).self_group()
+    if report.debug_config.getboolean("use_orm_query"):
+        query = (
+            select([
+                case(
+                    (or_(
+                        product_table.c.network_product_code.like('DGN%'),
+                        product_table.c.network_product_code.like('DEK%'),
+                        product_table.c.network_product_code.like('DLC%')
+                    ), 'Diginet'),
+                    (product_table.c.network_product_code.like('DME%'), 'MetroE'),
+                    (product_table.c.network_product_code.in_(
+                        ['ELK0031',
+                         'ELK0052',
+                         'ELK0053',
+                         'ELK0055',
+                         'ELK0089',
+                         'ELK0090',
+                         'ELK0091',
+                         'ELK0092',
+                         'ELK0093',
+                         'ELK0094',
+                         'ELK0003']), 'MegaPop (CE)'),
+                    (product_table.c.network_product_code.like('GGW%'), 'Gigawave'),
+                    else_=null()
+                ).label('service'),
+                order_table.c.order_code,
+                customer_table.c.name,
+                order_table.c.current_crd,
+                order_table.c.service_number,
+                order_table.c.order_status,
+                order_table.c.order_type,
+                product_table.c.network_product_code,
+                person_table.c.role,
+                activity_table.c.activity_code.cast(Integer).label('step_no'),
+                activity_table.c.name,
+                activity_table.c.status,
+                activity_table.c.due_date,
+                activity_table.c.completed_date
+            ])
+            .distinct()
+            .select_from(order_table)
+            .join(activity_table,
+                  activity_table.c.order_id == order_table.c.id)
+            .outerjoin(person_table,
+                       person_table.c.id == activity_table.c.person_id)
+            .outerjoin(customer_table,
+                       customer_table.c.id == order_table.c.customer_id)
+            .outerjoin(npp_table,
+                       and_(
+                           npp_table.c.order_id == order_table.c.id,
+                           npp_table.c.level == 'Mainline',
+                           npp_table.c.status != 'Cancel'
+                       ))
+            .outerjoin(product_table,
+                       product_table.c.id == npp_table.c.product_id)
+            .where(
+                and_(
+                    order_table.c.id.in_(ORDER_ID_LIST),
+                    or_(
+                        and_(
+                            or_(
+                                product_table.c.network_product_code.like(
+                                    'DGN%'),
+                                product_table.c.network_product_code.like(
+                                    'DEK%'),
+                                product_table.c.network_product_code.like(
+                                    'DLC%')
+                            ),
+                            or_(
+                                person_table.c.role.like('ODC_%'),
+                                person_table.c.role.like('RDC_%'),
+                                person_table.c.role.like('GSPSG_%')
+                            ),
+                            or_(
+                                and_(
+                                    order_table.c.order_type.in_(
+                                        ['Provide', 'Change']),
+                                    activity_table.c.name.in_(
+                                        ['GSDT Co-ordination Wrk-BQ',
+                                         'Circuit Creation'])
+                                ).self_group(),
+                                and_(
+                                    order_table.c.order_type == 'Cease',
+                                    activity_table.c.name.in_(
+                                        ['GSDT Co-ordination Wrk-BQ',
+                                         'Node & Cct Del (DN-ISDN)',
+                                         'Node & Cct Deletion (DN)'])
                                 ).self_group()
-                            ).self_group(),
-                            and_(
-                                order_table.c.order_type == 'Change',
-                                or_(
-                                    person_table.c.role.like('ODC_%'),
-                                    person_table.c.role.like('RDC_%'),
-                                    person_table.c.role.like('GSPSG_%')
-                                ),
-                                activity_table.c.name.in_(
-                                    ['Circuit Creation', 'Reconfiguration'])
-                            ).self_group(),
-                            and_(
-                                order_table.c.order_type == 'Cease',
-                                or_(
-                                    person_table.c.role.like('ODC_%'),
-                                    person_table.c.role.like('RDC_%'),
-                                    person_table.c.role.like('GSPSG_%')
-                                ),
-                                activity_table.c.name.in_(
-                                    ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
-                            ).self_group()
-                        )
-                    ).self_group(),
-                    and_(
-                        product_table.c.network_product_code.like('GGW%'),
-                        or_(
-                            and_(
-                                order_table.c.order_type == 'Provide',
-                                or_(
-                                    and_(
-                                        or_(
-                                            person_table.c.role == 'GSP_LTC_GW',
-                                            person_table.c.role.like('ODC_%'),
-                                            person_table.c.role.like('RDC_%')
-                                        ),
-                                        activity_table.c.name.in_(
-                                            ['GSDT Co-ordination Wrk-BQ',
-                                             'GSDT Co-ordination WK-BQ',
-                                             'GSDT Co-ordination Work'])
-                                    ).self_group(),
-                                    and_(
-                                        or_(
-                                            person_table.c.role.like('ODC_%'),
-                                            person_table.c.role.like('RDC_%'),
-                                            person_table.c.role.like('GSPSG_%')
-                                        ),
-                                        activity_table.c.name == 'Circuit Creation',
-                                    )
-                                )
-                            ).self_group(),
-                            and_(
-                                order_table.c.order_type == 'Cease',
-                                or_(
-                                    and_(
-                                        or_(
-                                            person_table.c.role == 'GSDT31',
-                                            person_table.c.role.like('ODC_%'),
-                                            person_table.c.role.like('RDC_%')
-                                        ),
-                                        activity_table.c.name.in_(
-                                            ['GSDT Co-ordination Wrk-BQ',
-                                             'GSDT Co-ordination WK-BQ',
-                                             'GSDT Co-ordination Work'])
-                                    ).self_group(),
-                                    and_(
-                                        person_table.c.role == 'GSP_LTC_GW',
-                                        activity_table.c.name == 'Circuit Removal from NMS',
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.like('DME%'),
+                            or_(
+                                person_table.c.role.like('ODC_%'),
+                                person_table.c.role.like('RDC_%'),
+                                person_table.c.role.like('GSPSG_%')
+                            ),
+                            or_(
+                                and_(
+                                    order_table.c.order_type == 'Provide',
+                                    activity_table.c.name.in_(
+                                        ['GSDT Co-ordination Wrk-BQ',
+                                         'GSDT Co-ordination Work',
+                                         'Circuit Creation']),
+                                ).self_group(),
+                                and_(
+                                    order_table.c.order_type == 'Change',
+                                    activity_table.c.name.in_(
+                                        ['GSDT Co-ordination Wrk-BQ',
+                                         'GSDT Co-ordination Work',
+                                         'Circuit Creation',
+                                         'Change Speed Configure']),
+                                ).self_group(),
+                                and_(
+                                    order_table.c.order_type == 'Cease',
+                                    activity_table.c.name.in_(
+                                        ['GSDT Co-ordination Wrk-BQ',
+                                         'GSDT Co-ordination Work',
+                                         'Node & Circuit Deletion']),
+                                ).self_group()
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.in_(
+                                ['ELK0031',
+                                 'ELK0052',
+                                 'ELK0053',
+                                 'ELK0055',
+                                 'ELK0089',
+                                 'ELK0090',
+                                 'ELK0091',
+                                 'ELK0092',
+                                 'ELK0093',
+                                 'ELK0094',
+                                 'ELK0003']),
+                            or_(
+                                and_(
+                                    order_table.c.order_type == 'Provide',
+                                    or_(
+                                        and_(
+                                            or_(
+                                                person_table.c.role.like(
+                                                    'ODC_%'),
+                                                person_table.c.role.like(
+                                                    'RDC_%'),
+                                                person_table.c.role.like(
+                                                    'GSPSG_%')
+                                            ),
+                                            activity_table.c.name == 'Circuit Creation'
+                                        ).self_group(),
+                                        and_(
+                                            person_table.c.role == 'GSPSG_ME',
+                                            activity_table.c.name == 'Circuit Configuration-STM'
+                                        ).self_group()
                                     ).self_group()
-                                )
-                            ).self_group()
-                        )
-                    ).self_group()
+                                ).self_group(),
+                                and_(
+                                    order_table.c.order_type == 'Change',
+                                    or_(
+                                        person_table.c.role.like('ODC_%'),
+                                        person_table.c.role.like('RDC_%'),
+                                        person_table.c.role.like('GSPSG_%')
+                                    ),
+                                    activity_table.c.name.in_(
+                                        ['Circuit Creation', 'Reconfiguration'])
+                                ).self_group(),
+                                and_(
+                                    order_table.c.order_type == 'Cease',
+                                    or_(
+                                        person_table.c.role.like('ODC_%'),
+                                        person_table.c.role.like('RDC_%'),
+                                        person_table.c.role.like('GSPSG_%')
+                                    ),
+                                    activity_table.c.name.in_(
+                                        ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
+                                ).self_group()
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.like('GGW%'),
+                            or_(
+                                and_(
+                                    order_table.c.order_type == 'Provide',
+                                    or_(
+                                        and_(
+                                            or_(
+                                                person_table.c.role == 'GSP_LTC_GW',
+                                                person_table.c.role.like(
+                                                    'ODC_%'),
+                                                person_table.c.role.like(
+                                                    'RDC_%')
+                                            ),
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Wrk-BQ',
+                                                 'GSDT Co-ordination WK-BQ',
+                                                 'GSDT Co-ordination Work'])
+                                        ).self_group(),
+                                        and_(
+                                            or_(
+                                                person_table.c.role.like(
+                                                    'ODC_%'),
+                                                person_table.c.role.like(
+                                                    'RDC_%'),
+                                                person_table.c.role.like(
+                                                    'GSPSG_%')
+                                            ),
+                                            activity_table.c.name == 'Circuit Creation',
+                                        )
+                                    )
+                                ).self_group(),
+                                and_(
+                                    order_table.c.order_type == 'Cease',
+                                    or_(
+                                        and_(
+                                            or_(
+                                                person_table.c.role == 'GSDT31',
+                                                person_table.c.role.like(
+                                                    'ODC_%'),
+                                                person_table.c.role.like(
+                                                    'RDC_%')
+                                            ),
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Wrk-BQ',
+                                                 'GSDT Co-ordination WK-BQ',
+                                                 'GSDT Co-ordination Work'])
+                                        ).self_group(),
+                                        and_(
+                                            person_table.c.role == 'GSP_LTC_GW',
+                                            activity_table.c.name == 'Circuit Removal from NMS',
+                                        ).self_group()
+                                    )
+                                ).self_group()
+                            )
+                        ).self_group()
+                    )
                 )
             )
+            .order_by(
+                'service',
+                order_table.c.order_type.desc(),
+                activity_table.c.name,
+                'step_no',
+                person_table.c.role,
+                order_table.c.order_code
+            )
         )
-        .order_by(
-            'service',
-            order_table.c.order_type.desc(),
-            activity_table.c.name,
-            'step_no',
-            person_table.c.role,
-            order_table.c.order_code
-        )
-    )
+    else:
+        raw_query = report.get_query_from_file("getTransportRecords.sql")
+        query = raw_query.format(
+            order_id_list=report.list_to_string(ORDER_ID_LIST))
 
     return report.query_to_dataframe(query, column_names=const.DRAFT_COLUMNS)

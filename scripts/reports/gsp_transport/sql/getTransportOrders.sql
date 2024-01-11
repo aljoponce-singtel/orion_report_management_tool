@@ -153,5 +153,5 @@ WHERE
             )
         )
     )
-    AND act.completed_date BETWEEN '{}'
-    AND '{}';
+    AND act.completed_date BETWEEN '{start_date}'
+    AND '{end_date}';
