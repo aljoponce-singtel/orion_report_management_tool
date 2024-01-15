@@ -36,7 +36,6 @@ WHERE
                         OR (
                             ord.order_type = 'Cease'
                             AND act.name IN (
-                                'GSDT Co-ordination Wrk-BQ',
                                 'Node & Cct Del (DN-ISDN)',
                                 'Node & Cct Deletion (DN)'
                             )
@@ -151,6 +150,25 @@ WHERE
                     )
                 )
             )
+        )
+        OR (
+            prd.network_product_code IN ('ELK0060')
+            AND (
+                (
+                    per.role IN ('GSPSG_LTC3')
+                    AND act.name IN ('GSDT Co-ordination Work')
+                )
+                OR (
+                    per.role IN ('GSPSG_ME')
+                    AND act.name IN ('Circuit creation')
+                    AND cus.name LIKE 'SINGNET%'
+                )
+            )
+        )
+        OR (
+            prd.network_product_code IN ('DCI0016', 'DCI0021')
+            AND per.role IN ('GSP_LTCT3')
+            AND act.name IN ('GSDT Co-ordination Work')
         )
     )
     AND act.completed_date BETWEEN '{start_date}'

@@ -96,6 +96,11 @@ def createFinalReport(report: OrionReport):
         orderType = row['OrderType']
         productCode = row['ProductCode']
 
+        coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = (
+            None, None, None, None, None, None)
+        preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = (
+            None, None, None, None, None, None)
+
         if df_orders.at[index, 'Service'] == 'Diginet':
             coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Wrk-BQ'])
@@ -162,6 +167,17 @@ def createFinalReport(report: OrionReport):
             if df_orders.at[index, 'OrderType'] == 'Cease':
                 preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
                     df_activities, ['Circuit Removal from NMS'])
+
+        if df_orders.at[index, 'Service'] == 'CEVN':
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                df_activities, ['GSDT Co-ordination Work'])
+
+            preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                df_activities, ['Circuit Creation'])
+
+        if df_orders.at[index, 'Service'] == 'SD-Connect':
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                df_activities, ['GSDT Co-ordination Work'])
 
         reportData = [
             service,
@@ -424,6 +440,33 @@ def getTransportOrders(report: OrionReport) -> pd.DataFrame:
                                     )
                                 ).self_group(),
                             )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.in_(
+                                ['ELK0060']),
+                            and_(
+                                or_(
+                                    and_(
+                                        person_table.c.role.in_(
+                                            ['GSPSG_LTC3']),
+                                        activity_table.c.name.in_(
+                                            ['GSDT Co-ordination Work'])
+                                    ).self_group(),
+                                    and_(
+                                        person_table.c.role.in_(['GSPSG_ME']),
+                                        activity_table.c.name.in_(
+                                            ['Circuit creation']),
+                                        customer_table.c.name.like('SINGNET%')
+                                    ).self_group()
+                                )
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.in_(
+                                ['DCI0016', 'DCI0021']),
+                            person_table.c.role.in_(['GSP_LTCT3']),
+                            activity_table.c.name.in_(
+                                ['GSDT Co-ordination Work'])
                         ).self_group()
                     ),
                     activity_table.c.completed_date.between(
@@ -480,6 +523,10 @@ def getTransportRecords(report: OrionReport, order_id_list) -> pd.DataFrame:
                          'ELK0094',
                          'ELK0003']), 'MegaPop (CE)'),
                     (product_table.c.network_product_code.like('GGW%'), 'Gigawave'),
+                    (product_table.c.network_product_code.in_(
+                        ['ELK0060']), 'CEVN'),
+                    (product_table.c.network_product_code.in_(
+                        ['DCI0016', 'DCI0021']), 'SD-Connect'),
                     else_=null()
                 ).label('service'),
                 order_table.c.order_code,
@@ -688,6 +735,44 @@ def getTransportRecords(report: OrionReport, order_id_list) -> pd.DataFrame:
                                             activity_table.c.name == 'Circuit Removal from NMS',
                                         ).self_group()
                                     )
+                                ).self_group()
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.in_(
+                                ['ELK0060']),
+                            or_(
+                                and_(
+                                    or_(
+                                        and_(
+                                            person_table.c.role.in_(
+                                                ['GSPSG_LTC3']),
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Work'])
+                                        ).self_group(),
+                                        and_(
+                                            person_table.c.role.in_(
+                                                ['GSPSG_ME']),
+                                            activity_table.c.name.in_(
+                                                ['Circuit creation'])
+                                        ).self_group()
+                                    ).self_group()
+                                ).self_group()
+                            )
+                        ).self_group(),
+                        and_(
+                            product_table.c.network_product_code.in_(
+                                ['DCI0016', 'DCI0021']),
+                            or_(
+                                and_(
+                                    or_(
+                                        and_(
+                                            person_table.c.role.in_(
+                                                ['GSP_LTCT3']),
+                                            activity_table.c.name.in_(
+                                                ['GSDT Co-ordination Work'])
+                                        ).self_group()
+                                    ).self_group()
                                 ).self_group()
                             )
                         ).self_group()

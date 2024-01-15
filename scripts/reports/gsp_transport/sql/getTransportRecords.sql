@@ -21,6 +21,8 @@ SELECT
                 'ELK0003'
             ) THEN 'MegaPop (CE)'
             WHEN prd.network_product_code LIKE 'GGW%' THEN 'Gigawave'
+            WHEN prd.network_product_code IN ('ELK0060') THEN 'CEVN'
+            WHEN prd.network_product_code IN ('DCI0016', 'DCI0021') THEN 'SD-Connect'
             ELSE NULL
         END
     ) AS service,
@@ -47,7 +49,7 @@ FROM
     AND npp.status <> 'Cancel'
     LEFT JOIN RestInterface_product prd ON prd.id = npp.product_id
 WHERE
-    ord.id IN ({ order_id_list })
+    ord.id IN ({order_id_list})
     AND (
         (
             (
@@ -213,6 +215,28 @@ WHERE
                             AND act.name = 'Circuit Removal from NMS'
                         )
                     )
+                )
+            )
+        )
+        OR (
+            prd.network_product_code IN ('ELK0060')
+            AND (
+                (
+                    per.role IN ('GSPSG_LTC3')
+                    AND act.name IN ('GSDT Co-ordination Work')
+                )
+                OR (
+                    per.role IN ('GSPSG_ME')
+                    AND act.name IN ('Circuit creation')
+                )
+            )
+        )
+        OR (
+            prd.network_product_code IN ('DCI0016', 'DCI0021')
+            AND (
+                (
+                    per.role IN ('GSP_LTCT3')
+                    AND act.name IN ('GSDT Co-ordination Work')
                 )
             )
         )
