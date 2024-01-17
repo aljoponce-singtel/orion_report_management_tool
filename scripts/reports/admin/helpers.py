@@ -31,7 +31,7 @@ def test_email(email_address, attachment_path=None, email_subject='[Orion] Test 
     report.send_email()
 
 
-def query_to_csv(query_file, filename, db_name, report_name='Quick Query'):
+def query_to_csv(query_file, filename, db_name=None, report_name='Quick Query'):
 
     report = OrionReport(report_name)
     report.set_filename(filename)
@@ -57,7 +57,7 @@ def query_to_csv(query_file, filename, db_name, report_name='Quick Query'):
         report.send_email()
 
 
-def query_to_excel(query_file, filename, db_name, report_name='Quick Query'):
+def query_to_excel(query_file, filename, db_name=None, report_name='Quick Query'):
 
     report = OrionReport(report_name)
     report.set_filename(filename)
@@ -81,6 +81,32 @@ def query_to_excel(query_file, filename, db_name, report_name='Quick Query'):
     if csv_file:
         report.attach_file_to_email(csv_file)
         report.send_email()
+
+
+def insert_records(table_name, column_name, records_file, db_name=None, report_name='Insert Records'):
+
+    report = OrionReport(report_name)
+
+    # Read service numbers from the file
+    with open(records_file, 'r') as file:
+        records = [line.strip() for line in file]
+
+    # Insert records into the lsp_ipvpn table
+    insert_query = "INSERT INTO {} ({}) VALUES (%s)".format(
+        table_name, column_name)
+    records = [(record,) for record in records]
+
+    if db_name == "o2pprod" or db_name == "o2puat":
+        inserted_row_count = report.orion_db.sql_insert(insert_query, records)
+    elif db_name == "pegasusmulesoft":
+        inserted_row_count = report.staging_db.sql_insert(
+            insert_query, records)
+    elif db_name == "o2ptableau":
+        inserted_row_count = report.tableau_db.sql_insert(
+            insert_query, records)
+    else:
+        # table_name == "o2ptest":
+        inserted_row_count = report.test_db.sql_insert(insert_query, records)
 
 
 def load_csv_to_table(csv_file, database_name=None, table_name=None, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB', chunk_size: int = 1000):

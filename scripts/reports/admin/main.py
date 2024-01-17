@@ -4,7 +4,7 @@ import logging
 # Import local packages
 from helpers import check_disk_usage, check_new_queueowners, query_to_csv, \
     check_new_product_codes_to_map, get_superusers, load_csv_to_table, test_email, \
-    query_to_excel
+    query_to_excel, insert_records
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +93,14 @@ def main():
         '''
         # load_csv_to_table(csv_file=r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\Products\20231130_voice_uc\product_mapping_20231130.csv', database_name="o2ptest",
         #                   table_name='product_mapping_20231130')
+
+        '''
+        INSERT LSP RECORDS
+        '''
+        # insert_records(
+        #     "lsp_ipvpn", "service_number", r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_ipvpn.txt")
+        # insert_records(
+        #     "lsp_cgi", "service_number", r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_cgi.txt")
 
         '''
         FOR TESTING

@@ -101,7 +101,7 @@ class DbConnection:
         elif query_type is str:
             result = self.conn.execute(text(query))
         # query is a constructed SQL expression
-        elif query_type.__name__ == 'Select':
+        elif query_type.__name__ == 'Update':
             result = self.conn.execute(query)
         else:
             raise Exception("INVALID SQL STATEMENT")
@@ -153,6 +153,46 @@ class DbConnection:
             f"Query completion time: {self.__format_seconds(elapsed_time)}")
 
         return result
+
+    def sql_insert(self, query, data=None, query_description=None):
+
+        # Only works when log_level=debug
+        self.log_full_query(query)
+
+        # Set default query description
+        if not query_description:
+            query_description = 'records'
+
+        logger.info(f"[DB:{self.database}] Inserting {query_description} ...")
+
+        result = []
+        query_type = type(query)
+        start_time = time.time()
+        result: LegacyCursorResult
+
+        # query has data
+        if data:
+            result = self.conn.execute(query, data)
+        # query is a an SQL text
+        elif query_type is str:
+            result = self.conn.execute(text(query))
+        # query is a constructed SQL expression
+        elif query_type.__name__ == 'Insert':
+            result = self.conn.execute(query)
+        else:
+            raise Exception("INVALID SQL STATEMENT")
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+
+        logger.info(
+            f"Insert completion time: {self.__format_seconds(elapsed_time)}")
+
+        # Get the number of rows updated
+        inserted_row_count = result.rowcount
+        logger.debug(f"No. of inserted rows: {inserted_row_count}")
+
+        return inserted_row_count
 
     def query_to_list(self, query, data=None, query_description=None):
 
