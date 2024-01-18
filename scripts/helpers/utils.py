@@ -36,6 +36,24 @@ class Utils:
 
         return str_list_no_brackets
 
+    def get_list_from_file(self, file_path: str) -> list:
+
+        with open(file_path, 'r') as file:
+            records = [line.strip() for line in file]
+
+        return records
+
+    def format_seconds(self, seconds):
+        # Calculate hours, minutes, and seconds
+        hours, seconds = divmod(seconds, 3600)
+        minutes, seconds = divmod(seconds, 60)
+        # Round seconds to two decimal places
+        seconds = round(seconds, 2)
+        # Create a formatted string
+        formatted_duration = f"{int(hours)}:{int(minutes):02}:{seconds:05.2f}"
+
+        return formatted_duration
+
     def df_to_csv(self, df: pd.DataFrame, file_path, index=False):
         logger.info("Creating file " + os.path.basename(file_path) + " ...")
         df.to_csv(file_path, index=index)
