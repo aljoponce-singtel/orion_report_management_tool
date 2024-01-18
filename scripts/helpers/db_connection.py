@@ -282,7 +282,7 @@ class DbConnection:
 
         return df
 
-    def insert_df_to_table(self, dataframe, table, if_exist=None, chunk_size=None):
+    def insert_df_to_table(self, dataframe, table, index=False, index_label=None, if_exist=None, chunk_size=None):
         logger.info(f'Inserting records to {self.database}.{table} ...')
 
         no_of_affected_rows = 0
@@ -306,7 +306,11 @@ class DbConnection:
                                             con=self.engine,
                                             #   indexbool, default True
                                             #         Write DataFrame index as a column. Uses index_label as the column name in the table.
-                                            index=False,
+                                            index=index,
+                                            # Column label for index column(s).
+                                            # If None is given (default) and index is True, then the index names are used.
+                                            # A sequence should be given if the DataFrame uses MultiIndex.
+                                            index_label=index_label,
                                             # if_exists : {‘fail’, ‘replace’, ‘append’}, default ‘fail’
                                             #     How to behave if the table already exists.
                                             #     fail: Raise a ValueError.
@@ -325,12 +329,13 @@ class DbConnection:
                 f"Inserting in chunk sizes of {chunk_size} ...")
             no_of_affected_rows = df.to_sql(table,
                                             con=self.engine,
-                                            index=False,
+                                            index=index,
+                                            index_label=index_label,
                                             if_exists='append' if not if_exist else if_exist,
                                             chunksize=chunk_size,
                                             method='multi')
 
-        logger.info(f"Number of affected rows: {no_of_affected_rows}")
+        logger.info(f"Number of inserted rows: {no_of_affected_rows}")
 
         return no_of_affected_rows
 
