@@ -1,12 +1,14 @@
 # Import built-in packages
 import os
 import logging
+import time
 
 # Import third-party packages
 import numpy as np
 import pandas as pd
 
 # Import local packages
+from scripts.reports.admin.models.order_service import create_order_service_list_class, create_order_service_match_class
 from os.path import basename
 from scripts.orion_report import OrionReport
 
@@ -87,11 +89,9 @@ def insert_records(table_name, column_name, records_file, db_name=None, report_n
 
     report = OrionReport(report_name)
 
-    # Read service numbers from the file
     with open(records_file, 'r') as file:
         records = [line.strip() for line in file]
 
-    # Insert records into the lsp_ipvpn table
     insert_query = "INSERT INTO {} ({}) VALUES (%s)".format(
         table_name, column_name)
     records = [(record,) for record in records]
@@ -107,6 +107,94 @@ def insert_records(table_name, column_name, records_file, db_name=None, report_n
     else:
         # table_name == "o2ptest":
         inserted_row_count = report.test_db.sql_insert(insert_query, records)
+
+    logger.info(f"No. of inserted rows: {inserted_row_count}")
+
+
+def retrieve_orderid_of_serviceno(serviceno_list_file, batch_size=200, table_name=None, report_name="Retrieve OrderInfo of ServiceNo"):
+
+    report = OrionReport(report_name)
+    records = report.get_list_from_file(serviceno_list_file)
+
+    try:
+        if table_name:
+            OrderServiceList = create_order_service_list_class(
+                f"order_service_list_{table_name}")
+            OrderServiceMatch = create_order_service_match_class(
+                f"order_service_match_{table_name}")
+        else:
+            OrderServiceList = create_order_service_list_class(
+                'order_service_list')
+            OrderServiceMatch = create_order_service_match_class(
+                'order_service_match')
+        # User o2ptest database
+        db = report.test_db
+        # Create table if not exist and insert the service numbers from the file
+        table_name_list = OrderServiceList.__tablename__
+        table_model_list = OrderServiceList
+        db.create_table_from_metadata(table_model_list)
+        insert_query = "INSERT IGNORE INTO {} (ServiceNumber) VALUES (%s)".format(
+            table_name_list)
+        records = [(record,) for record in records]
+        inserted_row_count = db.sql_insert(
+            insert_query, records, query_description="service numbers")
+        logger.info(f"No. of inserted rows: {inserted_row_count}")
+        # Get the list of service numbers from the table
+        df_records = db.query_to_dataframe(
+            f"SELECT DISTINCT * FROM {table_name_list}", query_description="unique service numbers")
+        list_records = df_records['ServiceNumber'].to_list()
+        # Create table if not exist
+        table_name_match = OrderServiceMatch.__tablename__
+        table_model_match = OrderServiceMatch
+        db.create_table_from_metadata(table_model_match)
+        # Process in batches
+        logger.info(f"Processing in batches of {batch_size} ...")
+        # Monitor time of batch processing
+        start_time = time.time()
+        # Loop through each batch
+        for i in range(0, len(list_records), batch_size):
+            # Get the current batch to process
+            batch_list = list_records[i:i + batch_size]
+            # Perform your processing on the current batch
+            query = f'''
+                        SELECT DISTINCT
+                            ORD.id         AS OrderId
+                        , ORD.order_code AS OrderCode
+                        , SVC.ServiceNumber
+                        FROM
+                            {report.test_db.database}.{table_name_list} SVC
+                            LEFT JOIN
+                                RestInterface_order ORD
+                                ON
+                                    ORD.service_number = SVC.ServiceNumber
+                        WHERE
+                            SVC.ServiceNumber         IN ({report.list_to_string(batch_list)})
+                            AND SVC.ServiceNumber NOT IN
+                            (
+                                SELECT DISTINCT
+                                    ServiceNumber
+                                FROM
+                                    {report.test_db.database}.{table_name_match}
+                            )
+                        ;
+                '''
+            df = report.query_to_dataframe(
+                query, db=report.orion_db, query_description="order info of service numbers")
+            logger.info(
+                f"Inserting records to {db.database}.{table_name_match} ...")
+            # insert records to DB
+            db.insert_df_to_table(df, table_name_match)
+            # Progress information
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            total_processed = len(list_records) if i + \
+                batch_size > len(list_records) else i+batch_size
+            logger.info(
+                f"{total_processed}/{len(list_records)} total records processed in {report.format_seconds(elapsed_time)}")
+
+    except Exception as err:
+        logger.exception(err)
+        raise Exception(err)
 
 
 def load_csv_to_table(csv_file, database_name=None, table_name=None, columns: list = None, datetime_columns: list = None, date_columns: list = None, report_name='CSV to DB', chunk_size: int = 1000):

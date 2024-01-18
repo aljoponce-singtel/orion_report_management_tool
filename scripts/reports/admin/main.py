@@ -4,7 +4,7 @@ import logging
 # Import local packages
 from helpers import check_disk_usage, check_new_queueowners, query_to_csv, \
     check_new_product_codes_to_map, get_superusers, load_csv_to_table, test_email, \
-    query_to_excel, insert_records
+    query_to_excel, insert_records, retrieve_orderid_of_serviceno
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +101,14 @@ def main():
         #     "lsp_ipvpn", "service_number", r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_ipvpn.txt")
         # insert_records(
         #     "lsp_cgi", "service_number", r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_cgi.txt")
+        # retrieve_orderid_of_serviceno(
+        #     serviceno_list_file=r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_ipvpn.txt",
+        #     table_name="ipvpn")
+        # retrieve_orderid_of_serviceno(
+        #     serviceno_list_file=r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_cgi.txt",
+        #     table_name="cgi")
+        # retrieve_orderid_of_serviceno(
+        #     r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_test.txt")
 
         '''
         FOR TESTING
