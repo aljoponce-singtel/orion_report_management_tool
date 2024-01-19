@@ -1,4 +1,4 @@
-from sqlalchemy import Column, PrimaryKeyConstraint, Integer, String
+from sqlalchemy import Column, PrimaryKeyConstraint, Integer, String, Date
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -24,6 +24,7 @@ def create_order_service_match_class(tablename):
         OrderId = Column(Integer, index=True)
         OrderCode = Column(String(20))
         ServiceNumber = Column(String(80))
+        CreatedDate = Column(Date())
 
         def __repr__(self):
             return "<OrderServiceMatch(OrderCode='%s')>" % (self.OrderCode)

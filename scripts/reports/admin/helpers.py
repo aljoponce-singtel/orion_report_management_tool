@@ -160,6 +160,7 @@ def retrieve_orderid_of_serviceno(serviceno_list_file, batch_size=200, table_nam
                         SELECT DISTINCT
                             ORD.id         AS OrderId
                         , ORD.order_code AS OrderCode
+                        , ORD.taken_date AS CreatedDate
                         , SVC.ServiceNumber
                         FROM
                             {report.test_db.database}.{table_name_list} SVC
