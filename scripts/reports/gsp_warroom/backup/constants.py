@@ -138,4 +138,18 @@ MAIN_NPP_COLUMNS = [
     'OLLC Site Survey',
     'FOC Date Received',
     'LLC Accepted by Singtel'
+    # speed
+    # ord_action_type
+    # a-end address
+    # b-end address
+    # accountno - TBD
+    # A-end-Cust
+    # AAM
+    # AM
+    # B-end-Cust
+    # Project Manager
+    # Reseller
+    # Techincal-Cust
+    # Appt ID - TBD
+    # Appt Group ID - TBD
 ]
