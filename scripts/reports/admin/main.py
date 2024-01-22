@@ -81,7 +81,7 @@ def main():
         # datetime_colums: list = None
         # load_csv_to_table(csv_file=r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231204_esom_order_status\esom_order_status.csv',
         #                   table_name='esom_order_status_20231204', columns=columns, date_columns=date_colums, chunk_size=5000)
-        # query_to_file(
+        # query_to_csv(
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231107_esom_order_status\query_4.sql', "esom_order_status", "ESOM Order Status")
         # query_to_csv(
         #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\ETL\20231114_esom_order_status\ord_esom_compare.sql', "missing_orders", "MISSING ORDERS")
@@ -109,6 +109,10 @@ def main():
         #     table_name="cgi")
         # retrieve_orderid_of_serviceno(
         #     r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_test.txt")
+        # query_to_csv(
+        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\select_npp_ipvpn.sql', "ls_ipvpn", "o2pprod", "LSP IPVPN")
+        # query_to_csv(
+        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\select_npp_cgi.sql', "ls_cgi", "o2pprod", "LSP CGI")
 
         '''
         FOR TESTING
