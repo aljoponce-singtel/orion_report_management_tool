@@ -1,0 +1,43 @@
+Ignore VAS product codes
+
+| International    | TransPort    | OLLC                 | CIC0001      | C+ ILC                                                                                          |
+| International    | TransPort    | OLLC                 | CIC0009      | (ASON) CPlus ILC                                                                                |
+| International    | TransPort    | OLLC                 | ICD0001      | Overseas Local Loop                                                                             |
+| International    | TransPort    | OLLC                 | OLL0001      | Overseas Local Loop                                                                             |
+| International    | TransPort    | OLLC                 | OLL0002      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0001      | Singtel Europe ILC                                                                              |
+| International    | TransPort    | OLLC                 | RSL0002      | Singtel Hong Kong ILC                                                                           |
+| International    | TransPort    | OLLC                 | RSL0003      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0004      | Singtel Europe LLC                                                                              |
+| International    | TransPort    | OLLC                 | RSL0005      | Singtel Hong Kong LLC                                                                           |
+| International    | TransPort    | OLLC                 | RSL0006      | Singtel Japan LLC                                                                               |
+| International    | TransPort    | OLLC                 | RSL0010      | Singtel Taiwan ILC                                                                              |
+| International    | TransPort    | OLLC                 | RSL0011      | Singtel Taiwan LLC                                                                              |
+| International    | TransPort    | OLLC                 | RSL0014      | Singtel Korea LLC                                                                               |
+| International    | TransPort    | OLLC                 | RSL0016      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0017      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0018      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0019      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0032      | Singtel USA ILC                                                                                 |
+| International    | TransPort    | OLLC                 | RSL0033      | Singtel USA LLC                                                                                 |
+| International    | TransPort    | OLLC                 | RSL0035      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0036      | Singtel India ILC                                                                               |
+| International    | TransPort    | OLLC                 | RSL0037      | Singtel India LLC                                                                               |
+| International    | TransPort    | OLLC                 | RSL0039      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0040      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0041      | Singtel China LLC                                                                               |
+| International    | TransPort    | OLLC                 | RSL0042      | NULL                                                                                            |
+| International    | TransPort    | OLLC                 | RSL0044      | ConnectPlus Overseas LLC                                                                        |
+| International    | TransPort    | OLLC                 | TPC0007      | TP OSS Bilateral ILC                                                                            |
+| International    | TransPort    | OLLC                 | TPC0008      | TP Acasia ILC                                                                                   |
+| International    | TransPort    | OLLC                 | TPC0010      | TP ConnectPlus ILC                                                                              |
+| International    | TransPort    | OLLC                 | TPC0024      | NNI - TP SGO OLLC                                                                               |
+| International    | TransPort    | OLLC                 | TPC0026      | TP WFOE ConnectPlus OLLC                                                                        |
+| International    | TransPort    | OLLC                 | TPC0032      | TP ConnectPlus Overseas LLC                                                                     |
+| International    | TransPort    | OLLC                 | TPC0034      | TP SD Connect Cross Connect and OLLC                                                            |
+
+
+retrieve 1 month
+
+
+WO Number	Customer Name	Service No	Speed	Orginating Country	Orginating State	Terminating Country	Terminating State	OLLC Type	OLLC Network Type	Main Svc No	Interface	LLC Partner reference	LLC Partner Name	LLC Received from Partner	LLC Accepted by Singtel	LLC X-connnect reference	LLC X-connect Partner Name	LLC X-connect Accepted by Singtel 	Initial CRD	FOC Date	Date received from Partner (FOC)	OLLC Order Placed	Site survey Date	Actual Site survey completion	DPE received date	Partner Ack Date
