@@ -2,7 +2,10 @@ SELECT
     DISTINCT ORD.order_code AS 'OrderNo',
     CUS.name AS 'CustomerName',
     BRN.brn AS 'BRN',
-    PRD.network_product_desc AS 'ProductDescription',
+    NPP.level AS 'NPPLevel',
+    NPP.status AS 'NPPStatus',
+    PRD.network_product_code AS 'Mainline_ProductCode',
+    PRD.network_product_desc AS 'Mainline_ProductDescription',
     ORD.order_type AS 'OrderType',
     ORD.ord_action_type AS 'OrderActionType',
     ORD.order_status AS 'OrderStatus',
@@ -48,9 +51,9 @@ FROM
             ) AS 'ComponentDescription'
         FROM
             RestInterface_order ORDEV
-            JOIN RestInterface_billing BILLEV ON BILLEV.order_id = ORDEV.id
+            LEFT JOIN RestInterface_billing BILLEV ON BILLEV.order_id = ORDEV.id
         WHERE
-            ORDEV.service_number LIKE '%EV%'
+            ORDEV.service_number REGEXP '^EV[0-9]\w*'
             OR LOWER(BILLEV.package_description) LIKE '%evolve%'
             OR LOWER(BILLEV.component_description) LIKE '%evolve%'
         GROUP BY
@@ -86,8 +89,7 @@ WHERE
         OR ORD.business_sector LIKE '%global business%'
     )
     AND ORD.order_status = 'Closed'
-    AND ORD.order_type != 'Cease'
-    -- AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
+    AND ORD.order_type != 'Cease' -- AND ORD.current_crd > DATE_SUB(ORD.close_date, INTERVAL 30 day)
     -- AND ORD.current_crd < ORD.close_date
     AND ORD.close_date BETWEEN '{start_date}'
     AND '{end_date}'
