@@ -2,11 +2,7 @@
 from dateutil.relativedelta import relativedelta
 import logging
 
-# Import third-party packages
-import pandas as pd
-
 # Import local packages
-import constants as const
 from scripts.orion_report import OrionReport
 
 logger = logging.getLogger(__name__)
@@ -28,33 +24,8 @@ def generate_warroom_report():
         report_date=report.report_date)
     df_raw = report.query_to_dataframe(
         formatted_query, query_description="warroom records", datetime_to_date=True)
-
-    # Create new dataframe based from CRD_AMENDMENT_COLUMNS
-    df_crd_amendment = df_raw[const.CRD_AMENDMENT_COLUMNS].drop_duplicates().dropna(
-        subset=['crd_amendment_date'])
-
-    # Sort records in ascending order by order_code and note_code
-    df_crd_amendment = df_crd_amendment.sort_values(
-        by=['order_code', 'note_code'], ascending=[True, False])
-
-    # Keep the latest CRD amendment reason
-    df_crd_amendment = df_crd_amendment.drop_duplicates(
-        ['order_code'], keep='last')
-
-    df_main = df_raw[const.MAIN_COLUMNS].drop_duplicates()
-    # Sort records in ascending order by current_crd, order_code and step_no
-    df_main = df_main.sort_values(
-        by=['current_crd', 'order_code', 'step_no'], ascending=[False, True, True])
-
-    # Rename the 'parameter_value' column to 'ed_pd_diversity'
-    df_main = df_main.rename(columns={'parameter_value': 'ed_pd_diversity'})
-
-    # (left) Join the df_main and df_crd_amendment dataframe through their order_code
-    df_merged = pd.merge(df_main, df_crd_amendment.drop(columns=['note_code']),
-                         how='left', on=['order_code'])
-
     # Write to CSV
-    csv_file = report.create_csv_from_df(df_merged, add_timestamp=True)
+    csv_file = report.create_csv_from_df(df_raw, add_timestamp=True)
     # Add CSV to zip file
     zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
     # Send Email
@@ -98,11 +69,6 @@ def generate_warroom_npp_report():
         start_date=report.start_date, end_date=report.end_date)
     df_raw = report.query_to_dataframe(
         formatted_query, query_description="warroom npp records")
-
-    # Sort records in ascending order by order_code, parameter_name and step_no
-    df_raw = df_raw.sort_values(
-        by=['order_code', 'npp_level'], ascending=[True, True])
-
     # Write to CSV
     csv_file = report.create_csv_from_df(df_raw, add_timestamp=True)
     # Add CSV to zip file

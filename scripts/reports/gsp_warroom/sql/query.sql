@@ -9,26 +9,7 @@ SELECT
     ORD.taken_date,
     ORD.current_crd,
     ORD.initial_crd,
-    ORD.close_date,
-    SINOTE.note_code,
-    SINOTE.date_created AS crd_amendment_date,
-    SINOTE.details AS crd_amendment_details,
-    DATE_FORMAT(
-        REGEXP_SUBSTR(
-            SINOTE.details,
-            BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})'
-        ),
-        '%Y-%m-%d'
-    ) AS old_crd,
-    DATE_FORMAT(
-        REGEXP_SUBSTR(
-            SINOTE.details,
-            BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
-        ),
-        '%Y-%m-%d'
-    ) AS new_crd,
-    NOTEDLY.reason AS crd_amendment_reason,
-    NOTEDLY.reason_gsp AS crd_amendment_reason_gsp,
+    -- ORD.close_date,
     ORD.assignee,
     (
         CASE
@@ -44,13 +25,13 @@ SELECT
     SITE.site_code AS exchange_code_a,
     SITE.site_code_second AS exchange_code_b,
     BRN.brn,
-    ORD.am_id,
+    -- ORD.am_id,
     ORD.sde_received_date,
     ORD.arbor_disp AS arbor_service,
     ORD.service_type,
     ORD.order_priority,
-    PAR.parameter_name,
-    PAR.parameter_value,
+    -- PAR.parameter_name,
+    PAR.parameter_value AS ed_pd_diversity,
     GSP.department,
     GSP.group_id,
     CAST(ACT.activity_code AS SIGNED INTEGER) AS step_no,
@@ -60,7 +41,26 @@ SELECT
     ACT.ready_date,
     ACT.completed_date,
     RMK.created_at AS act_dly_reason_date,
-    ACTDLY.reason AS act_delay_reason
+    ACTDLY.reason AS act_delay_reason,
+    SINOTE.note_code,
+    SINOTE.date_created AS crd_amendment_date,
+    DATE_FORMAT(
+        REGEXP_SUBSTR(
+            SINOTE.details,
+            BINARY '(?<=Old CRD:)(.*)(?= New CRD:[0-9]{{8}})'
+        ),
+        '%Y-%m-%d'
+    ) AS old_crd,
+    DATE_FORMAT(
+        REGEXP_SUBSTR(
+            SINOTE.details,
+            BINARY '(?<=New CRD:)(.*)(?= Category Code:)'
+        ),
+        '%Y-%m-%d'
+    ) AS new_crd,
+    -- SINOTE.details AS crd_amendment_details,
+    NOTEDLY.reason AS crd_amendment_reason,
+    NOTEDLY.reason_gsp AS crd_amendment_reason_gsp
 FROM
     RestInterface_order ORD
     JOIN (
@@ -121,4 +121,8 @@ FROM
     AND PAR.parameter_name = 'Type'
     AND PAR.parameter_value IN ('1', '2', '010', '020')
     LEFT JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
-    AND CON.contact_type = "Project Manager";
+    AND CON.contact_type = "Project Manager"
+ORDER BY
+    ORD.current_crd DESC,
+    ORD.order_code,
+    step_no;
