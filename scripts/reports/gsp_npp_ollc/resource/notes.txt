@@ -41,3 +41,7 @@ retrieve 1 month
 
 
 WO Number	Customer Name	Service No	Speed	Orginating Country	Orginating State	Terminating Country	Terminating State	OLLC Type	OLLC Network Type	Main Svc No	Interface	LLC Partner reference	LLC Partner Name	LLC Received from Partner	LLC Accepted by Singtel	LLC X-connnect reference	LLC X-connect Partner Name	LLC X-connect Accepted by Singtel 	Initial CRD	FOC Date	Date received from Partner (FOC)	OLLC Order Placed	Site survey Date	Actual Site survey completion	DPE received date	Partner Ack Date
+
+
+3 months
+oct 2023 - dec 2023 - closed
