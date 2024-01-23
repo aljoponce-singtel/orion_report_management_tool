@@ -1,5 +1,6 @@
 SELECT
     DISTINCT ORD.order_code AS "WO Number",
+    ORD.close_date AS "Closed Date",
     CUS.name AS "Customer Name",
     ORD.service_number AS "Service No",
     ORD.initial_crd "Initial CRD",

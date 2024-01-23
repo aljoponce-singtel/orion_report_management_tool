@@ -1,5 +1,6 @@
 SELECT
     DISTINCT ORD.order_code AS "WO Number",
+    ORD.close_date AS "Closed Date",
     CUS.name AS "Customer Name",
     ORD.service_number AS "Service No",
     ORD.initial_crd "Initial CRD",
@@ -171,16 +172,9 @@ WHERE
         WHERE
             title = "OLLC"
     )
-    AND ORD.order_code IN (
-        'ZJP4632002',
-        'ZKC7814005',
-        'ZKP0343001',
-        'ZKP7707004',
-        'ZKC8290001',
-        'ZIZ5091004',
-        'ZHR0723006',
-        'ZIJ2017002'
-    )
+    AND ORD.order_status = 'Closed'
+    AND ORD.close_date BETWEEN '{start_date}'
+    AND '{end_date}'
 ORDER BY
     ORD.order_code,
     PRD.network_product_code;
