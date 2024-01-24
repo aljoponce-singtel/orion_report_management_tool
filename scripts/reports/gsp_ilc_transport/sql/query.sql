@@ -25,7 +25,7 @@ SELECT
     ACT_PRECONFIG.status AS 'PreConfig_ActStatus',
     ACT_PRECONFIG.due_date AS 'PreConfig_ActDueDate',
     ACT_PRECONFIG.completed_date AS 'PreConfig_COM_Date',
-    PER_COORDINATION.role AS 'Coordination_Group_ID',
+    PER_COORDINATION.role AS 'Coordination_GroupID',
     (
         CASE
             WHEN PER_COORDINATION.role REGEXP '^ODC_.*' THEN 'ODC'
