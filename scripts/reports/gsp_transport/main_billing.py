@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import generate_transport_billing_report
+from helper import generate_transport_billing_report
 
 logger = logging.getLogger(__name__)
 
