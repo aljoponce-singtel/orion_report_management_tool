@@ -40,6 +40,7 @@ def generate_ilc_transport_billing_report():
 
 
 def query_to_dataframe(report: OrionReport, query_file=None):
+    # get query string from file
     query = report.get_query_from_file(query_file)
     formatted_query = query.format(
         start_date=report.start_date, end_date=report.end_date)
@@ -49,8 +50,6 @@ def query_to_dataframe(report: OrionReport, query_file=None):
 
 
 def update_tableau_table(report: OrionReport, df: pd.DataFrame):
-    # add new column
-    df["update_time"] = pd.Timestamp.now()
     # set empty values to null
     df.replace('', None)
     # insert records to DB
