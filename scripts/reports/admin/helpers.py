@@ -4,11 +4,10 @@ import logging
 import time
 
 # Import third-party packages
-import numpy as np
 import pandas as pd
 
 # Import local packages
-from scripts.reports.admin.models.order_service import create_order_service_list_class, create_order_service_match_class
+from models.order_service import create_order_service_list_class, create_order_service_match_class
 from os.path import basename
 from scripts.orion_report import OrionReport
 
