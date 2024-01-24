@@ -68,8 +68,8 @@ FROM
                 'GSDT Co-ordination Work',
                 'GSDT Co-ordination OS LLC'
             )
-            AND ACT.completed_date BETWEEN '2023-06-01'
-            AND '2023-06-30'
+            AND ACT.completed_date BETWEEN '{start_date}'
+            AND '{end_date}'
     ) ORD_COM
     JOIN RestInterface_order ORD ON ORD.id = ORD_COM.order_id
     JOIN (
