@@ -300,7 +300,7 @@ class OrionReport(EmailClient, Utils):
         date_obj = super().to_date_obj(date)
         self.end_date = date_obj
 
-    def insert_df_to_tableau_table(self, df: pd.DataFrame, table_name: str, table_model: DeclarativeMeta = None):
+    def insert_df_to_tableau_table(self, df: pd.DataFrame, table_name: str, table_model: DeclarativeMeta = None, insert_table: bool = True):
         # Allow Tableaue DB update
         if self.debug_config.getboolean('update_tableau_table'):
             try:
@@ -314,7 +314,8 @@ class OrionReport(EmailClient, Utils):
                 if table_model:
                     db.create_table_from_metadata(table_model)
                 # insert records to DB
-                db.insert_df_to_table(df, table_name)
+                if insert_table:
+                    db.insert_df_to_table(df, table_name)
             except Exception as err:
                 logger.info(
                     f"Failed to insert tableau records to {db.database}.{table_name} at {db.user}@{db.host}:{db.port}")
