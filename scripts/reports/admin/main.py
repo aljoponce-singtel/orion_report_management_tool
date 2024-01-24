@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import check_disk_usage, check_new_queueowners, query_to_csv, \
+from helper import check_disk_usage, check_new_queueowners, query_to_csv, \
     check_new_product_codes_to_map, get_superusers, load_csv_to_table, test_email, \
     query_to_excel, insert_records, retrieve_orderid_of_serviceno
 
