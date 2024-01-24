@@ -4,12 +4,12 @@ SELECT
     -- ORD.order_status,
     ORD.order_type,
     CUS.name AS customer,
-    PRD.network_product_code,
+    PRD.network_product_code AS product_code,
     PER.role,
     ACT.name,
     ACT.status,
     ACT.completed_date,
-    DATE_FORMAT(ACT.updated_at, '%Y-%m-%d %H:%i:%s') AS udpated_at
+    DATE_FORMAT(ACT.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
