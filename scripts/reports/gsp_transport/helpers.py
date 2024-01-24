@@ -63,8 +63,6 @@ def generate_transport_billing_report():
 
 
 def update_tableau_table(report: OrionReport, df: pd.DataFrame):
-    # add new column
-    df["update_time"] = pd.Timestamp.now()
     # set columns to datetime type
     df[const.TABLEAU_DATE_COLUMNS] = df[const.TABLEAU_DATE_COLUMNS].apply(
         pd.to_datetime)
