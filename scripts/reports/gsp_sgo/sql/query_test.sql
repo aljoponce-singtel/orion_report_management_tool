@@ -1,50 +1,54 @@
 SELECT
-    DISTINCT ORD.order_code AS 'Workorder',
-    ORD.service_number AS 'Service No',
-    CUS.name AS 'Customer Name',
-    ACT.name AS 'Activity name',
-    PER.role AS 'Group ID',
+    DISTINCT DISTINCT ORD.order_code AS 'Workorder',
+    ORD.service_number AS 'ServiceNo',
+    CUS.name AS 'CustomerName',
+    CAST(ACT.activity_code AS SIGNED INTEGER) AS 'StepNo',
+    ACT.name AS 'ActivityName',
+    PER.role AS 'GroupID',
     ORD.current_crd AS 'CRD',
-    ORD.order_type AS 'Order type',
-    -- NPP.level AS 'NPP Level',
-    -- NPP.status AS 'NPP Status',
-    -- PRD.network_product_code AS 'NPC',
-    ORD.taken_date AS 'Taken date',
-    ACT.status AS 'Act Status',
-    ACT.completed_date AS 'Comm date',
-    ACT.performer_id AS 'Performer ID'
+    ORD.order_type AS 'OrderType'
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id
+    JOIN (
+        SELECT
+            order_id,
+            name,
+            MAX(CAST(activity_code AS SIGNED INTEGER)) AS activity_code
+        FROM
+            RestInterface_activity
+        WHERE
+            tag_name = "Pegasus"
+            AND name IN (
+                'Cease Resale SGO',
+                'Cease Resale SGO CHN',
+                'Cease Resale SGO HK',
+                'Cease Resale SGO India',
+                'Cease Resale SGO JP',
+                'Cease Resale SGO KR',
+                'Cease Resale SGO TW',
+                'Cease Resale SGO UK',
+                'Cease Resale SGO USA',
+                'Change Resale SGO',
+                'Change Resale SGO CHN',
+                'Change Resale SGO HK',
+                'Change Resale SGO India',
+                'Change Resale SGO JP',
+                'Change Resale SGO KR',
+                'Change Resale SGO TW',
+                'Change Resale SGO UK',
+                'Change Resale SGO USA',
+                'Partner Coordination',
+                'LLC Accepted by Singtel'
+            )
+            AND completed_date BETWEEN '2023-06-01'
+            AND '2023-06-30'
+        GROUP BY
+            order_id,
+            name
+    ) ACT_MAX ON ACT_MAX.order_id = ACT.order_id
+    AND ACT_MAX.activity_code = CAST(ACT.activity_code AS SIGNED INTEGER)
     JOIN RestInterface_person PER ON ACT.person_id = PER.id
-    LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
-    LEFT JOIN RestInterface_user USR ON PER.user_id = USR.id
-    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
-    AND NPP.status != 'Cancel'
-    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
-WHERE
-    ACT.name IN (
-        'Cease Resale SGO',
-        'Cease Resale SGO CHN',
-        'Cease Resale SGO HK',
-        'Cease Resale SGO India',
-        'Cease Resale SGO JP',
-        'Cease Resale SGO KR',
-        'Cease Resale SGO TW',
-        'Cease Resale SGO UK',
-        'Cease Resale SGO USA',
-        'Change Resale SGO',
-        'Change Resale SGO CHN',
-        'Change Resale SGO HK',
-        'Change Resale SGO India',
-        'Change Resale SGO JP',
-        'Change Resale SGO KR',
-        'Change Resale SGO TW',
-        'Change Resale SGO UK',
-        'Change Resale SGO USA',
-        'Partner Coordination',
-        'LLC Accepted by Singtel'
-    )
     AND PER.role IN (
         'GIP_HK',
         'GIP_IND',
@@ -81,23 +85,14 @@ WHERE
         'GIP_BGD',
         'RESALE_BGD'
     )
-    AND ORD.order_code IN (
-        'ZBO0520006',
-        'ZHN4327009',
-        'ZEM5511014',
-        'ZBF8019036',
-        'ZEM7100013',
-        'ZJR1829003',
-        'ZJB9414001',
-        'ZGG3827005',
-        'ZHR8612007',
-        'ZJB4443002',
-        'ZJR1829008',
-        'ZJQ1668003',
-        'YIR1085004',
-        'ZKL9139001',
-        'ZIV8816001'
-    )
+    LEFT JOIN RestInterface_customer CUS ON CUS.id = ORD.customer_id
+    LEFT JOIN RestInterface_user USR ON PER.user_id = USR.id
+    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
+    AND NPP.status != 'Cancel'
+    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+WHERE
+    ORD.order_code IN ('YOK3990002')
 ORDER BY
     ORD.order_code,
+    StepNo,
     ACT.name;
