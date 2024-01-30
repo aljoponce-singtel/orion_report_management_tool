@@ -1,0 +1,21 @@
+https://singteldigital.atlassian.net/wiki/spaces/O2P/pages/1516666881/Status+and+Definitions
+
+Delivery Status:
+
+1 - Wip on Track
+2 - Wip at Risk
+3 - Wip Delay
+4 - Delivered
+5 - Delivered Delay
+NULL - N/A
+
+Delivery Status:
+
+1 - Closed
+2 - Closed Delay
+3 - Not Closed
+4 - Not Closed Delay
+5 - Cancelled
+6 - Pending Cancellation
+NULL - N/A
+
