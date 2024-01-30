@@ -22,7 +22,7 @@ SELECT
     ORD.assignee AS 'Assignee',
     (
         CASE
-            WHEN ORDEVOLVE.id IS NOT NULL THEN 'yes'
+            WHEN ORDEVOLVE.order_id IS NOT NULL THEN 'yes'
             ELSE 'no'
         END
     ) AS 'IsEvolve'
@@ -52,15 +52,24 @@ FROM
     ) ORDSINGTEL ON ORDSINGTEL.id = ORD.id
     LEFT JOIN (
         SELECT
-            DISTINCT ORDEV.id
+            DISTINCT NPPEV.order_id
         FROM
-            RestInterface_order ORDEV
-            LEFT JOIN RestInterface_billing BILLEV ON BILLEV.order_id = ORDEV.id
+            RestInterface_npp NPPEV
+            JOIN RestInterface_product PRDEV ON PRDEV.id = NPPEV.product_id
+            AND NPPEV.level = 'Mainline'
+            AND NPPEV.status != 'Cancel'
         WHERE
-            ORDEV.service_number REGEXP '^EV[0-9]\w*'
-            OR LOWER(BILLEV.package_description) LIKE '%evolve%'
-            OR LOWER(BILLEV.component_description) LIKE '%evolve%'
-    ) ORDEVOLVE ON ORDEVOLVE.id = ORD.id
+            PRDEV.network_product_code IN (
+                'SGN0005',
+                'SGN0031',
+                'FTH0102',
+                'FTH0103',
+                'SGN0330',
+                'FTH0203'
+            )
+        GROUP BY
+            NPPEV.order_id
+    ) ORDEVOLVE ON ORDEVOLVE.order_id = ORD.id
     JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
     AND CON.contact_type IN (
         'A-end-Cust',
