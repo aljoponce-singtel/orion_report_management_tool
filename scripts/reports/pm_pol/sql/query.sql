@@ -2,16 +2,6 @@ SELECT
     DISTINCT ORD.order_code AS OrderNumber,
     ORD.order_type AS OrderType,
     ORD.order_status AS OrderStatus,
-    (
-        CASE
-            WHEN ORD.delivery_status = 1 THEN 'Wip on Track'
-            WHEN ORD.delivery_status = 2 THEN 'Wip at Risk'
-            WHEN ORD.delivery_status = 3 THEN 'Wip Delay'
-            WHEN ORD.delivery_status = 4 THEN 'Delivered'
-            WHEN ORD.delivery_status = 5 THEN 'Delivered Delay'
-            ELSE 'N/A'
-        END
-    ) AS DeliveryStatus,
     ORD.order_priority AS OrderPriority,
     ORD.current_crd AS CurrentCRD,
     ORD.initial_crd AS InitialCRD,
@@ -26,7 +16,17 @@ SELECT
     BRN.brn AS BRN,
     CAST(ACT.activity_code AS SIGNED INTEGER) AS ActivityCode,
     ACT.name AS ActivityName,
-    ACT.status AS ActivityStatus
+    ACT.status AS ActivityStatus,
+    (
+        CASE
+            WHEN ORD.delivery_status = 1 THEN 'Wip on Track'
+            WHEN ORD.delivery_status = 2 THEN 'Wip at Risk'
+            WHEN ORD.delivery_status = 3 THEN 'Wip Delay'
+            WHEN ORD.delivery_status = 4 THEN 'Delivered'
+            WHEN ORD.delivery_status = 5 THEN 'Delivered Delay'
+            ELSE 'N/A'
+        END
+    ) AS DeliveryStatus
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ACT.order_id = ORD.id
