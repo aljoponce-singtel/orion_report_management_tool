@@ -17,9 +17,6 @@ WHERE
         OR username = 'mluser@singtel.com'
         OR username = 'aljo.ponce@singtel.com'
         OR username = 'jiangxu@ncs.com.sg'
-        OR username = 'adelinethk@singtel.com'
-        OR username = 'jacob.toh@singtel.com'
-        OR username = 'yuchen.liu@singtel.com'
         OR username = 'weiwang.thang@singtel.com'
     )
     AND user_type = 'Account Manager'
