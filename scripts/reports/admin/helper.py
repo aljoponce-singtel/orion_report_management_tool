@@ -104,7 +104,7 @@ def insert_records(table_name, column_name, records_file, db_name=None, report_n
         inserted_row_count = report.tableau_db.sql_insert(
             insert_query, records)
     else:
-        # table_name == "o2ptest":
+        # db_name == "o2ptest":
         inserted_row_count = report.test_db.sql_insert(insert_query, records)
 
     logger.info(f"No. of inserted rows: {inserted_row_count}")

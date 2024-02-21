@@ -95,24 +95,14 @@ def main():
         #                   table_name='product_mapping_20231130')
 
         '''
-        INSERT LSP RECORDS
+        LSP RECORDS
         '''
-        # insert_records(
-        #     "lsp_ipvpn", "service_number", r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_ipvpn.txt")
-        # insert_records(
-        #     "lsp_cgi", "service_number", r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_cgi.txt")
+        # # copy the service numbers from the raw excel file to a text file before running the below function
         # retrieve_orderid_of_serviceno(
-        #     serviceno_list_file=r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_ipvpn.txt",
-        #     table_name="ipvpn")
-        # retrieve_orderid_of_serviceno(
-        #     serviceno_list_file=r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_cgi.txt",
-        #     table_name="cgi")
-        # retrieve_orderid_of_serviceno(
-        #     r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\insert_records_test.txt")
+        #     r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000158298 - Data Validation - Checking Circuit Status pending install 4th Execrcise\insert_records_cgi.txt")
+        # # ouput query to csv
         # query_to_csv(
-        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\select_npp_ipvpn.sql', "ls_ipvpn", "o2pprod", "LSP IPVPN")
-        # query_to_csv(
-        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000155668 - Download LSP info from Orion\select_npp_cgi.sql', "ls_cgi", "o2pprod", "LSP CGI")
+        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000158298 - Data Validation - Checking Circuit Status pending install 4th Execrcise\select_npp_cgi.sql', "ls_cgi", "o2pprod", "LSP CGI")
 
         '''
         FOR TESTING
