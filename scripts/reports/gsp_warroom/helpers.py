@@ -12,6 +12,8 @@ def generate_warroom_report():
 
     report = OrionReport('GSP (NEW) War Room Report')
     report.add_email_receiver_to('teokokwee@singtel.com')
+    report.add_email_receiver_to('petchiok@singtel.com')
+    report.add_email_receiver_to('baoling@singtel.com')
     report.add_email_receiver_to('kinex.yeoh@singtel.com')
     report.add_email_receiver_to('ml-cssosdpe@singtel.com')
     report.add_email_receiver_to('ml-cssosmpeteam@singtel.com')
