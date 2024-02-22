@@ -72,24 +72,14 @@ SELECT
     ORD.business_sector,
     SITE.site_code AS exchange_code_a,
     SITE.site_code_second AS exchange_code_b,
-    SITE.location AS a_end_address,
-    SITE.second_location AS b_end_address,
     BRN.brn,
-    CON.a_end_cust_contact,
-    CON.b_end_cust_contact,
-    CON.aam_contact,
     CON.am_contact,
-    CON.pm_contact,
-    CON.reseller_contact,
-    CON.techincal_cust_contact,
     ORD.am_id,
     ORD.secondary_am_id,
     ORD.sde_received_date,
     ORD.arbor_disp AS arbor_service,
     ORD.service_type,
     ORD.order_priority,
-    ORD.speed,
-    ORD.ord_action_type AS order_action_type,
     SINOTE.date_created AS crd_amendment_date,
     DATE_FORMAT(
         REGEXP_SUBSTR(
@@ -173,43 +163,15 @@ FROM
     LEFT JOIN (
         SELECT
             order_id,
-            MAX(
-                CASE
-                    WHEN contact_type = "A-end-Cust" THEN email_address
-                END
-            ) a_end_cust_contact,
-            MAX(
-                CASE
-                    WHEN contact_type = "B-end-Cust" THEN email_address
-                END
-            ) b_end_cust_contact,
-            MAX(
-                CASE
-                    WHEN contact_type = "AAM" THEN email_address
-                END
-            ) aam_contact,
-            MAX(
-                CASE
-                    WHEN contact_type = "AM" THEN email_address
-                END
-            ) am_contact,
-            MAX(
-                CASE
-                    WHEN contact_type = "Project Manager" THEN email_address
-                END
-            ) pm_contact,
-            MAX(
-                CASE
-                    WHEN contact_type = "Reseller" THEN email_address
-                END
-            ) reseller_contact,
-            MAX(
-                CASE
-                    WHEN contact_type = "Technical-Cust" THEN email_address
-                END
-            ) techincal_cust_contact
+            GROUP_CONCAT(
+                DISTINCT email_address
+                ORDER BY
+                    email_address SEPARATOR '; '
+            ) AS am_contact
         FROM
             RestInterface_contactdetails
+        WHERE
+            contact_type = "AM"
         GROUP BY
             order_id
     ) CON ON CON.order_id = ORD.id
@@ -489,7 +451,4 @@ FROM
 WHERE
     ORD.order_status IN ('Submitted', 'Closed')
     AND ORD.current_crd BETWEEN '{start_date}'
-    AND '{end_date}'
-ORDER BY
-    ORD.order_code,
-    NPP.level;
+    AND '{end_date}';
