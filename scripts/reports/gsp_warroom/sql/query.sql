@@ -13,7 +13,7 @@ SELECT
     ORD.assignee,
     (
         CASE
-            WHEN CON.order_id IS NOT NULL THEN 'PM'
+            WHEN CON.pm_contact IS NOT NULL THEN 'PM'
             ELSE 'Non-PM'
         END
     ) AS 'pm_nonpm',
@@ -24,12 +24,23 @@ SELECT
     ORD.business_sector,
     SITE.site_code AS exchange_code_a,
     SITE.site_code_second AS exchange_code_b,
+    SITE.location AS a_end_address,
+    SITE.second_location AS b_end_address,
     BRN.brn,
+    CON.a_end_cust_contact,
+    CON.b_end_cust_contact,
+    CON.aam_contact,
+    CON.am_contact,
+    CON.pm_contact,
+    CON.reseller_contact,
+    CON.techincal_cust_contact,
     -- ORD.am_id,
     ORD.sde_received_date,
     ORD.arbor_disp AS arbor_service,
     ORD.service_type,
     ORD.order_priority,
+    ORD.speed,
+    ORD.ord_action_type AS order_action_type,
     -- PAR.parameter_name,
     PAR.parameter_value AS ed_pd_diversity,
     GSP.department,
@@ -120,8 +131,49 @@ FROM
     LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
     AND PAR.parameter_name = 'Type'
     AND PAR.parameter_value IN ('1', '2', '010', '020')
-    LEFT JOIN RestInterface_contactdetails CON ON CON.order_id = ORD.id
-    AND CON.contact_type = "Project Manager"
+    LEFT JOIN (
+        SELECT
+            order_id,
+            MAX(
+                CASE
+                    WHEN contact_type = "A-end-Cust" THEN email_address
+                END
+            ) a_end_cust_contact,
+            MAX(
+                CASE
+                    WHEN contact_type = "B-end-Cust" THEN email_address
+                END
+            ) b_end_cust_contact,
+            MAX(
+                CASE
+                    WHEN contact_type = "AAM" THEN email_address
+                END
+            ) aam_contact,
+            MAX(
+                CASE
+                    WHEN contact_type = "AM" THEN email_address
+                END
+            ) am_contact,
+            MAX(
+                CASE
+                    WHEN contact_type = "Project Manager" THEN email_address
+                END
+            ) pm_contact,
+            MAX(
+                CASE
+                    WHEN contact_type = "Reseller" THEN email_address
+                END
+            ) reseller_contact,
+            MAX(
+                CASE
+                    WHEN contact_type = "Technical-Cust" THEN email_address
+                END
+            ) techincal_cust_contact
+        FROM
+            RestInterface_contactdetails
+        GROUP BY
+            order_id
+    ) CON ON CON.order_id = ORD.id
 ORDER BY
     ORD.current_crd DESC,
     ORD.order_code,
