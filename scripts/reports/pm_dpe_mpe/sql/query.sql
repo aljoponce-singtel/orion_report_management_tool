@@ -150,8 +150,8 @@ WHERE
             "Raise Impact Vendor Order"
         )
         AND ACT.status = "COM"
-        AND ACT.completed_date BETWEEN '2023-08-21'
-        AND '2023-08-27'
+        AND ACT.completed_date BETWEEN '{start_date}'
+        AND '{end_date}'
     )
     OR (
         ACT.order_id IN (
@@ -165,8 +165,8 @@ WHERE
                 GSPSUB.department = "GD_OMS"
                 AND ACTSUB.name IN ("FOC Date Received")
                 AND ACTSUB.status = "COM"
-                AND ACT.completed_date BETWEEN '2023-08-21'
-                AND '2023-08-27'
+                AND ACT.completed_date BETWEEN '{start_date}'
+                AND '{end_date}'
         )
         AND ACT.name LIKE ("%OLLC%")
         AND ACT.status = "COM"
