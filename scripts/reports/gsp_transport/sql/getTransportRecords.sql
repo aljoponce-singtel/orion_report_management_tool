@@ -38,7 +38,10 @@ SELECT
     act.name,
     act.status,
     act.due_date,
-    act.completed_date
+    act.completed_date,
+    act.ready_date,
+    DATE(act.exe_date) AS exe_date,
+    DATE(act.dly_date) AS dly_date
 FROM
     RestInterface_order ord
     JOIN RestInterface_activity act ON act.order_id = ord.id

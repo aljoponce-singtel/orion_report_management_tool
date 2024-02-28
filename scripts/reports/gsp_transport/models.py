@@ -31,6 +31,9 @@ class Transport(TransportBase):
     Coordination_ActStatus = Column(String(10))
     Coordination_ActDueDate = Column(Date())
     Coordination_COM_Date = Column(Date())
+    Coordination_RDY_Date = Column(Date())
+    Coordination_EXC_Date = Column(Date())
+    Coordination_DLY_Date = Column(Date())
     update_time = Column(DateTime(timezone=True),
                          server_default=func.now())
 

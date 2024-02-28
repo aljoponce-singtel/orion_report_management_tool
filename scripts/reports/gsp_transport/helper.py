@@ -4,7 +4,7 @@ import logging
 # Import third-party packages
 import numpy as np
 import pandas as pd
-from sqlalchemy import select, case, and_, or_, null, func, Integer
+from sqlalchemy import select, case, and_, or_, null, func, Integer, Date
 
 # Import local packages
 import constants as const
@@ -94,87 +94,87 @@ def createFinalReport(report: OrionReport):
         orderType = row['OrderType']
         productCode = row['ProductCode']
 
-        coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = (
-            None, None, None, None, None, None)
-        preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = (
-            None, None, None, None, None, None)
+        coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = (
+            None, None, None, None, None, None, None, None, None)
+        preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = (
+            None, None, None, None, None, None, None, None, None)
 
         if df_orders.at[index, 'Service'] == 'Diginet':
-            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Wrk-BQ'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Node & Cct Del (DN-ISDN)', 'Node & Cct Deletion (DN)'])
 
         if df_orders.at[index, 'Service'] == 'MetroE':
-            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination Work'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Circuit Creation', 'Change Speed Configure'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Node & Circuit Deletion'])
 
         if df_orders.at[index, 'Service'] == 'MegaPop (CE)':
             if df_orders.at[index, 'OrderType'] == 'Provide':
-                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                     df_activities, ['Circuit Configuration-STM', 'Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Change':
-                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                     df_activities, ['Reconfiguration', 'Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                     df_activities, ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
 
             # COPY pre-config values to coordination values
             if df_orders.at[index, 'OrderType'] == 'Provide':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Circuit Configuration-STM', 'Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Change':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Reconfiguration', 'Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
 
         if df_orders.at[index, 'Service'] == 'Gigawave':
             if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Cease':
-                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+                coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                     df_activities, ['GSDT Co-ordination Work', 'GSDT Co-ordination Wrk-BQ', 'GSDT Co-ordination WK-BQ'])
 
             if df_orders.at[index, 'OrderType'] == 'Provide':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Circuit Creation'])
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
-                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+                preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                     df_activities, ['Circuit Removal from NMS'])
 
         if df_orders.at[index, 'Service'] == 'CEVN':
-            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Work'])
 
-            preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
+            preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate, preConfigRDYDate, preConfigEXCDate, preConfigDLYDate = getActRecord(
                 df_activities, ['Circuit Creation'])
 
         if df_orders.at[index, 'Service'] == 'SD-Connect':
-            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
+            coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate, coordActRDYDate, coordActEXCDate, coordActDLYDate = getActRecord(
                 df_activities, ['GSDT Co-ordination Work'])
 
         reportData = [
@@ -197,7 +197,10 @@ def createFinalReport(report: OrionReport):
             coordActName,
             coordActStatus,
             coordActDueDate,
-            coordActCOMDate
+            coordActCOMDate,
+            coordActRDYDate,
+            coordActEXCDate,
+            coordActDLYDate
         ]
 
         # add new data (df_toAdd) to df_report
@@ -260,8 +263,14 @@ def getActRecord(df: pd.DataFrame, activities):
         df_activities['ActDueDate'].values) else None
     actComDate = df_activities['ActComDate'].values[0] if np.size(
         df_activities['ActComDate'].values) else None
+    actRdyDate = df_activities['ActRdyDate'].values[0] if np.size(
+        df_activities['ActRdyDate'].values) else None
+    actExcDate = df_activities['ActExcDate'].values[0] if np.size(
+        df_activities['ActExcDate'].values) else None
+    actDlyDate = df_activities['ActDlyDate'].values[0] if np.size(
+        df_activities['ActDlyDate'].values) else None
 
-    return actGroupId, actTeam, actName, actStatus, actDueDate, actComDate
+    return actGroupId, actTeam, actName, actStatus, actDueDate, actComDate, actRdyDate, actExcDate, actDlyDate
 
 
 def getTransportOrders(report: OrionReport) -> pd.DataFrame:
@@ -543,7 +552,10 @@ def getTransportRecords(report: OrionReport, order_id_list) -> pd.DataFrame:
                 activity_table.c.name,
                 activity_table.c.status,
                 activity_table.c.due_date,
-                activity_table.c.completed_date
+                activity_table.c.completed_date,
+                activity_table.c.ready_date,
+                activity_table.c.exe_date.cast(Date).label('exe_date'),
+                activity_table.c.dly_date.cast(Date).label('dly_date')
             ])
             .distinct()
             .select_from(order_table)

@@ -12,7 +12,10 @@ DRAFT_COLUMNS = [
     'ActName',
     'ActStatus',
     'ActDueDate',
-    'ActComDate'
+    'ActComDate',
+    'ActRdyDate',
+    'ActExcDate',
+    'ActDlyDate'
 ]
 
 FINAL_COLUMNS = [
@@ -35,7 +38,10 @@ FINAL_COLUMNS = [
     'Coordination_ActName',
     'Coordination_ActStatus',
     'Coordination_ActDueDate',
-    'Coordination_COM_Date'
+    'Coordination_COM_Date',
+    'Coordination_RDY_Date',
+    'Coordination_EXC_Date',
+    'Coordination_DLY_Date'
 ]
 
 TABLEAU_DATE_COLUMNS = [
@@ -43,5 +49,8 @@ TABLEAU_DATE_COLUMNS = [
     'PreConfig_ActDueDate',
     'PreConfig_COM_Date',
     'Coordination_ActDueDate',
-    'Coordination_COM_Date'
+    'Coordination_COM_Date',
+    'Coordination_RDY_Date',
+    'Coordination_EXC_Date',
+    'Coordination_DLY_Date'
 ]
