@@ -40,7 +40,7 @@ def generate_transport_report():
 def generate_transport_billing_report():
 
     report = OrionReport('Transport (Billing) Report')
-    report.set_filename('transport_report')
+    report.set_filename('transport_billing_report')
     report.set_gsp_billing_month_start_end_date()
     # Create Report
     df_finalReport = createFinalReport(report)
@@ -138,7 +138,7 @@ def createFinalReport(report: OrionReport):
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
                 coordGroupId, coordTeam, coordActName, coordActStatus, coordActDueDate, coordActCOMDate = getActRecord(
-                    df_activities, ['Node & Circuit Deletion'])
+                    df_activities, ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
 
             # COPY pre-config values to coordination values
             if df_orders.at[index, 'OrderType'] == 'Provide':
@@ -151,7 +151,7 @@ def createFinalReport(report: OrionReport):
 
             if df_orders.at[index, 'OrderType'] == 'Cease':
                 preConfigGroupId, preConfigTeam, preConfigActName, preConfigStatus, preConfigDueDate, preConfigCOMDate = getActRecord(
-                    df_activities, ['Node & Circuit Deletion'])
+                    df_activities, ['Node & Circuit Deletion', 'Node & Cct Deletion (DN)'])
 
         if df_orders.at[index, 'Service'] == 'Gigawave':
             if df_orders.at[index, 'OrderType'] == 'Provide' or df_orders.at[index, 'OrderType'] == 'Cease':
@@ -216,8 +216,12 @@ def getActRecord(df: pd.DataFrame, activities):
     # If there are multiple records, keep only 1 based on priority
     if len(df_activities) > 1:
         # If there are multiple records of the same activity name,
-        # keep the activity with the highest step_no
         df_sorted = df_activities.sort_values(by=['ActStepNo', 'ActName'])
+        # Check if df has more than 1 record and ActStatus is "COM"
+        if len(df_sorted) > 1 and (df_sorted['ActStatus'] == 'COM').any():
+            # Keep the record where ActStatus = COM
+            df_sorted = df_sorted[df_sorted['ActStatus'] == 'COM']
+        # keep the activity with the highest step_no
         df_dropped_duplicates = df_sorted.drop_duplicates(
             subset=['ActName'], keep='last')
 
