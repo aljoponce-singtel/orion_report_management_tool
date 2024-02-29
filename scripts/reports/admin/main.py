@@ -97,12 +97,12 @@ def main():
         '''
         LSP RECORDS
         '''
-        # # copy the service numbers from the raw excel file to a text file before running the below function
+        ## copy the service numbers from the raw excel file to a text file before running the below function
         # retrieve_orderid_of_serviceno(
         #     r"C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000158298 - Data Validation - Checking Circuit Status pending install 4th Execrcise\insert_records_cgi.txt")
-        # # ouput query to csv
+        ## ouput query to csv
         # query_to_csv(
-        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000158298 - Data Validation - Checking Circuit Status pending install 4th Execrcise\select_npp_cgi_20240228.sql', "ls_cgi", "o2pprod", "LSP CGI")
+        #     r'C:\Users\p1319639\OneDrive - Singtel\Documents\Orion\SMoD\Change Request\CHG000000158298 - Data Validation - Checking Circuit Status pending install 4th Execrcise\select_npp_cgi.sql', "ls_cgi", "o2pprod", "LSP CGI")
 
         '''
         FOR TESTING
