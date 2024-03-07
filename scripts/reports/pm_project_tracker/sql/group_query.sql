@@ -8,7 +8,7 @@ SELECT DISTINCT
     PRJTRK.type_of_product,
     PRJTRK.type_of_work,
     PRJTRK.order_code,
-    PRJTRK.service_number, --
+    PRJTRK.service_number,
     ORD.order_type,
     ORD.order_status,
     ORD.taken_date,
@@ -90,7 +90,7 @@ SELECT DISTINCT
         SELECT (
                 CASE
                     WHEN PRJTRK.type_of_product IN (
-                        "Elite", "MetroE", "Gigawave", "Ethernet"
+                        "Elite", "MetroE", "Gigawave", "MegaPOP_OR_Ethernet", "SingNet_OR_Ethernet"
                     ) THEN GROUP_CONCAT(
                         CONCAT_WS(
                             " - ", PAR.parameter_name, PAR.parameter_value
@@ -333,12 +333,14 @@ SELECT DISTINCT
             AND (
                 (
                     PRJTRK.type_of_product IN (
-                        "CPlusIP", "Eline", "Singnet", "STiX"
+                        "CPlusIP", "Eline", "SingNet", "STiX"
                     )
                     AND LOWER(PAR.parameter_name) IN ("speed")
                 )
                 OR (
-                    PRJTRK.type_of_product IN ("MegaPOP")
+                    PRJTRK.type_of_product IN (
+                        "MegaPOP", "MegaPOP_OR_Ethernet"
+                    )
                     AND PAR.parameter_name IN ("SpeedD", "Speedbps", "Speed")
                 )
                 OR (
@@ -353,7 +355,7 @@ SELECT DISTINCT
                 )
                 OR (
                     PRJTRK.type_of_product NOT IN(
-                        "CPlusIP", "Eline", "Singnet", "STiX", "MegaPOP", "MetroE", "CGI"
+                        "CPlusIP", "Eline", "SingNet", "STiX", "MegaPOP", "MegaPOP_OR_Ethernet", "MetroE", "CGI"
                     )
                     AND PAR.parameter_name IN (
                         "speed", "SpeedD" "Speedbps", "Speed", "_speed", "LocIntSpeedDownstr", "LocIntSpeedUpstr"
@@ -381,7 +383,7 @@ SELECT DISTINCT
                 )
                 OR (
                     PRJTRK.type_of_product NOT IN(
-                        "CPlusIP", "MegaPOP", "MetroE"
+                        "CPlusIP", "MegaPOP", "MegaPOP_OR_Ethernet", "MetroE"
                     )
                     AND PAR.parameter_name IN ("MTUSize")
                 )
@@ -400,7 +402,9 @@ SELECT DISTINCT
             PRJTRK.npp_id = NPP.id
             AND (
                 (
-                    PRJTRK.type_of_product IN ("MegaPOP")
+                    PRJTRK.type_of_product IN (
+                        "MegaPOP", "MegaPOP_OR_Ethernet"
+                    )
                     AND PAR.parameter_name IN ("VPNNo")
                 )
                 OR (
@@ -408,7 +412,9 @@ SELECT DISTINCT
                     AND PAR.parameter_name IN ("VPNGrp")
                 )
                 OR (
-                    PRJTRK.type_of_product NOT IN("MegaPOP", "CPlusIP")
+                    PRJTRK.type_of_product NOT IN(
+                        "MegaPOP", "MegaPOP_OR_Ethernet", "CPlusIP"
+                    )
                     AND PAR.parameter_name IN ("VPNNo", "VPNGrp")
                 )
             )
@@ -430,7 +436,9 @@ SELECT DISTINCT
                     AND PAR.parameter_name IN ("CEasNumber")
                 )
                 OR (
-                    PRJTRK.type_of_product IN ("MegaPOP")
+                    PRJTRK.type_of_product IN (
+                        "MegaPOP", "MegaPOP_OR_Ethernet"
+                    )
                     AND PAR.parameter_name IN ("BGP", "BgpAs", "BGPASNum")
                 )
                 OR (
@@ -458,7 +466,9 @@ SELECT DISTINCT
             PRJTRK.npp_id = NPP.id
             AND (
                 (
-                    PRJTRK.type_of_product IN ("MegaPOP")
+                    PRJTRK.type_of_product IN (
+                        "MegaPOP", "MegaPOP_OR_Ethernet"
+                    )
                     AND PAR.parameter_name IN ("IPAddWan", "WIPAdd")
                 )
                 OR (
@@ -466,7 +476,9 @@ SELECT DISTINCT
                     AND PAR.parameter_name IN ("IPAddWan1", "IPAddWan2")
                 )
                 OR (
-                    PRJTRK.type_of_product NOT IN("MegaPOP", "CPlusIP")
+                    PRJTRK.type_of_product NOT IN(
+                        "MegaPOP", "MegaPOP_OR_Ethernet", "CPlusIP"
+                    )
                     AND PAR.parameter_name IN (
                         "IPAddWan", "WIPAdd", "IPAddWan1", "IPAddWan2"
                     )
@@ -486,7 +498,9 @@ SELECT DISTINCT
             PRJTRK.npp_id = NPP.id
             AND (
                 (
-                    PRJTRK.type_of_product IN ("MegaPOP")
+                    PRJTRK.type_of_product IN (
+                        "MegaPOP", "MegaPOP_OR_Ethernet"
+                    )
                     AND PAR.parameter_name IN ("IPAddLan", "WIPAdd")
                 )
                 OR (
@@ -494,7 +508,9 @@ SELECT DISTINCT
                     AND PAR.parameter_name IN ("LANIPAddr")
                 )
                 OR (
-                    PRJTRK.type_of_product NOT IN("MegaPOP", "CPlusIP")
+                    PRJTRK.type_of_product NOT IN(
+                        "MegaPOP", "MegaPOP_OR_Ethernet", "CPlusIP"
+                    )
                     AND PAR.parameter_name IN (
                         "IPAddLan", "WIPAdd", "LANIPAddr"
                     )
@@ -633,7 +649,7 @@ FROM
                 CASE
                     WHEN LOWER(INNER_PAR.parameter_name) = "speed" THEN CASE
                         WHEN INNER_PRJTRK.type_of_product IN (
-                            "Elite", "MetroE", "Gigawave", "Ethernet"
+                            "Elite", "MetroE", "Gigawave", "MegaPOP_OR_Ethernet", "SingNet_OR_Ethernet"
                         ) THEN CONCAT(
                             INNER_PAR.parameter_name, " - ", INNER_PAR.parameter_value
                         )
