@@ -1,0 +1,1069 @@
+﻿group_id,department,q_type,sub_team1,sub_team2
+CNE1,Business Pdts_Corp Network Engineering,Non GSP,Non GSP,Non GSP
+CNE2,Business Pdts_Corp Network Engineering,Non GSP,Non GSP,Non GSP
+CNE3,Business Pdts_Corp Network Engineering,Non GSP,Non GSP,Non GSP
+CNE4,Business Pdts_Corp Network Engineering,Non GSP,Non GSP,Non GSP
+EXPAN_DNHE,Business Pdts_Hosting,Non GSP,Non GSP,Non GSP
+ND4,Business Pdts_Pdt Engineering,Non GSP,Non GSP,Non GSP
+ND5,Business Pdts_Pdt Engineering,Non GSP,Non GSP,Non GSP
+ND6,Business Pdts_Pdt Engineering,Non GSP,Non GSP,Non GSP
+ND7,Business Pdts_Pdt Engineering,Non GSP,Non GSP,Non GSP
+ND8,Business Pdts_Pdt Engineering,Non GSP,Non GSP,Non GSP
+SNON_PM,Business Pdts_Pdt Engineering,Configuration Q,Non GSP,Non GSP
+SECPS_CR,Cyber Security,Configuration Q,Non GSP,Non GSP
+ESECBIZOPS,Cyber Security,Non GSP,Non GSP,Non GSP
+G_ITSC,Cyber Security,Configuration Q,Non GSP,Non GSP
+G_TS,Cyber Security,Configuration Q,Non GSP,Non GSP
+MSS_ADMIN,Cyber Security,Non GSP,Cyber Security,Cyber Security
+MSS_MSD,Cyber Security,Non GSP,Cyber Security,Cyber Security
+SECPS_CC,Cyber Security,Non GSP,Non GSP,Non GSP
+ANM_PIPE,FNE IE,Non GSP,Non GSP,Non GSP
+BBDS,FNE IE,Non GSP,Non GSP,Non GSP
+IESTM_EWPL,FNE IE,Non GSP,Non GSP,Non GSP
+IESTM_NCPL,FNE IE,Non GSP,Non GSP,Non GSP
+IESTM_OPS,FNE IE,Non GSP,Non GSP,Non GSP
+OPDF,FNE IE,Non GSP,Non GSP,Non GSP
+OPDF_INH,FNE IE,Non GSP,Non GSP,Non GSP
+OPEE_DF,FNE IE,Non GSP,Non GSP,Non GSP
+OPET_DF,FNE IE,Non GSP,Non GSP,Non GSP
+OPEW_DF,FNE IE,Non GSP,Non GSP,Non GSP
+AMBUGFS,FNE SDO,Non GSP,Non GSP,Non GSP
+ARBUGFS,FNE SDO,Non GSP,Non GSP,Non GSP
+BAM,FNE SDO,Non GSP,Non GSP,Non GSP
+BAR,FNE SDO,Non GSP,Non GSP,Non GSP
+BBD,FNE SDO,Non GSP,Non GSP,Non GSP
+BBP,FNE SDO,Non GSP,Non GSP,Non GSP
+BBT,FNE SDO,Non GSP,Non GSP,Non GSP
+BCG,FNE SDO,Non GSP,Non GSP,Non GSP
+BCS,FNE SDO,Non GSP,Non GSP,Non GSP
+BCT,FNE SDO,Non GSP,Non GSP,Non GSP
+BCY,FNE SDO,Non GSP,Non GSP,Non GSP
+BES,FNE SDO,Non GSP,Non GSP,Non GSP
+BGL,FNE SDO,Non GSP,Non GSP,Non GSP
+BHG,FNE SDO,Non GSP,Non GSP,Non GSP
+BJE,FNE SDO,Non GSP,Non GSP,Non GSP
+BJR,FNE SDO,Non GSP,Non GSP,Non GSP
+BJW,FNE SDO,Non GSP,Non GSP,Non GSP
+BKT,FNE SDO,Non GSP,Non GSP,Non GSP
+BNT,FNE SDO,Non GSP,Non GSP,Non GSP
+BOC,FNE SDO,Non GSP,Non GSP,Non GSP
+BPL,FNE SDO,Non GSP,Non GSP,Non GSP
+BPR,FNE SDO,Non GSP,Non GSP,Non GSP
+BQT,FNE SDO,Non GSP,Non GSP,Non GSP
+BSB,FNE SDO,Non GSP,Non GSP,Non GSP
+BTB,FNE SDO,Non GSP,Non GSP,Non GSP
+BTP,FNE SDO,Non GSP,Non GSP,Non GSP
+BTS,FNE SDO,Non GSP,Non GSP,Non GSP
+BWL,FNE SDO,Non GSP,Non GSP,Non GSP
+BYC,FNE SDO,Non GSP,Non GSP,Non GSP
+CAM,FNE SDO,Non GSP,Non GSP,Non GSP
+CAR,FNE SDO,Non GSP,Non GSP,Non GSP
+CBD,FNE SDO,Non GSP,Non GSP,Non GSP
+CBP,FNE SDO,Non GSP,Non GSP,Non GSP
+CBT,FNE SDO,Non GSP,Non GSP,Non GSP
+CCG,FNE SDO,Non GSP,Non GSP,Non GSP
+CCS,FNE SDO,Non GSP,Non GSP,Non GSP
+CCT,FNE SDO,Non GSP,Non GSP,Non GSP
+CCY,FNE SDO,Non GSP,Non GSP,Non GSP
+CE_CHK,FNE SDO,Non GSP,Non GSP,Non GSP
+CES,FNE SDO,Non GSP,Non GSP,Non GSP
+CGL,FNE SDO,Non GSP,Non GSP,Non GSP
+CJE,FNE SDO,Non GSP,Non GSP,Non GSP
+CJR,FNE SDO,Non GSP,Non GSP,Non GSP
+CJW,FNE SDO,Non GSP,Non GSP,Non GSP
+CKT,FNE SDO,Non GSP,Non GSP,Non GSP
+CNT,FNE SDO,Non GSP,Non GSP,Non GSP
+COC,FNE SDO,Non GSP,Non GSP,Non GSP
+CPL,FNE SDO,Non GSP,Non GSP,Non GSP
+CPR,FNE SDO,Non GSP,Non GSP,Non GSP
+CQT,FNE SDO,Non GSP,Non GSP,Non GSP
+CSB,FNE SDO,Non GSP,Non GSP,Non GSP
+CTB,FNE SDO,Non GSP,Non GSP,Non GSP
+CTP,FNE SDO,Non GSP,Non GSP,Non GSP
+CTS,FNE SDO,Non GSP,Non GSP,Non GSP
+CWL,FNE SDO,Non GSP,Non GSP,Non GSP
+CYC,FNE SDO,Non GSP,Non GSP,Non GSP
+DWFM,FNE SDO,Non GSP,Non GSP,Non GSP
+EBPO,FNE SDO,Non GSP,Non GSP,Non GSP
+FOBDC,FNE SDO,Non GSP,Non GSP,Non GSP
+FOBDC1,FNE SDO,Non GSP,Non GSP,Non GSP
+HSDE1,FNE SDO,Non GSP,Non GSP,Non GSP
+HSDT1,FNE SDO,Non GSP,Non GSP,Non GSP
+HSDW1,FNE SDO,Non GSP,Non GSP,Non GSP
+IADCPEINST,FNE SDO,Non GSP,Non GSP,Non GSP
+OPE_GWL,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEE_CQ,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEE_CQ_EX,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEE_DPCE,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEE_ETHL,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEE_ISDN,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEE_ME,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEE_VS,FNE SDO,Non GSP,Non GSP,Non GSP
+OPET_CQ,FNE SDO,Non GSP,Non GSP,Non GSP
+OPET_CQ_EX,FNE SDO,Non GSP,Non GSP,Non GSP
+OPET_DPCE,FNE SDO,Non GSP,Non GSP,Non GSP
+OPET_ETHL,FNE SDO,Non GSP,Non GSP,Non GSP
+OPET_ISDN,FNE SDO,Non GSP,Non GSP,Non GSP
+OPET_ME,FNE SDO,Non GSP,Non GSP,Non GSP
+OPET_VS,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEW_CQ,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEW_CQ_EX,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEW_DPCE,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEW_ETHL,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEW_ISDN,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEW_ME,FNE SDO,Non GSP,Non GSP,Non GSP
+OPEW_VS,FNE SDO,Non GSP,Non GSP,Non GSP
+PWCE,FNE SDO,Non GSP,Non GSP,Non GSP
+PWCT1,FNE SDO,Non GSP,Non GSP,Non GSP
+PWCW,FNE SDO,Non GSP,Non GSP,Non GSP
+PWEB,FNE SDO,Non GSP,Non GSP,Non GSP
+PWTB1,FNE SDO,Non GSP,Non GSP,Non GSP
+PWWB,FNE SDO,Non GSP,Non GSP,Non GSP
+TBPO1,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_C_DPCE,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_C_ETHL,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_C_GWL,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_C_VS,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_CME,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_CQC,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_CQC_EX,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_CQE,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_CQE_EX,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_CQW,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_CQW_EX,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_E_DPCE,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_E_ETHL,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_E_GWL,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_E_VS,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_EME,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_W_DPCE,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_W_ETHL,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_W_GWL,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_W_VS,FNE SDO,Non GSP,Non GSP,Non GSP
+TNM_WME,FNE SDO,Non GSP,Non GSP,Non GSP
+TNP,FNE SDO,Non GSP,Non GSP,Non GSP
+WBPO,FNE SDO,Non GSP,Non GSP,Non GSP
+FOBEBU,FNE_Access & Transmission Ops,Non GSP,Non GSP,Non GSP
+FOBTBA,FNE_Access & Transmission Ops,Non GSP,Non GSP,Non GSP
+FOBTBD,FNE_Access & Transmission Ops,Non GSP,Non GSP,Non GSP
+FOBWBD,FNE_Access & Transmission Ops,Non GSP,Non GSP,Non GSP
+EXAM1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAM2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAM3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAM4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAM5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAM6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAR1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAR2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAR3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAR4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAR5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXAR6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBD1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBD2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBD3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBD4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBD5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBP1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBP2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBP3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBP4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBP5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXBP6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCG1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCG2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCG3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCG4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCG5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCG6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCT1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCT2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCT3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCT4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCT5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCT6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCY1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCY2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCY3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCY4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCY5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXCY6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXENSAR1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXENSCY1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXENSGL1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXENSPL1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXES1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXES2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXES3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXES4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXES5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXES6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXGL1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXGL2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXGL3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXGL4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXGL5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXHG1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXHG2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXHG3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXHG4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXHG6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJE1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJE2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJE3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJE4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJE5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJE6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJR3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJR5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJW1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJW2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJW3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJW4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXJW5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXKT1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXKT2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXKT3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXKT4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXKT5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXNOC2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXNT1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXNT2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXNT3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXNT4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXNT5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXNT6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOC1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOC2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOC3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOC4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOC5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOC6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOCN1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXOCN2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPL1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPL2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPL3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPL4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPL5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPL6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPR1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPR2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPR3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXPR4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXQT1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXQT2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXQT3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXQT4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXSCP,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXSHLR1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXSHLR2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXSXSCP1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXSXSCP2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTB1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTB2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTB3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTB4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTB5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTM2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTP1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTP2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTP3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTP4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTP5,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTP6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTS1,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTS2,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTS3,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTS4,FNE_Exchange,Non GSP,Non GSP,Non GSP
+EXTS6,FNE_Exchange,Non GSP,Non GSP,Non GSP
+TEAM_BA_CE,FNE_Exchange,Non GSP,Non GSP,Non GSP
+BMS,GD_CMO,Non GSP,Non GSP,Non GSP
+EXPAN_DCIE,GD_DCIO,Non GSP,Non GSP,Non GSP
+DSS_SMS,GD_DSS,Non GSP,Non GSP,Non GSP
+ASSG,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+ASSG_DGP,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+CNP,GD_GSP,Configuration Q,C-Plus,Cplus  SGP
+CNP1,GD_GSP,Configuration Q,C-Plus,Cplus  SGP
+CNP10,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP11,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP12,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP13,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP2,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP20,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP3,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP30,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP31,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP32,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP33,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP34,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP35,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP36,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP37,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP38,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP39,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP4,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP40,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP41,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP42,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP43,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP44,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP45,GD_GSP,Configuration Q,C-Plus,Cplus ODC
+CNP5,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP6,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP61,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP7,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP8,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CNP9,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+CPAAS1,GD_GSP,Configuration Q,Transport,Transport CPaas SGP
+ENET,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+ENETIP,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+GSDT_ASON,GD_GSP,Coordination Q,Transport,Transport Intl Singapore
+GSDT_CE,GD_GSP,Coordination Q,Transport,Transport Intl Singapore
+GSDT_GIP,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT_GIPRD,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT_OIP,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT_PS1,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_PS2,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_PS21,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_PS22,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_PS23,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_PS24,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_PS3,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_PS4,GD_GSP,Coordination Q,C-Plus,Cplus GIS RDC
+GSDT_VIDRD,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT_VIDYO,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT_WIFI,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT1,GD_GSP,Coordination Q,Transport,Transport ILC SGP
+GSDT11,GD_GSP,Coordination Q,Transport,Transport ILC SGP
+GSDT12,GD_GSP,Coordination Q,Transport,Transport ILC SGP
+GSDT13,GD_GSP,Coordination Q,Transport,Transport ILC SGP
+GSDT14,GD_GSP,Coordination Q,Transport,Transport ILC SGP
+GSDT15,GD_GSP,Coordination Q,Transport,Transport ILC SGP
+GSDT16,GD_GSP,Coordination Q,Transport,Transport ILC SGP
+GSDT2,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT3,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT31,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT32,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT33,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT34,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT35,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT36,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT37,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT38,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT39,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSDT4,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT6,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT61,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT610,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT611,GD_GSP,Coordination Q,C-Plus,Cplus SGP
+GSDT612,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT613,GD_GSP,Coordination Q,C-Plus,Cplus SGP
+GSDT62,GD_GSP,Coordination Q,C-Plus,Cplus SGP
+GSDT620,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT63,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT630,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT631,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT632,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT633,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT634,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT635,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT636,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT637,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT638,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT639,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT64,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT640,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT641,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT642,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT643,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT644,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT645,GD_GSP,Coordination Q,C-Plus,Cplus ODC
+GSDT65,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT66,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT67,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT68,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT69,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSDT7,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT71,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT710,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT711,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT712,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT72,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT73,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT74,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT75,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT76,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT77,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT78,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT79,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT8,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT81,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT810,GD_GSP,Coordination Q,Mpop,Mpop SGO India
+GSDT811,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT812,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT813,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT82,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT820,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT83,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT84,GD_GSP,Coordination Q,Mpop,Mpop SGO India
+GSDT85,GD_GSP,Coordination Q,Mpop,Mpop SGO India
+GSDT86,GD_GSP,Coordination Q,Mpop,Mpop SGO India
+GSDT87,GD_GSP,Coordination Q,Mpop,Mpop Singapore
+GSDT870,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT871,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT872,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT873,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT874,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT875,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT876,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT877,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT878,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT879,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT88,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT880,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT881,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT882,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT883,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT884,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT885,GD_GSP,Coordination Q,Mpop,Mpop ODC
+GSDT89,GD_GSP,Coordination Q,Mpop,Mpop SGO India
+GSDT9,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT91,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT92,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT93,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT94,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT95,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDT96,GD_GSP,Coordination Q,Singnet,Singnet DOM SGP
+GSDTEMENU,GD_GSP,Coordination Q,Transport,Transport Admin RDC
+GSDTNMS,GD_GSP,Coordination Q,Transport,Transport Admin RDC
+GSP_ASON,GD_GSP,Configuration Q,Transport,Transport ILC SGP
+GSP_CE,GD_GSP,Configuration Q,Transport,Transport ILC SGP
+GSP_DPCE,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSP_GIP,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+GSP_GIPRDC,GD_GSP,Configuration Q,C-Plus,Cplus RDC
+GSP_GSDT,GD_GSP,Coordination Q,C-Plus,Cplus RDC
+GSP_LTC,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSP_LTC_GW,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSP_LTC_ME,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSP_LTCT3,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSP_M2M,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+GSP_NMS,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+GSP_OIP,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSP_WIFI,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+GSP1,GD_GSP,Configuration Q,Transport,Transport Intl Singapore
+GSP3,GD_GSP,Configuration Q,Transport,Transport Intl Singapore
+GSPMS,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+GSPSG_DPCE,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_GW,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_GW1,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_GW2,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_GW3,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_GW4,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_GW5,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_LTC,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSPSG_LTC3,GD_GSP,Coordination Q,Transport,Transport DOM SGP
+GSPSG_ME,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_ME1,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_ME2,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_ME3,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_ME4,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+GSPSG_ME5,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+IPV,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPV1,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPV2,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPV3,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPV4,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPVM,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPVM1,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPVM2,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPVM3,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+IPVM4,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+JOBREVIEW,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+LPU,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+MPP,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP1,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP10,GD_GSP,Configuration Q,Mpop,Mpop SGO India
+MPP11,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP12,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP13,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP2,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP20,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP3,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP4,GD_GSP,Configuration Q,Mpop,Mpop SGO India
+MPP5,GD_GSP,Configuration Q,Mpop,Mpop SGO India
+MPP6,GD_GSP,Configuration Q,Mpop,Mpop SGO India
+MPP7,GD_GSP,Configuration Q,Mpop,Mpop Singapore
+MPP70,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP71,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP72,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP73,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP74,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP75,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP76,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP77,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP78,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP79,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP8,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP80,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP81,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP82,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP83,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP85,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP885,GD_GSP,Configuration Q,Mpop,Mpop ODC
+MPP9,GD_GSP,Configuration Q,Mpop,Mpop SGO India
+NCS_DDOS,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+ODC_DL,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL1,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL10,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL11,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL12,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL13,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL2,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL3,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL4,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL5,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL6,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL7,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL8,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_DL9,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_LTC,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC1,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC10,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC11,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC12,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC13,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC2,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC3,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC4,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC5,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC6,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC7,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC8,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_LTC9,GD_GSP,Coordination Q,Transport,Transport DOM ODC
+ODC_ME,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME1,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME10,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME11,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME12,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME13,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME2,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME3,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME4,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME5,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME6,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME7,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME8,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+ODC_ME9,GD_GSP,Configuration Q,Transport,Transport DOM ODC
+OLLC_CHECK,GD_GSP,Configuration Q,Transport,Transport Admin RDC
+PNOCD,GD_GSP,Configuration Q,Transport,Transport DOM SGP
+RDC_ASON,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_ASSG,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_ASSG1,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_ASSG2,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_ASSG3,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_ASSG4,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_ASSG5,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_CE,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_CHANGE,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DF1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DF2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DF3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DF4,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DF5,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL10,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL4,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL5,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL6,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL7,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL8,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DL9,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DPCE1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DPCE2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_DPCE3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_GSP,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_GSP11,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_GSP12,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_GSP13,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_GSP14,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_GSP15,GD_GSP,Configuration Q,Transport,Transport ILC RDC
+RDC_GW1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_GW2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_GW3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_GW4,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_GW5,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_GW6,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ILC,GD_GSP,Coordination Q,Transport,Transport Intl RDC
+RDC_ILC1,GD_GSP,Coordination Q,Transport,Transport Intl RDC
+RDC_ILC2,GD_GSP,Coordination Q,Transport,Transport Intl RDC
+RDC_ILC3,GD_GSP,Coordination Q,Transport,Transport Intl RDC
+RDC_ILC4,GD_GSP,Coordination Q,Transport,Transport Intl RDC
+RDC_ILC5,GD_GSP,Coordination Q,Transport,Transport Intl RDC
+RDC_IOT,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_IOT1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_IOT2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_IOT3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_IOT4,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_IOT5,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_LTC,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC1,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC10,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC2,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC3,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC4,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC5,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC6,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC7,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC8,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_LTC9,GD_GSP,Coordination Q,Transport,Transport DOM RDC
+RDC_ME,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME10,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME4,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME5,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME6,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME7,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME8,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_ME9,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_NIOT,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_NIOT1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_NIOT2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_NIOT3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_NIOT4,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_NIOT5,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_PS21,GD_GSP,Configuration Q,C-Plus,Cplus GIS RDC
+RDC_PS22,GD_GSP,Configuration Q,C-Plus,Cplus GIS RDC
+RDC_PS23,GD_GSP,Configuration Q,C-Plus,Cplus GIS RDC
+RDC_PS24,GD_GSP,Configuration Q,C-Plus,Cplus GIS RDC
+RDC_UPIOT,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_UPIOT1,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_UPIOT2,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_UPIOT3,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_UPIOT4,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+RDC_UPIOT5,GD_GSP,Configuration Q,Transport,Transport DOM RDC
+SAT_CSC,GD_GSP,Configuration Q,Sat Prov SGP,Sat Prov SGP
+SGX1,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX11,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX110,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX111,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX112,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX12,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX13,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX14,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX15,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX16,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX17,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX18,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX19,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX3,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX31,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX312,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX32,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX33,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX34,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX35,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX36,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX37,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX38,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX39,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGX8,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+SGXCE,GD_GSP,Configuration Q,Singnet,Singnet DOM SGP
+STIX,GD_GSP,Configuration Q,Singnet,STIX SGP
+STIXGW_HK,GD_GSP,Configuration Q,Singnet,STIX SGP
+STIXGW_JP,GD_GSP,Configuration Q,Singnet,STIX SGP
+STIXGW_TW,GD_GSP,Configuration Q,Singnet,STIX SGP
+STIXGW_UK,GD_GSP,Configuration Q,Singnet,STIX SGP
+GDEL_MWIFI,GD_Network Ops,Non GSP,Non GSP,Non GSP
+GDL_MWIFI2,GD_Network Ops,Non GSP,Non GSP,Non GSP
+GPRV_MWIFI,GD_Network Ops,Non GSP,Non GSP,Non GSP
+CPE,GD_OMS,Configuration Q,MPE,MPE
+CPE_CSE,GD_OMS,Configuration Q,MPE,MPE
+CPE_TW,GD_OMS,Configuration Q,MPE,MPE
+CPE_UK,GD_OMS,Configuration Q,MPE,MPE
+CS_TECH,GD_OMS,Non GSP,DPE,DPE
+CSSON,GD_OMS,Non GSP,DPE,DPE
+ENT350_CSE,GD_OMS,Configuration Q,MPE,MPE
+ENT360,GD_OMS,Configuration Q,MPE,MPE
+EWO,GD_OMS,Configuration Q,MPE,MPE
+EWO_CSE,GD_OMS,Configuration Q,MPE,MPE
+EXPAN,GD_OMS,Configuration Q,MPE,MPE
+FOC,GD_OMS,Non GSP,DPE,DPE
+FOC_AUS,GD_OMS,Non GSP,DPE,DPE
+FOC_CHN,GD_OMS,Non GSP,DPE,DPE
+FOC_HKG,GD_OMS,Non GSP,DPE,DPE
+FOC_IND,GD_OMS,Non GSP,DPE,DPE
+FOC_INS,GD_OMS,Non GSP,DPE,DPE
+FOC_JPN,GD_OMS,Non GSP,DPE,DPE
+FOC_KOR,GD_OMS,Non GSP,DPE,DPE
+FOC_MLA,GD_OMS,Non GSP,DPE,DPE
+FOC_PHL,GD_OMS,Non GSP,DPE,DPE
+FOC_ROW,GD_OMS,Non GSP,DPE,DPE
+FOC_SNG,GD_OMS,Non GSP,DPE,DPE
+FOC_THA,GD_OMS,Non GSP,DPE,DPE
+FOC_TWN,GD_OMS,Non GSP,DPE,DPE
+FOC_UK,GD_OMS,Non GSP,DPE,DPE
+FOC_USA,GD_OMS,Non GSP,DPE,DPE
+FOC_VTM,GD_OMS,Non GSP,DPE,DPE
+ICQ_NC,GD_OMS,Non GSP,DPE,DPE
+IDA 2,GD_OMS,Configuration Q,SDE-Dom,SDE-Dom
+ILCSALES,GD_OMS,Configuration Q,SDE-Dom,SDE-Dom
+IMPACT,GD_OMS,Configuration Q,MPE,MPE
+IMPACT_CSE,GD_OMS,Configuration Q,MPE,MPE
+IPPBX,GD_OMS,Configuration Q,Transient,Transient
+IPPBX_CSE,GD_OMS,Configuration Q,MPE,MPE
+ISSALES,GD_OMS,Configuration Q,SDE-Dom,SDE-Dom
+LAN_CPE,GD_OMS,Configuration Q,MPE,MPE
+LAN_CPE_TR,GD_OMS,Configuration Q,MPE,MPE
+LANCPE_CSE,GD_OMS,Configuration Q,MPE,MPE
+MPC,GD_OMS,Configuration Q,Transient,Transient
+MSS,GD_OMS,Configuration Q,MPE,MPE
+MSS_CRGR,GD_OMS,Configuration Q,MPE,MPE
+MSS_CSE,GD_OMS,Configuration Q,MPE,MPE
+MVC_CSE,GD_OMS,Configuration Q,MPE,MPE
+OE1,GD_OMS,Configuration Q,SDE-Intl,SDE-Intl
+OE2,GD_OMS,Configuration Q,SDE-Dom,SDE-Dom
+OLLC_AUS,GD_OMS,Non GSP,DPE,DPE
+OLLC_CHN,GD_OMS,Non GSP,DPE,DPE
+OLLC_FOC,GD_OMS,Non GSP,DPE,DPE
+OLLC_HKG,GD_OMS,Non GSP,DPE,DPE
+OLLC_IND,GD_OMS,Non GSP,DPE,DPE
+OLLC_INS,GD_OMS,Non GSP,DPE,DPE
+OLLC_JPN,GD_OMS,Non GSP,DPE,DPE
+OLLC_KR,GD_OMS,Non GSP,DPE,DPE
+OLLC_MLA,GD_OMS,Non GSP,DPE,DPE
+OLLC_PHL,GD_OMS,Non GSP,DPE,DPE
+OLLC_ROW,GD_OMS,Non GSP,DPE,DPE
+OLLC_SNG,GD_OMS,Non GSP,DPE,DPE
+OLLC_THA,GD_OMS,Non GSP,DPE,DPE
+OLLC_TWN,GD_OMS,Non GSP,DPE,DPE
+OLLC_UK,GD_OMS,Non GSP,DPE,DPE
+OLLC_USA,GD_OMS,Non GSP,DPE,DPE
+OLLC_VTM,GD_OMS,Non GSP,DPE,DPE
+RLAN,GD_OMS,Configuration Q,MPE,MPE
+RLAN_CSE,GD_OMS,Configuration Q,MPE,MPE
+RMS,GD_OMS,Configuration Q,MPE,MPE
+RMS_CSE,GD_OMS,Configuration Q,MPE,MPE
+SDE_TP,GD_OMS,Non GSP,DPE,DPE
+SDLAN,GD_OMS,Configuration Q,MPE,MPE
+SDWAN,GD_OMS,Configuration Q,MPE,MPE
+SECPS_CRGR,GD_OMS,Configuration Q,MPE,MPE
+SECPS_TMGR,GD_OMS,Configuration Q,MPE,MPE
+SGSALES,GD_OMS,Configuration Q,SDE-Dom,SDE-Dom
+T_PRES_CSE,GD_OMS,Configuration Q,MPE,MPE
+T_PRESENCE,GD_OMS,Configuration Q,MPE,MPE
+TOPS,GD_OMS,Configuration Q,MPE,MPE
+TOPS_CSE,GD_OMS,Non GSP,MPE,MPE
+TSGRS,GD_OMS,Non GSP,MPE,MPE
+TSGRS_CSE,GD_OMS,Non GSP,MPE,MPE
+UCAAS,GD_OMS,Configuration Q,MPE,MPE
+WIFI,GD_OMS,Configuration Q,MPE,MPE
+WIFI_CSE,GD_OMS,Configuration Q,MPE,MPE
+WLAN,GD_OMS,Configuration Q,MPE,MPE
+WLAN_CSE,GD_OMS,Configuration Q,MPE,MPE
+GIP_CHN,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_HK,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_IND,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_INS,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_JP,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_KR,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_MLA,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_PHL,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_THA,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_TWN,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_UK,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_USA,GD_SGO,Non GSP,Non GSP,Non GSP
+GIP_VTM,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_BGD,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_CHN,GD_SGO,Non GSP,Non GSP,Non GSP
+Resale_HK,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_IND,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_INS,GD_SGO,Non GSP,Non GSP,Non GSP
+Resale_JP,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_KR,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_MLA,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_PHL,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_THA,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_TW,GD_SGO,Non GSP,Non GSP,Non GSP
+Resale_UK,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_USA,GD_SGO,Non GSP,Non GSP,Non GSP
+RESALE_VTM,GD_SGO,Non GSP,Non GSP,Non GSP
+SGO DC HK,GD_SGO,Non GSP,Non GSP,Non GSP
+SGO SD UK,GD_SGO,Non GSP,Non GSP,Non GSP
+IDNS,GD_TAC,Non GSP,Non GSP,Non GSP
+ISS_EMC,GD_TAC,Non GSP,Non GSP,Non GSP
+PNOCP,GD_TAC,Non GSP,Non GSP,Non GSP
+PNOCT,GD_TAC,Non GSP,Non GSP,Non GSP
+EDMS_TD,GD_TD,Non GSP,Non GSP,Non GSP
+EDMS_TD1,GD_TD,Non GSP,Non GSP,Non GSP
+GSDT_NFV,GD_TD,Non GSP,Non GSP,Non GSP
+GSDT_SDN,GD_TD,Non GSP,Non GSP,Non GSP
+GSDT_TM,GD_TD,Non GSP,Non GSP,Non GSP
+GSP_NFV,GD_TD,Non GSP,Non GSP,Non GSP
+GSP_SDN,GD_TD,Non GSP,Non GSP,Non GSP
+GSP_SDN_TM,GD_TD,Non GSP,Non GSP,Non GSP
+STCARE,GD_TD,Non GSP,Non GSP,Non GSP
+TD,GD_TD,Non GSP,Non GSP,Non GSP
+MCPE,Mobile Access,Non GSP,Non GSP,Non GSP
+MCONF,Network Procurement,Non GSP,Non GSP,Non GSP
+OSS,NMPS,Non GSP,Non GSP,Non GSP
+EMS,NMS,Non GSP,Non GSP,Non GSP
+SATIP,SatOps,Non GSP,Non GSP,Non GSP
+SNOC,SatOps,Configuration Q,Non GSP,Non GSP
+VSAT,SatOps,Non GSP,Non GSP,Non GSP
+EXVM1,Service Assurance & TV Engr/Systems & Security Operations_Systems & Security Ops,Non GSP,Non GSP,Non GSP
+EXVM2,Service Assurance & TV Engr/Systems & Security Operations_Systems & Security Ops,Non GSP,Non GSP,Non GSP
+EXIP1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+EXIP2,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+EXIP3,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+EXIP4,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTAM,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTAN,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTAR,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTAR9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTBD,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTBD9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTBP,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTBP9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTCG,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTCG9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTCT,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTCY,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTCY9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSAM,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSAR,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSBP,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSCG,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSCY,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSES,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSGL,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSHG,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSJE,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSJW,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSOC,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSPL,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSTB,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTENSTP,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTES,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTES9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTGL,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTGL9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTHG,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTIP,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTJE,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTJR,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTJW,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTJW9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTKT,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTMIO,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTNT,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTOC,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTOC9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTOCN,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTPL,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTPR,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTQT,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTSG,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTSHLR,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTSHLR9,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTSXSCP,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTTB,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTTM,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTTP,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTTS,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SOFTVM,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SWIOCH1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SWNOCH1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SWOC1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SWOCE1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SWPL1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SWPLE1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+SWTP1,Service Assurance & TV Engr_Voice Ops,Non GSP,Non GSP,Non GSP
+CGS_CS,Submarine,Non GSP,Non GSP,Non GSP
+KTBUGFS,Submarine,Non GSP,Non GSP,Non GSP
+KTS_CS,Submarine,Non GSP,Non GSP,Non GSP
+TSS_CS,Submarine,Non GSP,Non GSP,Non GSP
+2FTTH,System Q,Non GSP,Non GSP,Non GSP
+2FTTHMAN,System Q,Non GSP,Non GSP,Non GSP
+ASH,System Q,Non GSP,Non GSP,Non GSP
+BATCH_DCI,System Q,Non GSP,Non GSP,Non GSP
+FRMS_FULL,System Q,Non GSP,Non GSP,Non GSP
+FRMS_HALF,System Q,Non GSP,Non GSP,Non GSP
+FTTH_GSPIP,System Q,Non GSP,Non GSP,Non GSP
+FTTH_HOLD,System Q,Non GSP,Non GSP,Non GSP
+FTTHCHK,System Q,Non GSP,Non GSP,Non GSP
+GSDT5,System Q,Non GSP,Non GSP,Non GSP
+HDM_BATCH,System Q,Non GSP,Non GSP,Non GSP
+HDMDDNS,System Q,Non GSP,Non GSP,Non GSP
+HDMV,System Q,Non GSP,Non GSP,Non GSP
+HOLD_E_DLC,System Q,Non GSP,Non GSP,Non GSP
+HOLD_F_DLC,System Q,Non GSP,Non GSP,Non GSP
+HOLD_FTTH,System Q,Non GSP,Non GSP,Non GSP
+HOLDING_Q,System Q,Non GSP,Non GSP,Non GSP
+MIG,System Q,Non GSP,Non GSP,Non GSP
+SNAT,System Q,Non GSP,Transient,Transient
+SSYHOLD,System Q,Non GSP,Non GSP,Non GSP
+WFM,System Q,Non GSP,Non GSP,Non GSP
+WFMAPT,System Q,Non GSP,Non GSP,Non GSP
+AE_NAS,Transient,Non GSP,Non GSP,Non GSP
+AIS,Transient,Non GSP,Non GSP,Non GSP
+ANE,Transient,Non GSP,Non GSP,Non GSP
+ANE1,Transient,Non GSP,Non GSP,Non GSP
+ANE2,Transient,Non GSP,Non GSP,Non GSP
+ARTM,Transient,Non GSP,Non GSP,Non GSP
+AXIOM,Transient,Non GSP,Non GSP,Non GSP
+BAANO,Transient,Non GSP,Non GSP,Non GSP
+BAMUX,Transient,Non GSP,Non GSP,Non GSP
+BBCEA,Transient,Non GSP,Non GSP,Non GSP
+BBCEA1,Transient,Non GSP,Non GSP,Non GSP
+BBJE,Transient,Non GSP,Non GSP,Non GSP
+BBPA,Transient,Non GSP,Non GSP,Non GSP
+BDBUGFS,Transient,Non GSP,Non GSP,Non GSP
+BNOSLG,Transient,Non GSP,Non GSP,Non GSP
+BOD_MCE,Transient,Non GSP,Non GSP,Non GSP
+BPBUGFS,Transient,Non GSP,Non GSP,Non GSP
+BPTM,Transient,Non GSP,Non GSP,Non GSP
+BSDA,Transient,Non GSP,Non GSP,Non GSP
+BSTOT_SG,Transient,Non GSP,Non GSP,Non GSP
+BTBUGFS,Transient,Non GSP,Non GSP,Non GSP
+BTOPS,Transient,Non GSP,Non GSP,Non GSP
+CGBUGFS,Transient,Non GSP,Non GSP,Non GSP
+CGTM,Transient,Non GSP,Non GSP,Non GSP
+CHG,Transient,Non GSP,Non GSP,Non GSP
+CMS,Transient,Non GSP,Non GSP,Non GSP
+CNO_SVY,Transient,Non GSP,Non GSP,Non GSP
+COMMSOPS,Transient,Non GSP,Non GSP,Non GSP
+CSBUGFS,Transient,Non GSP,Non GSP,Non GSP
+CTBUGFS,Transient,Non GSP,Non GSP,Non GSP
+CYBUGFS,Transient,Non GSP,Non GSP,Non GSP
+CYTM,Transient,Non GSP,Non GSP,Non GSP
+DANE,Transient,Non GSP,Non GSP,Non GSP
+DCADP,Transient,Non GSP,Non GSP,Non GSP
+DKADP,Transient,Non GSP,Non GSP,Non GSP
+DWFMMAN,Transient,Non GSP,Non GSP,Non GSP
+EMAIL,Transient,Non GSP,Non GSP,Non GSP
+ESBUGFS,Transient,Non GSP,Non GSP,Non GSP
+FDCW,Transient,Non GSP,Non GSP,Non GSP
+FDSL,Transient,Non GSP,Non GSP,Non GSP
+FOB_UP,Transient,Non GSP,Non GSP,Non GSP
+FTP,Transient,Non GSP,Non GSP,Non GSP
+GACY,Transient,Non GSP,Non GSP,Non GSP
+GADDP,Transient,Non GSP,Non GSP,Non GSP
+GADLP,Transient,Non GSP,Non GSP,Non GSP
+GLBUGFS,Transient,Non GSP,Non GSP,Non GSP
+HGBUGFS,Transient,Non GSP,Non GSP,Non GSP
+HMSVC,Transient,Non GSP,Non GSP,Non GSP
+HW_CBLPL,Transient,Non GSP,Non GSP,Non GSP
+ICT,Transient,Non GSP,Non GSP,Non GSP
+ICTERM,Transient,Non GSP,Non GSP,Non GSP
+INF,Transient,Non GSP,Non GSP,Non GSP
+IPCOPS,Transient,Non GSP,Non GSP,Non GSP
+IPN_HOLD,Transient,Non GSP,Non GSP,Non GSP
+IPSVC,Transient,Non GSP,Non GSP,Non GSP
+IPTV,Transient,Non GSP,Non GSP,Non GSP
+IPTVCHK,Transient,Non GSP,Non GSP,Non GSP
+IPTVMAN,Transient,Non GSP,Non GSP,Non GSP
+IPTVSTB,Transient,Non GSP,Non GSP,Non GSP
+JEBUGFS,Transient,Non GSP,Non GSP,Non GSP
+JRBUGFS,Transient,Non GSP,Non GSP,Non GSP
+JRTM,Transient,Non GSP,Non GSP,Non GSP
+JWBUGFS,Transient,Non GSP,Non GSP,Non GSP
+JWTM,Transient,Non GSP,Non GSP,Non GSP
+KTTM,Transient,Non GSP,Non GSP,Non GSP
+M-CNP,Transient,Non GSP,Non GSP,Non GSP
+MHS_HK,Transient,Non GSP,Non GSP,Non GSP
+MHS_JP,Transient,Non GSP,Non GSP,Non GSP
+MHS_MA,Transient,Non GSP,Non GSP,Non GSP
+MHS_TW,Transient,Non GSP,Non GSP,Non GSP
+MHSCOM,Transient,Non GSP,Non GSP,Non GSP
+MHSDCW,Transient,Non GSP,Non GSP,Non GSP
+MHSDCW_B,Transient,Non GSP,Non GSP,Non GSP
+MHSKC,Transient,Non GSP,Non GSP,Non GSP
+MHS-KC1,Transient,Non GSP,Non GSP,Non GSP
+MHSKC2,Transient,Non GSP,Non GSP,Non GSP
+MHS-KC2,Transient,Non GSP,Non GSP,Non GSP
+MHSPOC,Transient,Non GSP,Non GSP,Non GSP
+MNP_CAN,Transient,Non GSP,Non GSP,Non GSP
+MNP_IN,Transient,Non GSP,Non GSP,Non GSP
+MNP_INP2P,Transient,Non GSP,Non GSP,Non GSP
+MNP_IS,Transient,Non GSP,Non GSP,Non GSP
+MNP_P2P,Transient,Non GSP,Non GSP,Non GSP
+MNP_USER,Transient,Non GSP,Non GSP,Non GSP
+M-OPS,Transient,Non GSP,Non GSP,Non GSP
+MSA,Transient,Non GSP,Non GSP,Non GSP
+MTS,Transient,Non GSP,Non GSP,Non GSP
+MVC,Transient,Non GSP,Non GSP,Non GSP
+MW,Transient,Non GSP,Non GSP,Non GSP
+NBBD,Transient,Non GSP,Non GSP,Non GSP
+NBIS,Transient,Non GSP,Non GSP,Non GSP
+NBJE,Transient,Non GSP,Non GSP,Non GSP
+NBOC,Transient,Non GSP,Non GSP,Non GSP
+NBQT,Transient,Non GSP,Non GSP,Non GSP
+NBTP,Transient,Non GSP,Non GSP,Non GSP
+NBTS,Transient,Non GSP,Non GSP,Non GSP
+NGNCSIM,Transient,Non GSP,Non GSP,Non GSP
+NMS,Transient,Non GSP,Non GSP,Non GSP
+NSI (IP),Transient,Non GSP,Non GSP,Non GSP
+NSI (PS),Transient,Non GSP,Non GSP,Non GSP
+NTBUGFS,Transient,Non GSP,Non GSP,Non GSP
+OCBUGFS,Transient,Non GSP,Non GSP,Non GSP
+OCTM,Transient,Non GSP,Non GSP,Non GSP
+OMADMIN,Transient,Non GSP,Non GSP,Non GSP
+ON_MON,Transient,Non GSP,Non GSP,Non GSP
+P_VLANLLC,Transient,Non GSP,Non GSP,Non GSP
+PLBUGFS,Transient,Non GSP,Non GSP,Non GSP
+PNOCC,Transient,Non GSP,Non GSP,Non GSP
+PNOCC-FM,Transient,Non GSP,Non GSP,Non GSP
+PRBUGFS,Transient,Non GSP,Non GSP,Non GSP
+QTBUGFS,Transient,Non GSP,Non GSP,Non GSP
+RC,Transient,Non GSP,Non GSP,Non GSP
+RCONF,Transient,Non GSP,Non GSP,Non GSP
+RCU,Transient,Non GSP,Non GSP,Non GSP
+RSE2,Transient,Non GSP,Non GSP,Non GSP
+RSE4,Transient,Non GSP,Non GSP,Non GSP
+RSE5,Transient,Non GSP,Non GSP,Non GSP
+RVOM,Transient,Non GSP,Non GSP,Non GSP
+SAASV,Transient,Non GSP,Non GSP,Non GSP
+SAPL,Transient,Non GSP,Non GSP,Non GSP
+SBBUGFS,Transient,Non GSP,Non GSP,Non GSP
+SE_GWL,Transient,Non GSP,Non GSP,Non GSP
+SGMDP,Transient,Non GSP,Non GSP,Non GSP
+SGRC,Transient,Non GSP,Non GSP,Non GSP
+SGTD,Transient,Non GSP,Non GSP,Non GSP
+SLMD,Transient,Non GSP,Non GSP,Non GSP
+SLMDMAN,Transient,Non GSP,Non GSP,Non GSP
+SRU,Transient,Non GSP,Non GSP,Non GSP
+STM_MSS,Transient,Non GSP,Non GSP,Non GSP
+SWAME1,Transient,Non GSP,Non GSP,Non GSP
+SWBDE1,Transient,Non GSP,Non GSP,Non GSP
+SWCY1,Transient,Non GSP,Non GSP,Non GSP
+SWES1,Transient,Non GSP,Non GSP,Non GSP
+SWGLE1,Transient,Non GSP,Non GSP,Non GSP
+SYSACT,Transient,Non GSP,Non GSP,Non GSP
+SYSBATCH,Transient,Non GSP,Non GSP,Non GSP
+SYSBILLING,Transient,Non GSP,Non GSP,Non GSP
+SYSDWFM,Transient,Non GSP,Non GSP,Non GSP
+SYSFNP,Transient,Non GSP,Non GSP,Non GSP
+SYSSDP,Transient,Non GSP,Non GSP,Non GSP
+TBBUGFS,Transient,Non GSP,Non GSP,Non GSP
+TBTM,Transient,Non GSP,Non GSP,Non GSP
+TPBUGFS,Transient,Non GSP,Non GSP,Non GSP
+TPTM,Transient,Non GSP,Non GSP,Non GSP
+TSBUGFS,Transient,Non GSP,Non GSP,Non GSP
+TSD,Transient,Non GSP,Non GSP,Non GSP
+TSMNT,Transient,Non GSP,Non GSP,Non GSP
+TSMNTCP,Transient,Non GSP,Non GSP,Non GSP
+TSTM,Transient,Non GSP,Non GSP,Non GSP
+VIDEO,Transient,Non GSP,Non GSP,Non GSP
+VOIP,Transient,Non GSP,Non GSP,Non GSP
+WEBTV,Transient,Non GSP,Non GSP,Non GSP
+WLBUGFS,Transient,Non GSP,Non GSP,Non GSP
+XC_SNG,Transient,Non GSP,Non GSP,Non GSP
+XC_TP,Transient,Non GSP,Non GSP,Non GSP
+YCBUGFS,Transient,Non GSP,Non GSP,Non GSP
+ZDT,Transient,Non GSP,Non GSP,Non GSP
