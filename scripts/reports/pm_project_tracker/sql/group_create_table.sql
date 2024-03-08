@@ -154,7 +154,6 @@ FROM (
             AND MAP_NPP.status != "Cancel"
         WHERE
             MAP_ORD.project_tracker_group_name = "ZHT8643"
-            -- MAP_ORD.project_tracker_group_name = "ZKJ0650"
     ) MAP_PRJTRK
 ORDER BY
     MAP_PRJTRK.project_code,
