@@ -50,9 +50,19 @@ SELECT DISTINCT
                     PRJTRK.type_of_product = "SDWAN"
                     AND PAR.parameter_name IN ("TermCtry")
                 )
-                OR PRJTRK.type_of_product NOT IN("OLLC", "CPE", "RMS", "SDWAN")
+                OR (
+                    PRJTRK.type_of_product = "CGI"
+                    AND PAR.parameter_name IN ("TermCtry")
+                )
+                OR (
+                    PRJTRK.type_of_product = "Eline"
+                    AND PAR.parameter_name IN ("OriginCtry", "TermCtry")
+                )
+                OR PRJTRK.type_of_product NOT IN(
+                    "OLLC", "CPE", "RMS", "SDWAN", "CGI", "Eline"
+                )
                 AND PAR.parameter_name IN (
-                    "TermCtry", "DestinationCtry", "LeadCtry"
+                    "TermCtry", "DestinationCtry", "LeadCtry", "OriginCtry"
                 )
                 OR PRJTRK.product_category = "Domestic"
             )
@@ -264,6 +274,7 @@ SELECT DISTINCT
             AND PRJTRK.type_of_product = "OLLC"
             AND PAR.parameter_name IN ("OLLCOrdPld")
     ) AS ollc_order_placed_date,
+    ACT.foc_date_received,
     (
         SELECT GROUP_CONCAT(
                 CONCAT_WS(
@@ -275,7 +286,7 @@ SELECT DISTINCT
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
-            AND PRJTRK.type_of_product = "OLLC"
+            AND PRJTRK.type_of_product IN ("OLLC", "CGI")
             AND PAR.parameter_name IN (
                 "Date_Received_From_Partner_FOC"
             )
@@ -291,7 +302,7 @@ SELECT DISTINCT
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
-            AND PRJTRK.type_of_product = "OLLC"
+            AND PRJTRK.type_of_product IN ("OLLC", "CGI")
             AND PAR.parameter_name IN ("FOC_Date")
     ) AS ollc_foc_date,
     (
@@ -333,7 +344,7 @@ SELECT DISTINCT
             AND (
                 (
                     PRJTRK.type_of_product IN (
-                        "CPlusIP", "Eline", "SingNet", "STiX"
+                        "CPlusIP", "Eline", "SingNet", "SingNet_OR_Ethernet", "STiX"
                     )
                     AND LOWER(PAR.parameter_name) IN ("speed")
                 )
@@ -355,7 +366,7 @@ SELECT DISTINCT
                 )
                 OR (
                     PRJTRK.type_of_product NOT IN(
-                        "CPlusIP", "Eline", "SingNet", "STiX", "MegaPOP", "MegaPOP_OR_Ethernet", "MetroE", "CGI"
+                        "CPlusIP", "Eline", "SingNet", "SingNet_OR_Ethernet", "STiX", "MegaPOP", "MegaPOP_OR_Ethernet", "MetroE", "CGI"
                     )
                     AND PAR.parameter_name IN (
                         "speed", "SpeedD" "Speedbps", "Speed", "_speed", "LocIntSpeedDownstr", "LocIntSpeedUpstr"
@@ -728,7 +739,14 @@ FROM
                         INNER_ACT.name, ' - ', INNER_ACT.status, ' - ', INNER_ACT.completed_date
                     )
                 END
-            ) so_date_for_cpe
+            ) so_date_for_cpe, MAX(
+                CASE
+                    WHEN INNER_PRJTRK.type_of_product = "Gigawave"
+                    AND INNER_ACT.name IN ("FOC Date Received") THEN CONCAT(
+                        INNER_ACT.name, ' - ', INNER_ACT.status, ' - ', INNER_ACT.completed_date
+                    )
+                END
+            ) foc_date_received
         FROM o2puat.RestInterface_activity INNER_ACT
             JOIN o2ptest.project_tracker_group INNER_PRJTRK ON INNER_PRJTRK.order_id = INNER_ACT.order_id
         GROUP BY
