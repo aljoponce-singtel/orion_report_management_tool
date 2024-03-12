@@ -9,6 +9,8 @@ SELECT DISTINCT
     PRJTRK.type_of_work,
     PRJTRK.order_code,
     PRJTRK.service_number,
+    PRJTRK.arbor_disp,
+    ORD.product_description,
     ORD.order_type,
     ORD.ord_action_type,
     ORD.order_status,
@@ -16,9 +18,6 @@ SELECT DISTINCT
     ORD.applied_date,
     ORD.current_crd,
     ORD.completed_date,
-    PRJTRK.arbor_disp,
-    ORD.product_description,
-    -- PRJTRK.network_product_desc,
     (
         SELECT (
                 CASE
