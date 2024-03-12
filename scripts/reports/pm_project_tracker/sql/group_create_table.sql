@@ -90,7 +90,7 @@ SELECT DISTINCT
     MAP_PRJTRK.npp_id,
     MAP_PRJTRK.product_id
 FROM (
-        SELECT
+        SELECT DISTINCT
             MAP_PRJ.project_code, MAP_ORD.service_order_number AS svc_ord_no, (
                 CASE
                     WHEN MAP_ORD.service_number REGEXP "^M\\d{7}$"
@@ -144,7 +144,7 @@ FROM (
                     AND MAP_PRD.network_product_desc LIKE "C+ SDW%" THEN "SDWAN"
                     ELSE NULL
                 END
-            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp, MAP_PRD.network_product_desc, MAP_ORD.id AS order_id, MAP_NPP.id AS npp_id, MAP_PRD.id AS product_id
+            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp, MAP_PRD.network_product_desc, MAP_PRJ.id, MAP_ORD.id AS order_id, MAP_NPP.id AS npp_id, MAP_PRD.id AS product_id
         FROM
             o2puat.RestInterface_project MAP_PRJ
             JOIN o2puat.RestInterface_order MAP_ORD ON MAP_ORD.project_id = MAP_PRJ.id
