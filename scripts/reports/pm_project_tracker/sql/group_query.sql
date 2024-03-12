@@ -640,15 +640,21 @@ FROM
         SELECT
             INNER_CON.order_id, MAX(
                 CASE
-                    WHEN INNER_CON.contact_type = "Clarification-Cust" THEN INNER_CON.email_address
+                    WHEN INNER_CON.contact_type = "Clarification-Cust" THEN CONCAT(
+                        INNER_CON.given_name, ", ", INNER_CON.family_name, " - ", INNER_CON.mobile_no, " - ", INNER_CON.email_address
+                    )
                 END
             ) clarification_cust, MAX(
                 CASE
-                    WHEN INNER_CON.contact_type = "A-end-Cust" THEN INNER_CON.email_address
+                    WHEN INNER_CON.contact_type = "A-end-Cust" THEN CONCAT(
+                        INNER_CON.given_name, ", ", INNER_CON.family_name, " - ", INNER_CON.mobile_no, " - ", INNER_CON.email_address
+                    )
                 END
             ) a_end_cust, MAX(
                 CASE
-                    WHEN INNER_CON.contact_type = "Technical-Cust" THEN INNER_CON.email_address
+                    WHEN INNER_CON.contact_type = "Technical-Cust" THEN CONCAT(
+                        INNER_CON.given_name, ", ", INNER_CON.family_name, " - ", INNER_CON.mobile_no, " - ", INNER_CON.email_address
+                    )
                 END
             ) technical_cust
         FROM o2puat.RestInterface_contactdetails INNER_CON
