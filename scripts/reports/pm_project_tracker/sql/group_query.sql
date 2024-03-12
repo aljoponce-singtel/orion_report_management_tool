@@ -119,7 +119,7 @@ SELECT DISTINCT
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
-            AND LOWER(PAR.parameter_name) = "speed"
+            AND LOWER(PAR.parameter_name) IN ("speed", "prdtDesc")
     ) AS sg_dom_bandwidth,
     ACT.circuit_survey_a_end,
     ACT.circuit_survey_b_end,
