@@ -97,19 +97,19 @@ FROM (
                     AND MAP_ORD.arbor_disp = "Diginet" THEN "Diginet"
                     WHEN MAP_ORD.service_number REGEXP "^GW\\d{7}$"
                     AND MAP_ORD.arbor_disp = "Diginet"
-                    AND MAP_PRD.network_product_desc LIKE "%Channel%" THEN "GW Channel"
+                    AND MAP_ORD.product_description LIKE "%Channel%" THEN "GW Channel"
                     WHEN MAP_ORD.service_number REGEXP "^GW\\d{7}$"
                     AND MAP_ORD.arbor_disp = "Diginet"
-                    AND MAP_PRD.network_product_desc LIKE "%Fibre%" THEN "GW Fiber Std"
+                    AND MAP_ORD.product_description LIKE "%Fibre%" THEN "GW Fiber Std"
                     WHEN MAP_ORD.service_number REGEXP "^GW\\d{7}$"
                     AND MAP_ORD.arbor_disp = "Diginet"
-                    AND MAP_PRD.network_product_desc LIKE "%Diversity%" THEN "GW Fiber Diverse"
+                    AND MAP_ORD.product_description LIKE "%Diversity%" THEN "GW Fiber Diverse"
                     WHEN MAP_ORD.service_number REGEXP "^GWM\\d{7}$"
                     AND MAP_ORD.arbor_disp = "Diginet"
-                    AND MAP_PRD.network_product_desc = "GWL Monitoring over MetroE" THEN "GW Monitoring"
+                    AND MAP_ORD.product_description = "GWL Monitoring over MetroE" THEN "GW Monitoring"
                     WHEN MAP_ORD.arbor_disp = "TS - FTTH" THEN "FTTH"
                     WHEN MAP_ORD.arbor_disp = "CN - Meg@pop Suite Of IP Services"
-                    AND MAP_PRD.network_product_desc = "Intranet VPN" THEN "MegaPOP VPN"
+                    AND MAP_ORD.product_description = "Intranet VPN" THEN "MegaPOP VPN"
                     WHEN MAP_ORD.service_number REGEXP "^CE\\d{8}SNG$"
                     AND MAP_ORD.arbor_disp = "CN - Meg@pop Suite Of IP Services" THEN "MegaPOP (CE)"
                     WHEN MAP_ORD.service_number REGEXP "^00\\d{6}SNG$"
@@ -122,10 +122,10 @@ FROM (
                     AND MAP_ORD.arbor_disp = "SingNet" THEN "SingNet"
                     WHEN MAP_ORD.service_number REGEXP "^\\d{7}$"
                     AND MAP_ORD.arbor_disp = "Diginet"
-                    AND MAP_PRD.network_product_desc LIKE "%ISDN%" THEN "Diginet"
+                    AND MAP_ORD.product_description LIKE "%ISDN%" THEN "Diginet"
                     WHEN MAP_ORD.arbor_disp = "ISDN" THEN "Telephone Numbers"
                     WHEN MAP_ORD.arbor_disp = "CN - ConnectPlus IP VPN"
-                    AND MAP_PRD.network_product_desc = "Intranet VPN" THEN "Cplus VPN"
+                    AND MAP_ORD.product_description = "Intranet VPN" THEN "Cplus VPN"
                     WHEN MAP_ORD.service_number REGEXP "^00\\d{6}\\p{L}{3}$"
                     AND MAP_ORD.arbor_disp = "CN - ConnectPlus IP VPN" THEN "Cplus PE Port"
                     WHEN MAP_ORD.service_number REGEXP "^\\p{L}{3}\\d{10}LLC$"
@@ -134,24 +134,27 @@ FROM (
                     WHEN MAP_ORD.arbor_disp = "STIX Gateway" THEN "STiX"
                     WHEN MAP_ORD.arbor_disp = "ISDN" THEN "Telephone Numbers"
                     WHEN MAP_ORD.arbor_disp = "CN - ConnectPlus IP VPN"
-                    AND MAP_PRD.network_product_desc = "C+ Global Internet" THEN "Cplus Global Internet (CGI)"
+                    AND MAP_ORD.product_description = "C+ Global Internet" THEN "Cplus Global Internet (CGI)"
                     WHEN MAP_ORD.arbor_disp = "CPE"
-                    AND MAP_PRD.network_product_desc IN (
+                    AND MAP_ORD.product_description IN (
                         "Rental Of CPE", "Sale of CPE"
                     ) THEN "CPE"
                     WHEN MAP_ORD.arbor_disp = "Router Mgmt Svc" THEN "RMS"
                     WHEN MAP_ORD.arbor_disp = "CN - ConnectPlus IP VPN"
-                    AND MAP_PRD.network_product_desc LIKE "C+ SDW%" THEN "SDWAN"
+                    AND MAP_ORD.product_description LIKE "C+ SDW%" THEN "SDWAN"
                     ELSE NULL
                 END
-            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp, MAP_PRD.network_product_desc, MAP_PRJ.id, MAP_ORD.id AS order_id, MAP_NPP.id AS npp_id, MAP_PRD.id AS product_id
+            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp, MAP_ORD.product_description, MAP_NPP.network_product_desc, MAP_PRJ.id, MAP_ORD.id AS order_id, MAP_NPP.npp_id, MAP_NPP.product_id
         FROM
             o2puat.RestInterface_project MAP_PRJ
             JOIN o2puat.RestInterface_order MAP_ORD ON MAP_ORD.project_id = MAP_PRJ.id
-            JOIN o2puat.RestInterface_npp MAP_NPP ON MAP_NPP.order_id = MAP_ORD.id
-            JOIN o2puat.RestInterface_product MAP_PRD ON MAP_PRD.id = MAP_NPP.product_id
-            AND MAP_NPP.level = "Mainline"
-            AND MAP_NPP.status != "Cancel"
+            LEFT JOIN (
+                SELECT NPP.order_id, NPP.id AS npp_id, PRD.id AS product_id, PRD.network_product_desc
+                FROM o2puat.RestInterface_npp NPP
+                    JOIN o2puat.RestInterface_product PRD ON PRD.id = NPP.product_id
+                    AND NPP.level = "Mainline"
+                    AND NPP.status != "Cancel"
+            ) MAP_NPP ON MAP_NPP.order_id = MAP_ORD.id
         WHERE
             MAP_ORD.project_tracker_group_name = "ZHT8643"
     ) MAP_PRJTRK
