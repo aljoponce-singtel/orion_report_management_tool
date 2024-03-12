@@ -121,6 +121,63 @@ SELECT DISTINCT
             PRJTRK.npp_id = NPP.id
             AND LOWER(PAR.parameter_name) IN ("speed", "prdtDesc")
     ) AS sg_dom_bandwidth,
+    (
+        SELECT GROUP_CONCAT(
+                CONCAT_WS(
+                    " - ", PAR.parameter_name, PAR.parameter_value
+                ) SEPARATOR "; "
+            )
+        FROM
+            o2puat.RestInterface_npp NPP
+            JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
+        WHERE
+            PRJTRK.npp_id = NPP.id
+            AND (
+                (
+                    PRJTRK.type_of_product = "MetroE"
+                    AND PAR.parameter_name IN ("ConnectorTypeAEnd")
+                )
+                OR (
+                    PRJTRK.type_of_work = "GW Channel"
+                    AND PAR.parameter_name IN ("PrdtDesc")
+                )
+                OR (
+                    (
+                        PRJTRK.type_of_product NOT IN("MetroE")
+                        OR PRJTRK.type_of_work NOT IN("GW Channel")
+                    )
+                    AND PAR.parameter_name IN (
+                        "ConnectorTypeAEnd", "PrdtDesc"
+                    )
+                )
+            )
+    ) AS sg_circuit_handoff_a,
+    (
+        SELECT GROUP_CONCAT(
+                CONCAT_WS(
+                    " - ", PAR.parameter_name, PAR.parameter_value
+                ) SEPARATOR "; "
+            )
+        FROM
+            o2puat.RestInterface_npp NPP
+            JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
+        WHERE
+            PRJTRK.npp_id = NPP.id
+            AND (
+                (
+                    PRJTRK.type_of_product = "MetroE"
+                    AND PAR.parameter_name IN ("ConnectorTypeBEnd")
+                )
+                OR (
+                    PRJTRK.type_of_work = "GW Channel"
+                    AND PAR.parameter_name IN ("PrdtDesc")
+                )
+                OR (
+                    PRJTRK.type_of_product NOT IN("MetroE")
+                    AND PAR.parameter_name IN ("ConnectorTypeBEnd")
+                )
+            )
+    ) AS sg_circuit_handoff_b,
     ACT.circuit_survey_a_end,
     ACT.circuit_survey_b_end,
     ACT.inhouse_cabling_a_end,
@@ -256,11 +313,11 @@ SELECT DISTINCT
                         "OLLC", "Eline", "MetroE", "CGI"
                     )
                     AND PAR.parameter_name IN (
-                        "interface", "speCustInterPorted" "ConnectorTypeAEnd", "IntInterface"
+                        "interface", "speCustInterPorted", "ConnectorTypeAEnd", "IntInterface"
                     )
                 )
             )
-    ) AS circuit_handoff_a_b,
+    ) AS ollc_circuit_handoff_a_b,
     (
         SELECT GROUP_CONCAT(
                 CONCAT_WS(
