@@ -112,7 +112,7 @@ FROM (
                     AND MAP_ORD.product_description = "Intranet VPN" THEN "MegaPOP VPN"
                     WHEN MAP_ORD.service_number REGEXP "^CE\\d{8}SNG$"
                     AND MAP_ORD.arbor_disp = "CN - Meg@pop Suite Of IP Services" THEN "MegaPOP (CE)"
-                    WHEN MAP_ORD.service_number REGEXP "^00\\d{6}SNG$"
+                    WHEN MAP_ORD.service_number REGEXP "^\\d{8}SNG$"
                     AND MAP_ORD.arbor_disp = "CN - Meg@pop Suite Of IP Services" THEN "MegaPOP"
                     WHEN MAP_ORD.service_number REGEXP "^ETHCE\\d{8}SNG$"
                     AND MAP_ORD.arbor_disp = "SingNet" THEN "SingNet"
@@ -156,7 +156,7 @@ FROM (
                     AND NPP.status != "Cancel"
             ) MAP_NPP ON MAP_NPP.order_id = MAP_ORD.id
         WHERE
-            MAP_ORD.project_tracker_group_name = "ZHT8643"
+            MAP_ORD.project_tracker_group_name = "ZJK8529"
     ) MAP_PRJTRK
 ORDER BY
     MAP_PRJTRK.project_code,
