@@ -5,7 +5,9 @@ DROP TABLE IF EXISTS o2ptest.project_tracker_group;
 CREATE TABLE IF NOT EXISTS o2ptest.project_tracker_group AS
 SELECT DISTINCT
     MAP_PRJTRK.project_code,
-    MAP_PRJTRK.svc_ord_no,
+    MAP_PRJTRK.project_tracker_site_id,
+    MAP_PRJTRK.project_tracker_group_name,
+    MAP_PRJTRK.service_order_number,
     (
         CASE
             WHEN MAP_PRJTRK.type_of_work = "Diginet" THEN "Domestic"
@@ -68,7 +70,7 @@ SELECT DISTINCT
             WHEN MAP_PRJTRK.type_of_work = "Diginet"
             AND MAP_PRJTRK.service_number REGEXP "^\\d{7}$" THEN "ISDN"
             WHEN MAP_PRJTRK.type_of_work = "Telephone Numbers"
-            AND MAP_PRJTRK.arbor_disp = "ISDN" THEN "ISDN_Telephone_Numbers"
+            AND MAP_PRJTRK.service_type = "ISDN" THEN "ISDN_Telephone_Numbers"
             WHEN MAP_PRJTRK.type_of_work = "Cplus VPN" THEN "CPlusIP"
             WHEN MAP_PRJTRK.type_of_work = "Cplus PE Port" THEN "CPlusIP"
             WHEN MAP_PRJTRK.type_of_work = "OLLC (resale data service)" THEN "OLLC"
@@ -84,14 +86,16 @@ SELECT DISTINCT
     MAP_PRJTRK.type_of_work,
     MAP_PRJTRK.order_code,
     MAP_PRJTRK.service_number,
-    MAP_PRJTRK.arbor_disp,
-    MAP_PRJTRK.network_product_desc,
+    MAP_PRJTRK.service_type,
+    MAP_PRJTRK.order_product_description,
+    MAP_PRJTRK.npp_product_description,
+    MAP_PRJTRK.project_id,
     MAP_PRJTRK.order_id,
     MAP_PRJTRK.npp_id,
     MAP_PRJTRK.product_id
 FROM (
         SELECT DISTINCT
-            MAP_PRJ.project_code, MAP_ORD.service_order_number AS svc_ord_no, (
+            MAP_PRJ.project_code, MAP_ORD.project_tracker_site_id, MAP_ORD.project_tracker_group_name, MAP_ORD.service_order_number, (
                 CASE
                     WHEN MAP_ORD.service_number REGEXP "^M\\d{7}$"
                     AND MAP_ORD.arbor_disp = "Diginet" THEN "Diginet"
@@ -144,7 +148,7 @@ FROM (
                     AND MAP_ORD.product_description LIKE "C+ SDW%" THEN "SDWAN"
                     ELSE NULL
                 END
-            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp, MAP_ORD.product_description, MAP_NPP.network_product_desc, MAP_PRJ.id, MAP_ORD.id AS order_id, MAP_NPP.npp_id, MAP_NPP.product_id
+            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp AS service_type, MAP_ORD.product_description AS order_product_description, MAP_NPP.network_product_desc AS npp_product_description, MAP_PRJ.id AS project_id, MAP_ORD.id AS order_id, MAP_NPP.npp_id, MAP_NPP.product_id
         FROM
             o2puat.RestInterface_project MAP_PRJ
             JOIN o2puat.RestInterface_order MAP_ORD ON MAP_ORD.project_id = MAP_PRJ.id
@@ -160,7 +164,7 @@ FROM (
     ) MAP_PRJTRK
 ORDER BY
     MAP_PRJTRK.project_code,
-    MAP_PRJTRK.svc_ord_no,
+    MAP_PRJTRK.service_order_number,
     product_category DESC,
     circuit_layer DESC,
     MAP_PRJTRK.type_of_work,

@@ -22,6 +22,12 @@ def generate_report():
     else:
         ProjectTrackerTestGroup = create_project_tracker_test_group_class()
 
+    # User o2ptest database
+    db = report.test_db
+    # Create table if not exist and insert the service numbers from the file
+    table_model = ProjectTrackerTestGroup
+    db.create_table_from_metadata(table_model)
+
     # query = report.get_query_from_file("query.sql")
     # formatted_query = query.format(
     #     start_date=report.start_date, end_date=report.end_date)
