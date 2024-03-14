@@ -322,6 +322,23 @@ class OrionReport(EmailClient, Utils):
                 logger.exception(err)
                 raise Exception(err)
 
+    def insert_df_to_test_table(self, df: pd.DataFrame, table_name: str, table_model: DeclarativeMeta = None, insert_table: bool = True, if_exist=None):
+        try:
+            db = self.test_db
+            logger.info(
+                f"Inserting records to {db.database}.{table_name} ...")
+            # Create table if not exist if table_model is provided
+            if table_model:
+                db.create_table_from_metadata(table_model)
+            # insert records to DB
+            if insert_table:
+                db.insert_df_to_table(df, table_name, if_exist=if_exist)
+        except Exception as err:
+            logger.info(
+                f"Failed to insert records to {db.database}.{table_name} at {db.user}@{db.host}:{db.port}")
+            logger.exception(err)
+            raise Exception(err)
+
     def get_query_from_file(self, filename=None, file_path=None):
         # Only filename is provided
         if file_path is None:
