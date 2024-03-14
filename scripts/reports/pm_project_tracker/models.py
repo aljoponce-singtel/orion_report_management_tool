@@ -33,6 +33,6 @@ def create_project_tracker_test_group_class(group_name=None):
         product_id = Column(Integer)
 
         def __repr__(self):
-            return "<ProjectTrackerTestGroup(order_code='%s')>" % (self.order_code)
+            return "<ProjectTrackerTestGroup(project_tracker_group_name='%s')>" % (self.project_tracker_group_name)
 
     return ProjectTrackerTestGroup
