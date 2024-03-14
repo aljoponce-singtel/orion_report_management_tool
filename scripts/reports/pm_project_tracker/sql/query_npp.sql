@@ -1,5 +1,3 @@
-use o2puat;
-
 SELECT DISTINCT
     PRJ.project_code,
     ORD.order_code,
@@ -17,18 +15,18 @@ SELECT DISTINCT
     PAR.parameter_name,
     PAR.parameter_value
 FROM
-    o2puat.RestInterface_order ORD
-    JOIN o2ptest.project_tracker_group PRJTRK ON PRJTRK.order_id = ORD.id
-    LEFT JOIN o2puat.RestInterface_project PRJ ON ORD.project_id = PRJ.id
-    LEFT JOIN o2puat.RestInterface_npp NPP ON NPP.order_id = ORD.id
+    RestInterface_order ORD
+    JOIN o2ptest.{group_table_name} PRJTRK ON PRJTRK.order_id = ORD.id
+    LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
+    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
     AND NPP.level = "Mainline"
     AND NPP.status != "Cancel"
-    LEFT JOIN o2puat.RestInterface_product PRD ON PRD.id = NPP.product_id
-    LEFT JOIN o2puat.RestInterface_parameter PAR ON PAR.npp_id = NPP.id
+    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+    LEFT JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
 WHERE
     ORD.project_tracker_group_name = (
-        SELECT svc_ord_no
-        FROM o2ptest.project_tracker_group
+        SELECT project_tracker_group_name
+        FROM o2ptest.{group_table_name}
         LIMIT 1
     )
 ORDER BY ORD.order_code, PAR.parameter_name

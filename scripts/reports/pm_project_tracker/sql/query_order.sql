@@ -1,5 +1,3 @@
-use o2puat;
-
 SELECT DISTINCT
     ORD.order_code,
     PRJTRK.product_category,
@@ -40,18 +38,18 @@ SELECT DISTINCT
     SITEOLD.location AS existing_installation_address_A,
     SITEOLD.location_second AS existing_installation_address_B
 FROM
-    o2puat.RestInterface_order ORD
-    JOIN o2ptest.project_tracker_group PRJTRK ON PRJTRK.order_id = ORD.id
-    LEFT JOIN o2puat.RestInterface_npp NPP ON NPP.order_id = ORD.id
+    RestInterface_order ORD
+    JOIN o2ptest.{group_table_name} PRJTRK ON PRJTRK.order_id = ORD.id
+    LEFT JOIN RestInterface_npp NPP ON NPP.order_id = ORD.id
     AND NPP.level = "Mainline"
     AND NPP.status != "Cancel"
-    LEFT JOIN o2puat.RestInterface_product PRD ON PRD.id = NPP.product_id
-    LEFT JOIN o2puat.RestInterface_site SITE ON SITE.id = ORD.site_id
-    LEFT JOIN o2puat.RestInterface_siteold SITEOLD ON SITEOLD.id = ORD.site_old_id
+    LEFT JOIN RestInterface_product PRD ON PRD.id = NPP.product_id
+    LEFT JOIN RestInterface_site SITE ON SITE.id = ORD.site_id
+    LEFT JOIN RestInterface_siteold SITEOLD ON SITEOLD.id = ORD.site_old_id
 WHERE
     ORD.project_tracker_group_name = (
-        SELECT svc_ord_no
-        FROM o2ptest.project_tracker_group
+        SELECT project_tracker_group_name
+        FROM o2ptest.{group_table_name}
         LIMIT 1
     )
 ORDER BY ORD.order_code;

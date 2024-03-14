@@ -1,6 +1,4 @@
 -- Active: 1709279497631@@127.0.0.1@54406@o2puat
-use o2puat;
-
 SELECT DISTINCT
     PRJ.project_code,
     ORD.order_code,
@@ -19,14 +17,14 @@ SELECT DISTINCT
     ACT.due_date,
     ACT.completed_date
 FROM
-    o2puat.RestInterface_order ORD
-    JOIN o2ptest.project_tracker_group PRJTRK ON PRJTRK.order_id = ORD.id
-    JOIN o2puat.RestInterface_activity ACT ON ORD.id = ACT.order_id
-    LEFT JOIN o2puat.RestInterface_project PRJ ON ORD.project_id = PRJ.id
+    RestInterface_order ORD
+    JOIN o2ptest.{group_table_name} PRJTRK ON PRJTRK.order_id = ORD.id
+    JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id
+    LEFT JOIN RestInterface_project PRJ ON ORD.project_id = PRJ.id
 WHERE
     ORD.project_tracker_group_name = (
-        SELECT svc_ord_no
-        FROM o2ptest.project_tracker_group
+        SELECT project_tracker_group_name
+        FROM o2ptest.{group_table_name}
         LIMIT 1
     )
 ORDER BY ORD.order_code, actstepno;

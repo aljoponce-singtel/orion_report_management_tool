@@ -1,5 +1,3 @@
-USE o2puat;
-
 SELECT DISTINCT
     PRJTRK.project_code,
     PRJTRK.project_tracker_group_name,
@@ -31,7 +29,7 @@ SELECT DISTINCT
                 END
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -76,23 +74,26 @@ SELECT DISTINCT
         CASE
             WHEN (
                 SELECT COUNT(DISTINCT PRJTRK.order_id)
-                FROM o2puat.RestInterface_order ORD
-                    JOIN o2ptest.project_tracker_group PRJTRK ON PRJTRK.order_id = ORD.id
+                FROM
+                    RestInterface_order ORD
+                    JOIN o2ptest.{group_table_name} PRJTRK ON PRJTRK.order_id = ORD.id
                 WHERE
                     ORD.order_status != "Completed"
             ) > 0 THEN (
                 SELECT DATEDIFF(
                         DATE(NOW()), MIN(ORD.taken_date)
                     )
-                FROM o2puat.RestInterface_order ORD
-                    JOIN o2ptest.project_tracker_group PRJTRK ON PRJTRK.order_id = ORD.id
+                FROM
+                    RestInterface_order ORD
+                    JOIN o2ptest.{group_table_name} PRJTRK ON PRJTRK.order_id = ORD.id
             )
             ELSE (
                 SELECT DATEDIFF(
                         MAX(ORD.completed_date), MIN(ORD.taken_date)
                     )
-                FROM o2puat.RestInterface_order ORD
-                    JOIN o2ptest.project_tracker_group PRJTRK ON PRJTRK.order_id = ORD.id
+                FROM
+                    RestInterface_order ORD
+                    JOIN o2ptest.{group_table_name} PRJTRK ON PRJTRK.order_id = ORD.id
             )
         END
     ) AS order_lapse,
@@ -116,7 +117,7 @@ SELECT DISTINCT
                 END
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -129,7 +130,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -160,7 +161,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -192,7 +193,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.order_id = NPP.order_id
@@ -220,7 +221,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.order_id = NPP.order_id
@@ -256,7 +257,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -288,7 +289,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -326,7 +327,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -341,7 +342,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -357,7 +358,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -371,7 +372,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -384,7 +385,7 @@ SELECT DISTINCT
                     " - ", PRJTRK.order_code, ORD.current_crd
                 ) SEPARATOR "; "
             )
-        FROM o2puat.RestInterface_order ORD
+        FROM RestInterface_order ORD
         WHERE
             PRJTRK.order_id = ORD.id
             AND PRJTRK.type_of_product = "OLLC"
@@ -396,7 +397,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -440,7 +441,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -466,7 +467,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -496,7 +497,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -530,7 +531,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -562,7 +563,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -594,7 +595,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -617,7 +618,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -639,7 +640,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -657,7 +658,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -679,7 +680,7 @@ SELECT DISTINCT
                 ) SEPARATOR "; "
             )
         FROM
-            o2puat.RestInterface_npp NPP
+            RestInterface_npp NPP
             JOIN RestInterface_parameter PAR ON PAR.npp_id = NPP.id
         WHERE
             PRJTRK.npp_id = NPP.id
@@ -691,8 +692,8 @@ SELECT DISTINCT
             )
     ) AS installation_hours
 FROM
-    o2puat.RestInterface_order ORD
-    JOIN o2ptest.project_tracker_group PRJTRK ON PRJTRK.order_id = ORD.id
+    RestInterface_order ORD
+    JOIN o2ptest.{group_table_name} PRJTRK ON PRJTRK.order_id = ORD.id
     LEFT JOIN RestInterface_site SITE ON SITE.id = ORD.site_id
     LEFT JOIN (
         SELECT
@@ -715,8 +716,9 @@ FROM
                     )
                 END
             ) technical_cust
-        FROM o2puat.RestInterface_contactdetails INNER_CON
-            JOIN o2ptest.project_tracker_group INNER_PRJTRK ON INNER_PRJTRK.order_id = INNER_CON.order_id
+        FROM
+            RestInterface_contactdetails INNER_CON
+            JOIN o2ptest.{group_table_name} INNER_PRJTRK ON INNER_PRJTRK.order_id = INNER_CON.order_id
         GROUP BY
             INNER_CON.order_id
     ) CON ON CON.order_id = PRJTRK.order_id
@@ -733,8 +735,9 @@ FROM
                     END
                 END
             ) AS sg_dom_bandwidth
-        FROM o2puat.RestInterface_parameter INNER_PAR
-            JOIN o2ptest.project_tracker_group INNER_PRJTRK ON INNER_PRJTRK.npp_id = INNER_PAR.npp_id
+        FROM
+            RestInterface_parameter INNER_PAR
+            JOIN o2ptest.{group_table_name} INNER_PRJTRK ON INNER_PRJTRK.npp_id = INNER_PAR.npp_id
         GROUP BY
             INNER_PAR.npp_id
     ) PAR ON PAR.npp_id = PRJTRK.npp_id
@@ -812,8 +815,9 @@ FROM
                     )
                 END
             ) foc_date_received
-        FROM o2puat.RestInterface_activity INNER_ACT
-            JOIN o2ptest.project_tracker_group INNER_PRJTRK ON INNER_PRJTRK.order_id = INNER_ACT.order_id
+        FROM
+            RestInterface_activity INNER_ACT
+            JOIN o2ptest.{group_table_name} INNER_PRJTRK ON INNER_PRJTRK.order_id = INNER_ACT.order_id
         GROUP BY
             INNER_ACT.order_id
     ) ACT ON ACT.order_id = PRJTRK.order_id;
