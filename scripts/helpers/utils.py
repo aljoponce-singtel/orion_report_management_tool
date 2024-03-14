@@ -108,6 +108,24 @@ class Utils:
             logger.error(e)
             raise Exception(e)
 
+    def write_string_to_file(self, string, file_path):
+        """
+        Write a string to a text file.
+
+        Args:
+            string (str): The string to write to the file.
+            file_path (str): The path to the file.
+
+        Returns:
+            None
+        """
+        # Open the file in write mode
+        with open(file_path, "w") as file:
+            # Write the string to the file
+            file.write(string)
+
+        logger.info("String successfully written to", file_path)
+
     def compress_files(self, files_to_zip, zip_file_path, password=None, remove_file=True):
 
         files = []
