@@ -16,7 +16,6 @@ SELECT DISTINCT
         ACT.activity_code AS SIGNED INTEGER
     ) AS ActStepNo,
     ACT.name AS ActivityName,
-    ACT.id AS ActivityID,
     PER.email AS ActivityOwner,
     ACT.status AS ActivityStatus,
     -- IFNULL(DLY.reason, '') AS DelayReason,
@@ -25,7 +24,9 @@ SELECT DISTINCT
     -- SITE.location AS SiteAddress_A,
     -- SITE.second_location AS SiteAddress_B,
     -- SITE.second_location,
-    BRN.brn
+    BRN.brn,
+    ORD.id AS OrderID,
+    ACT.id AS ActivityID
 FROM
     RestInterface_order ORD
     JOIN RestInterface_activity ACT ON ORD.id = ACT.order_id
