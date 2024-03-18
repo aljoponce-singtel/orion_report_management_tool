@@ -7,6 +7,7 @@ SELECT DISTINCT
     MAP_PRJTRK.project_code,
     MAP_PRJTRK.project_tracker_site_id,
     MAP_PRJTRK.project_tracker_group_name,
+    MAP_PRJTRK.circuit_code,
     MAP_PRJTRK.service_order_number,
     (
         CASE
@@ -95,7 +96,7 @@ SELECT DISTINCT
     MAP_PRJTRK.product_id
 FROM (
         SELECT DISTINCT
-            MAP_PRJ.project_code, MAP_ORD.project_tracker_site_id, MAP_ORD.project_tracker_group_name, MAP_ORD.service_order_number, (
+            MAP_PRJ.project_code, MAP_ORD.project_tracker_site_id, MAP_ORD.project_tracker_group_name, MAP_CKT.circuit_code, MAP_ORD.service_order_number, (
                 CASE
                     WHEN MAP_ORD.service_number REGEXP "^M\\d{7}$"
                     AND MAP_ORD.arbor_disp = "Diginet" THEN "Diginet"
@@ -148,10 +149,11 @@ FROM (
                     AND MAP_ORD.product_description LIKE "C+ SDW%" THEN "SDWAN"
                     ELSE NULL
                 END
-            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp AS service_type, MAP_ORD.product_description AS order_product_description, MAP_NPP.network_product_desc AS npp_product_description, MAP_PRJ.id AS project_id, MAP_ORD.id AS order_id, MAP_NPP.npp_id, MAP_NPP.product_id
+            ) AS type_of_work, MAP_ORD.order_code, MAP_ORD.service_number, MAP_ORD.arbor_disp AS service_type, MAP_ORD.product_description AS order_product_description, MAP_NPP.network_product_desc AS npp_product_description, MAP_PRJ.id AS project_id, MAP_CKT.id AS circuit_id, MAP_ORD.id AS order_id, MAP_NPP.npp_id, MAP_NPP.product_id
         FROM
             o2puat.RestInterface_project MAP_PRJ
             JOIN o2puat.RestInterface_order MAP_ORD ON MAP_ORD.project_id = MAP_PRJ.id
+            LEFT JOIN o2puat.RestInterface_circuit MAP_CKT ON MAP_CKT.id = MAP_ORD.circuit_id
             LEFT JOIN (
                 SELECT NPP.order_id, NPP.id AS npp_id, PRD.id AS product_id, PRD.network_product_desc
                 FROM o2puat.RestInterface_npp NPP
@@ -160,10 +162,11 @@ FROM (
                     AND NPP.status != "Cancel"
             ) MAP_NPP ON MAP_NPP.order_id = MAP_ORD.id
         WHERE
-            MAP_ORD.project_tracker_group_name = "ZJK8529"
+            MAP_ORD.project_tracker_group_name = "ZFN8263"
     ) MAP_PRJTRK
 ORDER BY
     MAP_PRJTRK.project_code,
+    MAP_PRJTRK.circuit_code,
     MAP_PRJTRK.service_order_number,
     product_category DESC,
     circuit_layer DESC,

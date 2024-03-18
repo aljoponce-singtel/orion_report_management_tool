@@ -1,6 +1,7 @@
 SELECT DISTINCT
     PRJTRK.project_code,
     PRJTRK.project_tracker_group_name,
+    PRJTRK.circuit_code,
     PRJTRK.service_order_number,
     PRJTRK.product_category,
     PRJTRK.circuit_layer,
