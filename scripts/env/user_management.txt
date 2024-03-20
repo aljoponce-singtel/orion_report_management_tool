@@ -1,0 +1,42 @@
+===============
+SGOSSPRDO2PDB01
+===============
+
+CREATE USER 'o2preport'@'172.26.14.147' IDENTIFIED BY 'Orion_123';
+
+GRANT USAGE ON *.* TO `o2preport`@`172.26.14.147`;
+GRANT SELECT, CREATE TEMPORARY TABLES ON `o2pprod`.* TO `o2preport`@`172.26.14.147`;
+GRANT SELECT, CREATE TEMPORARY TABLES ON `o2pstaging`.* TO `o2preport`@`172.26.14.147`;
+GRANT SELECT, CREATE TEMPORARY TABLES ON `pegasusmulesoft`.* TO `o2preport`@`172.26.14.147`;
+GRANT SELECT, CREATE, DROP, CREATE TEMPORARY TABLES ON `o2ptableau`.* TO `o2preport`@`172.26.14.147`;
+GRANT ALL PRIVILEGES ON `o2ptest`.* TO `o2preport`@`172.26.14.147`;
+
+SHOW GRANTS FOR o2preport@172.26.14.147;
+
+SGOSSPRDO2PAPP01
+mysql -u o2preport -h 172.26.14.148 -P 3306 o2ptest -p
+
+REMOTE (SSH TUNNEL):
+mysql -u o2preport -h 127.0.0.1 -P 53306 o2ptest -p
+
+
+===============
+SGOSSUATO2PDB01
+===============
+
+CREATE USER 'o2preport'@'172.26.14.141' IDENTIFIED BY 'Orion_123';
+
+GRANT USAGE ON *.* TO `o2preport`@`172.26.14.141`;
+GRANT SELECT, CREATE TEMPORARY TABLES ON `o2puat`.* TO `o2preport`@`172.26.14.141`;
+GRANT SELECT, CREATE TEMPORARY TABLES ON `o2pstaging`.* TO `o2preport`@`172.26.14.141`;
+GRANT SELECT, CREATE TEMPORARY TABLES ON `pegasusmulesoft`.* TO `o2preport`@`172.26.14.141`;
+GRANT SELECT, CREATE, DROP, CREATE TEMPORARY TABLES ON `o2ptableau`.* TO `o2preport`@`172.26.14.141`;
+GRANT ALL PRIVILEGES ON `o2ptest`.* TO `o2preport`@`172.26.14.141`;
+
+SHOW GRANTS FOR o2preport@172.26.14.141;
+
+SGOSSPRDO2PAPP01
+mysql -u o2preport -h 172.26.14.141 -P 3306 o2ptest -p
+
+REMOTE (SSH TUNNEL):
+mysql -u o2preport -h 127.0.0.1 -P 54406 o2ptest -p

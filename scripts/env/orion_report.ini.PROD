@@ -11,21 +11,21 @@ email_att_max_size = 20
 ; DIRECT SERVER ACCESS
 ; ssh mysql@172.26.144.143 #SGOSSPRDO2PDB01 (PROD_IP)
 ;
-; mysql> SHOW GRANTS FOR o2puserp@172.26.14.147; #SGOSSPRDO2PAPP01 (MGMT_IP)
-; +---------------------------------------------------------------------------+
-; | Grants for o2puserp@172.26.14.147                                         |
-; +---------------------------------------------------------------------------+
-; | GRANT USAGE ON *.* TO `o2puserp`@`172.26.14.147`                          |
-; | GRANT ALL PRIVILEGES ON `o2pprod`.* TO `o2puserp`@`172.26.14.147`         |
-; | GRANT ALL PRIVILEGES ON `o2pstaging`.* TO `o2puserp`@`172.26.14.147`      |
-; | GRANT ALL PRIVILEGES ON `o2ptableau`.* TO `o2puserp`@`172.26.14.147`      |
-; | GRANT ALL PRIVILEGES ON `o2ptest`.* TO `o2puserp`@`172.26.14.147`         |
-; | GRANT ALL PRIVILEGES ON `pegasusmulesoft`.* TO `o2puserp`@`172.26.14.147` |
-; +---------------------------------------------------------------------------+
+; mysql> SHOW GRANTS FOR o2preport@172.26.14.147; #SGOSSPRDO2PAPP01 (MGMT_IP)
+; +------------------------------------------------------------------------------------------------------+
+; | Grants for o2preport@172.26.14.147                                                                   |
+; +------------------------------------------------------------------------------------------------------+
+; | GRANT USAGE ON *.* TO `o2preport`@`172.26.14.147`                                                    |
+; | GRANT SELECT, CREATE TEMPORARY TABLES ON `o2pprod`.* TO `o2preport`@`172.26.14.147`                  |
+; | GRANT SELECT, CREATE TEMPORARY TABLES ON `o2pstaging`.* TO `o2preport`@`172.26.14.147`               |
+; | GRANT SELECT, CREATE, DROP, CREATE TEMPORARY TABLES ON `o2ptableau`.* TO `o2preport`@`172.26.14.147` |
+; | GRANT ALL PRIVILEGES ON `o2ptest`.* TO `o2preport`@`172.26.14.147`                                   |
+; | GRANT SELECT, CREATE TEMPORARY TABLES ON `pegasusmulesoft`.* TO `o2preport`@`172.26.14.147`          |
+; +------------------------------------------------------------------------------------------------------+
 [Database]
-# login to PRODAPP as o2puserp@172.26.144.141 #SGOSSPRDO2PAPP01 (PROD_IP)
-orion_user = o2puserp
-orion_pwd = Qsw123!du
+# login to PRODAPP as o2preport@172.26.144.141 #SGOSSPRDO2PAPP01 (PROD_IP)
+orion_user = o2preport
+orion_pwd = Orion_123
 orion_db = o2pprod
 staging_db = pegasusmulesoft
 tableau_db = o2ptableau
