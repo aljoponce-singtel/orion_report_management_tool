@@ -8,9 +8,35 @@ from scripts.orion_report import OrionReport
 logger = logging.getLogger(__name__)
 
 
-def generate_warroom_report():
+def generate_warroom_all_report():
+
+    report = OrionReport('GSP War Room Report')
+    report.add_email_receiver_to('petchiok@singtel.com')
+    report.add_email_receiver_to('joyceline@singtel.com')
+    report.add_email_receiver_to('baoling@singtel.com')
+    report.set_filename('gsp_warroom_all_report')
+    report.set_reporting_date()
+
+    query = report.get_query_from_file("query_gd.sql")
+    formatted_query = query.format(
+        report_date=report.report_date)
+    df_raw = report.query_to_dataframe(
+        formatted_query, query_description="warroom records", datetime_to_date=True)
+    # Write to CSV
+    csv_file = report.create_csv_from_df(df_raw, add_timestamp=True)
+    # Add CSV to zip file
+    zip_file = report.add_to_zip_file(csv_file, add_timestamp=True)
+    # Send Email
+    report.attach_file_to_email(zip_file)
+    report.send_email()
+
+    return
+
+
+def generate_warroom_gd_report():
 
     report = OrionReport('GSP (NEW) War Room Report')
+    report.add_email_receiver_to('christian.lim@singtel.com')
     report.add_email_receiver_to('teokokwee@singtel.com')
     report.add_email_receiver_to('petchiok@singtel.com')
     report.add_email_receiver_to('baoling@singtel.com')
@@ -18,10 +44,10 @@ def generate_warroom_report():
     report.add_email_receiver_to('ml-cssosdpe@singtel.com')
     report.add_email_receiver_to('ml-cssosmpeteam@singtel.com')
     report.add_email_receiver_to('ml-cpetm@singtel.com')
-    report.set_filename('gsp_warroom_report')
+    report.set_filename('gsp_warroom_gd_report')
     report.set_reporting_date()
 
-    query = report.get_query_from_file("query.sql")
+    query = report.get_query_from_file("query_gd.sql")
     formatted_query = query.format(
         report_date=report.report_date)
     df_raw = report.query_to_dataframe(
@@ -40,6 +66,7 @@ def generate_warroom_report():
 def generate_warroom_npp_report():
 
     report = OrionReport('GSP War Room NPP Report')
+    report.add_email_receiver_to('christian.lim@singtel.com')
     report.add_email_receiver_cc('sulo@singtel.com')
     report.add_email_receiver_cc('ksha@singtel.com')
     report.add_email_receiver_cc('annesha@singtel.com')

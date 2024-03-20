@@ -2,7 +2,7 @@
 import logging
 
 # Import local packages
-from helpers import generate_warroom_npp_report
+from helper import generate_warroom_npp_report
 
 logger = logging.getLogger(__name__)
 
